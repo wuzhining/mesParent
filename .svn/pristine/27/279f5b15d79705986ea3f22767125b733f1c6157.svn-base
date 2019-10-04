@@ -1,0 +1,72 @@
+package com.techsoft.entity.common;
+
+import com.techsoft.common.BaseEntity;
+
+public class HistoryBillStatusAudit extends BaseEntity {
+	private static final long serialVersionUID = -123382417193807458L;
+
+
+	public HistoryBillStatusAudit(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private Long billTypeDictId;	
+	   
+	private String billCode;	
+	   
+	private Long billId;	
+	   
+	private Long auditStatusDictId;	
+	   
+	private String remark;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public Long getBillTypeDictId() {
+		return billTypeDictId;
+	}
+
+	public void setBillTypeDictId(Long billTypeDictId) {
+		this.billTypeDictId = billTypeDictId;
+	}
+                		
+	public String getBillCode() {
+		return billCode;
+	}
+
+	public void setBillCode(String billCode) {
+		this.billCode = billCode;
+	}
+                		
+	public Long getBillId() {
+		return billId;
+	}
+
+	public void setBillId(Long billId) {
+		this.billId = billId;
+	}
+                		
+	public Long getAuditStatusDictId() {
+		return auditStatusDictId;
+	}
+
+	public void setAuditStatusDictId(Long auditStatusDictId) {
+		this.auditStatusDictId = auditStatusDictId;
+	}
+                		
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

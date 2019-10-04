@@ -1,0 +1,24 @@
+package com.techsoft.entity.struct;
+
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.entity.common.StructProdlineEquip;
+
+public class StructProdlineEquipVo extends StructProdlineEquip {
+	private static final long serialVersionUID = 7070309009922195342L;
+	private EquipWork equipWork;//生产设备
+
+	public StructProdlineEquipVo() {	
+	}
+	
+	public StructProdlineEquipVo(StructProdlineEquip value) {
+		value.cloneProperties(this);
+	}
+
+	public EquipWork getEquipWork() {
+		return equipWork;
+	}
+
+	public void setEquipWork(EquipWork equipWork) {
+		this.equipWork = equipWork;
+	}		
+}

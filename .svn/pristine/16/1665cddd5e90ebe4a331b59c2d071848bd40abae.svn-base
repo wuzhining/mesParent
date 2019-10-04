@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.product.ProductBomMapper">
+	<resultMap id="ProductBom" type="com.techsoft.entity.common.ProductBom" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="BOM_CODE" property="bomCode" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="BOM_STATUS_DICT_ID" property="bomStatusDictId" />
+		<result column="PARENT_ID" property="parentId" />
+		<result column="PARENT_IDES" property="parentIdes" />
+		<result column="NUMBER_LEVEL" property="numberLevel" />
+		<result column="IS_DEFAULT" property="isDefault" />
+		<result column="SORT_NO" property="sortNo" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="QUANTITY_BASE" property="quantityBase" />
+		<result column="WASTAGE_RATIO" property="wastageRatio" />
+		<result column="WASTAGE_FIXVALUE" property="wastageFixvalue" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="bomCode != null">
+			AND A.BOM_CODE= #{bomCode}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="bomStatusDictId != null">
+			AND A.BOM_STATUS_DICT_ID= #{bomStatusDictId}
+		</if>
+		<if test="parentId != null">
+			AND A.PARENT_ID= #{parentId}
+		</if>
+		<if test="parentIdes != null">
+			AND A.PARENT_IDES= #{parentIdes}
+		</if>
+		<if test="numberLevel != null">
+			AND A.NUMBER_LEVEL= #{numberLevel}
+		</if>
+		<if test="isDefault != null">
+			AND A.IS_DEFAULT= #{isDefault}
+		</if>
+		<if test="sortNo != null">
+			AND A.SORT_NO= #{sortNo}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="quantityBase != null">
+			AND A.QUANTITY_BASE= #{quantityBase}
+		</if>
+		<if test="wastageRatio != null">
+			AND A.WASTAGE_RATIO= #{wastageRatio}
+		</if>
+		<if test="wastageFixvalue != null">
+			AND A.WASTAGE_FIXVALUE= #{wastageFixvalue}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.BOM_CODE,
+		A.PRODUCT_ID,
+		A.MATERIAL_ID,
+		A.BOM_STATUS_DICT_ID,
+		A.PARENT_ID,
+		A.PARENT_IDES,
+		A.NUMBER_LEVEL,
+		A.IS_DEFAULT,
+		A.SORT_NO,
+		A.QUANTITY,
+		A.QUANTITY_BASE,
+		A.WASTAGE_RATIO,
+		A.WASTAGE_FIXVALUE,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_PRODUCT_BOM_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from PRODUCT_BOM
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.ProductBom">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_BOM A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.ProductBom">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_BOM A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE PRODUCT_BOM A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE PRODUCT_BOM  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.ProductBom">
+		UPDATE PRODUCT_BOM A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.ProductBom">
+		INSERT INTO PRODUCT_BOM (
+		TENANT_ID,
+		BOM_CODE,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		BOM_STATUS_DICT_ID,
+		PARENT_ID,
+		PARENT_IDES,
+		NUMBER_LEVEL,
+		IS_DEFAULT,
+		SORT_NO,
+		QUANTITY,
+		QUANTITY_BASE,
+		WASTAGE_RATIO,
+		WASTAGE_FIXVALUE,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{bomCode},
+		#{productId},
+		#{materialId},
+		#{bomStatusDictId},
+		#{parentId},
+		#{parentIdes},
+		#{numberLevel},
+		#{isDefault},
+		#{sortNo},
+		#{quantity},
+		#{quantityBase},
+		#{wastageRatio},
+		#{wastageFixvalue},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.ProductBom">
+		UPDATE PRODUCT_BOM SET
+		TENANT_ID=#{tenantId},
+		BOM_CODE=#{bomCode},
+		PRODUCT_ID=#{productId},
+		MATERIAL_ID=#{materialId},
+		BOM_STATUS_DICT_ID=#{bomStatusDictId},
+		PARENT_ID=#{parentId},
+		PARENT_IDES=#{parentIdes},
+		NUMBER_LEVEL=#{numberLevel},
+		IS_DEFAULT=#{isDefault},
+		SORT_NO=#{sortNo},
+		QUANTITY=#{quantity},
+		QUANTITY_BASE=#{quantityBase},
+		WASTAGE_RATIO=#{wastageRatio},
+		WASTAGE_FIXVALUE=#{wastageFixvalue},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.ProductBom">
+		UPDATE PRODUCT_BOM SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="bomCode != null" >
+			BOM_CODE=#{bomCode},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="bomStatusDictId != null" >
+			BOM_STATUS_DICT_ID=#{bomStatusDictId},
+		</if>
+		<if test="parentId != null" >
+			PARENT_ID=#{parentId},
+		</if>
+		<if test="parentIdes != null" >
+			PARENT_IDES=#{parentIdes},
+		</if>
+		<if test="numberLevel != null" >
+			NUMBER_LEVEL=#{numberLevel},
+		</if>
+		<if test="isDefault != null" >
+			IS_DEFAULT=#{isDefault},
+		</if>
+		<if test="sortNo != null" >
+			SORT_NO=#{sortNo},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="quantityBase != null" >
+			QUANTITY_BASE=#{quantityBase},
+		</if>
+		<if test="wastageRatio != null" >
+			WASTAGE_RATIO=#{wastageRatio},
+		</if>
+		<if test="wastageFixvalue != null" >
+			WASTAGE_FIXVALUE=#{wastageFixvalue},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.product.ProductBomParamVo"
+		      resultType="com.techsoft.entity.common.ProductBom" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_BOM A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	<!-- 批量新增产品BOM -->
+	<insert id="insertBatchProductBom" flushCache="true" parameterType="java.util.List">
+	  	INSERT INTO PRODUCT_BOM (
+		TENANT_ID,
+		BOM_CODE,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		BOM_STATUS_DICT_ID,
+		PARENT_ID,
+		PARENT_IDES,
+		NUMBER_LEVEL,
+		SORT_NO,
+		QUANTITY,
+		QUANTITY_BASE,
+		WASTAGE_RATIO,
+		WASTAGE_FIXVALUE,
+		REMARK,
+		ID
+		,VERSION
+		,DEL_FLAG
+		,CREATE_USER_ID
+		,MODIFY_USER_ID
+		,CREATE_TIME
+		,MODIFY_TIME
+		) VALUES
+			<foreach collection="list" item="item" separator=",">
+			(
+				#{item.tenantId},
+				#{item.bomCode},
+				#{item.productId},
+				#{item.materialId},
+				#{item.bomStatusDictId},
+				#{item.parentId},
+				#{item.parentIdes},
+				#{item.numberLevel},
+				#{item.sortNo},
+				#{item.quantity},
+				#{item.quantityBase},
+				#{item.wastageRatio},
+				#{item.wastageFixvalue},
+				#{item.remark},
+				#{item.id},
+				1,
+				0,
+				#{item.createUserId},
+				#{item.modifyUserId},
+				now(),
+				now()
+			)
+			 </foreach>
+	</insert>
+	
+	<!-- 通过 parent_ides 查询整个树形结构 -->
+	<select id="selectListBomTree" parameterType="com.techsoft.entity.product.ProductBomParamVo"
+		      resultType="com.techsoft.entity.common.ProductBom" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_BOM A
+		WHERE (A.DEL_FLAG = 0)
+		AND POSITION(#{id} IN PARENT_IDES)
+	</select>
+	
+</mapper>

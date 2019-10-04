@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.scada.ScadaAoiEntityMapper">
+	<resultMap id="ScadaAoiEntity" type="com.techsoft.entity.common.ScadaAoiEntity"  > 
+	    <id column="ID" property="id" />
+		<result column="ENTITYID" property="entityid" />
+		<result column="PCBID" property="pcbid" />
+		<result column="CATALOGID" property="catalogid" />
+		<result column="BLOCKID" property="blockid" />
+		<result column="ENTITYNAME" property="entityname" />
+		<result column="X" property="x" />
+		<result column="Y" property="y" />
+		<result column="NGTYPE" property="ngtype" />
+		<result column="ACKTYPE" property="acktype" />
+		<result column="IMGPATH" property="imgpath" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="entityid != null">
+			AND A.ENTITYID= #{entityid}
+		</if>
+		<if test="pcbid != null">
+			AND A.PCBID= #{pcbid}
+		</if>
+		<if test="catalogid != null">
+			AND A.CATALOGID= #{catalogid}
+		</if>
+		<if test="blockid != null">
+			AND A.BLOCKID= #{blockid}
+		</if>
+		<if test="entityname != null">
+			AND A.ENTITYNAME= #{entityname}
+		</if>
+		<if test="x != null">
+			AND A.X= #{x}
+		</if>
+		<if test="y != null">
+			AND A.Y= #{y}
+		</if>
+		<if test="ngtype != null">
+			AND A.NGTYPE= #{ngtype}
+		</if>
+		<if test="acktype != null">
+			AND A.ACKTYPE= #{acktype}
+		</if>
+		<if test="imgpath != null">
+			AND A.IMGPATH= #{imgpath}
+		</if>
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	</sql>		
+	<sql id="Base_Column_List">    
+	    A.ID,
+		A.ENTITYID,
+		A.PCBID,
+		A.CATALOGID,
+		A.BLOCKID,
+		A.ENTITYNAME,
+		A.X,
+		A.Y,
+		A.NGTYPE,
+		A.ACKTYPE,
+		A.IMGPATH
+	</sql>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from SCADA_AOI_ENTITY
+	</select>
+		
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.scada.ScadaAoiEntityParamVo"
+		      resultType="com.techsoft.entity.common.ScadaAoiEntity" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SCADA_AOI_ENTITY A
+		WHERE (1 = 1)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

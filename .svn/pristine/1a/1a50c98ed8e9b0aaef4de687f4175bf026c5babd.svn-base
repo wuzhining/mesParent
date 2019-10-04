@@ -1,0 +1,93 @@
+package com.techsoft.dao.product;
+
+import java.util.List;
+import javax.annotation.Resource;
+import org.springframework.stereotype.Repository;
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.ProductBom;
+import com.techsoft.mapper.product.ProductBomMapper;
+
+@Repository
+public class ProductBomDaoImpl extends BaseDaoImpl<ProductBom> implements ProductBomDao {
+	@Resource
+	protected ProductBomMapper productBomMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<ProductBom> getEntityClass() {
+		return ProductBom.class;
+	}	
+	
+	@Override
+	public BaseMapper<ProductBom> getBaseMapper() {
+		return this.productBomMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "PRODUCT_BOM";
+	}
+	
+	@Override
+	public void insertSaveCheck(ProductBom value) throws BusinessException, SQLException {
+		
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("请先登录 ");
+		}
+		if (value.getProductId() == null || value.getProductId().equals(0L)) {
+			throw new BusinessException("产品不能为空 ");
+		}
+		if (value.getBomStatusDictId() == null || value.getBomStatusDictId().equals(0L)) {
+			throw new BusinessException("bom状态不能为空 ");
+		}
+		
+		
+		/*if (mycatSequenceMapper.existsWithPrimaryKey(value.getBomName() == null) {
+			throw new BusinessException("");
+		}*/
+	
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(ProductBom value) throws BusinessException, SQLException {
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("请先登录 ");
+		}
+		if (value.getProductId() == null || value.getProductId().equals(0L)) {
+			throw new BusinessException("产品不能为空 ");
+		}
+		if (value.getBomStatusDictId() == null || value.getBomStatusDictId().equals(0L)) {
+			throw new BusinessException("bom状态不能为空 ");
+		}
+	}
+	
+	@Override
+	public void deleteSaveCheck(ProductBom value) throws BusinessException, SQLException {
+	
+	}
+
+	@Override
+	public List<ProductBom> selectListBomTree(Long id, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		// TODO Auto-generated method stub
+		return productBomMapper.selectListBomTree(id);
+	}
+
+	@Override
+	public void insertBatchProductBom(List<ProductBom> list) throws BusinessException, SQLException {
+		productBomMapper.insertBatchProductBom(list);
+	}
+}

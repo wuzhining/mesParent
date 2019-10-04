@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />        
+        <table class="layui-table ">
+            <tr>
+               <td width="10%" class="tableleft">检验水平名称</td> 
+               <td>
+               <select id="sampleLevelDictId" name="sampleLevelDictId" lay-filter="sampleLevelSelect">> 
+                    <#if sampleLevelList??>
+                     <#list sampleLevelList as item>
+			            <option value="${item.id?c}" <#if (entity.sampleLevelDictId??&&entity.sampleLevelDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			   </select>
+			   </td>
+                <td width="10%" class="tableleft">检验水平等级</td>
+               <td>  <input type="hidden"  id="initsampleLevelRankDictId" value="<#if entity??&&entity.sampleLevelRankDictId??>${entity.sampleLevelRankDictId?c}<#else></#if>" />
+               <select id="sampleLevelRankDictId" name="sampleLevelRankDictId"> 
+			   </select>
+			   </td>
+           </tr>
+           
+           
+            <tr id ="tr">
+               <td id="tds" width="10%" class="tableleft">请选择类型</td>      
+               <td id="tds1">
+              	  <select name="selectId" id="selectId" lay-filter="selectId" > 
+              	     <option value="0">请选择</option>
+			         <option value="GYS">供应商名称</option>
+			         <option value="CP">产品</option>
+			         <option value="CPFL">产品分类名称</option>
+			    </select>
+			 </td>
+			 
+			 <td width="10%" class="tableleft">检验模板</td>
+               <td>
+              	  <select name="inspectItemId"> 
+                    <#if qualityInspectItemList??>
+                     <#list qualityInspectItemList as item>
+			            <option value="${item.id?c}" <#if (entity.inspectItemId??&&entity.inspectItemId==item.id)>selected="selected"</#if>>${item.inspectItemName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+           </tr>
+           
+           
+
+           <tr>
+               <td id='td1' width="10%" class="tableleft">供应商名称</td>
+               <td id='td2'>
+               	     <select id ="supplierId" lay-filter='supplierId' name="supplierId">
+               	       <option value=""></option> 
+	                    <#if supplierList??>
+	                     <#list supplierList as item>
+				            <option value="${item.id?c}" <#if (entity.supplierId??&&entity.supplierId==item.id)>selected="selected"</#if>>${item.companyName}</option>
+				         </#list>
+				         </#if>
+				    </select>
+               </td> 
+               <td id='td3' width="10%" class="tableleft">产品</td>
+                <td id='td4'>
+                	<div class="div-choiceBox-intd ">   
+                		<input type="hidden"  id="productId" name="productId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>">
+                		<input type="text" id="productName" name="productName" value="${(productMain.productName)!''}"  disabled="disabled" class="layui-input input-choiceBox-intd">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="productSearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div>
+                </td> 
+           </tr>
+
+           <tr>
+               <td id='td5' width="10%" class="tableleft">产品分类名称</td>
+               <td id='td6'>
+              	  <select id="productClassesId" name="productClassesId" lay-filter='productClassesId'> 
+              	     <option value=""></option>
+                    <#if productClassesList??>
+                     <#list productClassesList as item>
+			            <option value="${item.id?c}" <#if (entity.productClassesId??&&entity.productClassesId==item.id)>selected="selected"</#if>>${item.classesName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+               
+              <td width="10%" class="tableleft">备注</td>
+              <td><input type="text" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+           </tr>
+
+           
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','layer','layuiconfig','layuiformajax','layuitable'], function(){
+    	$ = layui.$, 
+    	admin = layui.admin, 
+    	table = layui.table, 
+    	layer = layui.layer, 
+    	laydate = layui.laydate,
+    	layuitable = layui.layuitable,
+    	form = layui.form; 
+		var layuiformajax = layui.layuiformajax;
+          
+		  /* layuitable.render(product_result_table_options); //渲染数据给弹窗框表格， 
+          table.on('tool(product_result)', product_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+      	  $('#productSearch').focus(product_input_focus_handler);//点击触发弹窗按钮 */
+      	  
+      	  
+          $('#productSearch').on('click',function(e){
+         		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+         		e.preventDefault();//默认from表单提交时不刷新
+         })
+      	  
+      	  
+      	  
+          //选择工厂查楼层级联监听
+            form.on('select(sampleLevelSelect)', function(data){
+        	  var sampleLevelDictId=0;
+        	  if(data.value != ''){
+        		  sampleLevelDictId=data.value;
+        	  }
+        	  $("#sampleLevelRankDictId option[value!='']").remove();
+        	  linkCommonMethod('dictValue',sampleLevelDictId,'sampleLevelRankDictId','dictName','','/quality/qualityInspectModuleRelation/getSampleLevelByRank');
+        	  $("#sampleLevelRankDictId").get(0).selectedIndex=0;
+          }); 
+      	   
+      	  
+
+      	  
+          //监听 功能定义类型 下拉框值发生变化
+          form.on('select(selectId)', function(sp){
+              selectSU(sp.value);
+          });	
+        	
+  	    function selectSU(sp){
+  	    	if(sp!=0){
+  	    		$("#selectId").val(1);
+  	    	 }
+	 		if(sp == 0){
+	     		$("#td1,#td2,#td3,#td4,#td5,#td6").hide(); 
+	     	}else if(sp=='GYS'){
+	     		//$("#td3,#td4,#td5,#td6").show();
+	     		$("#td3,#td4,#td5,#td6").hide();
+	     		$("#td1,#td2").show();
+	     	}else if(sp=='CP'){
+	     		$("#td1,#td2,#td5,#td6").hide();
+	     		$("#td3,#td4").show();
+	     	}else if(sp=='CPFL'){
+	     		$("#td1,#td2,#td3,#td4").hide();
+	     		$("#td5,#td6").show();
+	     	}
+	  	}
+  	    
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field.id);
+
+        	  var slId = $("#sampleLevelId").val();
+        	  
+        	  var selectId = $("#selectId").val();
+	  	        if (slId == "")
+	  	        {
+	  	        	layer.alert('检验水平名称不能为空!', {icon: 5});
+	                return false;
+	             }else if(selectId == "0" && data.field.id =="" ){
+		  	        	layer.alert('选择类型不能为空!', {icon: 5});
+		                return false;
+	             }
+	  	        
+	        	  var supplierId = $("#supplierId").val();
+	        	  var productId = $("#productId").val();
+	        	  var productClassesId = $("#productClassesId").val();
+		  	        if (supplierId == "" && productId =="" && productClassesId =="")
+		  	        {
+		  	        	layer.alert('请选择供应商名称或产品名称或产品分类名称!', {icon: 5});
+		                return false;
+		             }
+
+        	  var url = '/quality/qualityInspectModuleRelation/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+          
+          
+          
+          //页面上隐藏的用于弹层的所有物料的列表的相关设置
+      /*  var product_result_table_options = {
+          		elem: '#product_result'
+         	    	,id:'product_result'
+         	    	,url:'/product/productMain/list/json'
+         	    	,cols: [[
+         	    	     {field:'productCode',  title: '产品条码',align:'center', width: 220}
+         	    	    ,{field:'productName',  title: '产品名称',align:'center', width: 170}
+         	      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#productSelect', fixed: 'right'}
+         	    	]]
+          };
+          
+       //点击查询物料弹窗触发该函数
+	   	function product_input_focus_handler(){
+	   		layer.open({
+	   			type : 1
+	   			, area : [ '650px', '500px' ]
+	   			, content : $('#hidden2')
+	   			, success : function () {
+	   				// 重新加载表格中的数据
+	   				table.reload('product_result', product_result_table_options);
+	   				$('#hidden2').css('display', 'block');
+	   			}
+	   		});
+	
+	   	};
+          
+      	//点击弹出的“物料信息”弹层上的表格中“选中”按钮的触发函数，回填input框
+      	function product_tool_event_handler(obj) {
+      		var data = obj.data;
+      		switch (obj.event) {
+      			case 'select':
+      				$('#productId').val(data.id);
+      				$('#productName').val(data.productName);
+      				layer.close(layer.index);
+      					break;
+      		}
+      	}; */
+      	
+      	
+
+
+    </script>
+    <script>
+   $(function () {
+    	var sampleLevelDictId=0;
+	  	  if($("#sampleLevelDictId").val() != ''){
+	  		  sampleLevelDictId=$("#sampleLevelDictId").val();
+	  	  }
+    	//初始化
+    	linkCommonMethod('dictValue',sampleLevelDictId,'sampleLevelRankDictId','dictName',$("#initsampleLevelRankDictId").val(),'/quality/qualityInspectModuleRelation/getSampleLevelByRank');
+    }); 
+
+    $(document).ready(function(){
+    	$("#td1,#td2,#td3,#td4,#td5,#td6").hide(); 
+    	var sid = $("#supplierId").val();
+    	var pid = $("#productId").val();
+    	var pcid = $("#productClassesId").val();
+ 		if(sid !=null && sid !=""){
+     		$("#td3,#td4,#td5,#td6").hide();
+     		$("#td1,#td2").show();
+     		document.getElementById("selectId").disabled=true
+     		/* $("#tds").hide();
+     		$("#tds1").hide(); */
+     	}else if(pid!=null && pid!=""){
+     		$("#td1,#td2,#td5,#td6").hide();
+     		$("#td3,#td4").show();
+     		document.getElementById("selectId").disabled=true
+     		/* $("#tds").hide();
+     		$("#tds1").hide(); */
+     	}else if(pcid!=null && pcid!=""){
+     		$("#td1,#td2,#td3,#td4").hide();
+     		$("#td5,#td6").show();
+     		document.getElementById("selectId").disabled=true
+     		/* $("#tds").hide();
+     		$("#tds1").hide(); */
+     	}
+
+    });       
+    </script>
+  </body>
+
+</html>

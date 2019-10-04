@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.equip.EquipFixtureMapper">
+	<resultMap id="EquipFixture" type="com.techsoft.entity.common.EquipFixture" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FIXTURE_CODE" property="fixtureCode" />
+		<result column="FIXTURE_LABEL" property="fixtureLabel" />
+		<result column="FIXTURE_NAME" property="fixtureName" />
+		<result column="SPECS_FIXTURE_ID" property="specsFixtureId" />
+		<result column="CLASSES_ID" property="classesId" />
+		<result column="FIXTURE_STATUS_DICT_ID" property="fixtureStatusDictId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="WAREHOUSE_ID" property="warehouseId" />
+		<result column="LOCATION_ID" property="locationId" />
+		<result column="WORKSHOP_ID" property="workshopId" />
+		<result column="WORKSHOP_AREA_ID" property="workshopAreaId" />
+		<result column="SUPPLIER_ID" property="supplierId" />
+		<result column="LOCATION" property="location" />
+		<result column="STANDARLIVE" property="standarlive" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="NUMBER_USED" property="numberUsed" />
+		<result column="MATERIAL_CODE" property="materialCode" />
+		<result column="DATE_CONFIRM" property="dateConfirm" />
+		<result column="DATE_EXPIRE" property="dateExpire" />
+		<result column="CONFIRM_USER_ID" property="confirmUserId" />
+		<result column="CONFIRM_TIME" property="confirmTime" />
+		<result column="CONFIRM_RESULT" property="confirmResult" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="fixtureCode != null">
+			AND A.FIXTURE_CODE= #{fixtureCode}
+		</if>
+		<if test="fixtureLabel != null">
+			AND A.FIXTURE_LABEL= #{fixtureLabel}
+		</if>
+		<if test="fixtureName != null">
+			AND A.FIXTURE_NAME= #{fixtureName}
+		</if>
+		<if test="specsFixtureId != null">
+			AND A.SPECS_FIXTURE_ID= #{specsFixtureId}
+		</if>
+		<if test="classesId != null">
+			AND A.CLASSES_ID= #{classesId}
+		</if>
+		<if test="fixtureStatusDictId != null">
+			AND A.FIXTURE_STATUS_DICT_ID= #{fixtureStatusDictId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="warehouseId != null">
+			AND A.WAREHOUSE_ID= #{warehouseId}
+		</if>
+		<if test="locationId != null">
+			AND A.LOCATION_ID= #{locationId}
+		</if>
+		<if test="workshopId != null">
+			AND A.WORKSHOP_ID= #{workshopId}
+		</if>
+		<if test="workshopAreaId != null">
+			AND A.WORKSHOP_AREA_ID= #{workshopAreaId}
+		</if>
+		<if test="supplierId != null">
+			AND A.SUPPLIER_ID= #{supplierId}
+		</if>
+		<if test="location != null">
+			AND A.LOCATION= #{location}
+		</if>
+		<if test="standarlive != null">
+			AND A.STANDARLIVE= #{standarlive}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="numberUsed != null">
+			AND A.NUMBER_USED= #{numberUsed}
+		</if>
+		<if test="materialCode != null">
+			AND A.MATERIAL_CODE= #{materialCode}
+		</if>
+		<if test="dateConfirm != null">
+			AND A.DATE_CONFIRM= #{dateConfirm}
+		</if>
+		<if test="dateExpire != null">
+			AND A.DATE_EXPIRE= #{dateExpire}
+		</if>
+		<if test="confirmUserId != null">
+			AND A.CONFIRM_USER_ID= #{confirmUserId}
+		</if>
+		<if test="confirmResult != null">
+			AND A.CONFIRM_RESULT= #{confirmResult}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+		<if test="confirmTimeBegin != null">
+		<![CDATA[
+		   AND A.CONFIRM_TIME >=  #{confirmTimeBegin}
+		]]>
+		</if>
+		<if test="confirmTimeEnd != null">
+		<![CDATA[
+		   AND A.CONFIRM_TIME <= #{confirmTimeEnd}
+		]]>
+		</if>		
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FIXTURE_CODE,
+		A.FIXTURE_LABEL,
+		A.FIXTURE_NAME,
+		A.SPECS_FIXTURE_ID,
+		A.CLASSES_ID,
+		A.FIXTURE_STATUS_DICT_ID,
+		A.FACTORY_ID,
+		A.WAREHOUSE_ID,
+		A.LOCATION_ID,
+		A.WORKSHOP_ID,
+		A.WORKSHOP_AREA_ID,
+		A.SUPPLIER_ID,
+		A.LOCATION,
+		A.STANDARLIVE,
+		A.QUANTITY,
+		A.NUMBER_USED,
+		A.MATERIAL_CODE,
+		A.DATE_CONFIRM,
+		A.DATE_EXPIRE,
+		A.CONFIRM_USER_ID,
+		A.CONFIRM_TIME,
+		A.CONFIRM_RESULT,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_EQUIP_FIXTURE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from EQUIP_FIXTURE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.EquipFixture">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_FIXTURE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.EquipFixture">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_FIXTURE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE EQUIP_FIXTURE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE EQUIP_FIXTURE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixture">
+		UPDATE EQUIP_FIXTURE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixture">
+		INSERT INTO EQUIP_FIXTURE (
+		TENANT_ID,
+		FIXTURE_CODE,
+		FIXTURE_LABEL,
+		FIXTURE_NAME,
+		SPECS_FIXTURE_ID,
+		CLASSES_ID,
+		FIXTURE_STATUS_DICT_ID,
+		FACTORY_ID,
+		WAREHOUSE_ID,
+		LOCATION_ID,
+		WORKSHOP_ID,
+		WORKSHOP_AREA_ID,
+		SUPPLIER_ID,
+		LOCATION,
+		STANDARLIVE,
+		QUANTITY,
+		NUMBER_USED,
+		MATERIAL_CODE,
+		DATE_CONFIRM,
+		DATE_EXPIRE,
+		CONFIRM_USER_ID,
+		CONFIRM_TIME,
+		CONFIRM_RESULT,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{fixtureCode},
+		#{fixtureLabel},
+		#{fixtureName},
+		#{specsFixtureId},
+		#{classesId},
+		#{fixtureStatusDictId},
+		#{factoryId},
+		#{warehouseId},
+		#{locationId},
+		#{workshopId},
+		#{workshopAreaId},
+		#{supplierId},
+		#{location},
+		#{standarlive},
+		#{quantity},
+		#{numberUsed},
+		#{materialCode},
+		#{dateConfirm},
+		#{dateExpire},
+		#{confirmUserId},
+		#{confirmTime},
+		#{confirmResult},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixture">
+		UPDATE EQUIP_FIXTURE SET
+		TENANT_ID=#{tenantId},
+		FIXTURE_CODE=#{fixtureCode},
+		FIXTURE_LABEL=#{fixtureLabel},
+		FIXTURE_NAME=#{fixtureName},
+		SPECS_FIXTURE_ID=#{specsFixtureId},
+		CLASSES_ID=#{classesId},
+		FIXTURE_STATUS_DICT_ID=#{fixtureStatusDictId},
+		FACTORY_ID=#{factoryId},
+		WAREHOUSE_ID=#{warehouseId},
+		LOCATION_ID=#{locationId},
+		WORKSHOP_ID=#{workshopId},
+		WORKSHOP_AREA_ID=#{workshopAreaId},
+		SUPPLIER_ID=#{supplierId},
+		LOCATION=#{location},
+		STANDARLIVE=#{standarlive},
+		QUANTITY=#{quantity},
+		NUMBER_USED=#{numberUsed},
+		MATERIAL_CODE=#{materialCode},
+		DATE_CONFIRM=#{dateConfirm},
+		DATE_EXPIRE=#{dateExpire},
+		CONFIRM_USER_ID=#{confirmUserId},
+		CONFIRM_TIME=#{confirmTime},
+		CONFIRM_RESULT=#{confirmResult},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixture">
+		UPDATE EQUIP_FIXTURE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="fixtureCode != null" >
+			FIXTURE_CODE=#{fixtureCode},
+		</if>
+		<if test="fixtureLabel != null" >
+			FIXTURE_LABEL=#{fixtureLabel},
+		</if>
+		<if test="fixtureName != null" >
+			FIXTURE_NAME=#{fixtureName},
+		</if>
+		<if test="specsFixtureId != null" >
+			SPECS_FIXTURE_ID=#{specsFixtureId},
+		</if>
+		<if test="classesId != null" >
+			CLASSES_ID=#{classesId},
+		</if>
+		<if test="fixtureStatusDictId != null" >
+			FIXTURE_STATUS_DICT_ID=#{fixtureStatusDictId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="warehouseId != null" >
+			WAREHOUSE_ID=#{warehouseId},
+		</if>
+		<if test="locationId != null" >
+			LOCATION_ID=#{locationId},
+		</if>
+		<if test="workshopId != null" >
+			WORKSHOP_ID=#{workshopId},
+		</if>
+		<if test="workshopAreaId != null" >
+			WORKSHOP_AREA_ID=#{workshopAreaId},
+		</if>
+		<if test="supplierId != null" >
+			SUPPLIER_ID=#{supplierId},
+		</if>
+		<if test="location != null" >
+			LOCATION=#{location},
+		</if>
+		<if test="standarlive != null" >
+			STANDARLIVE=#{standarlive},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="numberUsed != null" >
+			NUMBER_USED=#{numberUsed},
+		</if>
+		<if test="materialCode != null" >
+			MATERIAL_CODE=#{materialCode},
+		</if>
+		<if test="dateConfirm != null" >
+			DATE_CONFIRM=#{dateConfirm},
+		</if>
+		<if test="dateExpire != null" >
+			DATE_EXPIRE=#{dateExpire},
+		</if>
+		<if test="confirmUserId != null" >
+			CONFIRM_USER_ID=#{confirmUserId},
+		</if>
+		<if test="confirmTime != null" >
+			CONFIRM_TIME=#{confirmTime},
+		</if>
+		<if test="confirmResult != null" >
+			CONFIRM_RESULT=#{confirmResult},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.equip.EquipFixtureParamVo"
+		      resultType="com.techsoft.entity.common.EquipFixture" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_FIXTURE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

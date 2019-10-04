@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+ <script type="text/html" id="warehouseName">
+	{{#  if(d.structWarehouse){}}
+		{{ d.structWarehouse.warehouseName 
+
+ 	}}
+	{{# } }}
+</script>   
+
+<script type="text/html" id="productName">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+
+ 	}}
+	{{# } }}
+</script>  
+<script type="text/html" id="productType">
+	{{#  if(d.productType){}}
+		{{ d.productType.dictName 
+
+ 	}}
+	{{# } }}
+</script>	 
+  <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script>	 
+  
+<body>
+    <div class="x-body">
+    	<div class="layui-row">
+    		<!-- 表单检索行 -->
+        	<form class="layui-form layui-col-md12 x-so">
+	        	<div class="layui-form-item layui-col-md12">
+		        	<div class="layui-inline">
+		          		<label class="layui-form-label">产品规格编码：</label>
+		          		<input type="text" name="materialCode" id="materialCode"  placeholder="请输入产品规格编码" autocomplete="off" class="layui-input">
+		        	</div> 
+		        	 
+		        	<div class="layui-inline demoSearch">
+		          		<button class="layui-btn layui-btn-sm search"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+		          		<button class="layui-btn layui-btn-sm" >
+		          		<i class="layui-icon layui-icon-refresh" style="font-size: 20px; color: #fff;"></i>
+		          		</button>
+		        	</div>
+	          	</div>
+        	</form>
+      	</div>
+     
+		<!-- 表格数据 -->
+  	 		<div class="layui-row grid-demo">
+            	<div class="layui-col-md12" style="text-align: center;">
+        			<table class="layui-table" id="listTable_choiceWork" lay-filter="tablefilter_choiceWork"></table>
+        			<table class="layui-table" id="newTable_choiceWork" lay-filter="newTable_choiceWork">
+        				<thead><b>领料单详情</b></thead>
+        				<tbody>
+        				</tbody>
+					</table>
+        		</div>
+        	</div>
+        
+        <!-- 保存数据 -->
+  	 		<div class="layui-row grid-demo">
+            	<div id="action" class="layui-col-md12" style="text-align: center;">
+        			<button class="layui-btn layui-btn-sm" type="submit" id="save" lay-submit="save" lay-filter="save" data-type="save" >保存
+        			</button>
+        			<button class="layui-btn layui-btn-sm" type="reset" id="reset">取消</button>
+        		</div>
+        		<div class="layui-col-md12" style="height:50px;">
+        		
+        		</div>
+        	</div>
+        
+
+    </div>
+    
+<script type="text/html" id="barDemo" lay-filter="demo">
+	<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
+		<i class="layui-icon layui-icon-delete" style="font-size: 20px; color: #fff;">删除</i>
+  	</a>
+</script>  
+<script type="text/html" id="toolbarDemo">	
+	<div class="layui-row">
+	<div class="layui-btn-container layui-col-md1" style="bottom:0px">
+    	<button class="layui-btn layui-btn-sm" lay-event="getCheckData">
+			<i class="layui-icon layui-icon-add-circle" style="font-size: 20px; color: #fff;"></i>新增
+		</button>
+  	</div>
+	</div>	
+</script>
+  
+<script type="text/javascript">
+
+	layui.config({
+	    base: '/static/plugins/layui/base/',
+	    v: new Date().getTime()
+	}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+		
+		var form = layui.form, 
+		$ = layui.jquery, 
+		table = layui.table, 
+		layer = layui.layer, 
+		layuitable = layui.layuitable, 
+		layuiconfig = layui.layuiconfig;
+		
+		var url = $(window.parent.document).find("iframe").attr("src");
+		var arr = url.split('=');
+		var ids = arr[1];
+		//var needQty=0;
+		
+		
+		//var layuiformajax = layui.layuiformajax;
+		//var newTable_choiceWork = "layTable";
+		
+        	
+        //总表
+        var curTable = layuitable.render({
+            elem: '#listTable_choiceWork'
+            ,id:'listTable_choiceWork'
+            ,url:'/product/productMaterial/list/json'
+            ,toolbar: '#toolbarDemo'
+            ,title: '用户数据表'
+            ,totalRow: true
+            ,cols: [[
+            	     {type:'checkbox', fixed: 'left'}
+            	     ,{field:'id',width:120 ,title: 'ID',align:'center'}
+            	     ,{field:'materialCode',  title: '产品规格编码',align:'center', minWidth: 120}
+             	     ,{field:'materialName',  title: '产品规格名称',align:'center', minWidth: 120}
+             	     ,{field:'sku', title: '产品规格值', align:'center',minWidth: 220}
+             	     //,{field:'warehouseId', title: '仓库ID', align:'center',minWidth: 120}
+             	     //,{field:'warehouseName',title: '仓库名称',align:'center', minWidth: 120,templet: '#warehouseName'} 
+             	     ,{field:'productId', title: '产品ID',align:'center', minWidth: 120}
+            	     ,{field:'productName',  title: '产品名称', align:'center',minWidth: 120,templet: '#productName'}
+            	     ,{field:'productName',  title: '产品名称', align:'center',minWidth: 120,templet: '#productName'}
+            	     ,{field:'productType',  title: '产品类型', align:'center',minWidth: 120,templet: '#productType'}
+            	     ,{field:'quantityStock',  title: '库存数量', align:'center',minWidth: 120}
+        	]]
+        	,page: true
+        	,done: function () {
+	        $("[data-field='productId']").css('display','none');
+	    }  
+        });
+        
+      //新增表格
+		var curNewTable = layuitable.render({
+			elem: '#newTable_choiceWork'
+	    	,id:'newTable_choiceWork'
+	    	,cols: [[
+	            		 ,{field:'id',width:120 ,title: 'ID',align:'center'}
+	            	     ,{field:'materialCode',  title: '产品规格编码',align:'center', minWidth: 120}
+	             	     ,{field:'materialName',  title: '产品规格名称',align:'center', minWidth: 120}
+	             	     ,{field:'sku', title: '产品规格值', align:'center',minWidth: 220,templet: '#sku'}
+	             	     //,{field:'warehouseId', title: '仓库ID', align:'center',minWidth: 120}
+	             	     //,{field:'warehouseName',title: '仓库名称',align:'center', minWidth: 120,templet: '#warehouseName'} 
+	             	     ,{field:'productId', title: '产品ID',align:'center', minWidth: 120}
+	            	     ,{field:'productName',  title: '产品名称', align:'center',minWidth: 120,templet: '#productName'}
+	            	     ,{field:'productType',  title: '产品类型', align:'center',minWidth: 120,templet: '#productType'}
+	            	     ,{field:'quantityStock',  title: '数量', align:'center',minWidth: 120,edit: 'text', fixed: 'right'	}
+	            		
+	        ]]
+			,done: function () {
+		        $("[data-field='productId']").css('display','none');
+		    } 
+	    });
+        
+      	//删除多余表头
+		$('#newTable_choiceWork').ready(function(){
+	    	$(".layui-table-init").remove();
+		});
+      
+      	//搜索
+		form.on('submit(search)', function (data) {
+			var materialCode=data.field.materialCode!=null?data.field.materialCode:"";
+			table.reload('listTable_choiceWork',{
+				url:'/product/productMaterial/list/json',
+				where:{
+					"materialCode":materialCode,
+				}
+			});
+        	return false;
+  		});
+  		
+	 	//选择获取数据
+	   	//工具栏事件
+	   	
+	   	
+	   	
+	   	var choosedata = table.on('toolbar(tablefilter_choiceWork)', function(obj){
+	    	var checkStatus = table.checkStatus(obj.config.id);
+	        var data = checkStatus.data;
+	        var a=1;
+	        
+	        if(data.length == 0){
+	        	layer.alert('请至少选择一行数据！', {icon: 2});
+	        	return;
+	        }
+		
+	  		for(i=0;i<data.length;i++){
+	    		console.log(data[i].warehouseId);
+	        	if(data[i].warehouseId!=data[0].warehouseId){
+	        		layer.alert('请选择添加    '+'<b>同仓库</b>'+'  相同的数据！', {icon: 2});
+	        		a=1;
+	        		break;
+	        		}else{
+	        				a=0;
+	        		}
+	        	}
+	        	if(a==0){
+	        		table.reload('newTable_choiceWork',{  
+	      	        	data : data
+	      	        });
+	        		/* table.reload('listTable_choiceWork',{
+	        			url:'/bill/billWarehousePick/getWorkOrderBom/json'
+	    			}); */
+	        	}
+	        	
+	  	});
+	 	
+	
+	  //监听单元格编辑
+	  	table.on('edit(newTable_choiceWork)', function(obj){
+	  		
+	  		//取原数据
+	  		var data = table.cache.newTable_choiceWork;
+	  		var thisdata = table.cache.listTable_choiceWork;
+	  		for(var i=0;i<thisdata.length;i++){
+	  			if(thisdata[i].id == data[0].id){
+	  				thisdata = table.cache.listTable_choiceWork[i];
+	  				var quantityStock=table.cache.listTable_choiceWork[i].quantityStock;
+	  			}
+	  		}
+			alert(JSON.stringify(thisdata));
+			
+			//验证
+			if(obj.value > quantityStock ){
+				layer.msg('超过数据限制！', {icon: 2}); 
+				table.reload('newTable_choiceWork',function(obj){  
+					data : thisdata;
+
+	      	    });
+			}/* else{
+				var value = obj.value //得到修改后的值
+			    ,newData = obj.data //得到所在行所有键值
+			    ,field = obj.field; //得到字段
+			    layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
+				table.reload('newTable_choiceWork',function(obj){  
+					//var newData = obj.data;
+					console.log(JSON.stringify(obj.data));
+					data : newData;
+
+	      	    });  
+			} */
+	 	});
+	 	
+	 	
+	  	//监听删除行
+	  	table.on('tool(newTable_choiceWork)', function(obj){
+	    	var data = obj.data;
+	    	if(obj.event === 'del'){
+	      		layer.confirm('真的删除行么', {icon: 7}, function(index){
+	        		obj.del();
+	        		layer.close(index);
+	      		});
+	    	}
+	  	});
+	  
+	  	//保存函数  
+	  	function myAjax(){
+	  		var item = table.cache.newTable_choiceWork;
+		  	//alert(JSON.stringify(item.quantityInput));
+		  	  	$.ajax({
+		  		 		type: "post",
+		  		 		dataType: "json",
+		  		 		url:'/bill/billWarehousePick/unPickBatchSave',
+		  		 		traditional :true,  //注意这个参数是必须的
+		  		 		data:{"array":JSON.stringify(item)}, 
+		  		    	success: function(res){
+					  			if (res.isSuccess) {
+				          	    	   layer.alert("保存成功", {icon: 6},function () {
+				        	                // 获得frame索引
+				        	                var index = parent.layer.getFrameIndex(window.name);
+				        				  	parent.location.reload(); 
+				        	                parent.layer.close(index);
+				        	            });	
+				       			}else{
+				       				layer.alert(res.message, {
+				       					icon : 2
+				       				});
+				       			}
+		  			
+		  		    	}
+		      	});
+	  	}
+	  	
+	  	//取消函数-跳回父页面 
+	  	function myReset(){ 
+			// 获得frame索引
+		  	var index = parent.layer.getFrameIndex(window.name);
+		  	parent.location.reload(); 
+		  	parent.layer.close(index);
+	  	}
+	  
+	  	//点击调用函数
+	  	$(function(){ 
+			$('#save').click(myAjax);
+			$('#reset').click(myReset);
+			
+	  	}); 
+	  
+});	
+</script>
+ 
+  </body>
+
+</html>

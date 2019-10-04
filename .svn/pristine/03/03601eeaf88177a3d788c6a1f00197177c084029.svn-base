@@ -1,0 +1,31 @@
+package com.techsoft.client.service.work;
+
+import java.util.List;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+
+import com.techsoft.entity.common.WorkTaskProcedure;
+import com.techsoft.entity.work.WorkTaskProcedureVo;
+import com.techsoft.entity.work.WorkTaskProcedureParamVo;
+
+public interface ClientWorkTaskProcedureService extends BaseClientService<WorkTaskProcedure> {
+	
+	public WorkTaskProcedureVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	public List<WorkTaskProcedureVo>  selectListVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	public PageInfo<WorkTaskProcedureVo>  selectPageVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure, CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException;
+	
+	public WorkTaskProcedureVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	public List<WorkTaskProcedureVo>  selectListExtendVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	public PageInfo<WorkTaskProcedureVo>  selectPageExtendVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure, CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException;
+	
+	public ResultMessage saveOrUpdate(WorkTaskProcedureParamVo workTaskProcedureParamVo, CommonParam commonParam);		
+}

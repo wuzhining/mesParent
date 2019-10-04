@@ -1,0 +1,89 @@
+package com.techsoft.context.shiro;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
+
+import com.techsoft.client.service.sys.ClientUserPassportService;
+import com.techsoft.client.service.sys.ClientUserPassportServiceImpl;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.utils.SpringContextUtil;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.entity.sys.UserPassportAuthorityVo;
+
+public class ShiroRealm extends AuthorizingRealm {
+
+	/**
+	 * 授权
+	 * 
+	 * @param principalCollection
+	 * @return
+	 */
+	@Override
+	protected AuthorizationInfo doGetAuthorizationInfo(
+			PrincipalCollection principalCollection) {
+		String userName = (String) principalCollection.getPrimaryPrincipal();
+
+		Subject currentUser = SecurityUtils.getSubject();
+		Session session = currentUser.getSession();
+		UserPassportAuthorityVo userPassport = (UserPassportAuthorityVo) session
+				.getAttribute(Constants.SESSION_USER);
+	 
+		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+		info.addStringPermissions(userPassport.getAuthorityPermissionList());
+		info.addRoles(userPassport.getAuthorityRoleList());
+		return info;
+
+	}
+
+	/**
+	 * 认证
+	 * 
+	 * @param authenticationToken
+	 * @return
+	 * @throws AuthenticationException
+	 */
+	@Override
+	protected AuthenticationInfo doGetAuthenticationInfo(
+			AuthenticationToken authenticationToken)
+			throws AuthenticationException {
+
+		// String userName = (String) authenticationToken.getPrincipal();
+		// if ("".equals(userName)) {
+		// return null;
+		// }
+
+		ClientUserPassportService clientUserPassportService = SpringContextUtil
+				.getBean(ClientUserPassportServiceImpl.class);
+ 
+		UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+ 
+		String userName = token.getUsername();
+		String password = String.valueOf(token.getPassword());
+
+		UserPassport userPassport = clientUserPassportService
+				.getByUserName(userName);
+		 
+		if (userPassport == null) {
+			return null; // 异常处理，找不到数据
+		}
+
+		// 当前 Realm 的 name
+		String realmName = this.getName(); // 登陆的主要信息: 可以是一个实体类的对象,
+											// 但该实体类的对象一定是根据 token 的 username
+											// 查询得到的.
+ 
+		Object principal = authenticationToken.getPrincipal();
+		return new SimpleAuthenticationInfo(principal, password, realmName);
+	}
+
+}

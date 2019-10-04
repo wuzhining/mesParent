@@ -1,0 +1,286 @@
+package com.techsoft.controller.pda;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.techsoft.client.service.barcode.ClientBarcodeMainService;
+import com.techsoft.client.service.bill.ClientBillInventoryItemService;
+import com.techsoft.client.service.bill.ClientBillInventoryService;
+import com.techsoft.client.service.bill.ClientBillWarehouseItemService;
+import com.techsoft.client.service.bill.ClientBillWarehouseService;
+import com.techsoft.client.service.struct.ClientStructWarehouseService;
+import com.techsoft.client.service.sys.ClientAdminMenuService;
+import com.techsoft.client.service.track.ClientTrackBarcodeService;
+import com.techsoft.client.service.warehouse.ClientWarehouseLocationService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumAuditStatus;
+import com.techsoft.common.enums.EnumBarcodeStatus;
+import com.techsoft.common.enums.EnumBillStatus;
+import com.techsoft.common.enums.EnumBillType;
+import com.techsoft.common.enums.EnumSystemType;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.JsonUtils;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.barcode.BarcodeMainVo;
+import com.techsoft.entity.bill.BillInventoryItemParamVo;
+import com.techsoft.entity.bill.BillInventoryItemVo;
+import com.techsoft.entity.bill.BillInventoryParamVo;
+import com.techsoft.entity.bill.BillInventoryVo;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.bill.BillWarehouseItemVo;
+import com.techsoft.entity.bill.BillWarehouseParamVo;
+import com.techsoft.entity.bill.BillWarehouseVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.QualitySampleRuleItem;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.struct.StructWarehouseParamVo;
+import com.techsoft.entity.struct.StructWarehouseVo;
+import com.techsoft.entity.sys.AdminMenuParamVo;
+import com.techsoft.entity.sys.AdminMenuVo;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.entity.track.TrackBarcodeVo;
+import com.techsoft.entity.warehouse.WarehouseLocationParamVo;
+import com.techsoft.entity.warehouse.WarehouseLocationVo;
+import com.techsoft.service.barcode.BarcodeMainService;
+
+import javassist.expr.NewArray;
+
+/**
+ * @auther:Chen
+ * @version:2019年5月30日上午13:16:10
+ * @param:
+ * @description pda盘点请求controller层
+ */
+/**
+ * @author chenzhongjing
+ * @description pda盘点请求controller层
+ */
+@Controller
+@RequestMapping("/pda/pdaInventory")
+public class PdaInventoryController extends BaseController {
+	@Autowired
+	private ClientBillInventoryService clientBillInventoryService;
+	@Autowired
+	private ClientBillInventoryItemService clientBillInventoryItemService;
+	@Autowired
+	private ClientBarcodeMainService clientBarcodeMainService;
+	@Autowired
+	private ClientStructWarehouseService clientStructWarehouseService;
+	@Autowired
+	private ClientTrackBarcodeService clientTrackBarcodeService;
+	@Autowired
+	private ClientAdminMenuService clientAdminMenuService;
+	
+	
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年7月02日上午10:48:29
+	 * @description 盘点单列表
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/inventoryBill", method = RequestMethod.POST)
+	public ResultMessage getBillMain(HttpServletRequest request) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<BillInventoryVo> billMain = new ArrayList<BillInventoryVo>();
+		BillInventoryParamVo paramVo = new BillInventoryParamVo();
+		paramVo.setAuditStatusDictId(EnumAuditStatus.AUDITED.getValue());
+		paramVo.setNotFinish(EnumBillStatus.FINISHED.getValue());
+		try {
+			billMain = clientBillInventoryService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if (billMain.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无盘点单信息");
+			} else {
+				resultMessage.put(billMain);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年7月02日上午14:48:29
+	 * @param: billId 盘点单Id
+	 * @description 盘点单物料明细
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/billDetail", method = RequestMethod.POST)
+	public ResultMessage getBillDetail(HttpServletRequest request, Long billId) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<BillInventoryItemVo> billDetail = new ArrayList<BillInventoryItemVo>();
+		BillInventoryItemParamVo paramVo = new BillInventoryItemParamVo();
+		paramVo.setBillId(billId);
+		try {
+			billDetail = clientBillInventoryItemService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if (billDetail.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无此单据明细信息");
+			} else {
+				resultMessage.put(billDetail);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年7月2日下午1:57:40
+	*@param request
+	*@param billId       盘点单Id
+	*@param billItemId   盘点单明细Id
+	*@return
+	*@description        查询单据已盘点标签
+	*/
+	@ResponseBody
+	@RequestMapping(value = "/billSnList", method = RequestMethod.POST)
+	public ResultMessage getWarehosueList(HttpServletRequest request, Long billId,Long billItemId) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<TrackBarcodeVo> barcodeMainList = new ArrayList<TrackBarcodeVo>();
+		TrackBarcodeParamVo paramVo = new TrackBarcodeParamVo();
+		paramVo.setBillTypeDictId(EnumBillType.BILL_TYPE_INVENTORY.getValue());
+		paramVo.setBarcodePackboxId((long) 0);
+		paramVo.setBillId(billId);
+		paramVo.setBillItemId(billItemId);
+		paramVo.setBillStatusDictId(EnumBillStatus.FINISHED.getValue());
+		try {
+			barcodeMainList = clientTrackBarcodeService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if (barcodeMainList.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("单据此物料盘点标签信息");
+			} else {
+				resultMessage.put(barcodeMainList);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年7月2日下午2:48:00
+	*@param request
+	*@param barcode  盘点标签
+	*@param billId   盘点单ID
+	*@param billItemId 盘点明细ID
+	*@return
+	*@description  扫描标签进行盘点
+	*/
+	@ResponseBody
+	@RequestMapping(value = "/barcodeScan", method = RequestMethod.POST)
+	public ResultMessage getBarcodeList(HttpServletRequest request, String barcode,Long billId,Long billItemId) {
+		
+		ResultMessage resultMessage = new ResultMessage();
+		TrackBarcodeParamVo trackBarcodeVo=new TrackBarcodeParamVo();
+		trackBarcodeVo.setBarcode(barcode);
+		trackBarcodeVo.setBillId(billId);
+		trackBarcodeVo.setBillItemId(billItemId);
+		resultMessage=clientBillInventoryItemService.barcodeInventory(trackBarcodeVo, this.getCommonParam(request));
+		return resultMessage;
+	}
+	
+	/**
+	*@auther:Chen
+	*@version:2019年7月2日下午5:04:55
+	*@param request
+	*@param billId 盘点单ID
+	*@return
+	*@description  根据传回的盘点单，进行完结
+	*/
+	@ResponseBody
+	@RequestMapping(value = "/endBill", method = RequestMethod.POST)
+	public ResultMessage endBill(HttpServletRequest request,Long billId) {
+		
+		ResultMessage resultMessage = new ResultMessage();
+		resultMessage=clientBillInventoryItemService.endBill(billId, this.getCommonParam(request));
+		return resultMessage;
+	}
+	
+
+	/**
+	*@auther:Chen
+	*@version:2019年7月2日下午5:14:34
+	*@param request
+	*@param barcode  盘入条码
+	*@param billId   盘点单ID
+	*@param billItemId 盘点明细ID
+	*@return
+	*@description  新增盘入条码至盘点单
+	*/
+	@ResponseBody
+	@RequestMapping(value = "/insertBarcode", method = RequestMethod.POST)
+	public ResultMessage insertBarcode(HttpServletRequest request,String barcode,Long billId,Long billItemId) {
+		
+		ResultMessage resultMessage = new ResultMessage();
+		TrackBarcodeParamVo paramVo=new TrackBarcodeParamVo();
+		paramVo.setBarcode(barcode);
+		paramVo.setBillId(billId);
+		paramVo.setBillItemId(billItemId);
+		resultMessage=clientBillInventoryItemService.insertBarcode(paramVo , this.getCommonParam(request));
+		return resultMessage;
+	}
+	
+	/**
+	*@auther:Chen
+	*@version:2019年7月2日下午5:14:19
+	*@param request
+	*@param barcode   需要更改数量的条码
+	*@param billId   盘点单ID
+	*@param billItemId 盘点明细ID
+	*@param updateQty  更改数量
+	*@return
+	*@description
+	*/
+	@ResponseBody
+	@RequestMapping(value = "/updateBarcodeQty", method = RequestMethod.POST)
+	public ResultMessage updateBarcodeQty(HttpServletRequest request,String barcode,Long billId,Long billItemId,Double updateQty) {
+		
+		ResultMessage resultMessage = new ResultMessage();
+		TrackBarcodeParamVo paramVo=new TrackBarcodeParamVo();
+		paramVo.setBarcode(barcode);
+		paramVo.setBillId(billId);
+		paramVo.setBillItemId(billItemId);
+		paramVo.setQuantityStock(updateQty);
+		resultMessage=clientBillInventoryItemService.updateBarcodeQty(paramVo, this.getCommonParam(request));
+		return resultMessage;
+	}
+	
+	
+}

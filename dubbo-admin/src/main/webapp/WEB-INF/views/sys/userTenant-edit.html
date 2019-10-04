@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+           <tr>
+            <td width="15%" class="tableleft">用户名</td>
+               <td>  
+                    <select name="userId"> 
+	                    <#if UserPassportList1??>
+	                     <#list UserPassportList1 as item>
+				            <option value="${item.id?c}" <#if (entity.userIdId??&&entity.userIdId==item.id)>selected="selected"</#if>>${item.userName}</option>
+				         </#list>
+				         </#if>
+				    </select>
+               </td> 
+               <td width="15%" class="tableleft">状态</td>
+               <td>
+                <select name="status">
+				   <#if mapUserStatus??>
+					  <#list mapUserStatus?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.status??&&entity.status==testKey)>selected</#if> >${mapUserStatus[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">审核状态</td>
+               <td>
+              <input type="text" name="statusAudit"  class="layui-input" maxlength="20" value="${(entity.statusAudit)!''}"/>
+               </td>
+               <td width="10%" class="tableleft">租户公司名称</td>
+               <td>
+                 <input type="text" name="companyName"  class="layui-input" maxlength="20" value="${(entity.companyName)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">工商注册号</td>
+               <td>
+                  <input type="text" name="bizlicenceCode"  class="layui-input" maxlength="20" value="${(entity.bizlicenceCode)!''}"/>
+               </td>
+             <td width="15%" class="tableleft">联系人姓名</td>
+               <td>
+                  <input type="text" name="contactName"  class="layui-input" maxlength="20" value="${(entity.contactName)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">联系人电话</td>
+               <td>
+               		<input type="text" name="contactPhone" class="layui-input" maxlength="100" value="${(entity.contactPhone)!''}"/>
+               </td>
+           </tr>
+           
+       </table> 
+       <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div> 
+      </form>
+    </div>
+ 
+    <script>
+  
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          form.verify({
+        	  contactPhone:[/(.+){11,11}$/, '手机号码必须11位']
+           
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/sys/userTenant/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    
+    </script>
+  </body>
+
+</html>

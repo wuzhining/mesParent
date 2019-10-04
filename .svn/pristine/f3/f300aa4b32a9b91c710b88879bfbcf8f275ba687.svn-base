@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+            <tr>
+                <td width="15%" class="tableleft">供应商</td>
+                <td>
+                	<div class="div-choiceBox-intd ">  
+                		<input type="hidden"  id="supplierId" name="supplierId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.supplierId??>${entity.supplierId?c}<#else></#if>">
+                		<input type="text" id="companyName"  lay-verify="required" name="companyName" value="${(firmPartner.companyName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd"/>
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="supplierSearch" disabled="disabled"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div> 
+                </td>
+               <td width="10%" class="tableleft" >采购单状态</td>
+               <td>
+                 <select id="billStatusDictId" name="billStatusDictId" disabled="true" > 
+                    <#if billPurchaseStatusList??>
+                     <#list billPurchaseStatusList as item>
+			            <option value="${item.id?c}" <#if (entity.billStatusDictId??&&entity.billStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+            </tr>
+            <tr>
+            	<td width="10%" class="tableleft" >审核状态</td>
+               <td>
+                 <select id="auditStatusDictId" name="auditStatusDictId"  disabled="true" > 
+                    <#if auditStatusDictList??>
+                     <#list auditStatusDictList as item>
+			            <option value="${item.id?c}" <#if (entity.auditStatusDictId??&&entity.auditStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+            	<td width="15%" class="tableleft">预计到货日期</td>
+                <td>
+                    <input class="layui-input" autocomplete="off" lay-verify="required" placeholder="预计到货日期"  disabled="disabled" name="dateArrival" id="dateArrival" maxlength="20" value="${(entity.dateArrival)!''}"/>
+                </td>
+            </tr>
+            <tr>
+                <td width="15%" class="tableleft">描述</td>
+                <td colspan="3">
+                    <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+                </td> 
+            </tr>
+       </table>  
+        <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+					<div class="layui-col-md12" style='text-align:center;'>
+			    	      <span class="layui-breadcrumb"> 
+					         <span>采购单明细</span>
+					      </span>
+					</div>
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   				  <table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   			
+	   				<div class="layui-col-md12" style='text-align:center;'>
+		    	      <span class="layui-breadcrumb"> 	
+				         <span>操作历史记录</span>
+				      </span>
+				    </div>
+		   			<div class="layui-col-md12" style="text-align: center;">
+		   				<div class="layui-row grid-demo">
+			   				<div class="layui-col-md6">
+			   					<span class="layui-breadcrumb"> 	
+							         <span style="color:#7F7F7F">状态变更记录</span>
+							      </span>
+			   					<table class="layui-hide" id="statusChange" lay-filter="statusChange"></table>
+			   				</div>
+			   				<div class="layui-col-md6">
+			   					<span class="layui-breadcrumb"> 	
+							         <span style="color:#7F7F7F">审核记录</span>
+							    </span>
+			   					<table class="layui-hide" id="auditLogging" lay-filter="auditLogging"></table>
+			   				</div>
+			   			</div>
+		   			</div>
+		   		</div>
+	    </div> 
+      </form>
+    </div>
+  
+ <script type="text/html" id="workorderPurchaseTpl">
+	{{#  if(d.billPurchase){}}
+		{{ d.billPurchase.workorderPurchase 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="productNameTpl">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="materialNameTpl">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+ </script>
+<script type="text/html" id="statusDictNameTpl">
+	{{#  if(d.configDictionary){}}
+		{{ d.configDictionary.dictName 
+ 	}}
+	{{# } }}
+ </script>
+  <script type="text/html" id="billStatusDictNameTpl">
+	{{#  if(d.billStatusDictionary){}}
+		{{ d.billStatusDictionary.dictName
+ 	}}
+	{{# } }}
+ </script>  
+ 
+  <script type="text/html" id="auditStatusDictNameTpl">
+	{{#  if(d.auditStatusictionary){}}
+		{{ d.auditStatusictionary.dictName
+ 	}}
+	{{# } }}
+ </script> 
+ 
+ 
+  <script type="text/html" id="createUserNameTpl">
+	{{#  if(d.caretUserPassport){}}
+		{{ d.caretUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+   <script type="text/html" id="createUserNameTpl2">
+	{{#  if(d.caretUserPassport2){}}
+		{{ d.caretUserPassport2.userName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="modifyUserNameTpl">
+	{{#  if(d.modifyUserPassport){}}
+		{{ d.modifyUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+  <!-- 物品类型 -->
+ <script type="text/html" id="productTypeName">
+	{{#  if(d.productType){}}
+		{{ d.productType.dictName
+
+ 	}}
+	{{# } }}
+</script> 
+<!-- 物品规格编码 -->
+ <script type="text/html" id="materialCode2">
+	{{#  if(d.materialCode){}}
+		{{ d.materialCode.materialCode 
+
+ 	}}
+	{{# } }}
+</script>
+   <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script> 
+	 <script type="text/html" id="fbillCode">
+	{{#  if(d.billPurchase){}}
+		{{ d.billPurchase.billCode 
+ 	}}
+	{{# } }}
+ </script>
+  <script>
+  var statusDictId="10313";
+  var ids = $("#id").val();
+  var statuId=window.parent.billStatusDictId;
+  if (ids!=null&&ids!=""){
+	if(statuId=='10488'){
+		$('#billStatusDictId').attr("disabled", false);
+	}
+  }else{
+	    ids="0";
+		$('#billStatusDictId').val(10488);
+		$('#auditStatusDictId').val(10585);
+  }
+
+     layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+    	var form = layui.form, 
+    	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+    	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+    	var layuiformajax = layui.layuiformajax;
+    	var curTable = layuitable.render({
+        	elem: '#listTable'
+        	,height:200
+        	,id:'listTable'
+        	,url:'/bill/billPurchaseItem/list/json?billPurchaseId='+ids
+        	,cols: [[
+            	     /*  {type: 'checkbox', fixed: 'left'},  */
+             	    {field:'id', width:120, title: 'ID',align:'center'}
+             	   ,{field:'billCode',  title: '采购单编码',align:'center',templet: '#fbillCode',width: 200}
+             	     ,{field:'productId',  title: '物品',align:'center'}
+             	    ,{field:'productTypeDictId',  title: '物品类型',align:'center',templet: '#productTypeName',width: 120}
+             	    ,{field:'productName',  title: '物品名称',align:'center',templet:'#productNameTpl',width: 120}
+             	    ,{field:'materialId',  title: '物品规格',align:'center'} 
+             	    ,{field:'materialCode',  title: '物品规格编码',align:'center',templet:'#materialCode2',width: 200}
+             	    ,{field:'materialName',  title: '物品规格名称',align:'center',templet:'#materialNameTpl',width: 150}
+            	    ,{field:'sku', title: '物品规格值', align:'center',templet: '#sku',width: 400}
+             	    ,{field:'billStatusDictId',  title: '状态',align:'center'} 
+             	    ,{field:'billStatusDictName',  title: '状态',align:'center',templet:'#statusDictNameTpl'}
+             	    ,{field:'quantity',  title: '单据数量',align:'center',width: 120}
+	           	    ,{field:'quantityFinish',  title: '完成数量',align:'center',width: 120}
+	           	    ,{field:'quantityScan',  title: '扫描数量', align:'center',width: 120}
+	           	    ,{field:'remark',  title: '备注', align:'center'}
+        	]]
+	    	 ,done: function () {
+		        $("[data-field='id']").css('display','none');
+		        $("[data-field='productId']").css('display','none');
+		        $("[data-field='materialId']").css('display','none');
+		        $("[data-field='billStatusDictId']").css('display','none');
+		    } 
+      	});
+		    //查看
+			$("form :input").prop('disabled',true)//整个form表单不可编辑
+			layui.form.render('select');//layui禁用下拉框必须加，否则无效
+    	
+    	//状态变更记录表
+    	var statusChangeTable = layuitable.render({
+        	elem: '#statusChange'
+        	,height:300
+        	,id:'historyBillStatus'
+        	,url:'/history/historyBillStatus/list/json?billId='+ids+'&&billTypeDictId=10270'
+        	,page:false
+        	,cols: [[
+            	      
+             	     {field:'id',hide:true, width:120, title: 'ID',align:'center'}
+             	    ,{field:'billStatusDictName',  title: '状态',align:'center',templet:'#billStatusDictNameTpl'} 
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+		           	,{field:'createTime',  title: '操作时间',align:'center'}
+	          	    ,{field:'createUserName',  title: '操作人',align:'center',templet:'#createUserNameTpl'}
+        	]]
+    	 ,done: function () {
+  	        $("[data-field='id']").css('display','none');
+  	    }
+      	});
+    	//审核记录表	
+    	var auditLoggingTable = layuitable.render({
+        	elem: '#auditLogging'
+        	,height:300
+        	,id:'listTable'
+        	,url:'/history/historyBillStatusAudit/list/json?billId='+ids+'&&billTypeDictId=10270'
+        	,page:false
+        	,cols: [[
+             	     {field:'id',hide:true, width:120, title: 'ID',align:'center'}
+             	    ,{field:'auditStatusDictName',  title: '审核状态',align:'center',templet:'#auditStatusDictNameTpl'} 
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+		           	,{field:'createTime',  title: '操作时间',align:'center'}
+	          	    ,{field:'createUserName',  title: '操作人',align:'center',templet:'#createUserNameTpl2'}
+        	]]
+    	 ,done: function () {
+  	        $("[data-field='id']").css('display','none');
+  	    }
+      	});
+
+    });
+     
+    </script>
+  </body>
+
+</html>

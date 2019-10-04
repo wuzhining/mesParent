@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+            <tr>
+                <td width="15%" class="tableleft">盘点仓库</td>
+                <td>
+	                <select name="warehouseId"> 
+	                    <#if warehouse??>
+	                     <#list warehouse as item>
+				            <option value="${item.id?c}" <#if (entity.warehouseId??&&entity.warehouseId==item.id)>selected="selected"</#if>>${item.warehouseName}</option>
+				         </#list>
+				         </#if>
+				    </select>   
+                </td>
+               <td width="10%" class="tableleft" >盘点方式</td>
+               <td>
+                 <select name="inventoryModeDictId"> 
+                    <#if dictList??>
+                     <#list dictList as item>
+			            <option value="${item.id?c}" <#if (entity.inventoryModeDictId??&&entity.inventoryModeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+            </tr>
+            <tr>
+            	<td width="15%" class="tableleft">计划开始日期</td>
+                <td>
+                    <input class="layui-input" autocomplete="off" placeholder="计划开始日期" name="timeStart" id="timeStart" maxlength="20" />
+                </td>
+               <td width="15%" class="tableleft">计划结束日期</td>
+                <td>
+                    <input class="layui-input" autocomplete="off" placeholder="计划结束日期" name="timeEnd" id="timeEnd" maxlength="20"/>
+                </td>
+            </tr>
+            
+       </table>  
+        <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   			<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="historyBillStatus" lay-filter="historyBillStatus"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+     
+
+    </div>
+  
+ <script type="text/html" id="workorderPurchase">
+	{{#  if(d.billPurchase){}}
+		{{ d.billPurchase.workorderPurchase 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="productName">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+ </script>
+<script type="text/html" id="statusDictName">
+	{{#  if(d.configDictionary){}}
+		{{ d.configDictionary.dictName 
+ 	}}
+	{{# } }}
+ </script>
+  <script type="text/html" id="billStatusDictName">
+	{{#  if(d.billStatusDictionary){}}
+		{{ d.billStatusDictionary.dictName
+ 	}}
+	{{# } }}
+ </script>  
+  <script type="text/html" id="createUserName">
+	{{#  if(d.caretUserPassport){}}
+		{{ d.caretUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="modifyUserName">
+	{{#  if(d.modifyUserPassport){}}
+		{{ d.modifyUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+   
+  <script>
+  var statuId=window.parent.billStatusDictId;
+	if(statuId=='10488'){
+		$('#billStatusDictId').attr("disabled", false);
+	}else{
+		if(statuId==null||statuId==""){
+			$('#billStatusDictId').val(10488);
+		}
+	}
+  var ids = $("#id").val();
+  if(ids!=''){
+     layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+    	var form = layui.form, 
+    	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+    	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+    	var layuiformajax = layui.layuiformajax;
+    	var curTable = layuitable.render({
+        	elem: '#listTable'
+        	,height:200
+        	,id:'listTable'
+        	,url:'/bill/billInventoryItem/list/json?billId='+ids
+        	,cols: [[
+            	     /* {type: 'checkbox', fixed: 'left'}, */
+             	    {field:'id', width:120, title: 'ID',align:'center'}
+             	    ,{field:'productId',  title: '产品',align:'center', minWidth: 120}
+             	    ,{field:'productName',  title: '产品',align:'center', minWidth: 120,templet:'#productName'}
+             	    ,{field:'materialId',  title: '物料',align:'center', minWidth: 120}
+             	    ,{field:'materialName',  title: '物料',align:'center', minWidth: 120,templet:'#materialName'}
+             	    ,{field:'billStatusDictId',  title: '状态',align:'center', minWidth: 120}
+             	    ,{field:'billStatusDictName',  title: '状态',align:'center', minWidth: 120,templet:'#statusDictName'}
+             	    ,{field:'quantity',  title: '单据数量',align:'center', minWidth: 120}
+	           	    ,{field:'quantityFinish',  title: '完成数量',align:'center', minWidth: 120}
+	           	    ,{field:'quantityScan',  title: '扫描数量', align:'center',minWidth: 120}
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+        	]]
+	    	,done: function () {
+		        $("[data-field='billPurchaseId']").css('display','none');
+		        $("[data-field='productId']").css('display','none');
+		        $("[data-field='materialId']").css('display','none');
+		        $("[data-field='billStatusDictId']").css('display','none');
+		    }
+      	});
+    	
+    	var historyBillStatusTable = layuitable.render({
+        	elem: '#historyBillStatus'
+        	,height:200
+        	,id:'listTable'
+        	,url:'/history/historyBillStatus/list/json?billId='+ids+'&&billTypeDictId=10270L'
+        	,cols: [[
+            	      
+             	     {field:'id', width:120, title: 'ID',align:'center'}
+             	    ,{field:'billStatusDictId',  title: '状态',align:'center', minWidth: 120}
+             	    ,{field:'billStatusDictName',  title: '状态',align:'center', minWidth: 120,templet:'#billStatusDictName'} 
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+		           	,{field:'createTime',  title: '创建时间',align:'center', minWidth: 120}
+	          	    ,{field:'modifyTime',  title: '更新时间',align:'center', minWidth: 120}
+	          	    ,{field:'createUserId',  title: '创建人',align:'center', minWidth: 120}
+	          	    ,{field:'createUserName',  title: '创建人',align:'center', minWidth: 120,templet:'#createUserName'}
+	          	    ,{field:'modifyUserId',  title: '更新人',align:'center', minWidth: 120}
+	          	    ,{field:'modifyUserId',  title: '更新人',align:'center', minWidth: 120,templet:'#modifyUserName'}
+        	]]
+	    	,done: function () {
+		        $("[data-field='billTypeDictId']").css('display','none');
+		        $("[data-field='billStatusDictId']").css('display','none');
+		        $("[data-field='createUserId']").css('display','none');
+		        $("[data-field='modifyUserId']").css('display','none');
+		    }
+      	});
+    	form.on('submit(search)', function (data) {
+    		layuitable.reload(data.field);
+            return false;
+      	});
+    	
+    });
+    
+  };
+  
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery,  laydate = layui.laydate;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/bill/billInventory/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          laydate.render({
+        		elem: '#timeStart' //指定元素
+        		,type: 'date'
+        		,format: 'yyyy-MM-dd' //可任意组合
+        	});
+          laydate.render({
+	      		elem: '#timeEnd' //指定元素
+	      		,type: 'date'
+	      		,format: 'yyyy-MM-dd' //可任意组合
+      	    });
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

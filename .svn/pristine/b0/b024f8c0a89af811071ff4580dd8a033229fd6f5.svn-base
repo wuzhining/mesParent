@@ -1,0 +1,14 @@
+package com.techsoft.entity.history;
+
+import com.techsoft.entity.common.HistoryBillFixtureStatus;
+
+public class HistoryBillFixtureStatusVo extends HistoryBillFixtureStatus {
+	private static final long serialVersionUID = 1258047585336628358L;
+
+	public HistoryBillFixtureStatusVo() {	
+	}
+	
+	public HistoryBillFixtureStatusVo(HistoryBillFixtureStatus value) {
+		value.cloneProperties(this);
+	}		
+}

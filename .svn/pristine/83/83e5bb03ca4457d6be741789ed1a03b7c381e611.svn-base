@@ -1,0 +1,416 @@
+package com.techsoft.service.bill;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBarcodeStatus;
+import com.techsoft.common.enums.EnumDictBillStatus;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.enums.EnumDictWorkPlanStatus;
+import com.techsoft.dao.barcode.BarcodeMainDao;
+import com.techsoft.dao.bill.BillWarehouseDao;
+import com.techsoft.dao.bill.BillWarehouseItemDao;
+import com.techsoft.dao.config.ConfigCodeRuleDao;
+import com.techsoft.dao.history.HistoryBillStatusDao;
+import com.techsoft.dao.product.ProductBomItemRepalceDao;
+import com.techsoft.dao.work.WorkPlanMaterialDao;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.bill.BillWarehouseParamVo;
+import com.techsoft.entity.bill.BillWarehouseVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillSaleorder;
+import com.techsoft.entity.common.BillSaleorderItem;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.ProductBomItemRepalce;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.WorkPlanMaterial;
+import com.techsoft.entity.product.ProductBomItemRepalceParamVo;
+import com.techsoft.entity.work.WorkPlanMaterialParamVo;
+
+@Service
+public class BillWarehouseServiceImpl extends BaseServiceImpl<BillWarehouse> implements BillWarehouseService {
+	@Autowired
+	private BillWarehouseDao billWarehouseDao;
+	@Autowired
+	private BillWarehouseItemDao billWarehouseItemDao;
+	@Autowired
+	private ConfigCodeRuleDao configCodeRuleDao;
+	@Autowired
+	private HistoryBillStatusDao historyBillStatusDao;
+	@Autowired
+	private WorkPlanMaterialDao workPlanMaterialDao;
+	@Autowired
+	private BarcodeMainDao barcodeMainDao;
+	@Autowired
+	private ProductBomItemRepalceDao productBomItemRepalceDao;
+
+	@Override
+	public BaseDao<BillWarehouse> getBaseDao() {
+		return billWarehouseDao;
+	}
+
+	@Override
+	public Class<BillWarehouse> getEntityClass() {
+		return BillWarehouse.class;
+	}
+
+	private List<BillWarehouseItem> buildLocationsByRack(BillWarehouseParamVo paramVo, Long billWarehouseId,
+			CommonParam commonParam) {
+		List<BillWarehouseItem> itemList = paramVo.getItemList();
+		Integer index = 0;
+		String idString = "";
+		Long idLong = 0L;
+		Long itemId = billWarehouseItemDao.getIdValue();
+		DecimalFormat locationdf = new DecimalFormat("000000");
+		for (BillWarehouseItem item : itemList) {
+			index++;
+			idString = locationdf.format(index);
+			idLong = Long.valueOf(itemId.toString() + idString);
+			item.setId(idLong);
+			item.setTenantId(paramVo.getTenantId());
+			item.setBillId(billWarehouseId);
+			item.setBillStatusDictId(paramVo.getBillStatusDictId());
+			if (item.getQuantityScan() == null) {
+				item.setQuantityScan(0.0);
+			}
+			if (item.getQuantityFinish() == null) {
+				item.setQuantityFinish(0.0);
+			}
+			if (item.getQuantity() == null) {
+				item.setQuantity(0.0);
+			}
+		}
+		return itemList;
+	}
+
+	@Override
+	protected BillWarehouse insertEntity(BillWarehouse entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		// 添加历史表
+
+		// HistoryBillStatusVo historyBillStatusVo = new HistoryBillStatusVo();
+		// historyBillStatusVo.setTenantId(commonParam.getTenantId());
+		// historyBillStatusVo.setBillStatusDictId(entity.getBillStatusDictId());
+		// historyBillStatusVo.setBillTypeDictId(entity.getBillTypeDictId());
+		// historyBillStatusVo.setBillId(item.get(0).getId());
+		// historyBillStatusDao.insertEntity(historyBillStatusVo, commonParam);
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillWarehouse updatePartEntity(BillWarehouse entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillWarehouse updateEntity(BillWarehouse entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年5月15日下午3:15:02
+	 * @param:BillWarehouseParamVo 单据主表参数Vo
+	 * @description 新增主表同时生成明细表
+	 */
+	private BillWarehouse insertEntityAndItem(BillWarehouseParamVo paramVo, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		Long billWarehouseId = billWarehouseDao.getIdValue();
+		paramVo.setId(billWarehouseId);
+		BillWarehouse result = super.insertEntity(paramVo, commonParam);
+		List<BillWarehouseItem> itemList = buildLocationsByRack(paramVo, billWarehouseId, commonParam);
+		billWarehouseItemDao.insertBatch(itemList, commonParam);
+		return result;
+	}
+
+	@Override
+	public void insertBatchEntityAndItem(List<BarcodeMain> totalBarcodeList, Long fromBillId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWarehouse> billList = new ArrayList<>();
+		List<BillWarehouseItem> itemList = new ArrayList<>();
+		// 根据仓库分组
+		Map<Long, List<BarcodeMain>> barcodeMap = new HashMap<>();
+		for (BarcodeMain barcodeMain : totalBarcodeList) {
+			if (barcodeMap.containsKey(barcodeMain.getWarehouseId())) {
+				barcodeMap.get(barcodeMain.getWarehouseId()).add(barcodeMain);
+			} else {
+				List<BarcodeMain> list = new ArrayList<>();
+				list.add(barcodeMain);
+				barcodeMap.put(barcodeMain.getWarehouseId(), list);
+			}
+		}
+
+		// 遍历仓库map集合
+		for (Entry<Long, List<BarcodeMain>> m : barcodeMap.entrySet()) {
+			List<BarcodeMain> warehouselist = m.getValue();
+			// 初始化对象
+			BillWarehouse bill = new BillWarehouse();
+			// 自动生成单据编码
+			String billWarehouseCode = configCodeRuleDao.createCode(BillWarehouse.class.getName(),
+					EnumDictBillType.BILL_TYPE_WAREHOUSE_PICKING.getValue(), null, commonParam);
+			Long billWarehouseId = billWarehouseDao.getIdValue();
+			bill.setId(billWarehouseId);
+			bill.setBillCode(billWarehouseCode);
+			bill.setTypeStock("chu");
+			bill.setFromBillId(fromBillId);
+			bill.setFromBillTypeDictId(EnumDictBillType.BILL_TYPE_WAREHOUSE_PICKING.getValue());// 来源单据类型：
+			bill.setBillTypeDictId(EnumDictBillType.BILL_TYPE_WAREHOUSE_OUT.getValue());// 单据类型：
+			bill.setBillStatusDictId(EnumDictBillStatus.FINISHED.getValue());// 单据状态：
+			bill.setFromWarehouseId(warehouselist.get(0).getWarehouseId());
+
+			// 遍历按仓库分组的条码list 统计出库明细 按物料分组
+			Map<Long, List<BarcodeMain>> materialMap = new HashMap<>();
+			for (BarcodeMain barcodeMain : warehouselist) {
+				if (materialMap.containsKey(barcodeMain.getMaterialId())) {
+					materialMap.get(barcodeMain.getMaterialId()).add(barcodeMain);
+				} else {
+					List<BarcodeMain> materiallist = new ArrayList<>();
+					materiallist.add(barcodeMain);
+					materialMap.put(barcodeMain.getMaterialId(), materiallist);
+				}
+			}
+
+			Integer index = 0;
+			String idString = "";
+			Long idLong = 0L;
+			Long itemId = billWarehouseItemDao.getIdValue();
+			DecimalFormat locationdf = new DecimalFormat("000000");
+
+			// 遍历物料map集合
+			for (Entry<Long, List<BarcodeMain>> material : materialMap.entrySet()) {
+
+				List<BarcodeMain> materialList = material.getValue();
+				BillWarehouseItem billWarehouseItem = new BillWarehouseItem();
+				index++;
+				idString = locationdf.format(index);
+				idLong = Long.valueOf(itemId.toString() + idString);
+				billWarehouseItem.setId(idLong);
+				billWarehouseItem.setBillId(bill.getId());
+				billWarehouseItem.setBillStatusDictId(EnumDictBillStatus.FINISHED.getValue());
+				Double sumQuantity = 0.0;
+
+				for (BarcodeMain barcodeMain : materialList) {
+					// 如果为最外箱 或者为最底层物料 统计数量
+					if (barcodeMain.getBarcodePackboxId() == 0) {
+						sumQuantity += barcodeMain.getQuantity();
+					}
+					billWarehouseItem.setMaterialId(barcodeMain.getMaterialId());
+					bill.setTenantId(barcodeMain.getTenantId());
+					bill.setCreateUserId(barcodeMain.getCreateUserId());
+					bill.setModifyUserId(barcodeMain.getCreateUserId());
+				}
+				billWarehouseItem.setQuantityFinish(sumQuantity);
+				billWarehouseItem.setQuantityScan(sumQuantity);
+				billWarehouseItem.setQuantity(sumQuantity);
+				itemList.add(billWarehouseItem);
+
+			}
+			billList.add(bill);
+
+		}
+		// 数据装载完进行批量新增
+		billWarehouseDao.insertBatch(billList, commonParam);
+		billWarehouseItemDao.insertBatch(itemList, commonParam);
+
+	}
+
+	/*
+	 * @Override public void insertPickBatch(BillWarehouseVo billWarehouseVo,
+	 * List<BillWorkorderBomVo> list, CommonParam commonParam)throws
+	 * BusinessException, SQLException { BillWarehouse billWarehouse = null;
+	 * billWarehouseVo.setTenantId(commonParam.getTenantId());
+	 * BillWarehouseParamVo paramVo = new BillWarehouseParamVo(billWarehouseVo);
+	 * // 自动生成单据编码 String warehouseId = configCodeRuleDao
+	 * .createCode(BillWarehouse.class.getName(),EnumDictBillType.
+	 * BILL_TYPE_WAREHOUSE_PICKING.getValue(),null, commonParam);
+	 * paramVo.setBillCode(warehouseId);
+	 * paramVo.setFromBillId(list.get(0).getBillWorkorderId());
+	 * paramVo.setTypeStock("1");// 0入库 1出库
+	 * paramVo.setTenantId(commonParam.getTenantId()); List<BillWarehouseItem>
+	 * warehouseItems = new ArrayList<BillWarehouseItem>();
+	 * 
+	 * for (BillWorkorderBomVo bomItem : list) { BillWarehouseItem warehouseItem
+	 * = new BillWarehouseItem();
+	 * warehouseItem.setProductId(bomItem.getProductId());
+	 * warehouseItem.setMaterialId(bomItem.getMaterialId());
+	 * warehouseItem.setQuantity(bomItem.getQuantityNeed());
+	 * warehouseItem.setTenantId(commonParam.getTenantId());
+	 * warehouseItems.add(warehouseItem); } paramVo.setItemList(warehouseItems);
+	 * billWarehouse = this.insertEntityAndItem(paramVo, commonParam);
+	 * 
+	 * }
+	 */
+
+	@Override
+	public void insertUnPickBatch(BillWarehouseVo billWarehouseVo, List<ProductMaterial> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		billWarehouseVo.setTenantId(commonParam.getTenantId());
+		BillWarehouseParamVo paramVo = new BillWarehouseParamVo(billWarehouseVo);
+		// 自动生成单据编码
+		String warehouseId = configCodeRuleDao.createCode(BillWarehouse.class.getName(),
+				EnumDictBillType.BILL_TYPE_WAREHOUSE_UNPICKING.getValue(), null, commonParam);
+		paramVo.setBillCode(warehouseId);
+		paramVo.setTypeStock("1");// 0入库 1出库
+		paramVo.setTenantId(commonParam.getTenantId());
+		List<BillWarehouseItem> warehouseItems = new ArrayList<BillWarehouseItem>();
+
+		for (ProductMaterial material : list) {
+			BillWarehouseItem warehouseItem = new BillWarehouseItem();
+			warehouseItem.setProductId(material.getProductId());
+			warehouseItem.setMaterialId(material.getId());
+			warehouseItem.setQuantity(material.getQuantityStock());
+			warehouseItem.setTenantId(commonParam.getTenantId());
+			warehouseItems.add(warehouseItem);
+		}
+		paramVo.setItemList(warehouseItems);
+		BillWarehouse billWarehouse = this.insertEntityAndItem(paramVo, commonParam);
+	}
+
+	public List<BillWarehouse> selectPrepareMaterialsScreen() throws BusinessException, SQLException {
+		return billWarehouseDao.selectPrepareMaterialsScreen();
+
+	}
+
+	@Override
+	public void insertShipBatch(BillWarehouseVo billWarehouseVo, List<BillSaleorderItem> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		billWarehouseVo.setTenantId(commonParam.getTenantId());
+		BillWarehouseParamVo paramVo = new BillWarehouseParamVo(billWarehouseVo);
+		// 自动生成单据编码
+		String warehouseId = configCodeRuleDao.createCode(BillWarehouse.class.getName(),
+				EnumDictBillType.BILL_TYPE_WAREHOUSE_SHIPPING.getValue(), null, commonParam);
+		paramVo.setBillCode(warehouseId);
+		paramVo.setTypeStock("1");// 0入库 1出库
+		paramVo.setTenantId(commonParam.getTenantId());
+		List<BillWarehouseItem> warehouseItems = new ArrayList<BillWarehouseItem>();
+
+		for (BillSaleorderItem billSaleorderItem : list) {
+			BillWarehouseItem warehouseItem = new BillWarehouseItem();
+			warehouseItem.setProductId(billSaleorderItem.getProductId());
+			warehouseItem.setMaterialId(billSaleorderItem.getMaterialId());
+			warehouseItem.setQuantity(billSaleorderItem.getQuantityFinish());
+			warehouseItem.setTenantId(commonParam.getTenantId());
+			warehouseItems.add(warehouseItem);
+		}
+		paramVo.setItemList(warehouseItems);
+		BillWarehouse billWarehouse = this.insertEntityAndItem(paramVo, commonParam);
+	}
+
+	@Override
+	public void insertPickTimeTask() throws BusinessException, SQLException {
+		// 根据工作物料计划表每3分钟定时生成仓库领料单
+		// 领料单主表list
+		List<BillWarehouse> billList = new ArrayList<>();
+		// 领料单明细表list
+		List<BillWarehouseItem> itemList = new ArrayList<>();
+		// 1.查出当前时间未执行的工作物料计划(条件：状态为新建、计划开始时间要大于当前时间，结束时间不能超过当前时间)
+		WorkPlanMaterialParamVo workParamVo = new WorkPlanMaterialParamVo();
+		workParamVo.setTimePlanStartBegin(new Date());
+		workParamVo.setPlanStatusDictId(EnumDictWorkPlanStatus.BF01.getValue());
+		List<WorkPlanMaterial> wMaterials = workPlanMaterialDao.selectListByParamVo(workParamVo);
+		// 初始化对象
+		BillWarehouse bill = new BillWarehouse();
+		CommonParam commonParam = new CommonParam();
+		commonParam.setUserId("1");
+		commonParam.setTenantId(Long.parseLong("1"));
+
+		for (WorkPlanMaterial workPlanMaterial : wMaterials) {
+			workPlanMaterial.setPlanStatusDictId(EnumDictWorkPlanStatus.BF02.getValue());
+			// 查找当前物料库存
+			BarcodeMainParamVo paramVo = new BarcodeMainParamVo();
+			paramVo.setMaterialId(workPlanMaterial.getMaterialId());
+			paramVo.setBarcodeStatusDictId(EnumDictBarcodeStatus.INSTORE.getValue());
+			Double stockQty = barcodeMainDao.selectSumQtyByEntity(paramVo, commonParam);
+			// 自动生成单据编码
+			String billWarehouseCode = configCodeRuleDao.createCode(BillWarehouse.class.getName(),
+					EnumDictBillType.BILL_TYPE_WAREHOUSE_PICKING.getValue(), null, commonParam);
+			Long billWarehouseId = billWarehouseDao.getIdValue();
+			bill.setId(billWarehouseId);
+			bill.setBillCode(billWarehouseCode);
+			bill.setTypeStock("chu");
+			bill.setFromBillId(workPlanMaterial.getId());//来源单据id
+			bill.setTenantId(commonParam.getTenantId());//租户
+			bill.setCreateUserId(Long.parseLong("1"));//创建人
+			bill.setModifyUserId(Long.parseLong("1"));//修改人
+			bill.setBillTypeDictId(EnumDictBillType.BILL_TYPE_WAREHOUSE_PICKING.getValue());// 单据类型：
+			bill.setBillStatusDictId(EnumDictBillStatus.NEW.getValue());// 单据状态：
+			billList.add(bill);
+			BillWarehouseItem billWarehouseItem = new BillWarehouseItem();
+			Long itemId = billWarehouseItemDao.getIdValue();
+			billWarehouseItem.setId(itemId);
+			billWarehouseItem.setBillId(bill.getId());//单据主表id
+			billWarehouseItem.setBillStatusDictId(EnumDictBillStatus.NEW.getValue());//单据状态
+			billWarehouseItem.setTenantId(commonParam.getTenantId());//租户
+			billWarehouseItem.setCreateUserId(Long.parseLong("1"));//创建人
+			billWarehouseItem.setModifyUserId(Long.parseLong("1"));//修改人
+			billWarehouseItem.setQuantityScan(0.00);//扫描数量	
+			billWarehouseItem.setQuantityFinish(0.00);//完成数量
+			itemList.add(billWarehouseItem);
+			billWarehouseItem.setQuantity(workPlanMaterial.getQuantity());//领料数量
+			// 如果库存足够 开单
+			if (stockQty >= workPlanMaterial.getQuantity()) {
+				billWarehouseItem.setMaterialId(workPlanMaterial.getMaterialId());//领料物料
+			}
+			// 如果库存不足 查找当前物料替代料
+			if (stockQty <= workPlanMaterial.getQuantity()) {
+				//替代料对象
+				ProductBomItemRepalce bomItemRepalce = getRepalce(workPlanMaterial.getBomId(),
+						workPlanMaterial.getQuantity(), commonParam);
+				billWarehouseItem.setMaterialId(bomItemRepalce.getMaterialId());//领料物料
+			}
+		}
+		if (billList.size() > 0 && itemList.size() > 0) {
+			// 数据装载完进行批量新增
+			billWarehouseDao.insertBatch(billList, commonParam);
+			billWarehouseItemDao.insertBatch(itemList, commonParam);
+			//修改物料计划表状态
+			workPlanMaterialDao.updateBatch(wMaterials, commonParam);
+		}
+
+	}
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年7月1日下午1:31:42
+	 * @param:bomId bom替代料ID
+	 * @description 如果原物料库存不足,开具替代料
+	 */
+	private ProductBomItemRepalce getRepalce(Long bomId, Double needQty, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ProductBomItemRepalce bomItemRepalce = new ProductBomItemRepalce();
+		ProductBomItemRepalceParamVo bomParamVo = new ProductBomItemRepalceParamVo();
+		bomParamVo.setBomId(bomId);
+		List<ProductBomItemRepalce> bomList = productBomItemRepalceDao.selectListByParamVo(bomParamVo);
+		if (bomList.size() <= 0) {
+			throw new BusinessException("物料缺少库存,不足以开单");
+		}
+		for (ProductBomItemRepalce productBomItemRepalce : bomList) {
+			BarcodeMainParamVo paramVo = new BarcodeMainParamVo();
+			paramVo.setMaterialId(productBomItemRepalce.getMaterialId());
+			paramVo.setBarcodeStatusDictId(EnumDictBarcodeStatus.INSTORE.getValue());
+			Double bomStockQty = barcodeMainDao.selectSumQtyByEntity(paramVo, commonParam);
+			if (bomStockQty >= needQty) {
+				return bomItemRepalce;
+			}
+		}
+		return bomItemRepalce;
+	}
+
+}

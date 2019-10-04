@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+  
+	<head> 
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+		<#include "../common-header.html"/>
+  	</head>
+  
+  	<body>
+    	<div class="x-nav">
+      		<span class="layui-breadcrumb"> 
+        		<a href="">仓库管理/出库管理</a> <a><cite>下架拆包</cite></a>
+      		</span>
+    	</div>
+    	<div class="x-body">
+      		<div class="layui-row" >
+        		<form class="layui-form layui-col-md12 x-so">
+        			<div class="layui-form-item" style="background-color: #f2f2f2;">
+    					<div class="layui-inline" style="margin-top: 5px;">
+    						<label class="layui-form-label" style="width: 140px;">标签号：</label>
+    							<div class="layui-input-inline">
+      								<input type="text" name="inputBarcode" id="inputBarcode" lay-filter="inputBarcode" placeholder="请输入标签号" autocomplete="off" class="layui-input" style="width: 250px;">
+    							</div>
+    					</div>
+    					<div class="layui-inline" style="margin-top: 5px;">
+    						<div class="layui-input-inline" style=" margin-left: 100px;">
+      							<button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+    						</div>
+    					</div>
+    				</div>
+        		</form>
+        	</div>
+        <fieldset class="layui-elem-field" style="margin-top: 10px;">
+  			<legend>出库单详情</legend>
+  				<div class="layui-field-box">
+    				<div class="layui-row">
+    					<div class="layui-col-md12">
+    					<form  class="layui-form" id="formTest" lay-filter="formTest">
+    					<div class="layui-form-item">
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">来源单号：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="" id="" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">产品规格编码：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="materialCode" id="materialCode" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">需领数量：</label>
+    								<div class="layui-input-inline" style="width: 200px;color:black;">
+      									<input type="text" name="quantity" id="quantity" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  </div>
+    						  <div class="layui-form-item">
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">领料单号：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="billCode" id="billCode" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">产品规格名称：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="materialName" id="materialName" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">下架数量：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="quantityScan" id="quantityScan" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  </div>
+    					</form>
+    					
+    					</div>
+    				
+    				</div>
+  				</div>
+		</fieldset>
+		
+		<fieldset class="layui-elem-field" style="margin-top: 30px;">
+  			<legend>标签详情</legend>
+  				<div class="layui-field-box">
+    				<div class="layui-row">
+    					<div class="layui-col-md10">
+    					<form  class="layui-form">
+    					<div class="layui-form-item">
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;"> 标签：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="barcode" id="barcode" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">供应商编码：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="" id="" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">供应商名称：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="" id="" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  </div>
+    						  <div class="layui-form-item">
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;"> 标签数量：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="quantityBar" id="quantityBar" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;"> 收货日期：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="instoreTime" id="instoreTime" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  </div>
+    					</form>
+    					<input type="text"  id="matId" autocomplete="off" class="layui-input" style="display: none;">
+    					<input type="text"  id="billId" autocomplete="off" class="layui-input" style="display: none;">
+    					<input type="text"  id="billItemId" autocomplete="off" class="layui-input" style="display: none;">
+    					</div>
+    				
+    				</div>
+  				</div>
+		</fieldset>
+		
+		<fieldset class="layui-elem-field" style="margin-top: 30px;">
+  			<legend>拆包详情</legend>
+  				<div class="layui-field-box">
+    				<div class="layui-row">
+    					<div class="layui-col-md10">
+    					<form  class="layui-form">
+    					<div class="layui-form-item">
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;"> 新标签：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="newBar" id="newBar" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">数量：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="newQty" id="newQty" autocomplete="off" class="layui-input" disabled>
+    								</div>
+    						  </div>
+    						  <div class="layui-inline">
+    								<label class="layui-form-label" style="width: 140px;">拆包数量：</label>
+    								<div class="layui-input-inline" style="width: 200px;">
+      									<input type="text" name="quantityUnpack" id="quantityUnpack" autocomplete="off" class="layui-input">
+    								</div>
+    						  </div>
+    						  </div>
+    					</form>
+    					
+    					</div>
+    				
+    				</div>
+  				</div>
+		</fieldset>
+		
+		<div class="layui-row"  style="text-align: center;">
+    		<div class="layui-col">
+    			<button id="import" class="layui-btn layui-btn-sm" class="layui-icon">导入模板</button>
+    			<button class="layui-btn layui-btn-sm" id="print" lay-filter="print">拆包打印</button>
+    		</div>
+    	</div>
+      </div>
+
+
+<script type="text/javascript">
+var bill ;
+var billStatusDictId;
+var barcodeResultData=[];
+var trackBarcodeResultData=[];
+	layui.config({
+    	base: '/static/plugins/layui/base/',
+    	v: new Date().getTime()
+		}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+			var form = layui.form, $ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+			layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+			var layuiformajax = layui.layuiformajax;	
+  		
+  		//搜索
+  			form.on('submit(search)', function () {
+  				$(function(){ 
+  	  				var inputBarcode = $("#inputBarcode").val() ;
+  	  				//alert(JSON.stringify(inputBarcode));
+  	  				$.ajax({ 
+  	  		    		 url:'/bill/billWarehouseUnPack/scanBarcode?barcode='+inputBarcode, 
+  	  					 type: "post", 
+  	  					 dataType: "json",
+  	  					 traditional :true,  //注意这个参数是必须的
+  	  					 success: function (res) {
+  	  						 if(res.isSuccess == true){
+  			  					//alert(JSON.stringify(res));
+  			  					$("#barcode").val(res.baseEntity.barcode);
+  			  					$("#billCode").val(res.baseEntity.billWarehouse.billCode);
+  			  					$("#materialCode").val(res.baseEntity.productMaterial.materialCode);
+  			  					$("#materialName").val(res.baseEntity.productMaterial.materialName);
+  			  					$("#quantity").val(res.baseEntity.billWarehouseItem.quantity);
+  			  					$("#quantityBar").val(res.baseEntity.quantity);
+  		  						$("#quantityScan").val(res.baseEntity.billWarehouseItem.quantityScan);
+  		  						$("#instoreTime").val(res.baseEntity.instoreTime);
+  		  						$("#matId").val(res.baseEntity.productMaterial.id);
+  		  						$("#billId").val(res.baseEntity.billId);
+  		  						$("#billItemId").val(res.baseEntity.billItemId);
+  		  						var quantityScan =  res.baseEntity.billWarehouseItem.quantityScan;
+  		  						var quantity = res.baseEntity.billWarehouseItem.quantity;
+  		  						var quantityUnpack = quantityScan - quantity;
+  		  						//$("#quantityUnpack").val(quantityUnpack);
+  	  						 }else{
+				       				layer.alert(res.message, {
+				       					icon : 2
+				       				});
+				       				$("#inputBarcode").val("");
+				       			}	
+  	  					}
+  	  				});
+  	  			});
+  				
+  	        	return false;
+  	  		});
+  		
+  			//导入模板
+  		  	$("#import").click(function(){
+  		  	    myReadFile();
+  		  	        	  
+  		  	  });
+  			
+  			//打印标签操作
+  		  	//打印预览
+  		      $("#print").click(function(){
+  		    	  var barcode=$("#barcode").val();
+  		    	  var quantityBar=$("#quantityBar").val();
+  		    	  var unpackQty=$("#quantityUnpack").val();
+  		    	  var resjosn=null;
+  		    	  
+  		     
+  		    	$.ajax({ 
+ 		    		 url:'/bill/billWarehouseUnPack/unpack?barcode='+barcode+'&unpackQty='+unpackQty, 
+ 					 type: "post", 
+ 					 dataType: "json",
+	  					 success: function (res) {
+	  						 if(res.isSuccess == true){
+			  					resjosn=res.map.list;
+			  					print_Preview(resjosn,methodName);
+					 	        resjosn.forEach(function(val,key){
+					 	        	if(val["barcode"]!=barcode){
+					 	        		$("#newBar").val(val["barcode"]);
+					 	        		$("#newQty").val(val["quantity"]);
+					 	        	}
+					 	        	if(val["barcode"]=barcode){
+					 	        		$("#quantityBar").val(val["quantity"]);
+					 	        	}
+					 			});
+	  						 }else{
+			       				layer.alert(res.message, {
+			       					icon : 2
+			       				});
+			       			}	
+	  					}
+	  				});
+  		     });
+
+  		  //自定义方法：用来变量赋值
+  		    methodName = function (datas,str){
+  		    	var quantity="";
+  		    	var materialId="";
+  		    	var barcode="";
+	  		    	datas.forEach(function(val,key){
+	  					LODOP.NewPage();
+		 	        	quantity=val["quantity"];
+		 	        	barcode=val["barcode"];
+		 	        	materialId=val["materialId"];
+		 	        	//加载模板	 		
+			    		eval(str);
+		 			});
+  		 			 
+  		   };
+});	
+
+</script>
+ 
+	</body>
+
+</html>

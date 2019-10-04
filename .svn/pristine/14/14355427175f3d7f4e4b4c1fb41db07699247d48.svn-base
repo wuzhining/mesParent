@@ -1,0 +1,37 @@
+package com.techsoft.entity.equip;
+
+import com.techsoft.entity.common.EquipWorkStackProduct;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+
+public class EquipWorkStackProductVo extends EquipWorkStackProduct {
+	private static final long serialVersionUID = -5485238473379421055L;
+
+	public EquipWorkStackProductVo() {
+	}
+
+	public EquipWorkStackProductVo(EquipWorkStackProduct value) {
+		value.cloneProperties(this);
+	}
+
+	private ProductMaterial productMaterial;
+
+	private ProductMain productMain;
+
+	public ProductMaterial getProductMaterial() {
+		return productMaterial;
+	}
+
+	public void setProductMaterial(ProductMaterial productMaterial) {
+		this.productMaterial = productMaterial;
+	}
+
+	public ProductMain getProductMain() {
+		return productMain;
+	}
+
+	public void setProductMain(ProductMain productMain) {
+		this.productMain = productMain;
+	}
+
+}

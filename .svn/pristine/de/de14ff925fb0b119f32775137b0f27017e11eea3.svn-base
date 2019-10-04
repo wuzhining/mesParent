@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  <script type="text/html" id="sampleLevelTpl">
+	{{#  if(d.sampleLevel){}}
+		{{ d.sampleLevel.dictName 
+ 	}}
+	{{# } }}
+  </script>
+  
+  <script type="text/html" id="sampleLevelRankTpl">
+	{{#  if(d.sampleLevelRank){}}
+		{{ d.sampleLevelRank.dictName 
+ 	}}
+	{{# } }}
+  </script>
+  
+    <script type="text/html" id="inspectItemTpl">
+	{{#  if(d.inspectItem){}}
+		{{ d.inspectItem.inspectItemName 
+ 	}}
+	{{# } }}
+  </script>
+  
+  
+    <script type="text/html" id="supplierTpl">
+	{{#  if(d.supplier){}}
+		{{ d.supplier.companyName 
+ 	}}
+	{{# } }}
+  </script>
+  
+    <script type="text/html" id="productTpl">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+  </script>
+  
+    <script type="text/html" id="classesTpl">
+	{{#  if(d.productClasses){}}
+		{{ d.productClasses.classesName 
+ 	}}
+	{{# } }}
+  </script>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">品质管理</a> <a><cite>检验模块关联</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+         <input type="hidden" name="productId" id="productId" placeholder="请选择产品" autocomplete="off" class="layui-input">
+        	<input type="text" name="productName" id="productName" placeholder="请选择产品" autocomplete="off" class="layui-input">
+            <button class="layui-btn layui-btn-sm  " id="productSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+			</button> 
+          <select name="supplierId"  lay-search>    
+                <option value="">请选择供应商名称</option> 
+                 <#if supplierList??>
+                     <#list supplierList as item>
+			            <option value="${item.id?c}" >${item.companyName}</option>
+			         </#list>
+			         </#if> 
+           </select>
+           
+          <select name="sampleLevelDictId"  lay-search>    
+                <option value="">请选择抽样检验水平名称</option> 
+                 <#if sampleLevelList??>
+                     <#list sampleLevelList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+           </select>
+          
+          <select name="inspectItemId"  lay-search>    
+                <option value="">请选择抽样检验水平名称</option> 
+                 <#if qualityInspectItemList??>
+                     <#list qualityInspectItemList as item>
+			            <option value="${item.id?c}" >${item.inspectItemName}</option>
+			         </#list>
+			         </#if> 
+           </select>
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>          
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加检验模块关联','/quality/qualityInspectModuleRelation/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script>    
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,height: 'full-200'
+    	,url:'/quality/qualityInspectModuleRelation/list/json'
+    	,cols: [[
+    	     {field:'sampleLevelDictId', width:170, title: '抽样检验水平名称',align:'center',templet:'#sampleLevelTpl'}
+    	     ,{field:'sampleLevelRankDictId', width:170, title: '抽样检验水平等级',align:'center',templet:'#sampleLevelRankTpl'}
+    	    ,{field:'inspectItemId',  title: '检验模板',align:'center', minWidth: 120 ,templet:'#inspectItemTpl'}
+    	    ,{field:'supplierId',  title: '供应商名称',align:'center', minWidth: 120,templet:'#supplierTpl'}
+    	    ,{field:'productId',  title: '产品名称', align:'center',minWidth: 120,templet:'#productTpl'}
+    	    ,{field:'productClassesId',  title: '产品分类名称',align:'center', minWidth: 120,templet:'#classesTpl'}  
+    	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑检验模块关联','/quality/qualityInspectModuleRelation/edit?id=' + data.id); 
+		}
+	});
+	
+	$('#productSearch').on('click',function(e){
+   		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	}) 
+   	
+   	//重置
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	}) 
+});	
+</script>
+ 
+  </body>
+
+</html>

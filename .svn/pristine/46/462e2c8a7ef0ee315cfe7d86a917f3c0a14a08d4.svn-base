@@ -1,0 +1,313 @@
+package com.techsoft.client.service.stats;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.StatsProductMaterial;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.entity.stats.StatsProductMaterialVo;
+import com.techsoft.entity.stats.StatsProductMaterialParamVo;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.stats.StatsProductMaterialService;
+import com.techsoft.service.struct.StructFactoryService;
+import com.techsoft.service.sys.UserPassportService;
+
+@org.springframework.stereotype.Service
+public class ClientStatsProductMaterialServiceImpl extends BaseClientServiceImpl<StatsProductMaterial> implements ClientStatsProductMaterialService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StatsProductMaterialService statsProductMaterialService;
+	//物料
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService;
+	// 产品
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+	//单据类型
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	//操作人
+	@com.alibaba.dubbo.config.annotation.Reference
+	private UserPassportService userPassportService;
+	//工厂名称
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructFactoryService structFactoryService;
+    
+	@Override
+	public BaseService<StatsProductMaterial> getBaseService() {
+		return statsProductMaterialService;
+	}	    	
+    
+	private StatsProductMaterialVo getVo(StatsProductMaterial statsProductMaterial, CommonParam commonParam) throws BusinessException, SQLException {
+		StatsProductMaterialVo vo = new StatsProductMaterialVo(statsProductMaterial);
+		// TODO 此处填充其它关联字段的处理代码
+		// 产品规格
+				if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+					ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(), commonParam);
+					if (productMaterial != null) {
+						if(productMaterial.getSkuValue()!=null&&productMaterial.getSkuValue()!=""){
+							ProductMaterialVo productMateriaVo=new ProductMaterialVo();
+							productMateriaVo.setSkuValue(productMaterial.getSkuValue());
+							vo.setProductMaterialVo(productMateriaVo);
+							
+						}
+						vo.setProductMaterial(productMaterial);
+					}
+				}
+		// 获取物料
+		if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+			ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(), commonParam);
+			if (productMaterial != null) {
+				vo.setProductMaterial(productMaterial);
+			}
+		}
+		// 获取产品
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productMain = productMainService.selectById(vo.getProductId(), commonParam);
+			if (productMain != null) {
+				vo.setProductMain(productMain);
+			}
+		}
+		
+		// 单据类型
+		if (vo.getBillTypeDictId() != null && vo.getBillTypeDictId() > 0L) {
+			ConfigDictionary billTypeDicList = configDictionaryService.selectById(vo.getBillTypeDictId(), commonParam);
+			if (billTypeDicList != null) {
+				vo.setBillTypeDicList(billTypeDicList);
+				
+			}
+		}
+		
+		//工厂名称
+		if (vo.getFactoryId() != null && vo.getFactoryId() > 0L) {
+			StructFactory structFactory = structFactoryService.selectById(vo.getFactoryId(), commonParam);
+			if (structFactory != null) {
+				vo.setStructFactorylist(structFactory);
+			}
+		}
+		//操作人
+		if (vo.getCreateUserId() != null && vo.getCreateUserId() > 0L) {
+			UserPassport userPassport = userPassportService.selectById(vo.getCreateUserId(), commonParam);
+			if (userPassport != null) {
+				vo.setUserPassportList(userPassport);
+			}
+		}
+		
+		return vo;
+	} 
+	
+	private StatsProductMaterialVo getExtendVo(StatsProductMaterial statsProductMaterial, CommonParam commonParam) throws BusinessException, SQLException {
+		StatsProductMaterialVo vo = this.getVo(statsProductMaterial, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<StatsProductMaterialVo> getVoList(List<StatsProductMaterial> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<StatsProductMaterialVo> voList = new ArrayList<StatsProductMaterialVo>();
+		for (StatsProductMaterial entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<StatsProductMaterialVo> getExtendVoList(List<StatsProductMaterial> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<StatsProductMaterialVo> voList = new ArrayList<StatsProductMaterialVo>();
+		for (StatsProductMaterial entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public StatsProductMaterialVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StatsProductMaterial entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<StatsProductMaterialVo>  selectListVoByParamVo(StatsProductMaterialParamVo statsProductMaterial, CommonParam commonParam) throws BusinessException, SQLException {
+		if(statsProductMaterial==null){
+			statsProductMaterial = new StatsProductMaterialParamVo();
+		}
+		statsProductMaterial.setTenantId(commonParam.getTenantId());	
+	
+		List<StatsProductMaterial> list = (List<StatsProductMaterial>) this.getBaseService().selectListByParamVo(statsProductMaterial, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<StatsProductMaterialVo> selectPageVoByParamVo(StatsProductMaterialParamVo statsProductMaterial, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(statsProductMaterial==null){
+			statsProductMaterial = new StatsProductMaterialParamVo();
+		}
+		statsProductMaterial.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<StatsProductMaterial> list  = (PageInfo<StatsProductMaterial>) this.getBaseService().selectPageByParamVo(statsProductMaterial, commonParam, pageNo, pageSize);
+		List<StatsProductMaterialVo> volist = new ArrayList<StatsProductMaterialVo>();
+		
+		Iterator<StatsProductMaterial> iter = list.getList().iterator();
+		StatsProductMaterialVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<StatsProductMaterialVo> vpage = new Page<StatsProductMaterialVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public StatsProductMaterialVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StatsProductMaterial entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<StatsProductMaterialVo>  selectListExtendVoByParamVo(StatsProductMaterialParamVo statsProductMaterial, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(statsProductMaterial==null){
+			statsProductMaterial = new StatsProductMaterialParamVo();
+		}
+		statsProductMaterial.setTenantId(commonParam.getTenantId());	
+					
+		List<StatsProductMaterial> list = (List<StatsProductMaterial>) this.getBaseService().selectListByParamVo(statsProductMaterial, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<StatsProductMaterialVo> selectPageExtendVoByParamVo(StatsProductMaterialParamVo statsProductMaterial, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(statsProductMaterial==null){
+			statsProductMaterial = new StatsProductMaterialParamVo();
+		}
+		statsProductMaterial.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<StatsProductMaterial> list  = (PageInfo<StatsProductMaterial>) this.getBaseService().selectPageByParamVo(statsProductMaterial, commonParam, pageNo, pageSize);
+		List<StatsProductMaterialVo> volist = new ArrayList<StatsProductMaterialVo>();
+		
+		Iterator<StatsProductMaterial> iter = list.getList().iterator();
+		StatsProductMaterialVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<StatsProductMaterialVo> vpage = new Page<StatsProductMaterialVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(StatsProductMaterialParamVo statsProductMaterialParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		StatsProductMaterial statsProductMaterial = null;
+		try {
+			if (statsProductMaterialParamVo.getId() == null) {//新增
+			 
+				statsProductMaterialParamVo.setTenantId(commonParam.getTenantId());
+				statsProductMaterial = statsProductMaterialService.saveOrUpdate(statsProductMaterialParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				StatsProductMaterial statsProductMaterialVoTemp = this.selectById(statsProductMaterialParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(statsProductMaterialVoTemp,
+						statsProductMaterialParamVo);
+  
+				statsProductMaterial = statsProductMaterialService.saveOrUpdate(
+						statsProductMaterialVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(statsProductMaterial);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+	
+	public List<StatsProductMaterialVo> selectListByProductSumStats(StatsProductMaterialParamVo statsProductMaterialParamVo,CommonParam commonParam) 
+			throws BusinessException, SQLException{	
+		if(statsProductMaterialParamVo==null){
+			statsProductMaterialParamVo = new StatsProductMaterialParamVo();
+		}
+		statsProductMaterialParamVo.setTenantId(commonParam.getTenantId());	
+		
+		List<StatsProductMaterial> list = statsProductMaterialService.selectListByProductSumStats(statsProductMaterialParamVo);
+		List<StatsProductMaterialVo> volist = new ArrayList<StatsProductMaterialVo>();
+		
+		Iterator<StatsProductMaterial> iterable = list.iterator();
+		StatsProductMaterialVo vo = null;
+		while(iterable.hasNext()){
+			vo = this.getExtendVo(iterable.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		
+		return volist;
+	}
+	
+	public List<StatsProductMaterialVo> selectListByMaterialSumStats(StatsProductMaterialParamVo statsProductMaterialParamVo,CommonParam commonParam) 
+			throws BusinessException, SQLException{	
+		if(statsProductMaterialParamVo==null){
+			statsProductMaterialParamVo = new StatsProductMaterialParamVo();
+		}
+		statsProductMaterialParamVo.setTenantId(commonParam.getTenantId());	
+		
+		List<StatsProductMaterial> list = statsProductMaterialService.selectListByMaterialSumStats(statsProductMaterialParamVo);
+		List<StatsProductMaterialVo> voList = new ArrayList<StatsProductMaterialVo>();
+		Iterator<StatsProductMaterial> iterable = list.iterator();
+		StatsProductMaterialVo vo = null;
+		while(iterable.hasNext()){
+			vo = this.getExtendVo(iterable.next(), commonParam);
+			voList.add(vo);
+		}
+		
+		return voList;
+	}
+	
+	public List<StatsProductMaterial> selectListByDataSumStats(StatsProductMaterialParamVo statsProductMaterialParamVo,CommonParam commonParam) 
+			throws BusinessException, SQLException{	
+		if(statsProductMaterialParamVo==null){
+			statsProductMaterialParamVo = new StatsProductMaterialParamVo();
+		}
+		statsProductMaterialParamVo.setTenantId(commonParam.getTenantId());	
+		
+		return statsProductMaterialService.selectListByDataSumStats(statsProductMaterialParamVo);
+	}
+	
+}

@@ -1,0 +1,43 @@
+package com.techsoft.service.product;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+
+import com.techsoft.entity.common.ProductBom;
+import com.techsoft.dao.product.ProductBomDao;
+
+@Service
+public class ProductBomServiceImpl extends BaseServiceImpl<ProductBom> implements ProductBomService {
+	@Autowired
+	private ProductBomDao productBomDao;
+	
+	@Override
+	public BaseDao<ProductBom> getBaseDao() {
+		return productBomDao;
+	}	
+	
+	@Override
+	public Class<ProductBom> getEntityClass() {
+		return ProductBom.class;
+	}
+	
+	@Override
+	protected ProductBom insertEntity(ProductBom entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected ProductBom updatePartEntity(ProductBom entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected ProductBom updateEntity(ProductBom entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}					
+}

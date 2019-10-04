@@ -1,0 +1,92 @@
+package com.techsoft.service.bill;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumAuditStatus;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.dao.bill.BillSaleorderDao;
+import com.techsoft.dao.bill.BillSaleorderItemDao;
+import com.techsoft.dao.history.HistoryBillStatusAuditDao;
+import com.techsoft.dao.history.HistoryBillStatusDao;
+import com.techsoft.entity.common.BillSaleorder;
+import com.techsoft.entity.common.HistoryBillStatus;
+
+@Service
+public class BillSaleorderServiceImpl extends BaseServiceImpl<BillSaleorder> implements BillSaleorderService {
+	@Autowired
+	private BillSaleorderDao billSaleorderDao;
+	@Autowired
+	private HistoryBillStatusDao historyBillStatusDao;
+	@Autowired
+	private HistoryBillStatusAuditDao historyBillStatusAuditDao;
+	@Autowired
+	private BillSaleorderItemDao billSaleorderItemDao;
+	
+	@Override
+	public BaseDao<BillSaleorder> getBaseDao() {
+		return billSaleorderDao;
+	}	
+	
+	@Override
+	public Class<BillSaleorder> getEntityClass() {
+		return BillSaleorder.class;
+	}
+	
+	@Override
+	protected BillSaleorder insertEntity(BillSaleorder entity, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryBillStatus historyBillStatus=new HistoryBillStatus();
+		 BillSaleorder  insertEntity=super.insertEntity(entity, commonParam);
+		//单据状态
+		if(insertEntity.getBillStatusDictId()!=null&&insertEntity.getBillStatusDictId()>0L){
+			historyBillStatus.setBillStatusDictId(insertEntity.getBillStatusDictId());
+		}
+		//单据id
+		if(insertEntity.getId()!=null&&insertEntity.getId()>0L){
+			historyBillStatus.setBillId(insertEntity.getId());
+		}
+		if(insertEntity!=null){
+			historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_SALEORDER.getValue(),insertEntity.getBillStatusDictId(), insertEntity.getId(),insertEntity.getBillCode(),commonParam);
+			//增加单据审批记录
+			historyBillStatusAuditDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_SALEORDER.getValue(),insertEntity.getAuditStatusDictId(), insertEntity.getId(),insertEntity.getBillCode(), commonParam);
+		}
+		//增加单据历史记录
+		return insertEntity;
+	}
+
+	@Override
+	protected BillSaleorder updatePartEntity(BillSaleorder entity, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryBillStatus historyBillStatus=new HistoryBillStatus();
+		
+		if(entity.getBillStatusDictId()!=null&&entity.getBillStatusDictId()>0L){
+			historyBillStatus.setBillStatusDictId(entity.getBillStatusDictId());
+		}
+		if(entity.getId()!=null&&entity.getId()>0L){
+			historyBillStatus.setBillId(entity.getId());
+		}
+		BillSaleorder updatePartEntity = super.updatePartEntity(entity, commonParam);
+		if(updatePartEntity!=null){
+			//增加单据历史记录
+			historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_SALEORDER.getValue(), updatePartEntity.getBillStatusDictId(), updatePartEntity.getId(),updatePartEntity.getBillCode(), commonParam);
+			//增加单据审批记录,审批id不为未审批状态时，表示已修改审批状态
+			if(updatePartEntity.getAuditStatusDictId()!=EnumAuditStatus.UNAUDITED.getValue()){
+				historyBillStatusAuditDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_SALEORDER.getValue(),updatePartEntity.getAuditStatusDictId(), updatePartEntity.getId(),updatePartEntity.getBillCode(), commonParam);
+			}
+			//更新明细表
+			billSaleorderItemDao.updateSaleorderBillStatus(entity.getId(),updatePartEntity.getBillStatusDictId(), commonParam);
+
+		}
+		
+		return updatePartEntity;
+	}
+
+	@Override
+	protected BillSaleorder updateEntity(BillSaleorder entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}					
+}

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+            <tr>
+               <td width="10%" class="tableleft">所属工厂</td>
+               <td> 
+	               <input type="hidden"  id="factoryId" name="factoryId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.factoryId??>${entity.factoryId?c}<#else></#if>">
+	              	<input type="text" id="factoryName" name="factoryName" disabled="disabled" class="layui-input input-choiceBox-intd">
+	          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="factorySearch">
+	          			<i class="layui-icon layui-icon-more"></i>
+	          		</button>
+			   </td>
+               <td width="10%" class="tableleft">所属仓库</td>
+               <td>  
+	               <input type="hidden"  id="warehouseId" name="warehouseId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.warehouseId??>${entity.warehouseId?c}<#else></#if>">
+	              	<input type="text" id="warehouseName" name="warehouseName" disabled="disabled" class="layui-input input-choiceBox-intd">
+	          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="warehouseSearch">
+	          			<i class="layui-icon layui-icon-more"></i>
+	          		</button>
+			   </td> 
+           </tr>
+           
+           
+           <tr>
+               <td width="15%" class="tableleft">产品类型</td>
+               <td>
+               <select id="productTypeDictId" name="productTypeDictId">> 
+                    <#if producDictList??>
+                     <#list producDictList as item>
+			            <option value="${item.id?c}" <#if (entity.productTypeDictId??&&entity.productTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			   </select>
+               </td>
+               <td width="15%" class="tableleft">库位类型</td>
+               <td>
+               <select id="locationTypeDictId" name="locationTypeDictId">> 
+                    <#if warehouseDicList??>
+                     <#list warehouseDicList as item>
+			            <option value="${item.id?c}" <#if (entity.locationTypeDictId??&&entity.locationTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			   </select>
+			   </td>
+           </tr>
+           
+           
+           <tr>
+               <td width="10%" class="tableleft">货位编码</td>
+               <td>
+                  <input type="text" name="locationCode"  class="layui-input" maxlength="100" value="${(entity.locationCode)!''}"/>
+               </td>
+               <td width="10%" class="tableleft">货位名称</td>
+               <td>
+                 <input type="text" name="locationName"   class="layui-input" maxlength="20" value="${(entity.locationName)!''}"/>
+               </td>
+           </tr>
+           
+           <tr>
+               <td width="15%" class="tableleft">仓库区域名称</td>
+               <td> 
+                 <select name="areaId"> 
+                    <#if warehouseAreaList??>
+                     <#list warehouseAreaList as item>
+			            <option value="${item.id?c}" <#if (entity.areaId??&&entity.areaId==item.id)>selected="selected"</#if>>${item.areaName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td>
+               
+               <td width="15%" class="tableleft">货架</td>
+               <td> 
+               		<input type="hidden"  id="rackId" name="rackId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.rackId??>${entity.rackId?c}<#else></#if>">
+	              	<input type="text" id="rackName" name="rackName" disabled="disabled" class="layui-input input-choiceBox-intd">
+	          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="rackSearch">
+	          			<i class="layui-icon layui-icon-more"></i>
+	          		</button>
+               </td>          
+           </tr>
+           
+           <tr>
+               <td width="10%" class="tableleft">第几列数</td>
+               <td>
+                  <input type="text" name="serialColumn"  class="layui-input" maxlength="100" value="<#if entity??&&entity.serialColumn??>${entity.serialColumn?c}<#else></#if>"/>
+               </td>
+               <td width="10%" class="tableleft">第几行数</td>
+               <td>
+                 <input type="text" name="serialLine"   class="layui-input" maxlength="20" value="<#if entity??&&entity.serialLine??>${entity.serialLine?c}<#else></#if>"/>
+               </td>
+           </tr>
+           
+           
+            <tr>
+               <td width="10%" class="tableleft">坐标X</td>
+               <td>
+                  <input type="text" name="coordinateX"  class="layui-input" maxlength="100" value="<#if entity??&&entity.coordinateX??>${entity.coordinateX?c}<#else></#if>"/>
+               </td>
+               <td width="10%" class="tableleft">坐标Y</td>
+               <td>
+                 <input type="text" name="coordinateY"   class="layui-input" maxlength="20" value="<#if entity??&&entity.coordinateY??>${entity.coordinateY?c}<#else></#if>"/>
+               </td>
+           </tr>
+           
+           
+           <tr>
+               <td width="10%" class="tableleft">坐标Z</td>
+               <td>
+                  <input type="text" name="coordinateZ"  class="layui-input" maxlength="100" value="<#if entity??&&entity.coordinateZ??>${entity.coordinateZ?c}<#else></#if>"/>
+               </td>
+               <td width="10%" class="tableleft">体积限制</td>
+               <td>
+                 <input type="text" name="limitVolume"   class="layui-input" maxlength="20" value="<#if entity??&&entity.limitVolume??>${entity.limitVolume?c}<#else></#if>"/>
+               </td>
+           </tr>
+           
+           
+           
+           <tr>
+               <td width="10%" class="tableleft">重量限制</td>
+               <td>
+                  <input type="text" name="limitWeight"  class="layui-input" maxlength="100" value="<#if entity??&&entity.limitWeight??>${entity.limitWeight?c}<#else></#if>"/>
+               </td>
+               <td width="10%" class="tableleft">数量限制</td>
+               <td>
+                 <input type="text" name="limitQuantity"   class="layui-input" maxlength="20" value="<#if entity??&&entity.limitQuantity??>${entity.limitQuantity?c}<#else></#if>"/>
+               </td>
+           </tr>
+           
+           
+           <tr>
+               <td width="10%" class="tableleft">箱数限制</td>
+               <td>
+                 <input type="text" name="limitQuantityBox"   class="layui-input" maxlength="20" value="<#if entity??&&entity.limitQuantityBox??>${entity.limitQuantityBox?c}<#else></#if>"/>
+               </td>
+               <td width="10%" class="tableleft">托盘限制</td>
+               <td>
+                  <input type="text" name="limitQuantityPallet"  class="layui-input" maxlength="100" value="<#if entity??&&entity.limitQuantityPallet??>${entity.limitQuantityPallet?c}<#else></#if>"/>
+               </td>
+           </tr>
+           
+  
+           
+           <tr>
+               <td width="10%" class="tableleft">尺寸-长</td>
+               <td>
+                 <input type="text" name="sizeLength"   class="layui-input" maxlength="20" value="<#if entity??&&entity.sizeLength??>${entity.sizeLength?c}<#else></#if>"/>
+               </td>
+               <td width="10%" class="tableleft">尺寸-高</td>
+               <td>
+                  <input type="text" name="sizeHeight"  class="layui-input" maxlength="100" value="<#if entity??&&entity.sizeHeight??>${entity.sizeHeight?c}<#else></#if>"/>
+               </td>
+           </tr>
+           
+           <tr>
+               <td width="10%" class="tableleft">尺寸-宽</td>
+               <td>
+                 <input type="text" name="sizeWidth"   class="layui-input" maxlength="20" value="<#if entity??&&entity.sizeWidth??>${entity.sizeWidth?c}<#else></#if>"/>
+               </td>
+               <td width="15%" class="tableleft">是否允许混放产品</td>
+               <td>
+                <select name="isMixProduct">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isMixProduct??&&entity.isMixProduct==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               
+            </tr>  
+               
+            <tr> 
+              <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>  
+              <td width="15%" class="tableleft">是否允许混放批次</td>
+               <td>
+                <select name="isMixBatch">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isMixBatch??&&entity.isMixBatch==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>     
+             </tr> 
+               
+               
+           <tr>  
+               <td width="10%" class="tableleft">备注</td>
+               <td colspan="4" >
+                 <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+               </td>
+           </tr>
+           <tr>
+             <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+             </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax,layuitable = layui.layuitable;
+          var ids = $("#id").val();
+          var url = $(window.parent.document).find("iframe").attr("src");
+      	  var result=url.indexOf("?");
+      	  var factoryName= getParam("factoryName");
+      	  var warehouseName=getParam("warehouseName");
+      	  var rackName=getParam("rackName");
+      	  if(result>0){
+      			$("#factoryName").val(factoryName); 
+      			$("#warehouseName").val(warehouseName); 
+      			$("#rackName").val(rackName); 
+      	  }
+          
+          $('#factorySearch').on('click',function(e){
+         		openWinSelect('/struct/structFactory/structFactoryOpen',"factoryId","factoryName");
+         		e.preventDefault();//默认from表单提交时不刷新
+         	})
+         $('#warehouseSearch').on('click',function(e){
+  	   		openWinSelect('/struct/structWarehouse/structWarehouseOpen',"warehouseId","warehouseName");
+  	   		e.preventDefault();//默认from表单提交时不刷新
+  	   	}) 
+         $('#rackSearch').on('click',function(e){
+  	   		openWinSelect('/warehouse/warehouseRack/warehouseRackOpen',"rackId","rackName");
+  	   		e.preventDefault();//默认from表单提交时不刷新
+  	   	}) 
+  	   	
+          //自定义验证规则
+          
+          //选择工厂查楼层级联监听
+          form.on('select(factorySelect)', function(data){
+        	  var factoryId=0;
+        	  if(data.value != ''){
+        		  factoryId=data.value;
+        	  }
+        	  $("#warehouseId option[value!='']").remove();
+        	  linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName','','/struct/structWarehouse/linkWarehouseByFactory');
+        	  $("#warehouseId").get(0).selectedIndex=0;
+        	 
+          });
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/warehouse/warehouseLocation/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+            var urlArr = window.location.href.toString().split("?");
+	  	  	 function getParams(urlArr,paraName){
+	  	  		if (urlArr.length > 1) {
+	  		  　　　　　　var arrPara = urlArr[1].split("&");
+	  		  　　　　　　var arr;
+	  		  　　　　　　for (var i = 0; i < arrPara.length; i++) {
+	  		  　　　　　　　　arr = arrPara[i].split("=");
+	
+	  		  　　　　　　　　if (arr != null && arr[0] == paraName) {
+	  		  　　　　　　　　　　return arr[1];
+	  		  　　　　　　　　}
+	  		  　　　　　　}
+	  		  　　　　　　return "";
+	  		  　　　　}
+	  		  　　　　else {
+	  		  　　　　　　return "";
+	  		  　　　　}
+	  	  	}; 
+	  	  	var edited = getParams(urlArr,'edited');		//serialLine
+	  	  	if(edited){
+	  	  	    $('input[name="serialColumn"]').attr('disabled','');
+	  	  	    $('input[name="serialLine"]').attr('disabled','');
+	  	  	}
+	          
+	        });
+    </script>
+    <script>
+    $(function () {
+    	
+    	var factoryId=0;
+	  	  if($("#factoryId").val() != ''){
+	  		  factoryId=$("#factoryId").val();
+	  	  }
+	  	//初始化
+	  	linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName',$("#initwarehouseCode").val(),'/struct/structWarehouse/linkWarehouseByFactory');
+    });
+    </script>
+  </body>
+
+</html>

@@ -1,0 +1,265 @@
+package com.techsoft.dao.bill;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.swing.plaf.basic.BasicComboBoxUI.ItemHandler;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumBillStatus;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.bill.BillWarehouseParamVo;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.mapper.bill.BillWarehouseItemMapper;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+
+@Repository
+public class BillWarehouseItemDaoImpl extends BaseDaoImpl<BillWarehouseItem> implements BillWarehouseItemDao {
+	@Resource
+	protected BillWarehouseItemMapper billWarehouseItemMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;
+
+	@Override
+	public Class<BillWarehouseItem> getEntityClass() {
+		return BillWarehouseItem.class;
+	}
+
+	@Override
+	public BaseMapper<BillWarehouseItem> getBaseMapper() {
+		return this.billWarehouseItemMapper;
+	}
+
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+
+	@Override
+	public String getTableName() {
+		return "BILL_WAREHOUSE_ITEM";
+	}
+
+	@Override
+	public void insertSaveCheck(BillWarehouseItem value) throws BusinessException, SQLException {
+		if (value.getBillId() == null || value.getBillId().equals(0L)) {
+			throw new BusinessException("主单据不能为空");
+		}
+	}
+
+	@Override
+	public void updateSaveCheck(BillWarehouseItem value) throws BusinessException, SQLException {
+
+	}
+
+	@Override
+	public void deleteSaveCheck(BillWarehouseItem value) throws BusinessException, SQLException {
+
+	}
+
+	@Override
+	public void insertBatch(List<BillWarehouseItem> items, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		try {
+			for (BillWarehouseItem item : items) {
+				insertSaveCheck(item);
+				if (commonParam.getUserId() != null) {
+					item.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+					item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				}
+			}
+			int rows = this.billWarehouseItemMapper.insertBatch(items);
+			if (rows != items.size()) {
+				throw new BusinessException("新增明细数量不一致！请检查");
+			}
+
+		} catch (RuntimeException e) {
+			throw new SQLException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public BillWarehouseItem selectById(Long billItemId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillWarehouseItem result = null;
+		try {
+			result = this.selectById(billItemId);
+			if (result == null) {
+				throw new BusinessException("单据明细不存在");
+			}
+		} catch (Exception e) {
+			throw new SQLException(e.getMessage());
+		}
+		return result;
+	}
+
+	@Override
+	public void updateOffStore(Long id, Long billStatusDictId, Double quality, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			BillWarehouseItem item = this.selectById(id);
+			item.setQuantityScan(quality);
+			item.setBillStatusDictId(billStatusDictId);
+			this.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+
+	}
+
+	@Override
+	public void updateOutStoreBill(BillWarehouseItemParamVo paramVo, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWarehouseItem> itemList = this.selectListByParamVo(paramVo);
+		for (BillWarehouseItem billWarehouseItem : itemList) {
+			// 更改当前领料单明细状态为完结
+			this.updateOutStore(billWarehouseItem.getId(), EnumBillStatus.FINISHED.getValue(),
+					billWarehouseItem.getQuantityScan(), commonParam);
+		}
+
+	}
+
+	@Override
+	public void updateOutStore(Long id, Long billStatusDictId, Double quality, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			BillWarehouseItem item = this.selectById(id);
+			item.setQuantityFinish(quality);
+			item.setBillStatusDictId(billStatusDictId);
+			this.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+
+	}
+
+	@Override
+	public List<BillWarehouseItem> getbillItemListBybillId(Long billId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWarehouseItem> list = new ArrayList<BillWarehouseItem>();
+		BillWarehouseItemParamVo billWarehouseItemParamVo = new BillWarehouseItemParamVo();
+		billWarehouseItemParamVo.setBillId(billId);
+		list = billWarehouseItemMapper.selectListByEntityParamVo(billWarehouseItemParamVo);
+		if (list.size() > 0) {
+			return list;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年5月27日下午4:46:07
+	 * @param billId
+	 *            主表ID
+	 * @param billStatusDictId
+	 *            单据状态
+	 * @description
+	 */
+	@Override
+	public void updateBillItemStatus(Long billId, Long billStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+
+		// 查询明细ID更新
+		List<BillWarehouseItem> list = new ArrayList<BillWarehouseItem>();
+		BillWarehouseItemParamVo paramVo = new BillWarehouseItemParamVo();
+		paramVo.setBillId(billId);
+		list = billWarehouseItemMapper.selectListByEntityParamVo(paramVo);
+
+		List<Long> ids = new ArrayList<Long>();
+		for (BillWarehouseItem billWarehouseItem : list) {
+			// updateSaveCheck(item);
+			billWarehouseItem.setBillStatusDictId(billStatusDictId);
+			billWarehouseItem.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			ids.add(billWarehouseItem.getId());
+		}
+		List<DistributedLock> listlock = LockManager.getLongZKDistributedLock(BillWarehouseItem.class.getName(), ids);
+		LockManager.lockList(listlock);
+		try {
+			this.billWarehouseItemMapper.updateBatchBillItem(list);
+		} finally {
+			LockManager.unLockList(listlock);
+		}
+
+	}
+
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年5月27日下午4:35:16
+	 * @param id
+	 *            明细表ID
+	 * @param billStatusDictId
+	 *            单据状态
+	 * @param quality
+	 *            数量
+	 * @description
+	 */
+	@Override
+	public void updateInstore(Long id, Long billStatusDictId, Double quality, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			BillWarehouseItem item = billWarehouseItemMapper.selectById(id);
+			item.setQuantityFinish(item.getQuantityFinish() + quality);
+			item.setQuantityScan(item.getQuantityScan() + quality);
+			item.setBillStatusDictId(billStatusDictId);
+			item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			item.setTenantId(commonParam.getTenantId());
+			billWarehouseItemMapper.updatePartEntity(item);
+		} finally {
+			distributedLock.unlock();
+		}
+
+	}
+
+	@Override
+	public List<BillWarehouseItem> buildLocationsByRack(BillWarehouseParamVo paramVo, Long billWarehouseId,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		List<BillWarehouseItem> itemList = paramVo.getItemList();
+		Integer index = 0;
+		String idString = "";
+		Long idLong = 0L;
+		Long itemId = getIdValue();
+		DecimalFormat locationdf = new DecimalFormat("000000");
+		for (BillWarehouseItem item : itemList) {
+			index++;
+			idString = locationdf.format(index);
+			idLong = Long.valueOf(itemId.toString() + idString);
+			item.setId(idLong);
+			item.setTenantId(paramVo.getTenantId());
+			item.setBillId(billWarehouseId);
+			item.setBillStatusDictId(paramVo.getBillStatusDictId());
+			if (item.getQuantityScan() == null) {
+				item.setQuantityScan(0.0);
+			}
+			if (item.getQuantityFinish() == null) {
+				item.setQuantityFinish(0.0);
+			}
+			if (item.getQuantity() == null) {
+				item.setQuantity(0.0);
+			}
+		}
+		return itemList;
+	}
+}

@@ -1,0 +1,247 @@
+package com.techsoft.client.service.equip;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipFixture;
+import com.techsoft.entity.common.FirmEmployee;
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.equip.EquipFixtureParamVo;
+import com.techsoft.entity.equip.EquipFixtureVo;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.equip.EquipFixtureService;
+import com.techsoft.service.firm.FirmEmployeeService;
+import com.techsoft.service.firm.FirmPartnerService;
+import com.techsoft.service.struct.StructWarehouseService;
+import com.techsoft.service.warehouse.WarehouseLocationService;
+
+@org.springframework.stereotype.Service
+public class ClientEquipFixtureServiceImpl extends BaseClientServiceImpl<EquipFixture>
+		implements ClientEquipFixtureService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipFixtureService equipFixtureService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWarehouseService structWarehouseService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmPartnerService firmPartnerService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmEmployeeService firmEmployeeService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WarehouseLocationService warehouseLocationService;
+
+	@Override
+	public BaseService<EquipFixture> getBaseService() {
+		return equipFixtureService;
+	}
+
+	private EquipFixtureVo getVo(EquipFixture equipFixture, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		EquipFixtureVo vo = new EquipFixtureVo(equipFixture);
+		if (vo.getWarehouseId() != null && vo.getWarehouseId() > 0L) {
+			StructWarehouse structWarehouse = structWarehouseService.selectById(vo.getWarehouseId(), commonParam);
+			if (structWarehouse != null) {
+				vo.setStructWarehouse(structWarehouse);
+			}
+		}
+		if (vo.getLocationId() != null && vo.getLocationId() > 0L) {
+			WarehouseLocation warehouseLocation = warehouseLocationService.selectById(vo.getLocationId(), commonParam);
+			if (warehouseLocation != null) {
+				vo.setWarehouseLocation(warehouseLocation);
+			}
+		}
+//		if (vo.getFixtureTypeDictId() != null && vo.getFixtureTypeDictId() > 0L) {
+//			ConfigDictionary configDictionary = configDictionaryService.selectById(vo.getFixtureTypeDictId(),
+//					commonParam);
+//			if (configDictionary != null) {
+//				vo.setConfigDictionary(configDictionary);
+//			}
+//		}
+		if (vo.getFixtureStatusDictId() != null && vo.getFixtureStatusDictId() > 0L) {
+			ConfigDictionary configDictionaryStatus = configDictionaryService.selectById(vo.getFixtureStatusDictId(),
+					commonParam);
+			if (configDictionaryStatus != null) {
+				vo.setConfigDictionaryStatus(configDictionaryStatus);
+			}
+		}
+		if (vo.getSupplierId() != null && vo.getSupplierId() > 0L) {
+			FirmPartner firmPartner = firmPartnerService.selectById(vo.getSupplierId(), commonParam);
+			if (firmPartner != null) {
+				vo.setFirmPartner(firmPartner);
+			}
+		}
+		if (vo.getConfirmUserId() != null && vo.getConfirmUserId() > 0L) {
+			FirmEmployee firmEmployee = firmEmployeeService.selectById(vo.getConfirmUserId(), commonParam);
+			if (firmEmployee != null) {
+				vo.setFirmEmployee(firmEmployee);
+			}
+		}
+		return vo;
+	}
+
+	private EquipFixtureVo getExtendVo(EquipFixture equipFixture, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		EquipFixtureVo vo = this.getVo(equipFixture, commonParam);
+
+		return vo;
+	}
+
+	private List<EquipFixtureVo> getVoList(List<EquipFixture> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<EquipFixtureVo> voList = new ArrayList<EquipFixtureVo>();
+		for (EquipFixture entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<EquipFixtureVo> getExtendVoList(List<EquipFixture> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<EquipFixtureVo> voList = new ArrayList<EquipFixtureVo>();
+		for (EquipFixture entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public EquipFixtureVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		EquipFixture entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<EquipFixtureVo> selectListVoByParamVo(EquipFixtureParamVo equipFixture, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (equipFixture == null) {
+			equipFixture = new EquipFixtureParamVo();
+		}
+		equipFixture.setTenantId(commonParam.getTenantId());
+
+		List<EquipFixture> list = (List<EquipFixture>) this.getBaseService().selectListByParamVo(equipFixture,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<EquipFixtureVo> selectPageVoByParamVo(EquipFixtureParamVo equipFixture, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (equipFixture == null) {
+			equipFixture = new EquipFixtureParamVo();
+		}
+		equipFixture.setTenantId(commonParam.getTenantId());
+
+		PageInfo<EquipFixture> list = (PageInfo<EquipFixture>) this.getBaseService().selectPageByParamVo(equipFixture,
+				commonParam, pageNo, pageSize);
+		List<EquipFixtureVo> volist = new ArrayList<EquipFixtureVo>();
+
+		Iterator<EquipFixture> iter = list.getList().iterator();
+		EquipFixtureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<EquipFixtureVo> vpage = new Page<EquipFixtureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public EquipFixtureVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		EquipFixture entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<EquipFixtureVo> selectListExtendVoByParamVo(EquipFixtureParamVo equipFixture, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (equipFixture == null) {
+			equipFixture = new EquipFixtureParamVo();
+		}
+		equipFixture.setTenantId(commonParam.getTenantId());
+
+		List<EquipFixture> list = (List<EquipFixture>) this.getBaseService().selectListByParamVo(equipFixture,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<EquipFixtureVo> selectPageExtendVoByParamVo(EquipFixtureParamVo equipFixture,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (equipFixture == null) {
+			equipFixture = new EquipFixtureParamVo();
+		}
+		equipFixture.setTenantId(commonParam.getTenantId());
+
+		PageInfo<EquipFixture> list = (PageInfo<EquipFixture>) this.getBaseService().selectPageByParamVo(equipFixture,
+				commonParam, pageNo, pageSize);
+		List<EquipFixtureVo> volist = new ArrayList<EquipFixtureVo>();
+
+		Iterator<EquipFixture> iter = list.getList().iterator();
+		EquipFixtureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<EquipFixtureVo> vpage = new Page<EquipFixtureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(EquipFixtureParamVo equipFixtureParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		EquipFixture equipFixture = null;
+		try {
+			if (equipFixtureParamVo.getId() == null) {// 新增
+
+				equipFixtureParamVo.setTenantId(commonParam.getTenantId());
+				equipFixture = equipFixtureService.saveOrUpdate(equipFixtureParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				EquipFixture equipFixtureVoTemp = this.selectById(equipFixtureParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(equipFixtureVoTemp, equipFixtureParamVo);
+
+				equipFixture = equipFixtureService.saveOrUpdate(equipFixtureVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(equipFixture);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

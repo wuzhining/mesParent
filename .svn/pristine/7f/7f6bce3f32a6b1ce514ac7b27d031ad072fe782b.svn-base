@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+     <div class="layui-btn-group">
+		  <button id="desgin" class="layui-btn">打印模板设计</button>
+		  <button id="setup" class="layui-btn">打印模板维护</button>
+	 </div>
+		 <p><textarea rows="15" id="S1" cols="102"  >返回的模板代码片段</textarea>
+	 <div id='id01'  disabled = true class="layui-btn-group">
+		  <button id="improt" class="layui-btn">导入模板</button>
+		  <button id="preview" class="layui-btn">打印测试</button>
+		  <button id="saveModel"   class="layui-btn">保存模板到本地文件</button>
+	 </div>
+	 <div  style="text-align:center">
+	   <div id="hidden1" lay-filter="hidden1" style="display: none">
+	   	  <form class="layui-form layui-col-md12 x-so">
+	           <div class="div-choiceBox-intd layui-input-inline">
+	     	  		    <input type="text" name="labelId" id="labelId"    disabled="disabled"  placeholder="请选择标签模板id" autocomplete="off" class="layui-input">
+	        		    <input type="text" name="labelName" id="labelName"  disabled="disabled"  placeholder="请选择标签模板名称" autocomplete="off" class="layui-input">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="labelIdsearch">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	           </div> 
+          </form>
+          <div class="layui-col-md12" id='bottomTab'>
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+				        <table id="label_filed" lay-filter="label_filed"></table>
+        			</div>
+        		</div>
+        </div>
+     
+        <div style="margin:0 auto">
+	          <button class="layui-btn" id="save"  >确认</button>
+	          <button class="layui-btn"  id="callback" >取消</button>
+        </div>
+	 </div>
+       <div id="hidden2" lay-filter="hidden2" style="display: none">
+        <table id="printType" lay-filter="printType"></table>
+	  </div>  
+	  </div>
+<!-- 添加 弹出标签文档表格的 tool（里面的按钮）-->
+<script type="text/html" id="lableSelect">
+     <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+</script>
+
+<script type="text/html" id="configLabel">
+	{{#  if(d.configLabel){}}
+		{{ d.configLabel.labelName 
+
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="labelFieldName">
+	{{#  if(d.configLabelField){}}
+		{{ d.configLabelField.labelFieldName 
+
+ 	}}
+	{{# } }}
+</script>
+    <script>
+    var data="";//标签模板的字段与序号
+    var barcodeResultData=[];
+    var trackBarcodeResultData=[];
+     var labelFeildData=[];
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','table','layuiconfig','layuiformajax','layuitable'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layuitable = layui.layuitable,table = layui.table ;
+          var layuiformajax = layui.layuiformajax;
+          var labelStr="",cartable="";
+          var datas="";
+         
+          var flag=false;
+      	  var LODOP;	
+        	$('#improt').focus(input_focus_handler);
+        	layuitable.render(lable_result_table_options); //渲染数据给弹窗框表格， 
+        	$('#labelIdsearch').focus(lable_filed_focus_handler);
+        	table.on('tool(printType)', lable_tool_event_handler);  // 为页面上的table上的tool绑定事件处理函数  
+        	
+        	
+            var renderTable = function (data) {
+        		 cartable=layuitable.render({
+            	elem: '#label_filed'
+            	,id:'label_filed'
+            	,height:300
+            	,data:data
+            	,cols: [[
+      	        	 {field:'labelId',  title: '标签ID',align:'center',width:"15%"}
+      	    	    ,{field:'labelName',  title: '标签名称',align:'center',width:"25%",templet: '#configLabel'}
+      	    	    ,{field:'labelFieldId',  title: '标签字段ID',align:'center',width:"15%"}
+      	    	    ,{field:'labelFieldName',  title: '标签字段名称',align:'center',width:"25%",templet: '#labelFieldName'}
+      	    	    ,{field:'sortNo',  title: '字段排序号', align:'center',width:"10%",width:"15%"}
+            	]],
+            	done: function(res, curr, count){
+            		 //如果是异步请求数据方式，res即为你接口返回的信息。
+            		 //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+            		 labelStr=res.resultlist;
+            		// console.log(labelStr);
+            		 //得到当前页码
+            	//	 console.log(curr);
+            		 //得到数据总量
+            	//	 console.log(count);
+            		 }
+            	
+            	
+          	});
+        	}
+			//该处应该调用根据标签文档id查询标签文档所有字段信息
+			form.on('submit(search)', function (data) {
+	        		layuitable.reload(data.field);
+	                return false;
+	          	}); 
+    	  ////打印设计
+             $("#desgin").click(function(){
+        	  prn1_design();
+          })     
+          //打印维护
+          $("#setup").click(function(){
+        	 prn1_setup();
+          })
+           //导入模板
+         /*   $("#improt").click(function(){
+          myReadFile('S1');
+        	  
+          })  */
+       		
+           var callbackdata = function (flag) {
+          
+            return flag;
+        }
+          //打印测试
+          $("#preview").click(function(){
+    
+        	 datas=selectItemById({"billId":"1000441"}, '/barcode/barcodeMain/billWarehouseItemById');
+        	  print_Preview(datas,methodName,'S1'); 
+        	 
+        		result(function(message){//自定义异步回调函数，用来判断打印是否成功
+        		  if(message||message>0){//如果直接打印判断Boolean，如果预览打印，判断message大于0，预览打印返回打印次数
+	        		 //保存打印的数据到
+	        	 	var barcodeUrl = '/barcode/barcodeMain/insertBarcodeMain';
+	        	 	var trackBarcodeUrl ='/track/trackBarcode/insertPrintBarcode';
+	        	 	
+	        	 //	insertPrintData(barcodeResultData,barcodeUrl);//保存条码打印数据到条码主表,已经插入成功了，数据库当前时间对不上
+	        	//	insertPrintData(trackBarcodeResultData,trackBarcodeUrl);//保存条码打印数据到条码记录表，已经插入成功，数据库当前时间对不上
+        		  }
+        		}); 
+       		   
+       			  
+       		 
+     		 
+     	
+        
+        		  
+            
+          })
+          //保存模板到本地文件
+           $("#saveModel").click(function(){
+        	  var strtext=document.getElementById('S1').value;
+        	  myWriteFile(strtext);
+          })
+          
+        
+          //确认标签模板
+           $("#save").on('click',function(e){
+        	   
+        		if($('#labelId').val()!= ""){
+        				 var index= layer.open({
+        				  content: '模板标签选择成功，请严格按照选定的标签模板导入对应设计标签，否则将会打印失败！！',
+        				 yes: function(index, layero){
+        					  layer.closeAll(); //如果设定了yes回调，需进行手工关闭
+        					  
+        				  }, 
+        				  end: function(){//当前层关闭之后，回调该方法
+							 // prn1_design();//并进入设计模板的方法
+		        			//根据选择的标签模板id得到对应的标签模板的所有字段以及字段序号：
+		        		 	var url="/barcode/barcodeMain/selectLabelItemById";
+		        			var labelId=$('#labelId').val();
+		        			labelFeildData=selectItemById({"id":"1000006","configBarcodeRule":"10359","quantity":1},url);
+				        	 console.log(labelFeildData); 
+							 myReadFile('S1');
+        					} 
+        				});  
+        		
+       			}else{
+      			 layer.alert('请选择模板类型', {icon: 6});
+       			}
+        	 
+      		 })
+    	  
+
+          
+          //取消标签模板设定
+          $("#callback").click(function(){
+        	  location.reload();
+        	  layer.closeAll();
+        	  
+          })
+      
+    
+          	//点击弹出的“标签文档信息”弹层上的表格中“选中”按钮的触发函数，回填input框
+	function lable_tool_event_handler(obj) {
+		var lableData = obj.data;
+		var id=lableData.id;
+		switch (obj.event) {
+			case 'select':
+				$('#labelId').val(lableData.id);
+				$('#labelName').val(lableData.labelName);
+				//flag=true;
+				layer.close(layer.index);
+					break;
+		}
+		var url="/config/configLabelItem/list/json";
+		var redata={"labelId":$('#labelId').val(),"pageIndex":0};
+		//这里直接查询模板信息
+		 data=getConfigLabelFieldByTypeId(redata,url);
+		console.log(data);
+		renderTable(data);
+		// layer.index--;
+	}
+    	  
+	function  input_focus_handler(){
+		layer.open({
+			type : 1
+			,title:"选择标签模板类型"
+			, area : [ '852px', '600px' ]
+			, content : $('#hidden1')
+			, success : function () {
+				$('#labelId').val("");
+				$('#labelName').val("");
+				//$('#hidden1').css('display', 'block');
+			},
+			end: function(){//当前层关闭之后，回调该方法
+				  //获取选定的标签模板所有字段:得到客户选定的标签模板的所有字段，进行下步操作：
+				cartable.reload();  
+				return false;
+			   
+			} 
+
+		});
+
+	}
+	function  lable_filed_focus_handler(){
+		layer.open({
+			type : 1
+			,title:"标签模板"
+			, area : [ '600px', '500px' ]
+			, content : $('#hidden2')
+			, success : function () {
+				// 重新加载表格中的数据
+				$('#hidden2').css('display', 'block');
+			}
+		});
+
+	}
+    	  
+    	  
+        });
+    
+    
+	  //页面上隐藏的用于弹层的所有产品规格的列表的相关设置
+    var lable_result_table_options = {
+    		elem: '#printType'
+   	    	,id:'printType'
+   	    	,url:'/config/configLabel/list/json'
+   	    	,cols: [[
+   	    	     {field:'id', title: 'ID',align:'center', width:200}
+   	    	    ,{field:'labelName',  title: '标签文档名称',align:'center', width:196}
+   	      		,{field:'', width:'14%', title: '操作', align:'center', toolbar: '#lableSelect', fixed: 'right',width:200}
+   	    	]]
+    };
+	
+
+    //根据选定的模板ID,装载对应的模板标签字段，进行动态变量赋值
+	function eavlLabelFeild(labelFeildData){
+    	  for ( var label in labelFeildData) {
+    		  LODOP.SET_PRINT_STYLEA(parseInt(labelFeildData[label].sortNo),"ContentVName",labelFeildData[label].configLabelField.labelFieldName);
+		}
+      }    	 
+    //自定义方法：用来变量赋值
+    methodName = function (datas,str){
+    	var oldQuantity="";
+    	var quantity="";
+    	var materialId="";
+    		for (var i = 0; i < datas.length; i++) {
+    			/**
+    			 * 该方法下面需要写自己对应模板的变量名赋值；下面的两个变量是例子，可以替换成自己需要的字段
+    			 */
+	    			 if(datas[i].quantity!=null){
+	    				 oldQuantity=datas[i].quantity; // 数量
+	    			 }
+	    			 if(datas[i].materialId!=null){
+	    				 //用产品规格id拿到产品id,然后通过产品id拿到包装箱最小包装数，然后用产品规格总数除以最小包装数向上取整，得到产品规格条码张数，最后一张条码通过取余得到条码产品规格剩余数
+	    				 //不能直接用查询产品规格的url。。得重新写后台byId查询方法
+	    				 var productData=selectItemById({"id":datas[i].materialId},'/product/productMaterial/selectProductByMaterilId');
+	    				 var productId="";
+	    				 
+	    				 for (var x = 0; x < productData.length; x++) {
+	    					 productId= productData[x].productId;
+						}
+	    				 //拿到包装箱的详细信息
+	    				 var packBoxData=selectItemById({"productId":productId,"materialId":datas[i].materialId},'/product/productPackbox/selectPackboxByProductId');
+	    				 var quantityPack=0;
+	    				if(packBoxData[0].isInner==1){
+	    					quantityPack=packBoxData[0].quantityPack*packBoxData[0].quantityInner;
+	    				}else{
+		    				quantityPack= packBoxData[0].quantityPack;//根据产品规格id得到相应的最小包装数
+	    				}
+	    				
+	    				var decodeQuantity= Math.ceil(oldQuantity/quantityPack);//条码打印张数
+	    				var  decodeModQuantity=oldQuantity%quantityPack; //条码打印最后一张产品规格数量
+	    				 
+	    				 for (var k = 0; k < decodeQuantity; k++) {
+	    					 if(k>0&&(k+1)%30==0||k==decodeQuantity-1||decodeQuantity==1||k==0){
+	    						 LODOP.SET_PRINT_MODE("CUSTOM_TASK_NAME","单次条码打印"+k+RndNum(10));//为每个打印单独设置任务名
+	    					 }
+	    					 LODOP.NewPage();
+		    			     materialId=datas[i].materialId+RndNum(10); // 产品规格条码=产品规格ID+10位随机数
+	    					 if(k==decodeQuantity-1){//最后一张条码
+	    						 if(decodeModQuantity!=0){
+	    						quantity=decodeModQuantity;
+	    						 }
+	    					 }else{//每张条码打印的应该是最小包装数
+	    						 quantity= quantityPack;
+	    					 }
+		    					// barcodeResultData.push({"billId":datas[i].billId,"materialId":datas[i].materialId,"id":materialId,"quantity":quantity});//单据id
+		    			 		// trackBarcodeResultData.push({"billId":datas[i].billId,"materialId":datas[i].materialId,"barcodeId":materialId,"quantity":quantity});//单据id
+							
+    						eval(str); //加载模板
+    						console.log(data);
+    						//eavlLabelFeild(data);//根据查询出来的模板字段进行动态变量赋值
+    						if(k>0&&(k+1)%30==0||k==decodeQuantity-1||decodeQuantity==1){
+    							LODOP.PRINT();
+    						}
+    						
+    						
+						}
+						
+	    			 }
+    			
+    		}	
+    	};
+  //打印设计
+    function prn1_design() {		
+    	CreateOneFormPage();
+    	if (LODOP.CVERSION) CLODOP.On_Return=function(TaskID,Value){
+    		 $("#S1").text(Value);
+    		//document.getElementById('S1').value=Value;
+    		};
+    	
+    	 LODOP.PRINT_DESIGN();
+    	document.getElementById('id01').disabled = false; 	
+    };
+
+    //打印维护并返回程序代码
+    	function prn1_setup() {		
+    	/* 	var str=document.getElementById('S1').value;
+    		//var MODULE_NM=""; 
+    		//var MODULE_SN="";
+    		eval(str); */
+    		LODOP.PRINT_INIT("产品规格标签");
+    		LODOP.SET_PRINT_PAGESIZE(1,820,400,"");
+    		LODOP.SET_PRINT_MODE("PRINT_SETUP_PROGRAM",true);
+    		LODOP.SET_PRINT_MODE("PROGRAM_CONTENT_BYVAR",true);
+    		LODOP.ADD_PRINT_TEXT(8,14,61,20,"产品规格名称");
+    		LODOP.ADD_PRINT_TEXT(8,75,72,20,"materialName");
+    		LODOP.ADD_PRINT_TEXT(8,147,41,20,"数量");
+    		LODOP.ADD_PRINT_TEXT(8,180,54,20,"quantityStock");
+    		LODOP.ADD_PRINT_TEXT(28,14,61,20,"产品规格编码");
+    		LODOP.ADD_PRINT_TEXT(28,75,162,20,"materialCode");
+    		LODOP.ADD_PRINT_BARCODE(49,15,224,60,"128Auto","lableCode");
+    		LODOP.ADD_PRINT_TEXT(109,12,62,20,"供应商");
+    		LODOP.ADD_PRINT_TEXT(109,74,152,20,"companyName");
+    		if (LODOP.CVERSION) CLODOP.On_Return=function(TaskID,Value){document.getElementById('S1').value=Value;};
+    		document.getElementById('S1').value=LODOP.PRINT_SETUP();
+    		document.getElementById('id01').display =false; 		
+    	};	
+
+    
+   //根据标签模板类型id获取标签文档格式的所有标签元素
+      function getConfigLabelFieldByTypeId(data,url){
+    	var resjson=[];
+    	$.ajax({
+			type: "post",
+			dataType: "json",
+			contentType:'application/x-www-form-urlencoded',
+			url:url,
+			data:data,
+			async:false,
+	        success: function(res){
+				resjson=res.resultlist;//标签模板的所有字段，排序号
+				      }
+			  });
+		 console.log(resjson);
+		return resjson;
+    }  
+    //创建模板时初始化模板
+    
+    /*
+    1.创建模板之前，应该选择模板类型，拿到需要创建模板的全部标签字段元素，与该元素的排序序号
+    	1.1点击模板设计按钮，弹出一个弹窗，里面有一个选择模板文档类型下拉框，和一个table表格
+    	1.2选中模板文档类型之后，加载出一个table表格，每个td列，用来显示该模板文档中保存的标签字段
+    2.拿到标签元素之后，写一个方法专门用来加载标签元素的动态赋值顺序与赋值变量名
+    3.拿到客户设计的模板生成的代码块，用来分页加载上下两部分，再执行打印
+    4.应该每个标签打印页面需要设计一个默认模板，
+    */
+    function CreateOneFormPage(){		
+    	LODOP=getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));  
+    	LODOP.PRINT_INIT("");//请设置打印任务名，自定义
+    	LODOP.SET_PRINT_PAGESIZE(1,820,400,"");//设计纸张大小
+    	LODOP.SET_PRINT_MODE("PROGRAM_CONTENT_BYVAR",true);//生成程序时，内容参数有变量用变量，无变量用具体值
+    	//LODOP.SET_PRINT_STYLEA(2,"ContentVName","materialId");
+    	//LODOP.SET_PRINT_STYLEA(3,"ContentVName","quantity");
+
+    };
+    //保存这些代码到本地文件
+    function myWriteFile(strText){
+    	if (LODOP.CVERSION) CLODOP.On_Return=function(TaskID,Value){
+    		var strFilename=Value;
+    		CLODOP.On_Return=function(TaskID,Value){alert(Value)};
+    		LODOP.WRITE_FILE_TEXT(0,strFilename,strText);
+    	};
+    	var strFilename=LODOP.GET_DIALOG_VALUE("LocalFileFullNameforSave","保存的新文件名.txt");
+     	if (!LODOP.CVERSION) {
+    		alert(LODOP.WRITE_FILE_TEXT(0,strFilename,strText));
+    	};
+	};
+    </script>
+  
+  </body>
+
+</html>

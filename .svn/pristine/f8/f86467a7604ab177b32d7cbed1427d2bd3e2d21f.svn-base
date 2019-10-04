@@ -1,0 +1,400 @@
+package com.techsoft.client.service.product;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.alibaba.dubbo.common.utils.StringUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.common.ProductClasses;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.WarehouseStrategyDownshelf;
+import com.techsoft.entity.common.WarehouseStrategyUpshelf;
+import com.techsoft.entity.product.ProductMaterialParamVo;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.service.config.ConfigCodeRuleService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.firm.FirmPartnerService;
+import com.techsoft.service.product.ProductClassesService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.struct.StructWarehouseService;
+import com.techsoft.service.warehouse.WarehouseStrategyDownshelfService;
+import com.techsoft.service.warehouse.WarehouseStrategyUpshelfService;
+
+@org.springframework.stereotype.Service
+public class ClientProductMaterialServiceImpl extends BaseClientServiceImpl<ProductMaterial>
+		implements ClientProductMaterialService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductClassesService productClassesService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmPartnerService firmPartnerService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWarehouseService structWarehouseService; 
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigCodeRuleService configCodeRuleService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WarehouseStrategyDownshelfService warehouseStrategyDownshelfService ;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WarehouseStrategyUpshelfService warehouseStrategyUpshelfService ;
+	@com.alibaba.dubbo.config.annotation.Reference
+	@Override
+	public BaseService<ProductMaterial> getBaseService() {
+		return productMaterialService;
+	}
+
+	private ProductMaterialVo getVo(ProductMaterial productMaterial, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ProductMaterialVo vo = new ProductMaterialVo(productMaterial);
+
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productMain = productMainService.selectById(vo.getProductId(), commonParam);
+			if (productMain != null) {
+				vo.setProductMain(productMain);
+			}
+		}
+		// 供应商
+		if (vo.getSupplierId() != null && vo.getSupplierId() > 0L) {
+			FirmPartner supplierName = firmPartnerService.selectById(vo.getSupplierId(), commonParam);
+			if (supplierName != null) {
+				vo.setFirmPartner(supplierName);
+			}
+
+		}
+		// 产品分类
+
+		if (vo.getProductTypeDictId() != null && vo.getProductTypeDictId() > 0L) {
+			ProductClasses productClasses = productClassesService.selectById(vo.getProductTypeDictId(), commonParam);
+			if (productClasses != null) {
+				vo.setProductClasses(productClasses);
+			}
+		}
+		// 库存单位
+		if (vo.getStockUnitDictId() != null && vo.getStockUnitDictId() > 0L) {
+			ConfigDictionary stockUnitDict = configDictionaryService.selectById(vo.getStockUnitDictId(), commonParam);
+			if (stockUnitDict != null) {
+				vo.setStockUnitDict(stockUnitDict);
+			}
+		}
+		// 生产单位
+		if (vo.getWorkUnitDictId() != null && vo.getWorkUnitDictId() > 0L) {
+			ConfigDictionary workUnitDict = configDictionaryService.selectById(vo.getWorkUnitDictId(), commonParam);
+			if (workUnitDict != null) {
+				vo.setWorkUnitDict(workUnitDict);
+			}
+		}
+		// 产品类型
+		if (vo.getProductTypeDictId() != null && vo.getProductTypeDictId() > 0L) {
+			ConfigDictionary productType = configDictionaryService.selectById(vo.getProductTypeDictId(), commonParam);
+			if (productType != null) {
+				vo.setProductType(productType);
+			}
+		}
+		// 实物状态
+		if (vo.getMaterialStatusDictId() != null && vo.getMaterialStatusDictId() > 0L) {
+			ConfigDictionary materialStatus = configDictionaryService.selectById(vo.getMaterialStatusDictId(),
+					commonParam);
+			if (materialStatus != null) {
+				vo.setMaterialStatus(materialStatus);
+			}
+		}
+		// 下架策略
+				if (vo.getStrategyDownshelfId() != null && vo.getStrategyDownshelfId() > 0L) {
+					 WarehouseStrategyDownshelf warehouseStrategyDownshelf = warehouseStrategyDownshelfService.selectById(vo.getStrategyDownshelfId(), commonParam);
+					if (warehouseStrategyDownshelf != null) {
+						vo.setWarehouseStrategyDownshelf(warehouseStrategyDownshelf);
+					}
+				}
+				// 上架策略
+				if (vo.getStrategyUpshelfId() != null && vo.getStrategyUpshelfId() > 0L) {
+					WarehouseStrategyUpshelf warehouseStrategyUpshelf = warehouseStrategyUpshelfService.selectById(vo.getStrategyUpshelfId(), commonParam);
+					if (warehouseStrategyUpshelf != null) {
+						vo.setWarehouseStrategyUpshelf(warehouseStrategyUpshelf);
+					}
+				}
+		/*
+		 * //仓库 if (vo.getWarehouseId()!= null && vo.getWarehouseId() > 0L) {
+		 * StructWarehouse structWarehouse =
+		 * structWarehouseService.selectById(vo.getWarehouseId(), commonParam);
+		 * if (structWarehouse != null) {
+		 * vo.setStructWarehouse(structWarehouse); } }
+		 */
+
+		return vo;
+	}
+
+	private ProductMaterialVo getExtendVo(ProductMaterial productMaterial, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ProductMaterialVo vo = this.getVo(productMaterial, commonParam);
+
+		return vo;
+	}
+
+	private List<ProductMaterialVo> getVoList(List<ProductMaterial> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ProductMaterialVo> voList = new ArrayList<ProductMaterialVo>();
+		for (ProductMaterial entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<ProductMaterialVo> getExtendVoList(List<ProductMaterial> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ProductMaterialVo> voList = new ArrayList<ProductMaterialVo>();
+		for (ProductMaterial entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public ProductMaterialVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ProductMaterial entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<ProductMaterialVo> selectListVoByParamVo(ProductMaterialParamVo productMaterial,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (productMaterial == null) {
+			productMaterial = new ProductMaterialParamVo();
+		}
+		productMaterial.setTenantId(commonParam.getTenantId());
+
+		List<ProductMaterial> list = (List<ProductMaterial>) this.getBaseService().selectListByParamVo(productMaterial,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ProductMaterialVo> selectPageVoByParamVo(ProductMaterialParamVo productMaterial,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (productMaterial == null) {
+			productMaterial = new ProductMaterialParamVo();
+		}
+		productMaterial.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ProductMaterial> list = (PageInfo<ProductMaterial>) this.getBaseService()
+				.selectPageByParamVo(productMaterial, commonParam, pageNo, pageSize);
+		List<ProductMaterialVo> volist = new ArrayList<ProductMaterialVo>();
+
+		Iterator<ProductMaterial> iter = list.getList().iterator();
+		ProductMaterialVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ProductMaterialVo> vpage = new Page<ProductMaterialVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ProductMaterialVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ProductMaterial entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<ProductMaterialVo> selectListExtendVoByParamVo(ProductMaterialParamVo productMaterial,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (productMaterial == null) {
+			productMaterial = new ProductMaterialParamVo();
+		}
+		productMaterial.setTenantId(commonParam.getTenantId());
+
+		List<ProductMaterial> list = (List<ProductMaterial>) this.getBaseService().selectListByParamVo(productMaterial,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ProductMaterialVo> selectPageExtendVoByParamVo(ProductMaterialParamVo productMaterial,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (productMaterial == null) {
+			productMaterial = new ProductMaterialParamVo();
+		}
+		productMaterial.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ProductMaterial> list = (PageInfo<ProductMaterial>) this.getBaseService()
+				.selectPageByParamVo(productMaterial, commonParam, pageNo, pageSize);
+		List<ProductMaterialVo> volist = new ArrayList<ProductMaterialVo>();
+
+		Iterator<ProductMaterial> iter = list.getList().iterator();
+		ProductMaterialVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ProductMaterialVo> vpage = new Page<ProductMaterialVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(ProductMaterialParamVo productMaterialParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		if (commonParam.getUserId() != null) {
+			productMaterialParamVo.setCreateUserId(Long.parseLong(commonParam.getUserId()));
+		}
+		if (commonParam.getTenantId() != null) {
+			productMaterialParamVo.setTenantId(commonParam.getTenantId());
+		}
+		if (productMaterialParamVo.getCreateUserId() == null) {
+			resultMessage.addErr("请先登录");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getMaterialName() == null) {
+			resultMessage.addErr("产品规格名称不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getMaterialName().length() > 64) {
+			resultMessage.addErr("产品规格名称不能超过64个字符");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getSkuValue() == null) {
+			resultMessage.addErr("产品规格规格值不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getQuantityStock() == null) {
+			resultMessage.addErr("库存数量不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getRatioUnit() == null) {
+			resultMessage.addErr("单位系数不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getVolume() == null) {
+			resultMessage.addErr("体积限制不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getWeight() == null) {
+			resultMessage.addErr("重量限制不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getSizeLength() == null) {
+			resultMessage.addErr("尺寸-长不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getSizeHeight() == null) {
+			resultMessage.addErr("尺寸-高不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getSizeWidth() == null) {
+			resultMessage.addErr("尺寸-宽不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getWeekCode() == null) {
+			resultMessage.addErr("周数不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getBinCode() == null) {
+			resultMessage.addErr("BinCode不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getStrategyDownshelfId() == null) {
+			resultMessage.addErr("下架策略不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getStrategyUpshelfId() == null) {
+			resultMessage.addErr("上架策略不能为空");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getBinCode().length() > 32) {
+			resultMessage.addErr("BinCode不能超过32个字符");
+			return resultMessage;
+		}
+		if (productMaterialParamVo.getRemark() != null) {
+			if (productMaterialParamVo.getRemark().length() > 128) {
+				resultMessage.addErr("备注不能超过128个字符");
+				return resultMessage;
+			}
+		}
+		ProductMaterial productMaterial = null;
+		try {
+			if (productMaterialParamVo.getId() == null) {// 新增
+				//生成编码
+				String code = productMaterialParamVo.getMaterialCode();
+				if(StringUtils.isBlank(code)){
+					code = configCodeRuleService.createCode(ProductMaterial.class.getName(), null, null, commonParam);
+					productMaterialParamVo.setMaterialCode(code);
+				}
+				if(StringUtils.isBlank(code)){
+					resultMessage.addErr("产品规格编码不能为空");
+					return resultMessage;
+				}
+				//检验编码是否已存在
+				ProductMaterialParamVo productMaterialSearch = new ProductMaterialParamVo();
+				productMaterialSearch.setMaterialCode(code);
+				List<ProductMaterial> list = productMaterialService.selectListByParamVo(productMaterialSearch, commonParam);
+				if((list!=null)&&(!list.isEmpty())){
+					resultMessage.addErr("产品规格编码已存在");
+					return resultMessage;
+				}
+				productMaterialParamVo.setTenantId(commonParam.getTenantId());
+				productMaterial = productMaterialService.saveOrUpdate(productMaterialParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				ProductMaterial productMaterialVoTemp = this.selectById(productMaterialParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(productMaterialVoTemp, productMaterialParamVo);
+
+				productMaterial = productMaterialService.saveOrUpdate(productMaterialVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(productMaterial);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ProductMaterial getVoByCode(String code, CommonParam commonParam) throws BusinessException, SQLException {
+		List<ProductMaterial> list = new ArrayList<ProductMaterial>();
+		ProductMaterialParamVo productMaterialParamVo = new ProductMaterialParamVo();
+		productMaterialParamVo.setMaterialCode(code);
+		list = productMaterialService.selectListByParamVo(productMaterialParamVo, commonParam);
+		if (list.size() > 0) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
+}

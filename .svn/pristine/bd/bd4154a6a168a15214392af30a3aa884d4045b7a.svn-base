@@ -1,0 +1,188 @@
+package com.techsoft.service.bill;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumBillStatus;
+import com.techsoft.dao.bill.BillWarehouseItemDao;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+
+@Service
+public class BillWarehouseItemServiceImpl extends BaseServiceImpl<BillWarehouseItem>
+		implements BillWarehouseItemService {
+	@Autowired
+	private BillWarehouseItemDao billWarehouseItemDao;
+
+	@Override
+	public BaseDao<BillWarehouseItem> getBaseDao() {
+		return billWarehouseItemDao;
+	}
+
+	@Override
+	public Class<BillWarehouseItem> getEntityClass() {
+		return BillWarehouseItem.class;
+	}
+
+	@Override
+	protected BillWarehouseItem insertEntity(BillWarehouseItem entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillWarehouseItem updatePartEntity(BillWarehouseItem entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillWarehouseItem updateEntity(BillWarehouseItem entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}
+
+	@Override
+	public void updateInstore(Long id, Long billStatusDictId, Integer quality, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			BillWarehouseItem item = billWarehouseItemDao.selectById(id);
+			item.setQuantityFinish(item.getQuantityFinish() + quality);
+			item.setQuantityScan(item.getQuantityScan() + quality);
+			item.setBillStatusDictId(billStatusDictId);
+			billWarehouseItemDao.updatePartEntity(item, commonParam);
+			// return this.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+
+	}
+
+	@Override
+	public void updateOffStore(Long id, Long billStatusDictId, Double quality, CommonParam commonParam)
+			throws BusinessException, SQLException {
+			billWarehouseItemDao.updateOffStore(id,billStatusDictId,quality,commonParam);
+	}
+
+	@Override
+	public void updateOutStore(Long id, Long billStatusDictId, Double quality, CommonParam commonParam)
+			throws BusinessException, SQLException {
+			billWarehouseItemDao.updateOutStore(id,billStatusDictId,quality,commonParam);
+	}
+	
+	
+	@Override
+	public void updateAllocationOutstore(Long id, Long billStatusDictId, Double quality,CommonParam commonParam)
+			throws BusinessException, SQLException {
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			BillWarehouseItem item = billWarehouseItemDao.selectById(id);
+			item.setQuantityScan(item.getQuantityScan() + quality);
+			item.setBillStatusDictId(billStatusDictId);
+			billWarehouseItemDao.updatePartEntity(item, commonParam);
+			// return this.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+
+	}
+	
+	@Override
+	public void updateAllocationInstore(Long id, Long billStatusDictId, Double quality,CommonParam commonParam)
+			throws BusinessException, SQLException {
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			BillWarehouseItem item = billWarehouseItemDao.selectById(id);
+			item.setQuantityFinish(item.getQuantityFinish() + quality);
+			item.setBillStatusDictId(billStatusDictId);
+			billWarehouseItemDao.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+
+	}
+
+	@Override
+	public BillWarehouseItem insertBillItemBatch(List<BillWarehouseItem> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		
+		DecimalFormat df=new DecimalFormat("0000");
+		Integer index = 0;
+		String idString = "";
+		Long idLong = 0L;
+		Long bilItemId=billWarehouseItemDao.getIdValue();
+		
+		for (BillWarehouseItem BillWarehouseItem : list) {
+			
+			//List<BillWarehouseItem> Itemlist = new ArrayList<BillWarehouseItem>();
+			
+			index++;
+			idString=df.format(index);
+			idLong = Long.valueOf(bilItemId.toString() + idString);
+			BillWarehouseItem.setId(idLong);
+		}
+		billWarehouseItemDao.insertBatch(list, commonParam);
+		return null;
+	}
+
+	@Override
+	public void updateBillItemStatus(Long billId, Long billStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		
+		//查询明细ID更新
+		List<BillWarehouseItem> list =new ArrayList<BillWarehouseItem>();
+		BillWarehouseItemParamVo paramVo =new BillWarehouseItemParamVo();
+		paramVo.setBillId(billId);
+		list=billWarehouseItemDao.selectListByParamVo(paramVo);
+		
+		for (BillWarehouseItem billWarehouseItem : list) {
+			
+		
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				billWarehouseItem.getId().toString());
+		distributedLock.lock();
+		try {
+			BillWarehouseItem item = billWarehouseItemDao.selectById(billWarehouseItem.getId());
+			item.setBillStatusDictId(billStatusDictId);
+			billWarehouseItemDao.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+		
+		}
+
+	}
+
+
+	@Override
+	public void updateOutStoreBill(BillWarehouseItemParamVo paramVo,CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWarehouseItem> itemList = new ArrayList<BillWarehouseItem>();
+		itemList = this.selectListByParamVo(paramVo, commonParam);
+		for (BillWarehouseItem billWarehouseItem : itemList) {
+			// 更改当前领料单明细状态为完结
+			this.updateOutStore(billWarehouseItem.getId(), EnumBillStatus.FINISHED.getValue(),
+					billWarehouseItem.getQuantityScan(), commonParam);
+		}
+	}
+
+
+}

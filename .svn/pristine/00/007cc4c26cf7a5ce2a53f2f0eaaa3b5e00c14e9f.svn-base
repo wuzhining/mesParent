@@ -1,0 +1,147 @@
+package com.techsoft.dao.warehouse;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.Arith;
+import com.techsoft.entity.common.WarehouseLocationStock;
+import com.techsoft.entity.warehouse.WarehouseLocationStockParamVo;
+import com.techsoft.entity.warehouse.WarehouseLocationStockVo;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.mapper.warehouse.WarehouseLocationStockMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+
+@Repository
+public class WarehouseLocationStockDaoImpl extends BaseDaoImpl<WarehouseLocationStock> implements WarehouseLocationStockDao {
+	@Resource
+	protected WarehouseLocationStockMapper warehouseLocationStockMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<WarehouseLocationStock> getEntityClass() {
+		return WarehouseLocationStock.class;
+	}	
+	
+	@Override
+	public BaseMapper<WarehouseLocationStock> getBaseMapper() {
+		return this.warehouseLocationStockMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "WAREHOUSE_LOCATION_STOCK";
+	}
+	
+	@Override
+	public void insertSaveCheck(WarehouseLocationStock value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(WarehouseLocationStock value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(WarehouseLocationStock value) throws BusinessException, SQLException {
+	
+	}
+	
+	
+	private void updateStockQty(Long id, Double qty, String Type,CommonParam commonParam)throws BusinessException, SQLException {
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			WarehouseLocationStock item = this.selectById(id);
+			if(Type.equals("IN")){
+			     item.setQuantityStock(Arith.add(item.getQuantityStock(), qty));
+			     
+			}
+			else if (Type.equals("OUT")) {
+				 item.setQuantityStock(Arith.sub(item.getQuantityStock(), qty));	
+			}
+			item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			this.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+	}
+	
+	@Override
+	public  ResultMessage StockChange(WarehouseLocationStockParamVo paramVo,Double qty, String Type,CommonParam commonParam) throws BusinessException, SQLException  {
+		ResultMessage resultMessage = new ResultMessage();
+		//查询库位库存表数据
+		List<WarehouseLocationStock> list=new ArrayList<WarehouseLocationStock>();
+		list=warehouseLocationStockMapper.selectListByEntityParamVo(paramVo);
+		
+		//当不存在数据时，新增该物料库存数据
+		if(list.size()==0 && Type.equals("IN")){
+			
+			paramVo.setId(this.getIdValue());
+			paramVo.setTenantId(commonParam.getTenantId());
+			paramVo.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			paramVo.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			paramVo.setQuantityStock(qty);
+			paramVo.setQuantityFrozen(0.0);
+			paramVo.setQuantityOrder(0.0);
+			this.insertEntity(paramVo, commonParam);
+		}
+		//当存在数据时，累计当前数量
+		else{
+			
+			this.updateStockQty(list.get(0).getId(),qty,Type,commonParam);
+			
+		}
+		
+		
+		
+		resultMessage.setIsSuccess(true);
+		return resultMessage;
+	}
+			
+	
+	@Override
+	public Page<WarehouseLocationStockVo> selectPageByParamVo(WarehouseLocationStockVo Vo, int pageNo, int pageSize) throws SQLException {
+		Page<WarehouseLocationStockVo> result = null;
+		try {
+			PageHelper.startPage(pageNo, pageSize);
+			WarehouseLocationStockParamVo paramVo=new WarehouseLocationStockParamVo();
+			paramVo.setWarehouseId(Vo.getWarehouseId());
+			BaseDaoImpl.EmptyStrToNull(paramVo);
+			result = (Page<WarehouseLocationStockVo>) warehouseLocationStockMapper.selectSumQtyByWarehouse(paramVo);
+		} catch (Throwable e) {
+			throw new SQLException(e.getMessage());
+		}
+
+		return result;
+	}
+	
+	@Override
+	public List<WarehouseLocationStockVo> selectSumQtyByWarehouse(WarehouseLocationStockParamVo paramVo, CommonParam commonParam) throws BusinessException, SQLException {
+		
+		List<WarehouseLocationStockVo> vo=warehouseLocationStockMapper.selectSumQtyByWarehouse(paramVo);
+		return vo;
+	}
+	
+}

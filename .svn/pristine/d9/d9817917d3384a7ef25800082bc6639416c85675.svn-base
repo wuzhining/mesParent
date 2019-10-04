@@ -1,0 +1,28 @@
+﻿# Redis settings
+# server IP
+redis.host=192.168.1.208
+# server port
+redis.port=6316
+# server pass
+redis.password=redis&208Guid
+# use dbIndex
+redis.database=1
+#最大连接数：能够同时建立的最大链接个数
+redis.maxActive=100
+#最小空闲数：低于minIdle时，将创建新的链接
+redis.minIdle=5
+# 控制一个pool最多有多少个状态为idle(空闲的)的jedis实例
+redis.maxIdle=20
+# 表示当borrow(引入)一个jedis实例时，最大的等待时间，如果超过等待时间(毫秒)，则直接抛出JedisConnectionException；  
+redis.maxWait=3000
+# 在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的  
+redis.testOnBorrow=true
+
+redis.timeout=3000
+redis.usePool=true   
+redis.maxTotal=600 
+redis.timeBetweenEvictionRunsMillis=30000
+redis.minEvictableIdleTimeMillis=30000 
+redis.encode=utf-8
+redis.expire=604800000 
+redis.unlock=false  

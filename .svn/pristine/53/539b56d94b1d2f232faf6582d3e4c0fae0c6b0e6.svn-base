@@ -1,0 +1,39 @@
+package com.techsoft.service.work;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillWorkorder;
+import com.techsoft.entity.common.EquipFixture;
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.entity.common.StructProcedureInstruct;
+import com.techsoft.entity.common.StructWorkstation;
+import com.techsoft.entity.common.WorkPlanEquip;
+import com.techsoft.entity.common.WorkPlanEquipFixture;
+import com.techsoft.entity.common.WorkPlanWorkstation;
+import com.techsoft.entity.common.WorkTaskProcedure;
+import com.techsoft.entity.work.WorkTaskProcedureParamVo;
+
+public interface WorkTaskProcedureService extends BaseService<WorkTaskProcedure> {
+	// 获取可以工作的任务
+	public List<WorkTaskProcedure> selectListCanWorking(WorkTaskProcedureParamVo workTaskProcedureParamVo,
+			CommonParam commonParam) throws BusinessException, SQLException;
+
+	// 上料
+	public ResultMessage updateFeed(CommonParam commonParam, Long factoryId, List<BarcodeMain> barcodeMainRawList,
+			List<BarcodeMain> barcodeMainNewList, BillWorkorder billWorkorder, WorkTaskProcedure workTaskProcedure,
+			StructProcedureInstruct procedureInstruct, StructWorkstation structWorkstation,
+			WorkPlanWorkstation workPlanWorkstation, EquipWork equipWork, WorkPlanEquip workPlanEquip,
+			EquipFixture equipFixture, WorkPlanEquipFixture workPlanEquipFixture, String remark)
+			throws BusinessException, SQLException, IllegalAccessException, InvocationTargetException;
+
+	// 过栈
+	public ResultMessage updatePass(CommonParam commonParam, Long factoryId, Long barcodeStatusDictId,EquipWork equipWork,
+			List<BarcodeMain> barcodeMainList) throws BusinessException, SQLException;
+}

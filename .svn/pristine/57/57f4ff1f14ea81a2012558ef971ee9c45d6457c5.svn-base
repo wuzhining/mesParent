@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.config.ConfigCodeRuleItemMapper">
+	<resultMap id="ConfigCodeRuleItem" type="com.techsoft.entity.common.ConfigCodeRuleItem" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="CODE_RULE_ID" property="codeRuleId" />
+		<result column="LABEL_FUNCTION_ID" property="labelFunctionId" />
+		<result column="VALUE" property="value" />
+		<result column="SORT_NO" property="sortNo" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="codeRuleId != null">
+			AND A.CODE_RULE_ID= #{codeRuleId}
+		</if>
+		<if test="labelFunctionId != null">
+			AND A.LABEL_FUNCTION_ID= #{labelFunctionId}
+		</if>
+		<if test="value != null">
+			AND A.VALUE= #{value}
+		</if>
+		<if test="sortNo != null">
+			AND A.SORT_NO= #{sortNo}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by SORT_NO asc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.CODE_RULE_ID,
+		A.LABEL_FUNCTION_ID,
+		A.VALUE,
+		A.SORT_NO
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for CONFIG_CODE_RULE_ITEM_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from CONFIG_CODE_RULE_ITEM
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.ConfigCodeRuleItem">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_CODE_RULE_ITEM A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.ConfigCodeRuleItem">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_CODE_RULE_ITEM A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_CODE_RULE_ITEM A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_CODE_RULE_ITEM A WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.ConfigCodeRuleItem">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_CODE_RULE_ITEM A WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigCodeRuleItem">
+		INSERT INTO CONFIG_CODE_RULE_ITEM (
+		TENANT_ID,
+		CODE_RULE_ID,
+		LABEL_FUNCTION_ID,
+		VALUE,
+		SORT_NO
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{codeRuleId},
+		#{labelFunctionId},
+		#{value},
+		#{sortNo}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigCodeRuleItem">
+		UPDATE CONFIG_CODE_RULE_ITEM SET
+		TENANT_ID=#{tenantId},
+		CODE_RULE_ID=#{codeRuleId},
+		LABEL_FUNCTION_ID=#{labelFunctionId},
+		VALUE=#{value},
+		SORT_NO=#{sortNo},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigCodeRuleItem">
+		UPDATE CONFIG_CODE_RULE_ITEM SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="codeRuleId != null" >
+			CODE_RULE_ID=#{codeRuleId},
+		</if>
+		<if test="labelFunctionId != null" >
+			LABEL_FUNCTION_ID=#{labelFunctionId},
+		</if>
+		<if test="value != null" >
+			VALUE=#{value},
+		</if>
+		<if test="sortNo != null" >
+			SORT_NO=#{sortNo},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.config.ConfigCodeRuleItemParamVo"
+		      resultType="com.techsoft.entity.common.ConfigCodeRuleItem" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_CODE_RULE_ITEM A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

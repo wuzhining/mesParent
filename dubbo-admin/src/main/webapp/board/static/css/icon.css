@@ -1,0 +1,583 @@
+.icon-blank{
+	background:url('icons/blank.gif') no-repeat center center;
+}
+.icon-add{
+	background:url('icons/edit_add.png') no-repeat center center;
+}
+.icon-edit{
+	background:url('icons/pencil.png') no-repeat center center;
+}
+.icon-clear{
+	background:url('icons/clear.png') no-repeat center center;
+}
+.icon-remove{
+	background:url('icons/edit_remove.png') no-repeat center center;
+}
+.icon-save{
+	background:url('icons/filesave.png') no-repeat center center;
+}
+.icon-cut{
+	background:url('icons/cut.png') no-repeat center center;
+}
+.icon-ok{
+	background:url('icons/ok.png') no-repeat center center;
+}
+.icon-no{
+	background:url('icons/no.png') no-repeat center center;
+}
+.icon-cancel{
+	background:url('icons/cancel.png') no-repeat center center;
+}
+.icon-reload{
+	background:url('icons/reload.png') no-repeat center center;
+}
+.icon-search{
+	background:url('icons/search.png') no-repeat center center;
+}
+.icon-print{
+	background:url('icons/print.png') no-repeat center center;
+}
+.icon-help{
+	background:url('icons/help.png') no-repeat center center;
+}
+.icon-undo{
+	background:url('icons/undo.png') no-repeat center center;
+}
+.icon-redo{
+	background:url('icons/redo.png') no-repeat center center;
+}
+.icon-back{
+	background:url('icons/back.png') no-repeat center center;
+}
+.icon-sum{
+	background:url('icons/sum.png') no-repeat center center;
+}
+.icon-tip{
+	background:url('icons/tip.png') no-repeat center center;
+}
+.icon-filter{
+	background:url('icons/filter.png') no-repeat center center;
+}
+.icon-man{
+	background:url('icons/man.png') no-repeat center center;
+}
+.icon-lock{
+	background:url('icons/lock.png') no-repeat center center;
+}
+.icon-more{
+	background:url('icons/more.png') no-repeat center center;
+}
+.icon-mini-add{
+	background:url('icons/mini_add.png') no-repeat center center;
+}
+.icon-mini-edit{
+	background:url('icons/mini_edit.png') no-repeat center center;
+}
+.icon-mini-refresh{
+	background:url('icons/mini_refresh.png') no-repeat center center;
+}
+
+.icon-large-picture{
+	background:url('icons/large_picture.png') no-repeat center center;
+}
+.icon-large-clipart{
+	background:url('icons/large_clipart.png') no-repeat center center;
+}
+.icon-large-shapes{
+	background:url('icons/large_shapes.png') no-repeat center center;
+}
+.icon-large-smartart{
+	background:url('icons/large_smartart.png') no-repeat center center;
+}
+.icon-large-chart{
+	background:url('icons/large_chart.png') no-repeat center center;
+}
+/*鑿滃崟鏍忓浘鏍囦慨鏀�*/
+/*缁勭粐鏋舵瀯*/
+.icon-company{
+	background:url('icons/icon-company.png') no-repeat center center;	
+}
+.icon-org{
+	background:url('icons/icon-org.png') no-repeat center center;	
+}
+.icon-area{
+	background:url('icons/icon-area.png') no-repeat center center;	
+}
+.icon-station{
+	background:url('icons/icon-station.png') no-repeat center center;	
+}
+.icon-dept{
+	background:url('icons/icon-dept.png') no-repeat center center;	
+}
+.icon-employee{
+	background:url('icons/icon-employee.png') no-repeat center center;	
+}
+.icon-factory{
+	background:url('icons/icon-factory.png') no-repeat center center;	
+}
+.icon-post{
+	background:url('icons/icon-post.png') no-repeat center center;	
+}
+.icon-city{
+	background:url('icons/icon-city.png') no-repeat center center;	
+}
+.icon-country{
+	background:url('icons/icon-country.png') no-repeat center center;	
+}
+.icon-losicfactory{
+	background:url('icons/icon-losicfactory.png') no-repeat center center;	
+}
+/*绯荤粺绠＄悊*/
+.icon-sys{
+	background:url('icons/icon-sys.png') no-repeat center center;	
+}
+.icon-function{
+	background:url('icons/icon-function.png') no-repeat center center;	
+}
+.icon-module{
+	background:url('icons/icon-modution.png') no-repeat center center;	
+}
+.icon-right{
+	background:url('icons/icon-right.png') no-repeat center center;	
+}
+.icon-role{
+	background:url('icons/icon-role.png') no-repeat center center;	
+}
+.icon-user{
+	background:url('icons/icon-user.png') no-repeat center center;	
+}
+.icon-systemRule{
+	background:url('icons/icon-systemRule.png') no-repeat center center;	
+}
+.icon-systemError{
+	background:url('icons/icon-systemError.png') no-repeat center center;	
+}
+/*鎶ヨ〃绠＄悊*/
+.icon-badReport{
+	background:url('icons/icon-badReport.png') no-repeat center center;	
+}
+.icon-equipmanence{
+	background:url('icons/icon-equipmanence.png') no-repeat center center;	
+}
+.icon-equipmentoee{
+	background:url('icons/icon-equipmentoee.png') no-repeat center center;	
+}
+.icon-equipmentRepir{
+	background:url('icons/icon-equipmentRepir.png') no-repeat center center;	
+}
+.icon-equipmentRepir2{
+	background:url('icons/icon-equipmentRepir2.png') no-repeat center center;	
+}
+.icon-equipspection{
+	background:url('icons/icon-equipmentinspection.png') no-repeat center center;	
+}
+.icon-planreport{
+	background:url('icons/icon-planreport.png') no-repeat center center;	
+}
+.icon-produtionReport{
+	background:url('icons/icon-productionDayReport.png') no-repeat center center;	
+}
+.icon-reportmanage{
+	background:url('icons/icon-reportmanage.png') no-repeat center center;	
+}
+.icon-sparemanage{
+	background:url('icons/icon-sparemanage.png') no-repeat center center;	
+}
+.icon-stopReport{
+	background:url('icons/icon-stopReport.png') no-repeat center center;	
+}
+/*鎶ヨ绠＄悊*/
+.icon-alermbc{
+	background:url('icons/icon-alermbc.png') no-repeat center center;	
+}
+.icon-alermconfig{
+	background:url('icons/icon-alermconfig.png') no-repeat center center;	
+}
+.icon-alermmanage{
+	background:url('icons/icon-alermmsg.png') no-repeat center center;	
+}
+.icon-alermmsg{
+	background:url('icons/icon-alermmanage.png') no-repeat center center;	
+}
+.icon-grounpmanage{
+	background:url('icons/icon-grounpmanage.png') no-repeat center center;	
+}
+/*鏄庣粏鏌ヨ*/
+.icon-badRecord{
+	background:url('icons/icon-badRecord.png') no-repeat center center;	
+}
+.icon-creditcard{
+	background:url('icons/icon-creditcardrecord.png') no-repeat center center;	
+}
+.icon-improtant{
+	background:url('icons/improtant.png') no-repeat center center;	
+}
+.icon-proRecord{
+	background:url('icons/icon-productionRecord.png') no-repeat center center;	
+}
+/*鐢熶骇璁″垝*/
+.icon-gdmanage{
+	background:url('icons/icon-gdmanage.png') no-repeat center center;	
+}
+.icon-produce{
+	background:url('icons/produce.png') no-repeat center center;	
+}
+/*璁惧鐩戣*/
+.icon-monitoring{
+	background:url('icons/icon-monitoring.png') no-repeat center center;	
+}
+/*瀹跺嚭鏁版嵁*/
+/*闈欐�佹暟鎹�*/
+.icon-basicdata{
+	background:url('icons/icon-basicdata.png') no-repeat center center;	
+}
+.icon-staicdata{
+	background:url('icons/icon-staicdata.png') no-repeat center center;	
+}
+.icon-proline{
+	background:url('icons/icon-proline.png') no-repeat center center;	
+}
+.icon-prolinecander{
+	background:url('icons/icon-prolinecander.png') no-repeat center center;	
+}
+.icon-flightinfo{
+	background:url('icons/icon-flightinfo.png') no-repeat center center;	
+}
+.icon-materialinfo{
+	background:url('icons/icon-Materialinfo.png') no-repeat center center;	
+}
+.icon-puliccode{
+	background:url('icons/icon-systemRule.png') no-repeat center center;	
+}
+.icon-time{
+	background:url('icons/icon-time.png') no-repeat center center;	
+}
+.icon-workshopcander{
+	background:url('icons/icon-workshopcander.png') no-repeat center center;	
+}
+.icon-classmantin{
+	background:url('icons/icon-classmantin.png') no-repeat center center;	
+}
+.icon-custorminfo{
+	background:url('icons/icon-custorminfo.png') no-repeat center center;	
+}
+/*鐢熶骇鏁版嵁*/
+.icon-badinfo{
+	background:url('icons/icon-badinfo.png') no-repeat center center;	
+}
+.icon-equipmentinfo{
+	background:url('icons/icon-equipmentinfo.png') no-repeat center center;	
+}
+.icon-prodata{
+	background:url('icons/icon-prodata.png') no-repeat center center;	
+}
+.icon-reparedevice{
+	background:url('icons/icon-reparedevice.png') no-repeat center center;	
+}
+.icon-equipkwon{
+	background:url('icons/icon-equipkwon.png') no-repeat center center;	
+}
+/*鏁版嵁绫诲埆*/
+.icon-areasty{
+	background:url('icons/icon-area.png') no-repeat center center;	
+}
+.icon-badsty{
+	background:url('icons/icon-badReport.png') no-repeat center center;	
+}
+.icon-codesty{
+	background:url('icons/icon-code.png') no-repeat center center;	
+}
+.icon-custormsty{
+	background:url('icons/icon-role.png') no-repeat center center;	
+}
+.icon-equipmentsty{
+	background:url('icons/icon-equipment.png') no-repeat center center;	
+}
+.icon-factorysty{
+	background:url('icons/icon-factory.png') no-repeat center center;	
+}
+.icon-knowledgesty{
+	background:url('icons/icon-kownledge.png') no-repeat center center;	
+}
+.icon-paigd{
+	background:url('icons/icon-paidg.png') no-repeat center center;	
+}
+.icon-materialsty{
+	background:url('icons/icon-material.png') no-repeat center center;	
+}
+.icon-repiresty{
+	background:url('icons/icon-equipmanence.png') no-repeat center center;	
+}
+.icon-stationsty{
+	background:url('icons/icon-station.png') no-repeat center center;	
+}
+.icon-surplyinfo{
+	background:url('icons/icon-suirply.png') no-repeat center center;	
+}
+/**鏉＄爜瑙勫垯绠＄悊**/
+.icon-burrule{
+	background:url('icons/icon-burrule.png') no-repeat center center;	
+}
+.icon-bursty{
+	background:url('icons/icon-bursty.png') no-repeat center center;	
+}
+.icon-burmanance{
+	background:url('icons/icon-burmanance.png') no-repeat center center;	
+}
+.icon-burfunction{
+	background:url('icons/icon-burfunction.png') no-repeat center center;	
+}
+/**娴佺▼绠＄悊**/
+.icon-flowmanage{
+	background:url('icons/icon-flowmanage.png') no-repeat center center;	
+}
+.icon-flowdesigner{
+	background:url('icons/icon-flowdesigner.png') no-repeat center center;	
+}
+.icon-flowbushu{
+	background:url('icons/icon-flowbushu.png') no-repeat center center;	
+}
+/**鏍囩绠＄悊**/
+.icon-labelmanage{
+	background:url('icons/icon-labelmanage.png') no-repeat center center;	
+}
+.icon-labelsty{
+	background:url('icons/icon-labelsty.png') no-repeat center center;	
+}
+.icon-labelset{
+	background:url('icons/icon-labelset.png') no-repeat center center;	
+}
+.icon-labelvariable{
+	background:url('icons/icon-labelvariable.png') no-repeat center center;	
+}
+.icon-labelva{
+	background:url('icons/icon-labelva.png') no-repeat center center;	
+}
+.icon-labellook{
+	background:url('icons/icon-labellook.png') no-repeat center center;	
+}
+/**浣滀笟绠＄悊**/
+.icon-workmanage{
+	background:url('icons/icon-workmanage.png') no-repeat center center;	
+}
+.icon-workmanance{
+	background:url('icons/icon-workmanance.png') no-repeat center center;	
+}
+.icon-worklosic{
+	background:url('icons/icon-worklosic.png') no-repeat center center;	
+}
+/*********************************TPM鍥炬爣*************************************/
+.icon-produce{
+	background:url('icons/icon-produce.png') no-repeat center center;	
+}
+.icon-improtant{
+	background:url('icons/icon-improtant.png') no-repeat center center;	
+}
+/*********************************MES鍥炬爣*************************************/
+
+/*鐗╂枡绠＄悊*/
+.icon-materialmanage{
+	background:url('icons/icon-materialmanage.png') no-repeat center center;	
+}
+.icon-probom{
+	background:url('icons/icon-probom.png') no-repeat center center;	
+}
+.icon-procedurebom{
+	background:url('icons/icon-procedurebom.png') no-repeat center center;	
+}
+.icon-materialtype{
+	background:url('icons/icon-materialtype.png') no-repeat center center;	
+}
+.icon-mainmaterial{
+	background:url('icons/icon-maintainmaterial.png') no-repeat center center;	
+}
+.icon-materialinfo{
+	background:url('icons/icon-materialinfo.png') no-repeat center center;	
+}
+/*宸ュ崟绠＄悊*/
+.icon-gbmanage{
+	background:url('icons/icon-gbmanage.png') no-repeat center center;	
+}
+.icon-schedulingimpor{
+	background:url('icons/icon-schedulingimport.png') no-repeat center center;	
+}
+.icon-orderinquiry{
+	background:url('icons/icon-orderinquiry.png') no-repeat center center;	
+}
+.icon-materialquery{
+	background:url('icons/icon-materialquery.png') no-repeat center center;	
+}
+.icon-gdinquiry{
+	background:url('icons/icon-gdinquiry.png') no-repeat center center;	
+}
+.icon-gdMaintenance{
+	background:url('icons/icon-gdMaintenance.png') no-repeat center center;	
+}
+.icon-workmanance{
+	background:url('icons/icon-workmanance.png') no-repeat center center;	
+}
+.icon-worksearch{
+	background:url('icons/icon-worksearch.png') no-repeat center center;	
+}
+/*鍝佽川绠＄悊*/
+.icon-simmanage{
+	background:url('icons/icon-simmanage.png') no-repeat center center;	
+}
+.icon-simproportion{
+	background:url('icons/icon-simproportion.png') no-repeat center center;	
+}
+.icon-samproject{
+	background:url('icons/icon-samproject.png') no-repeat center center;	
+}
+.icon-Q-HOLD{
+	background:url('icons/icon-Q-HOLD.png') no-repeat center center;	
+}
+/*杩斿伐绠＄悊*/
+.icon-returnmanage{
+	background:url('icons/icon-returnmanage.png') no-repeat center center;	
+}
+.icon-repairduties{
+	background:url('icons/icon-maintenanceduties.png') no-repeat center center;	
+}
+.icon-repairreason{
+	background:url('icons/icon-maintenancereason.png') no-repeat center center;	
+}
+.icon-repairmethod{
+	background:url('icons/icon-maintenancemethod.png') no-repeat center center;	
+}
+.icon-faultcode{
+	background:url('icons/icon-faultcode.png') no-repeat center center;	
+}
+.icon-defectcode{
+	background:url('icons/icon-defectcode.png') no-repeat center center;	
+}
+/*鏉＄爜鎵撳嵃*/
+.icon-burprint{
+	background:url('icons/icon-burprint.png') no-repeat center center;	
+}
+.icon-proburprint{
+	background:url('icons/icon-proburprint.png') no-repeat center center;	
+}
+.icon-materialnumber{
+	background:url('icons/icon-materialnumber.png') no-repeat center center;	
+}
+.icon-rawmaterial{
+	background:url('icons/icon-rawmaterial.png') no-repeat center center;	
+}
+
+/*宸ヨ壓璺嚎绠＄悊*/
+.icon-processroute{
+	background:url('icons/icon-processroute.png') no-repeat center center;	
+}
+.icon-processtemplate{
+	background:url('icons/icon-processtemplate.png') no-repeat center center;	
+}
+.icon-inputtemplate{
+	background:url('icons/icon-inputtemplate.png') no-repeat center center;	
+}
+.icon-packingstation{
+	background:url('icons/icon-packingstation.png') no-repeat center center;	
+}
+.icon-oqcstation{
+	background:url('icons/icon-oqcstation.png') no-repeat center center;	
+}
+.icon-inputprocess{
+	background:url('icons/icon-inputprocess.png') no-repeat center center;	
+}
+/*************************************WMS鍥炬爣璁剧疆***************************************/
+/**浠撳簱鍩虹淇℃伅**/
+.icon-outbound{
+	background:url('icons/icon-outbound.png') no-repeat center center;	
+}
+.icon-warehousebasis{
+	background:url('icons/icon-warehousebasis.png') no-repeat center center;	
+}
+.icon-warehousesty{
+	background:url('icons/icon-warehousesty.png') no-repeat center center;	
+}
+.icon-warehouseinfo{
+	background:url('icons/icon-warehouseinfo.png') no-repeat center center;	
+}
+.icon-reservoirinfo{
+	background:url('icons/icon-reservoirinfo.png') no-repeat center center;	
+}
+.icon-shelfinfo{
+	background:url('icons/icon-shelfinfo.png') no-repeat center center;	
+}
+.icon-goodsinfo{
+	background:url('icons/icon-goodsinfo.png') no-repeat center center;	
+}
+.icon-trayinfo{
+	background:url('icons/icon-trayinfo.png') no-repeat center center;	
+}
+.icon-measurement{
+	background:url('icons/icon-measurement.png') no-repeat center center;	
+}
+/**鍏ュ簱绠＄悊**/ 
+.icon-Warehousing{
+	background:url('icons/icon-Warehousing.png') no-repeat center center;	
+}
+.icon-ordermanage{
+	background:url('icons/icon-ordermanage.png') no-repeat center center;	
+}
+.icon-notice{
+	background:url('icons/icon-notice.png') no-repeat center center;	
+}
+.icon-purchaseReturn{
+	background:url('icons/icon-purchaseReturn.png') no-repeat center center;	
+}
+.icon-proreturn{
+	background:url('icons/icon-productionreturn.png') no-repeat center center;	
+}
+/**鍑哄簱绠＄悊**/
+.icon-outboundorder{
+	background:url('icons/icon-outboundorder.png') no-repeat center center;	
+}
+.icon-pickinglist{
+	background:url('icons/icon-pickinglist.png') no-repeat center center;	
+}
+/**鐩樼偣浠诲姟**/
+.icon-inventory{
+	background:url('icons/icon-inventory.png') no-repeat center center;	
+}
+.icon-inventorytask{
+	background:url('icons/icon-inventorytask.png') no-repeat center center;	
+}
+/**BP**/
+.icon-bp{
+	background:url('icons/icon-bp.png') no-repeat center center;	
+}
+.icon-incominginput{
+	background:url('icons/icon-incominginput.png') no-repeat center center;	
+}
+.icon-IQCtesting{
+	background:url('icons/icon-IQCtesting.png') no-repeat center center;	
+}
+.icon-proreturn{
+	background:url('icons/icon-productionreturn.png') no-repeat center center;	
+}
+.icon-bur{
+	background:url('icons/icon-bur.png') no-repeat center center;	
+}
+.icon-operate{
+	background:url('icons/operate.png') no-repeat center center;
+}
+.icon-Upward{
+	background:url('icons/arrow_up.png') no-repeat center center;
+}
+.icon-down{
+	background:url('icons/arrow_down.png') no-repeat center center;
+}
+.icon-arrow-add{
+	background:url('icons/icon_arrow_add.png') no-repeat center center;	
+}
+.icon-arrow-del{
+	background:url('icons/icon_arrow_del.png') no-repeat center center;	
+}
+
+.icon-import{
+	background:url('icons/icon_leading-in.png') no-repeat center center;	
+}
+.icon-sync{
+	background:url('icons/icon_sync.png') no-repeat center center;	
+}

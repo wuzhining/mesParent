@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.sys.UserTenantMapper">
+	<resultMap id="UserTenant" type="com.techsoft.entity.common.UserTenant" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="USER_ID" property="userId" />
+		<result column="STATUS" property="status" />
+		<result column="STATUS_AUDIT" property="statusAudit" />
+		<result column="COMPANY_NAME" property="companyName" />
+		<result column="BIZLICENCE_CODE" property="bizlicenceCode" />
+		<result column="CONTACT_NAME" property="contactName" />
+		<result column="CONTACT_PHONE" property="contactPhone" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="userId != null">
+			AND A.USER_ID= #{userId}
+		</if>
+		<if test="status != null">
+			AND A.STATUS= #{status}
+		</if>
+		<if test="statusAudit != null">
+			AND A.STATUS_AUDIT= #{statusAudit}
+		</if>
+		<if test="companyName != null">
+			AND A.COMPANY_NAME= #{companyName}
+		</if>
+		<if test="bizlicenceCode != null">
+			AND A.BIZLICENCE_CODE= #{bizlicenceCode}
+		</if>
+		<if test="contactName != null">
+			AND A.CONTACT_NAME= #{contactName}
+		</if>
+		<if test="contactPhone != null">
+			AND A.CONTACT_PHONE= #{contactPhone}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.USER_ID,
+		A.STATUS,
+		A.STATUS_AUDIT,
+		A.COMPANY_NAME,
+		A.BIZLICENCE_CODE,
+		A.CONTACT_NAME,
+		A.CONTACT_PHONE
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_USER_TENANT_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from USER_TENANT
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.UserTenant">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM USER_TENANT A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.UserTenant">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM USER_TENANT A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE USER_TENANT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE USER_TENANT  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.UserTenant">
+		UPDATE USER_TENANT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.UserTenant">
+		INSERT INTO USER_TENANT (
+		USER_ID,
+		STATUS,
+		STATUS_AUDIT,
+		COMPANY_NAME,
+		BIZLICENCE_CODE,
+		CONTACT_NAME,
+		CONTACT_PHONE
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{userId},
+		#{status},
+		#{statusAudit},
+		#{companyName},
+		#{bizlicenceCode},
+		#{contactName},
+		#{contactPhone}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.UserTenant">
+		UPDATE USER_TENANT SET
+		USER_ID=#{userId},
+		STATUS=#{status},
+		STATUS_AUDIT=#{statusAudit},
+		COMPANY_NAME=#{companyName},
+		BIZLICENCE_CODE=#{bizlicenceCode},
+		CONTACT_NAME=#{contactName},
+		CONTACT_PHONE=#{contactPhone},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.UserTenant">
+		UPDATE USER_TENANT SET
+		<if test="userId != null" >
+			USER_ID=#{userId},
+		</if>
+		<if test="status != null" >
+			STATUS=#{status},
+		</if>
+		<if test="statusAudit != null" >
+			STATUS_AUDIT=#{statusAudit},
+		</if>
+		<if test="companyName != null" >
+			COMPANY_NAME=#{companyName},
+		</if>
+		<if test="bizlicenceCode != null" >
+			BIZLICENCE_CODE=#{bizlicenceCode},
+		</if>
+		<if test="contactName != null" >
+			CONTACT_NAME=#{contactName},
+		</if>
+		<if test="contactPhone != null" >
+			CONTACT_PHONE=#{contactPhone},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.sys.UserTenantParamVo"
+		      resultType="com.techsoft.entity.common.UserTenant" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM USER_TENANT A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

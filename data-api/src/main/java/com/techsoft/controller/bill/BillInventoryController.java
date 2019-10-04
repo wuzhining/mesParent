@@ -1,0 +1,274 @@
+package com.techsoft.controller.bill;
+
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumAuditStatus;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapUserStatus;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.common.utils.ExportXssfUtils;
+import com.techsoft.common.SQLException;
+import com.techsoft.controller.BaseController;
+import com.techsoft.client.service.bill.ClientBillInventoryItemService;
+import com.techsoft.client.service.bill.ClientBillInventoryService;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.struct.ClientStructWarehouseService;
+import com.techsoft.entity.bill.BillInventoryVo;
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.struct.StructWarehouseParamVo;
+import com.techsoft.entity.bill.BillInventoryItemParamVo;
+import com.techsoft.entity.bill.BillInventoryItemVo;
+import com.techsoft.entity.bill.BillInventoryParamVo;
+
+@Controller
+@RequestMapping("/bill/billInventory")
+public class BillInventoryController extends BaseController {
+	@Autowired
+	private ClientBillInventoryService clientBillInventoryService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientStructWarehouseService clientStructWarehouseService;
+	@Autowired
+	private ClientBillInventoryItemService clientBillInventoryItemService;
+	
+	
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		try {
+				//取单据类型集合
+				List<ConfigDictionary>	dictList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.WAREHOUSE_INVENTORY_MODE.getValue());
+				modelAndView.addObject("dictList", dictList);
+				
+				//取源仓库集合
+				StructWarehouseParamVo ParamVowarehosue = new StructWarehouseParamVo();
+				List<StructWarehouse> warehouse = clientStructWarehouseService.selectListByParamVo(ParamVowarehosue,this.getCommonParam(null));
+				modelAndView.addObject("warehouse", warehouse);
+					
+				} catch (BusinessException | SQLException e) {
+					e.printStackTrace();
+				}
+				
+		
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());
+		
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("bill/billInventory-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("bill/billInventory-edit");
+		BillInventoryVo entity = new BillInventoryVo();
+		try {
+			if (id != null) {
+				entity = clientBillInventoryService.getVoByID(id, this.getCommonParam(request));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("entity", entity);
+		initData(modelAndView);
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			BillInventoryParamVo billInventoryParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}		
+		try {
+            if(billInventoryParamVo==null){
+            	billInventoryParamVo = new BillInventoryParamVo();
+            }
+			pageInfo = clientBillInventoryService.selectPageVoByParamVo(
+					billInventoryParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			BillInventoryParamVo billInventoryParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+	    billInventoryParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientBillInventoryService.saveOrUpdate(billInventoryParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	/**
+	*@auther:Chen
+	*@version:2019年7月3日下午4:42:40
+	*@param request
+	*@param billInventoryParamVo   审核盘点单据对象
+	*@return
+	*@description  根据单据，将审核状态置为审核通过
+	*/
+	@RequestMapping(value = "/checkSuccess", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage checkSuccess(HttpServletRequest request,
+			BillInventoryParamVo billInventoryParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+		
+		resultMessage = clientBillInventoryService.updateAuditStatus(billInventoryParamVo.getId(), EnumAuditStatus.AUDITED.getValue(), this.getCommonParam(request));
+
+		return resultMessage;
+	}
+	
+	/**
+	*@auther:Chen
+	*@version:2019年7月3日下午4:42:43
+	*@param request
+	*@param billInventoryParamVo  审核盘点单据对象
+	*@return
+	*@description  根据单据，将审核状态置为审核不通过
+	*/
+	@RequestMapping(value = "/checkFault", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage checkFault(HttpServletRequest request,
+			BillInventoryParamVo billInventoryParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+		
+		resultMessage = clientBillInventoryService.updateAuditStatus(billInventoryParamVo.getId(), EnumAuditStatus.NONAPPROVAL.getValue(), this.getCommonParam(request));
+
+		return resultMessage;
+	}
+	
+
+	/**
+	*@auther:Chen
+	*@version:2019年7月5日下午1:34:06
+	*@param request
+	*@param billInventoryParamVo
+	*@return
+	*@description
+	*/
+	@RequestMapping(value = "/settle", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage settle(HttpServletRequest request,
+			BillInventoryParamVo billInventoryParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+		
+		resultMessage = clientBillInventoryService.settle(billInventoryParamVo.getId(), this.getCommonParam(request));
+
+		return resultMessage;
+	}
+	
+	 /**
+     * 导出Excel文件
+     * @return
+     */
+    @RequestMapping(value = "/export",method = RequestMethod.POST)
+    @ResponseBody
+    public ResultMessage export(HttpServletRequest request,HttpServletResponse response,BillInventoryParamVo billInventoryParamVo) throws Exception {
+    	ResultMessage resultMessage = new ResultMessage();
+        //获取数据
+        List<BillInventoryVo> list = clientBillInventoryService.selectListVoByParamVo(billInventoryParamVo, this.getCommonParam(request));
+
+    	
+    	//创建HSSFWorkbook 
+    	 String fileName = "盘点单";
+    	 String[] title = {"单号","盘点仓库","盘点方式","计划开始时间","计划结束时间"};
+    	 
+    	 //定义一个二维数组
+    	 String[][] content = new String[list.size()][title.length];
+	       for (int i = 0; i < list.size(); i++) {
+	        content[i] = new String[title.length];
+	        BillInventoryVo obj = list.get(i);
+	        content[i][0] = obj.getBillCode();
+	        content[i][1] = obj.getFromWarehouse().getWarehouseName().toString();
+	        content[i][2] = obj.getInventoryMode().getDictName().toString();
+	        content[i][3] = obj.getTimeStart().toString();
+	        content[i][4] = obj.getTimeStart().toString();
+	       } 
+    	 
+	     //将数据传回导出Excel文件
+         ExportXssfUtils.main(response,fileName,title,content);
+         
+         resultMessage.setIsSuccess(true);
+         return resultMessage;
+         
+}
+    
+    /**
+	 * @auther:Chenzj
+	 * @version:2019年7月02日上午14:48:29
+	 * @param: billId 盘点单Id
+	 * @description 盘点单物料明细
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/billDetail", method = RequestMethod.POST)
+	public ResultMessage getBillDetail(HttpServletRequest request, BillInventoryParamVo billInventoryParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<BillInventoryItemVo> billDetail = new ArrayList<BillInventoryItemVo>();
+		BillInventoryItemParamVo paramVo = new BillInventoryItemParamVo();
+		paramVo.setBillId(billInventoryParamVo.getId());
+		try {
+			billDetail = clientBillInventoryItemService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if (billDetail.size() == 0) {
+				resultMessage.setIsSuccess(true);
+			} else {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("单据已生成明细，请勿重复审核");
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+
+}

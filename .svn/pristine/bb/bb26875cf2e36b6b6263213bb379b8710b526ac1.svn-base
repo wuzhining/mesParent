@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">安灯管理</a> <a><cite>报警群组</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+<!--           <input class="layui-input" placeholder="开始时间" name="startTime" id="startTime"> -->
+<!--           <input class="layui-input" placeholder="结束时间" name="endTime" id="endTime"> -->
+<!--           <input type="text" name="productionlineId"  placeholder="请输入货位编码" autocomplete="off" class="layui-input"> -->
+          <select name="alarmGroupDictId">    
+                <option value="">请选择报警组</option> 
+                 <#if alarmGroupList??>
+                     <#list alarmGroupList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select> 
+          <input type="hidden" name="userId" id="userId" placeholder="请选择员工姓名" autocomplete="off" class="layui-input">
+       	  <input type="text" name="realName" id="realName" placeholder="请选择员工姓名" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="firmEmployeeSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		   </button>
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>  
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-col-md-offset10 layui-btn layui-btn-sm" onclick="layer_window_show('添加群组报警信息','/alarm/alarmGroupUser/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:30px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script>    
+
+<script type="text/html" id="alarmGroupDictNameTpl">
+	{{#  if(d.configDictionary){ }}
+		{{ d.configDictionary.dictName 
+
+ }}
+{{#  } }}
+</script>
+
+<script type="text/html" id="realNameTpl">
+	{{#  if(d.firmEmployee){ }}
+		{{ d.firmEmployee.realName 
+
+ }}
+{{#  } }}
+</script>
+
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime() 
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/alarm/alarmGroupUser/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center'}
+    	    //,{field:'alarmGroupDictId',  title: '报警组',align:'center',style:'display:none;'}
+    	    ,{field:'alarmGroupDictName', width:150, title: '报警组', align:'center',templet: '#alarmGroupDictNameTpl'}
+    	    //,{field:'userId',  title: '员工', align:'center',style:'display:none;'}
+    	    ,{field:'realName', width:150, title: '员工', align:'center',templet: '#realNameTpl'}
+    	    ,{field:'createTime',  title: '创建时间', align:'center'}
+      		,{field:'', width:'10%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]],done:function(){
+    		// 隐藏列
+    		$(".layui-table-box").find("[data-field='id']").css("display","none");   
+    	}
+  	});
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	})
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+    $('#firmEmployeeSearch').on('click',function(e){
+		openWinSelect('/firm/firmEmployee/firmEmployeeOpen',"userId","realName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑报警群组','/alarm/alarmGroupUser/edit?id=' + data.id); 
+		}
+	});
+	
+	var tables = $("#listTable").next().find(".layui-table-box"); 
+	tables.find("[data-field='alarmGroupDictId']").css("display","none"); //data-field的值就是你想要隐藏的某一列的field 
+	tables.find("[data-field='userId']").css("display","none"); //data-field的值就是你想要隐藏的某一列的field 
+	
+
+});	
+</script>
+ 
+  </body>
+
+</html>

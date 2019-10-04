@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.warehouse.WarehouseStrategyDownshelfItemMapper">
+	<resultMap id="WarehouseStrategyDownshelfItem" type="com.techsoft.entity.common.WarehouseStrategyDownshelfItem" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="STRATEGY_UPSHELF_ID" property="strategyUpshelfId" />
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="SORT_NO" property="sortNo" />
+		<result column="MODE_MATCHING_DICT_ID" property="modeMatchingDictId" />
+		<result column="ATTRIBUTE_DICT_ID" property="attributeDictId" />
+		<result column="ADCDES_ORDER_DICT_ID" property="adcdesOrderDictId" />
+		<result column="VALUE" property="value" />
+		<result column="RACK_ID" property="rackId" />
+		<result column="LOCATION_ID" property="locationId" />
+		<result column="AREA_ID" property="areaId" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="strategyUpshelfId != null">
+			AND A.STRATEGY_UPSHELF_ID= #{strategyUpshelfId}
+		</if>
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="sortNo != null">
+			AND A.SORT_NO= #{sortNo}
+		</if>
+		<if test="modeMatchingDictId != null">
+			AND A.MODE_MATCHING_DICT_ID= #{modeMatchingDictId}
+		</if>
+		<if test="attributeDictId != null">
+			AND A.ATTRIBUTE_DICT_ID= #{attributeDictId}
+		</if>
+		<if test="adcdesOrderDictId != null">
+			AND A.ADCDES_ORDER_DICT_ID= #{adcdesOrderDictId}
+		</if>
+		<if test="value != null">
+			AND A.VALUE= #{value}
+		</if>
+		<if test="rackId != null">
+			AND A.RACK_ID= #{rackId}
+		</if>
+		<if test="locationId != null">
+			AND A.LOCATION_ID= #{locationId}
+		</if>
+		<if test="areaId != null">
+			AND A.AREA_ID= #{areaId}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.STRATEGY_UPSHELF_ID,
+		A.TENANT_ID,
+		A.IS_VALID,
+		A.SORT_NO,
+		A.MODE_MATCHING_DICT_ID,
+		A.ATTRIBUTE_DICT_ID,
+		A.ADCDES_ORDER_DICT_ID,
+		A.VALUE,
+		A.RACK_ID,
+		A.LOCATION_ID,
+		A.AREA_ID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_WAREHOUSE_S_D_ITEM_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from WAREHOUSE_S_D_ITEM
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.WarehouseStrategyDownshelfItem">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_S_D_ITEM A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.WarehouseStrategyDownshelfItem">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_S_D_ITEM A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE WAREHOUSE_S_D_ITEM A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE WAREHOUSE_S_D_ITEM  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseStrategyDownshelfItem">
+		UPDATE WAREHOUSE_S_D_ITEM A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseStrategyDownshelfItem">
+		INSERT INTO WAREHOUSE_S_D_ITEM (
+		STRATEGY_UPSHELF_ID,
+		TENANT_ID,
+		IS_VALID,
+		SORT_NO,
+		MODE_MATCHING_DICT_ID,
+		ATTRIBUTE_DICT_ID,
+		ADCDES_ORDER_DICT_ID,
+		VALUE,
+		RACK_ID,
+		LOCATION_ID,
+		AREA_ID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{strategyUpshelfId},
+		#{tenantId},
+		#{isValid},
+		#{sortNo},
+		#{modeMatchingDictId},
+		#{attributeDictId},
+		#{adcdesOrderDictId},
+		#{value},
+		#{rackId},
+		#{locationId},
+		#{areaId},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseStrategyDownshelfItem">
+		UPDATE WAREHOUSE_S_D_ITEM SET
+		STRATEGY_UPSHELF_ID=#{strategyUpshelfId},
+		TENANT_ID=#{tenantId},
+		IS_VALID=#{isValid},
+		SORT_NO=#{sortNo},
+		MODE_MATCHING_DICT_ID=#{modeMatchingDictId},
+		ATTRIBUTE_DICT_ID=#{attributeDictId},
+		ADCDES_ORDER_DICT_ID=#{adcdesOrderDictId},
+		VALUE=#{value},
+		RACK_ID=#{rackId},
+		LOCATION_ID=#{locationId},
+		AREA_ID=#{areaId},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseStrategyDownshelfItem">
+		UPDATE WAREHOUSE_S_D_ITEM SET
+		<if test="strategyUpshelfId != null" >
+			STRATEGY_UPSHELF_ID=#{strategyUpshelfId},
+		</if>
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="sortNo != null" >
+			SORT_NO=#{sortNo},
+		</if>
+		<if test="modeMatchingDictId != null" >
+			MODE_MATCHING_DICT_ID=#{modeMatchingDictId},
+		</if>
+		<if test="attributeDictId != null" >
+			ATTRIBUTE_DICT_ID=#{attributeDictId},
+		</if>
+		<if test="adcdesOrderDictId != null" >
+			ADCDES_ORDER_DICT_ID=#{adcdesOrderDictId},
+		</if>
+		<if test="value != null" >
+			VALUE=#{value},
+		</if>
+		<if test="rackId != null" >
+			RACK_ID=#{rackId},
+		</if>
+		<if test="locationId != null" >
+			LOCATION_ID=#{locationId},
+		</if>
+		<if test="areaId != null" >
+			AREA_ID=#{areaId},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.warehouse.WarehouseStrategyDownshelfItemParamVo"
+		      resultType="com.techsoft.entity.common.WarehouseStrategyDownshelfItem" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_S_D_ITEM A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		order by sort_no asc
+	</select>
+</mapper>

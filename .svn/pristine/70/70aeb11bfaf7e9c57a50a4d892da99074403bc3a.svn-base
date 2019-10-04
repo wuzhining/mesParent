@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+	 
+  	<script type="text/html" id="billWorkorder">
+	{{#  if(d.billWorkorder){}}
+		{{ d.billWorkorder.workorderCode 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="product">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   
+   <script type="text/html" id="bom">
+	{{#  if(d.productBom){}}
+		{{ d.productBom.bomName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   
+   <script type="text/html" id="material">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="quantityNeed">
+	{{#  if(d.quantity){}}
+		{{ d.quantity - d.quantityInput 
+ 	}}
+	{{# } }}
+	
+   </script>
+     <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script>  
+<body>
+    <div class="x-body">
+    	<div class="layui-row">
+    		<!-- 表单检索行 -->
+        	<form class="layui-form layui-col-md12 x-so">
+	        	<div class="layui-form-item layui-col-md12">
+		        	<div class="layui-inline">
+		          		<label class="layui-form-label">物品规格编码：</label>
+		          		<input type="text" name="materialCode" id="materialCode"  placeholder="请输入物品规格编码" autocomplete="off" class="layui-input">
+		        	</div> 
+		        	<div class="layui-inline">
+		          		<label class="layui-form-label">工单号</label>
+		          		<input type="text" name="billWorkorderName" id="billWorkorderName" placeholder="工单号" autocomplete="off" class="layui-input">
+		        	</div>
+		       		<!--  <div class="layui-inline">  
+		          		<label class="layui-form-label">单据状态：</label>
+		          		<select name="billState" lay-verify="" lay-search class="layui-input">
+				  			<option value="">请选择单据状态</option>
+							<option value="0">全部</option>
+							<option value="1">处理中</option>
+							<option value="2">新建</option>
+							<option value="3">完结</option>
+				  		</select>     
+		        	</div> -->
+		        	<div class="layui-inline demoSearch">
+		          		<button class="layui-btn layui-btn-sm search"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+		          		<button class="layui-btn layui-btn-sm" >
+		          		<i class="layui-icon layui-icon-refresh" style="font-size: 20px; color: #fff;"></i>
+		          		</button>
+		        	</div>
+	          	</div>
+        	</form>
+      	</div>
+     
+		<!-- 表格数据 -->
+  	 		<div class="layui-row grid-demo">
+            	<div class="layui-col-md12" style="text-align: center;">
+        			<table class="layui-table" id="listTable_choiceWork" lay-filter="tablefilter_choiceWork"></table>
+        			<table class="layui-table" id="newTable_choiceWork" lay-filter="newTable_choiceWork">
+        				<thead><b>领料单详情</b></thead>
+        				<tbody>
+        				</tbody>
+					</table>
+        		</div>
+        	</div>
+        
+        <!-- 保存数据 -->
+  	 		<div class="layui-row grid-demo">
+            	<div id="action" class="layui-col-md12" style="text-align: center;">
+        			<button class="layui-btn layui-btn-sm" type="submit" id="save" lay-submit="save" lay-filter="save" data-type="save" >保存
+        			</button>
+        			<button class="layui-btn layui-btn-sm" type="reset" id="reset">取消</button>
+        		</div>
+        		<div class="layui-col-md12" style="height:50px;">
+        		
+        		</div>
+        	</div>
+        
+
+    </div>
+    
+<script type="text/html" id="barDemo" lay-filter="demo">
+	<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
+		<i class="layui-icon layui-icon-delete" style="font-size: 20px; color: #fff;">删除</i>
+  	</a>
+</script>  
+<script type="text/html" id="toolbarDemo">	
+	<div class="layui-row">
+	<div class="layui-btn-container layui-col-md1" style="bottom:0px">
+    	<button class="layui-btn layui-btn-sm" lay-event="getCheckData">
+			<i class="layui-icon layui-icon-add-circle" style="font-size: 20px; color: #fff;"></i>新增
+		</button>
+  	</div>
+	</div>	
+</script>
+  
+<script type="text/javascript">
+
+	layui.config({
+	    base: '/static/plugins/layui/base/',
+	    v: new Date().getTime()
+	}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+		
+		var form = layui.form, 
+		$ = layui.jquery, 
+		table = layui.table, 
+		layer = layui.layer, 
+		layuitable = layui.layuitable, 
+		layuiconfig = layui.layuiconfig;
+		
+		var url = $(window.parent.document).find("iframe").attr("src");
+		var arr = url.split('=');
+		var ids = arr[1];
+		//var needQty=0;
+		
+		
+		//var layuiformajax = layui.layuiformajax;
+		//var newTable_choiceWork = "layTable";
+		
+        	
+        //总表
+        var curTable = layuitable.render({
+            elem: '#listTable_choiceWork'
+            ,id:'listTable_choiceWork'
+            ,url:'/bill/billWarehousePick/getWorkOrderBom/json'
+            ,toolbar: '#toolbarDemo'
+            ,title: '用户数据表'
+            ,totalRow: true
+            ,cols: [[
+            	     {type:'checkbox', fixed: 'left'}
+            	     ,{field:'id',width:120 ,title: 'ID',align:'center'}
+            	     ,{field:'billWorkorderId', width:120, title: '工单ID',align:'center'}
+            	     ,{field:'billWorkorder', width:120, title: '工单号',align:'center',templet:'#billWorkorder'}
+            	     ,{field:'productId', width:120, title: '物品ID',align:'center'}
+            	     ,{field:'product', width:120, title: '物品名称',align:'center',templet:'#product'}
+            	     ,{field:'bomId', width:120, title: 'BomID',align:'center'}
+            	     ,{field:'bom', width:120, title: 'Bom',align:'center',templet:'#bom'}
+            	     ,{field:'materialId', width:120, title: '物品规格ID',align:'center'}
+            	     ,{field:'material', width:120, title: '物品规格名称',align:'center',templet:'#material'}
+            	     ,{field:'sku', title: '物品规格值', align:'center',templet: '#sku'}
+            	     ,{field:'quantity', width:120, title: '需领数量',align:'center'}
+            	     ,{field:'quantityInput', width:120, title: '已领数量',align:'center'}
+            	     ,{field:'quantityNeed', width:120, title: '可领数量',align:'center'}
+        	]]
+        
+        	,page: true
+        	,done:function(){
+        		// 隐藏列
+        		$(".layui-table-box").find("[data-field='materialId']").css("display","none");  
+        		$(".layui-table-box").find("[data-field='bomId']").css("display","none");  
+            	$(".layui-table-box").find("[data-field='productId']").css("display","none"); 
+            	$(".layui-table-box").find("[data-field='billWorkorderId']").css("display","none"); 
+        	}
+        });
+        
+      //新增表格
+		var curNewTable = layuitable.render({
+			elem: '#newTable_choiceWork'
+	    	,id:'newTable_choiceWork'
+	    	,cols: [[
+	        			//{type:'checkbox', fixed: 'left'}
+	            		,{field:'id', width:120, title: 'ID',align:'center'}
+	            		,{field:'billWorkorderId', width:120, title: '工单ID',align:'center'}
+	            		,{field:'billWorkorder', width:120, title: '工单号',align:'center',templet:'#billWorkorder'}
+	            		,{field:'productId', width:120, title: '物品ID',align:'center'}
+	            		,{field:'product', width:120, title: '物品名称',align:'center',templet:'#product'}
+	            		,{field:'bomId', width:120, title: 'BomID',align:'center'}
+	            		,{field:'bom', width:120, title: 'Bom',align:'center',templet:'#bom'}
+	            		,{field:'materialId', width:120, title: '物品规格ID',align:'center'}
+	            		,{field:'material', width:120, title: '物品规格名称',align:'center',templet:'#material'}
+	            		,{field:'sku', title: '物品规格值', align:'center',templet: '#sku'}
+	            		,{field:'quantityNeed', width:120, title: '可领数量',align:'center', edit: 'text'	}	
+	            		,{field: 'right', title:'操作', toolbar: '#barDemo', width:120,align:'center'}
+	            		
+	        ]]
+		 
+	    });
+        
+      	//删除多余表头
+		$('#newTable_choiceWork').ready(function(){
+	    	$(".layui-table-init").remove();
+		});
+      
+      	//搜索
+		form.on('submit(search)', function (data) {
+			var materialCode=data.field.materialCode!=null?data.field.materialCode:"";
+			var billWorkorderName=data.field.billWorkorderName!=null?data.field.billWorkorderName:"";
+			table.reload('listTable_choiceWork',{
+				url:'/bill/billWarehousePick/getWorkOrderBom/json',
+				where:{
+					"materialCode":materialCode,
+					"billWorkorderName":billWorkorderName,
+				}
+			});
+        	return false;
+  		});
+  		
+	 	//选择获取数据
+	   	//工具栏事件
+	   	table.on('toolbar(tablefilter_choiceWork)', function(obj){
+	    	var checkStatus = table.checkStatus(obj.config.id);
+	        var data = checkStatus.data;
+	        var a=1;
+	        
+	        if(data.length == 0){
+	        	layer.alert('请至少选择一行数据！', {icon: 2});
+	        	return;
+	        }
+		
+	  		for(i=0;i<data.length;i++){
+	    		console.log(data[i].billWorkorderId);
+	        	if(data[i].billWorkorderId!=data[0].billWorkorderId){
+	        		layer.alert('请选择添加    '+'<b>同工单</b>'+'  相同的数据！', {icon: 2});
+	        		a=1;
+	        		break;
+	        		}else{
+	        				a=0;
+	        		}
+	        	}
+	        	if(a==0){
+	        		table.reload('newTable_choiceWork',{  
+	      	        	data : data
+	      	        });
+	        		/* table.reload('listTable_choiceWork',{
+	        			url:'/bill/billWarehousePick/getWorkOrderBom/json'
+	    			}); */
+	        	}
+	        	
+	  	});
+	 
+	
+	   	//监听单元格编辑
+	  	table.on('edit(newTable_choiceWork)', function(obj){
+			//alert(JSON.stringify(obj.data.quantity));
+			if(obj.value > needQty ){
+				//layer.msg('超过数据限制！', {icon: 2});
+			}else{
+				var value = obj.value //得到修改后的值
+			    ,data = obj.data //得到所在行所有键值
+			    ,field = obj.field; //得到字段
+			    //layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
+				/* table.reload('newTable_choiceWork',function(obj){  
+					var newData = obj.data;
+					console.log(JSON.stringify(obj.data));
+					data : newData;
+
+	      	    }); */
+			} 
+	 	});
+	   	
+	  
+	  	//监听删除行
+	  	table.on('tool(newTable_choiceWork)', function(obj){
+	    	var data = obj.data;
+	    	if(obj.event === 'del'){
+	      		layer.confirm('真的删除行么', {icon: 7}, function(index){
+	        		obj.del();
+	        		layer.close(index);
+	      		});
+	    	}
+	  	});
+	  
+	  	//保存函数  
+	  	function myAjax(){
+	  		var item = table.cache.newTable_choiceWork;
+		  	//alert(JSON.stringify(item.quantityInput));
+		  	  	$.ajax({
+		  		 		type: "post",
+		  		 		dataType: "json",
+		  		 		url:'/bill/billWarehousePick/pickBatchSave',
+		  		 		traditional :true,  //注意这个参数是必须的
+		  		 		data:{"array":JSON.stringify(item)}, 
+		  		    	success: function(res){
+					  			if (res.isSuccess) {
+				          	    	   layer.alert("保存成功", {icon: 6},function () {
+				        	                // 获得frame索引
+				        	                var index = parent.layer.getFrameIndex(window.name);
+				        				  	parent.location.reload(); 
+				        	                parent.layer.close(index);
+				        	            });	
+				       			}else{
+				       				layer.alert(res.message, {
+				       					icon : 2
+				       				});
+				       			}
+		  			
+		  		    	}
+		      	});
+	  	}
+	  	
+	  	//取消函数-跳回父页面 
+	  	function myReset(){ 
+			// 获得frame索引
+		  	var index = parent.layer.getFrameIndex(window.name);
+		  	parent.location.reload(); 
+		  	parent.layer.close(index);
+	  	}
+	  
+	  	//点击调用函数
+	  	$(function(){ 
+			$('#save').click(myAjax);
+			$('#reset').click(myReset);
+			
+	  	}); 
+	  
+});	
+</script>
+ 
+  </body>
+
+</html>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.struct.StructProdlineEquipFixtureMapper">
+	<resultMap id="StructProdlineEquipFixture" type="com.techsoft.entity.common.StructProdlineEquipFixture" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="PRODUCTIONLINE_ID" property="productionlineId" />
+		<result column="EQUIP_SPECS_FIXTURE_ID" property="equipSpecsFixtureId" />
+		<result column="EQUIP_FIXTURE_ID" property="equipFixtureId" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="productionlineId != null">
+			AND A.PRODUCTIONLINE_ID= #{productionlineId}
+		</if>
+		<if test="equipSpecsFixtureId != null">
+			AND A.EQUIP_SPECS_FIXTURE_ID= #{equipSpecsFixtureId}
+		</if>
+		<if test="equipFixtureId != null">
+			AND A.EQUIP_FIXTURE_ID= #{equipFixtureId}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.PRODUCTIONLINE_ID,
+		A.EQUIP_SPECS_FIXTURE_ID,
+		A.EQUIP_FIXTURE_ID
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_STRUCT_PRODLINE_EQUIP_FIXTURE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STRUCT_PRODLINE_EQUIP_FIXTURE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StructProdlineEquipFixture">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PRODLINE_EQUIP_FIXTURE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StructProdlineEquipFixture">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PRODLINE_EQUIP_FIXTURE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE STRUCT_PRODLINE_EQUIP_FIXTURE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE STRUCT_PRODLINE_EQUIP_FIXTURE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StructProdlineEquipFixture">
+		UPDATE STRUCT_PRODLINE_EQUIP_FIXTURE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProdlineEquipFixture">
+		INSERT INTO STRUCT_PRODLINE_EQUIP_FIXTURE (
+		TENANT_ID,
+		PRODUCTIONLINE_ID,
+		EQUIP_SPECS_FIXTURE_ID,
+		EQUIP_FIXTURE_ID
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{productionlineId},
+		#{equipSpecsFixtureId},
+		#{equipFixtureId}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProdlineEquipFixture">
+		UPDATE STRUCT_PRODLINE_EQUIP_FIXTURE SET
+		TENANT_ID=#{tenantId},
+		PRODUCTIONLINE_ID=#{productionlineId},
+		EQUIP_SPECS_FIXTURE_ID=#{equipSpecsFixtureId},
+		EQUIP_FIXTURE_ID=#{equipFixtureId},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProdlineEquipFixture">
+		UPDATE STRUCT_PRODLINE_EQUIP_FIXTURE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="productionlineId != null" >
+			PRODUCTIONLINE_ID=#{productionlineId},
+		</if>
+		<if test="equipSpecsFixtureId != null" >
+			EQUIP_SPECS_FIXTURE_ID=#{equipSpecsFixtureId},
+		</if>
+		<if test="equipFixtureId != null" >
+			EQUIP_FIXTURE_ID=#{equipFixtureId},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.struct.StructProdlineEquipFixtureParamVo"
+		      resultType="com.techsoft.entity.common.StructProdlineEquipFixture" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PRODLINE_EQUIP_FIXTURE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

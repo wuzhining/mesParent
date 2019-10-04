@@ -1,0 +1,567 @@
+package com.techsoft.controller.pda;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.techsoft.client.service.alarm.ClientAlarmInforFlowService;
+import com.techsoft.client.service.alarm.ClientAlarmLevelService;
+import com.techsoft.client.service.alarm.ClientAlarmProblemService;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.equip.ClientEquipWorkService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumAlarmDealResult;
+import com.techsoft.common.enums.EnumAlarmStatus;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.JsonUtils;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.alarm.AlarmInforFlowParamVo;
+import com.techsoft.entity.alarm.AlarmInforFlowVo;
+import com.techsoft.entity.alarm.AlarmLevelParamVo;
+import com.techsoft.entity.alarm.AlarmProblemParamVo;
+import com.techsoft.entity.alarm.AlarmProblemVo;
+import com.techsoft.entity.common.AlarmInforFlow;
+import com.techsoft.entity.common.AlarmLevel;
+import com.techsoft.entity.common.AlarmProblem;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.config.ConfigDictionaryParamVo;
+import com.techsoft.entity.equip.EquipWorkParamVo;
+import com.techsoft.entity.equip.EquipWorkVo;
+
+/**
+ *@auther :Yang
+ *@version :2019年7月31日
+ *@param
+ *@return
+ *@description PDA调用安灯信息Controller
+ */
+@Controller
+@RequestMapping("/pda/pdaAlarmInforFlow")
+public class PdaAlarmInforFlowController extends BaseController {
+	@Autowired
+	private ClientAlarmInforFlowService clientAlarmInforFlowService;
+	@Autowired
+	private ClientAlarmProblemService clientAlarmProblemService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientAlarmLevelService clientAlarmLevelService;
+	@Autowired
+	private ClientEquipWorkService clientEquipWorkService;
+
+	/**
+	 *@auther :Yang
+	 *@version :2019年7月31日
+	 *@param
+	 *@return
+	 *@description 选择或扫描机器设备
+	 */
+	@ResponseBody
+	@RequestMapping("/getEquipCode")
+	public ResultMessage getEquipCode(HttpServletRequest request, String equipCode) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<EquipWorkVo> equipWorkCode = new ArrayList<EquipWorkVo>();
+		EquipWorkParamVo paramVo = new EquipWorkParamVo();
+		if(!"".equals(equipCode) && equipCode != null){
+			paramVo.setEquipCode(equipCode);
+			try {
+				equipWorkCode = clientEquipWorkService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+				if (equipWorkCode.size() == 0) {
+					resultMessage.setIsSuccess(false);
+					resultMessage.addErr("无此机器设备信息");
+				} else {
+					resultMessage.put(equipWorkCode);
+					resultMessage.setIsSuccess(true);
+				}
+			} catch (BusinessException e) {
+				resultMessage.addErr("业务运行异常");
+			} catch (SQLException e) {
+				resultMessage.addErr("SQL查询异常");
+			}
+		}else{
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("描机器编码不能为空");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	/**
+	 *@auther :Yang
+	 *@version :2019年8月1日
+	 *@param
+	 *@return
+	 *@description 查询条件的获取报警类型
+	 */
+	@ResponseBody
+	@RequestMapping("/selectAlarmType")
+	public ResultMessage selectAlarmType(HttpServletRequest request) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			List<ConfigDictionary> alarmTypeList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.ALARM_TYPE.getValue());
+			if (alarmTypeList.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("报警类型无数据");
+			} else {
+				resultMessage.put(alarmTypeList);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (SQLException | BusinessException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	/**
+	 *@auther :Yang
+	 *@version :2019年8月1日
+	 *@param
+	 *@return
+	 *@description 查询条件的获取报警状态
+	 */
+	@ResponseBody
+	@RequestMapping("/selectAlarmStatus")
+	public ResultMessage selectAlarmStatus(HttpServletRequest request) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			List<ConfigDictionary> alarmStatusList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.ALARM_STATUS.getValue());
+			if (alarmStatusList.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("报警状态无数据");
+			} else {
+				resultMessage.put(alarmStatusList);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (SQLException | BusinessException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	
+	
+	/**
+	 *@auther :Yang
+	 *@version :2019年8月1日
+	 *@param
+	 *@return
+	 *@description 查询条件的获取处理结果
+	 */
+	@ResponseBody
+	@RequestMapping("/selectdealResult")
+	public ResultMessage selectdealResult(HttpServletRequest request) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			List<ConfigDictionary> dealResultList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.ALARM_DEAL_RESULT.getValue());
+			if (dealResultList.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("处理结果无数据");
+			} else {
+				resultMessage.put(dealResultList);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (SQLException | BusinessException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	
+	
+	/**
+	 *@auther :Yang
+	 *@version :2019年8月1日
+	 *@param
+	 *@return
+	 *@description 获取报警等级
+	 */
+	@ResponseBody
+	@RequestMapping("/getAlarmLevel")
+	public ResultMessage getAlarmLevel(HttpServletRequest request) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			List<AlarmLevel> alarmLevelList = clientAlarmLevelService.selectListByParamVo(new AlarmLevelParamVo(),this.getCommonParam(request));
+			if (alarmLevelList.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("报警等级无数据");
+			} else {
+				resultMessage.put(alarmLevelList);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	/**
+	 *@auther :Yang
+	 *@version :2019年8月1日
+	 *@param
+	 *@return
+	 *@description 获取报警问题
+	 */
+	@ResponseBody
+	@RequestMapping("/getAlarmProblem")
+	public ResultMessage getAlarmProblem(HttpServletRequest request) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			List<AlarmProblemVo> alarmProblemList =clientAlarmProblemService.selectListVoByParamVo(new AlarmProblemParamVo(),this.getCommonParam(request)); //clientAlarmProblemService.selectListByParamVo(new AlarmProblemParamVo(),this.getCommonParam(request));
+			if (alarmProblemList.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("报警问题无数据");
+			} else {
+				resultMessage.put(alarmProblemList);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (SQLException | BusinessException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	/**
+	 *@auther :Yang
+	 *@version :2019年8月1日
+	 *@param
+	 *@return
+	 *@description 获取报警状态
+	 */
+	@ResponseBody
+	@RequestMapping("/getAlarmStatus")
+	public ResultMessage getAlarmStatus(HttpServletRequest request) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			ConfigDictionaryParamVo paramVo = new ConfigDictionaryParamVo();
+			paramVo.setId(EnumAlarmStatus.NEWSPAPER_POLICE.getValue());			
+			List<ConfigDictionary> alarmstatusList = clientConfigDictionaryService.selectListByParamVo(paramVo,this.getCommonParam(request));
+			if (alarmstatusList.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("报警状态无数据");
+			} else {
+				resultMessage.put(alarmstatusList);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+	/**
+	 *@auther :Yang
+	 *@version :2019年8月1日
+	 *@param
+	 *@return
+	 *@description 保存安灯信息
+	 */
+	@RequestMapping(value = "/alarmInforFlowSave", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage alarmInforFlowSave(HttpServletRequest request,Long id,Long equipWorkId,Long problemId,Long alarmLevelId,Long alarmTypeDictId,Long statusDictId,String remark) {
+		ResultMessage resultMessage = new ResultMessage();
+		resultMessage.setIsSuccess(true);
+		AlarmInforFlowParamVo af = new AlarmInforFlowParamVo();
+
+			if(!"".equals(id) && id != null){
+				af.setId(id);
+			}
+			if(!"".equals(equipWorkId) && equipWorkId != null){
+				af.setEquipWorkId(equipWorkId);
+			}else{
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("设备名称不能为空");
+			}
+				
+			if(!"".equals(problemId) && problemId != null){
+				af.setProblemId(problemId);
+			}else{
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("报警问题不能为空");
+			}
+			
+			if(!"".equals(alarmLevelId) && alarmLevelId != null){
+				af.setAlarmLevelId(alarmLevelId);
+			}else{
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("报警等级不能为空");
+			}
+			
+			if(!"".equals(alarmTypeDictId) && alarmTypeDictId != null){
+				af.setAlarmTypeDictId(alarmTypeDictId);
+			}else{
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("报警类型不能为空");
+			}
+
+			if(!"".equals(statusDictId) && statusDictId != null){
+				af.setStatusDictId(statusDictId);
+			}else{
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("报警状态不能为空");
+			}
+			
+			if(!"".equals(remark) && remark != null){
+				af.setRemark(remark);
+			}
+		af.setModifyUserId(getLoginUserId(request)); 
+		af.setCreateUserId(getLoginUserId(request));
+		af.setAlarmUserId(getLoginUserId(request));
+		af.setAlarmTime(new Date());
+		if (resultMessage.getIsSuccess().equals(true)){
+			resultMessage = clientAlarmInforFlowService.saveOrUpdate(af,this.getCommonParam(request));
+		}
+		
+		return resultMessage;
+	}
+	
+	
+	@ResponseBody
+	@RequestMapping("/editAlarmInforFlow")
+	public ResultMessage editAlarmInforFlow(HttpServletRequest request, Long id) {	
+		ResultMessage resultMessage = new ResultMessage();
+		List<AlarmInforFlowVo> entity = new ArrayList<AlarmInforFlowVo>();
+		AlarmInforFlowParamVo af = new AlarmInforFlowParamVo();
+		if(!"".equals(id) && id != null){
+			af.setId(id);
+		}else{
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("id不能为空");
+		}
+		//AlarmInforFlow entity = new AlarmInforFlow();
+		//AlarmInforFlowVo entity = new AlarmInforFlowVo();
+		/*AlarmProblem alarmProblem= null;
+		ConfigDictionary configDictionary= null;
+		EquipWork equipWork = null;*/
+		try {
+			if (id != null) {
+				 entity = clientAlarmInforFlowService.selectListVoByParamVo(af, this.getCommonParam(request));
+			     /*alarmProblem = clientAlarmProblemService.getVoByID(entity.getProblemId(), this.getCommonParam(request));
+				 configDictionary =clientConfigDictionaryService.getVoByID(entity.getAlarmTypeDictId(), this.getCommonParam(request));
+				 equipWork = clientEquipWorkService.getVoByID(entity.getEquipWorkId(), this.getCommonParam(request));	*/ 
+				if (entity.size() == 0){
+					resultMessage.setIsSuccess(false);
+					resultMessage.addErr("无此安灯信息");
+				} else {
+					resultMessage.put(entity);
+					/*resultMessage.put(alarmProblem);
+					resultMessage.put(configDictionary);
+					resultMessage.put(equipWork);*/
+					resultMessage.setIsSuccess(true);
+				}
+				
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	
+
+	
+	
+	
+	/**
+	 *@auther :Yang
+	 *@version :2019年8月1日
+	 *@param
+	 *@return
+	 *@description 查询安灯信息
+	 */
+	@ResponseBody
+	@RequestMapping("/alarmInforFlowList")
+	public ResultMessage getalarmInforFlowList(HttpServletRequest request, Long problemId, Long equipWorkId,Long alarmTypeDictId,Long statusDictId ,Long dealResultDictId) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<AlarmInforFlowVo> aList = new ArrayList<AlarmInforFlowVo>();
+		AlarmInforFlowParamVo paramVo = new AlarmInforFlowParamVo();
+			if(!"".equals(problemId) && problemId != null){
+				paramVo.setProblemId(problemId);
+			}
+			if(!"".equals(equipWorkId) && equipWorkId != null){
+				paramVo.setEquipWorkId(equipWorkId);
+			}
+			if(!"".equals(alarmTypeDictId) && alarmTypeDictId != null){
+				paramVo.setAlarmTypeDictId(alarmTypeDictId);
+			}
+			
+			if(!"".equals(statusDictId) && statusDictId != null){
+				paramVo.setStatusDictId(statusDictId);
+			}
+			if(!"".equals(dealResultDictId) && dealResultDictId != null){
+				paramVo.setDealResultDictId(dealResultDictId);
+			}
+		
+		try {
+			    aList = clientAlarmInforFlowService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if (aList.size() <= 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("查询安灯信息无数据");
+			}else{
+				resultMessage.put(aList);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+		return resultMessage;
+	}
+	
+
+	/**
+	 * 
+	 *@auther :Yang
+	 *@version :2019年8月5日
+	 *@param
+	 *@return
+	 *@description 确认接警
+	 */
+	@RequestMapping(value = "/knotAlarmSave", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage knotAlarmSave(HttpServletRequest request, Long id) {
+		ResultMessage resultMessage = new ResultMessage();
+		resultMessage.setIsSuccess(true);
+		AlarmInforFlowParamVo alarmInforFlowParamVo = new AlarmInforFlowParamVo();
+		alarmInforFlowParamVo.setModifyUserId(getLoginUserId(request));
+	    //设置响应人
+    	alarmInforFlowParamVo.setRespondUserId(getLoginUserId(request));
+    	alarmInforFlowParamVo.setRespondTime(new Date()); 
+		if(!"".equals(id) && id != null){
+			alarmInforFlowParamVo.setId(id);
+			alarmInforFlowParamVo.setStatusDictId(EnumAlarmStatus.IN_PROCESS.getValue());
+		}else{
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("id不能为空");
+		}
+		if (resultMessage.getIsSuccess().equals(true)){
+		   resultMessage = clientAlarmInforFlowService.saveOrUpdate(alarmInforFlowParamVo,this.getCommonParam(request));
+		}
+		return resultMessage;
+	}
+	
+	
+	/**
+	 * 
+	 *@auther :Yang
+	 *@version :2019年8月5日
+	 *@param id, problemId是报警问题,alarmTypeDictId是报警类型,remark备注
+	 *@return
+	 *@description 确认PQE分析确认
+	 */
+	@RequestMapping(value = "/analysisPQESave", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage analysisPQESave(HttpServletRequest request, Long id, Long problemId, Long alarmTypeDictId, String remark) {
+		ResultMessage resultMessage = new ResultMessage();
+		resultMessage.setIsSuccess(true);
+		AlarmInforFlowParamVo alarmInforFlowParamVo = new AlarmInforFlowParamVo();
+		alarmInforFlowParamVo.setModifyUserId(getLoginUserId(request));
+	    //设置PQE确人
+		alarmInforFlowParamVo.setConfirmUserId(getLoginUserId(request));
+		alarmInforFlowParamVo.setConfirmTime(new Date()); 
+		alarmInforFlowParamVo.setStatusDictId(EnumAlarmStatus.FINISHED_PROCESSING.getValue());	
+		alarmInforFlowParamVo.setDealResultDictId(EnumAlarmDealResult.HANG_UP_THE_CHECK.getValue());
+		
+		if(!"".equals(id) && id != null){
+			alarmInforFlowParamVo.setId(id);
+		}else{
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("id不能为空");
+		}
+		if(!"".equals(problemId) && problemId != null){
+			alarmInforFlowParamVo.setProblemId(Long.valueOf(problemId));
+		}else{
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("报警问题不能为空");
+		}
+		if(!"".equals(alarmTypeDictId) && alarmTypeDictId != null){
+			alarmInforFlowParamVo.setAlarmTypeDictId(Long.valueOf(alarmTypeDictId));
+		}else{
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("报警类型不能为空");
+		}
+		if(!"".equals(remark) && remark != null){
+			alarmInforFlowParamVo.setRemark(remark);
+		}
+		if (resultMessage.getIsSuccess().equals(true)){
+			resultMessage = clientAlarmInforFlowService.saveOrUpdate(alarmInforFlowParamVo,this.getCommonParam(request));
+		}
+
+        
+		return resultMessage;
+	}
+	
+	
+	/**
+	 * 
+	 *@auther :Yang
+	 *@version :2019年8月5日
+	 *@param
+	 *@return
+	 *@description 确认关闭警报
+	 */
+	@RequestMapping(value = "/closeAlertSave", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage closeAlertSave(HttpServletRequest request,Long id, Long dealResultDictId, String remark) {
+		ResultMessage resultMessage = new ResultMessage();
+		resultMessage.setIsSuccess(true);
+		AlarmInforFlowParamVo alarmInforFlowParamVo = new AlarmInforFlowParamVo();
+		alarmInforFlowParamVo.setModifyUserId(getLoginUserId(request));
+	    //设置关闭确人
+		alarmInforFlowParamVo.setDealUserId(getLoginUserId(request));
+    	alarmInforFlowParamVo.setDealTime(new Date()); 
+    	alarmInforFlowParamVo.setStatusDictId(EnumAlarmStatus.END.getValue());
+    	
+		if(!"".equals(id) && id != null){
+			alarmInforFlowParamVo.setId(id);
+		}else{
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("id不能为空");
+		}
+    	
+		if(!"".equals(dealResultDictId) && dealResultDictId != null){
+			alarmInforFlowParamVo.setDealResultDictId(dealResultDictId);
+		}else{
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("处理结果不能为空");
+		}
+		
+		if(!"".equals(remark) && remark != null){
+			alarmInforFlowParamVo.setRemark(remark);
+		}
+    	
+		if (resultMessage.getIsSuccess().equals(true)){
+		    resultMessage = clientAlarmInforFlowService.saveOrUpdate(alarmInforFlowParamVo,this.getCommonParam(request));
+		}
+		return resultMessage;
+	}
+		
+	
+}

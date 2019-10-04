@@ -1,0 +1,27 @@
+package com.techsoft.common.enums;
+
+/**
+*@auther:Wang
+*@version:2019年7月1日上午9:08:33
+*@description 生产计划状态
+*/
+public enum EnumDictWorkPlanStatus {
+	BF01(10577L),//未开始
+	BF02(10578L),//进行中
+	BF03(10579L),//结束
+	; 
+
+
+
+
+	
+	private Long value;
+
+	private EnumDictWorkPlanStatus(Long value) {
+		this.value = value;
+	}
+
+	public Long getValue() {
+		return value;
+	}
+}

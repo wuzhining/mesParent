@@ -1,0 +1,98 @@
+package com.techsoft.service.bill;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBillStatus;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.dao.barcode.BarcodeMainDao;
+import com.techsoft.dao.bill.BillDeliveryDao;
+import com.techsoft.dao.bill.BillWarehouseDao;
+import com.techsoft.dao.bill.BillWarehouseItemDao;
+import com.techsoft.dao.config.ConfigCodeRuleDao;
+import com.techsoft.dao.history.HistoryBillStatusDao;
+import com.techsoft.dao.track.TrackBarcodeDao;
+import com.techsoft.entity.common.BillDelivery;
+import com.techsoft.entity.common.BillDeliveryItem;
+import com.techsoft.entity.common.BillWarehouse;
+
+/**
+*@auther:Chenzj
+*@version:2019年5月27日下午2:52:24
+*@param:
+*@description
+*/
+@Service
+public class BillWarehouseRejectServiceImpl extends BaseServiceImpl<BillWarehouse> implements BillWarehouseRejectService {
+	@Autowired
+	private BillWarehouseDao billWarehouseDao;
+	@Autowired
+	private BarcodeMainDao barcodeMainDao;
+	@Autowired
+	private TrackBarcodeDao trackBarcodeDao;
+	@Autowired
+	private BillWarehouseItemDao billWarehouseItemDao;
+	@Autowired
+	private ConfigCodeRuleDao configCodeRuleDao;
+	@Autowired
+	private BillDeliveryDao billDeliveryDao;
+	@Autowired
+	private HistoryBillStatusDao historyBillStatusDao;
+	
+	@Override
+	public BaseDao<BillWarehouse> getBaseDao() {
+		return billWarehouseDao;
+	}
+
+	@Override
+	public Class<BillWarehouse> getEntityClass() {
+		return BillWarehouse.class;
+	}
+
+
+	@Override
+	public ResultMessage rejectBatchSaveOrUpdate(List<BillWarehouse> list, CommonParam commonParam) throws BusinessException, SQLException{
+		ResultMessage resultMessage = new ResultMessage();
+		    String billCode = configCodeRuleDao.createCode(BillDelivery.class.getName(),EnumDictBillType.BILL_TYPE_DELIVERY_SUPPLIER.getValue(), null,commonParam);
+			// 新增主表及明细表
+			List<BillDeliveryItem> billWarehousItem = new ArrayList<BillDeliveryItem>();
+			billWarehousItem = billDeliveryDao.insertBatchMainAndDetail(list,billCode, commonParam);
+			
+			//新增退货发货单新建状态历史表
+			historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_DELIVERY_SUPPLIER.getValue(), EnumDictBillStatus.NEW.getValue(), billWarehousItem.get(0).getBillId(), commonParam);
+
+			for (BillDeliveryItem billDeliveryItem : billWarehousItem) {
+				
+			// 更新退货单状态
+			billWarehouseDao.updateBillStatusMain(billDeliveryItem.getFromBillId(), EnumDictBillStatus.FINISHED.getValue(),commonParam);
+				
+			// 更新退货单明细表状态信息为完结
+			billWarehouseItemDao.updateBillItemStatus(billDeliveryItem.getFromBillId(),EnumDictBillStatus.FINISHED.getValue(), commonParam);
+				
+			// 更新退货单追踪条码表的单据状态
+			trackBarcodeDao.updateTrackStatus(billDeliveryItem.getFromBillId(), EnumDictBillStatus.FINISHED.getValue(),commonParam);
+			
+			//新增退货发货单新建状态历史表
+			historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WAREHOUSE_REJECT_SUPPLER.getValue(), EnumDictBillStatus.FINISHED.getValue(), billDeliveryItem.getFromBillId(), commonParam);
+
+
+			}
+			
+			// 新增退货发货条码追踪表
+			trackBarcodeDao.insertDeliveryToSuplierSnList(billWarehousItem, commonParam);
+									
+
+			resultMessage.setIsSuccess(true);
+		    return resultMessage;
+	}
+
+}

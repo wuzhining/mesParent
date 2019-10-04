@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+
+           
+               <td width="10%" class="tableleft">标签文档</td>
+               <td>
+               	<div class="div-choiceBox-intd ">   
+                		<input type="hidden" id="labelId" name="labelId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.labelId??>${entity.labelId?c}<#else></#if>">
+                		<input type="text" id="labelName" name="labelName" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.labelName??>${entity.labelName?c}<#else></#if>">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="labelSearch">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	          	</div>  
+               </td>
+
+               <td width="10%" class="tableleft">产品</td>
+               <td>
+                	<div class="div-choiceBox-intd ">   
+                		<input type="hidden"  id="productId" name="productId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>">
+                		<input type="text" id="productName" name="productName" disabled="disabled" class="layui-input input-choiceBox-intd">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="productSearch">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	 	</div>
+               </td> 
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">条码规则类型</td>
+               <td>
+              	 <select name="barcodeRuleDictId"> 
+                    <#if barcodeRuleDictList??>
+                     <#list barcodeRuleDictList as item>
+			            <option value="${item.id?c}" <#if (entity.barcodeRuleDictId??&&entity.barcodeRuleDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td> 
+				      <td width="10%" class="tableleft">是否有效</td>
+               <td>
+                 <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="10%"  class="tableleft">备注</td>
+               <td colspan="3"><input type="text"lay-verify="remarkLength" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+             
+           </tr>
+           <tr>
+
+           </tr>
+        
+
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+       <div id="hidden1" lay-filter="hidden1" style="display: none">
+        <table id="label_result" lay-filter="label_result"></table>
+	  </div>
+    </div>
+   <!-- 添加 弹出标签文档表格的 tool（里面的按钮）-->
+<script type="text/html" id="labelSelect">
+     <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+</script>
+   <!-- 添加 弹出产品表格的 tool（里面的按钮）-->
+<script type="text/html" id="productSelect">
+     <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+</script>
+
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','layer','layuiconfig','layuiformajax','layuitable'], function(){
+    	$ = layui.$, 
+    	admin = layui.admin, 
+    	table = layui.table, 
+    	layer = layui.layer, 
+    	laydate = layui.laydate,
+    	layuitable = layui.layuitable,
+    	form = layui.form; 
+		var layuiformajax = layui.layuiformajax;
+    	
+    	layuitable.render(label_result_table_options); //渲染数据给弹窗框表格， 
+  
+		table.on('tool(label_result)', label_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+    	$('#labelSearch').focus(label_input_focus_handler);//点击触发弹窗按钮
+        $('#productSearch').on('click',function(e){
+     		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+     		e.preventDefault();//默认from表单提交时不刷新
+     	})
+    	
+    	var url = $(window.parent.document).find("iframe").attr("src");
+    	var arr = url.split('?');
+    	var result=url.indexOf("?");
+    	if(result>0){
+	    	var productName = arr[1].split('&&')[1].split('=')[1];
+	    	var labelName = arr[1].split('&&')[2].split('=')[1];
+	    	$("#productName").val(productName);
+	    	$("#labelName").val(labelName);
+    		
+    	}
+    	
+          //自定义验证规则
+          form.verify({
+        	  number : [/^[0-9]*$/, '必须输入数字啊']
+	     	 ,remarkLength: function(value){
+	             if(value.length > 128){
+	                 return '不能超过128个字符';
+	               }
+	             }
+	     	 ,productLength: function(value){
+	             if(value.length > 32){
+	                 return '不能超过32个字符';
+	               }
+	             }
+	     	 
+           
+            
+            
+          }); 
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/product/productLabel/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+        });
+    //页面上隐藏的用于弹层的所有物料的列表的相关设置
+    var label_result_table_options = {
+    		elem: '#label_result'
+   	    	,id:'label_result'
+   	    	,url:'/config/configLabel/list/json'
+   	    	,cols: [[
+   	    	     {field:'id',  title: '标签文档条码',align:'center', width: 220}
+   	    	    ,{field:'labelName',  title: '标签文档名称',align:'center', width: 170}
+   	      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#labelSelect', fixed: 'right'}
+   	    	]]
+    };
+ //点击查询模板弹窗触发该函数
+	function label_input_focus_handler(){
+		layer.open({
+			type : 1
+			, area : [ '650px', '500px' ]
+			, content : $('#hidden1')
+			, success : function () {
+				// 重新加载表格中的数据
+				table.reload('label_result', label_result_table_options);
+				$('#hidden1').css('display', 'block');
+			}
+		});
+
+	}
+	//点击弹出的标签文档信息弹层上的表格中“选中”按钮的触发函数，回填input框
+	function label_tool_event_handler(obj) {
+		var data = obj.data;
+		switch (obj.event) {
+			case 'select':
+				$('#labelId').val(data.id);
+				$('#labelName').val(data.labelName);
+			
+				layer.close(layer.index);
+					break;
+		}
+	}
+
+
+ 
+ 
+    </script>
+    <script></script>
+  </body>
+
+</html>

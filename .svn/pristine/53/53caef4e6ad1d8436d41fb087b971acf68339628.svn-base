@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">设备管理</a> <a><cite>工具</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <select name=billTypeFixtureDictId>    
+                <option value="">请选择单据类型</option> 
+                 <#if billTypeFixtureDict??>
+                     <#list billTypeFixtureDict as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <select name="billStatusFixtureDictId">    
+                <option value="">请选择校单据状态</option> 
+                 <#if billStatusFixtureDict1??>
+                     <#list billStatusFixtureDict1 as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <select name="departmentId">    
+                <option value="">请选择部门</option> 
+                 <#if DepartmentList??>
+                     <#list DepartmentList as item>
+			            <option value="${item.id?c}" >${item.departmentName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button> 
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">审核</a>
+</script> 
+
+<script type="text/html" id="billTypeFixtureDictName">
+	{{#  if(d.configDictionaryType){}}
+		{{ d.configDictionaryType.dictName 
+
+ 	}}
+	{{# } }}
+</script> 
+ <script type="text/html" id="billStatusFixtureDictName">
+	{{#  if(d.configDictionaryStatus){}}
+		{{ d.configDictionaryStatus.dictName 
+
+ 	}}
+	{{# } }}
+</script> 
+ <script type="text/html" id="departmentName">
+	{{#  if(d.firmDepartment){}}
+		{{ d.firmDepartment.departmentName 
+
+ 	}}
+	{{# } }}
+</script>  
+
+ <script type="text/html" id="workstationName">
+	{{#  if(d.structWorkstation){}}
+		{{ d.structWorkstation.workstationName 
+
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/equip/equipBillAudit/list/json'
+    	,cols: [[
+			{field:'id', width:120, title: 'ID',align:'center'}
+			,{field:'billCode',  title: '单据编码',align:'center', width: 140}
+			,{field:'billTypeFixtureDictId',title: '单据类型id', align:'center'}
+			,{field:'billTypeFixtureDictName',title: '单据类型', align:'center',width: 140,templet: '#billTypeFixtureDictName'}
+			,{field:'billStatusFixtureDictId',  title: '单据状态id', align:'center'}
+			,{field:'billStatusFixtureDictName',  title: '单据状态', align:'center',width: 140,templet: '#billStatusFixtureDictName'}
+			,{field:'departmentId',  title: '部门id',align:'center'}
+			,{field:'departmentName',  title: '部门名称',align:'center', width: 140,templet: '#departmentName'}
+			,{field:'workstationId',  title: '工位id',align:'center'}
+			,{field:'workstationName',  title: '工位',align:'center', width: 140,templet: '#workstationName'}
+			,{field:'remark',  title: '备注',align:'center'}
+			,{field:'createTime',  title: '创建时间', align:'center'}
+			,{field:'',width: '20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]],done:function(){
+    		// 隐藏列
+    		$(".layui-table-box").find("[data-field='id']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='billTypeFixtureDictId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='billStatusFixtureDictId']").css("display","none");  
+    		$(".layui-table-box").find("[data-field='departmentId']").css("display","none");
+    		$(".layui-table-box").find("[data-field='workstationId']").css("display","none");
+    	}
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('审核单据','/equip/equipBillAudit/edit?id=' + data.id +'&&billStatusFixtureDictId='+data.billStatusFixtureDictId); 
+		}
+	});
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

@@ -1,0 +1,73 @@
+package com.techsoft.entity.product;
+
+import java.util.Date;
+
+import com.techsoft.entity.common.ProductMain;
+
+public class ProductMainParamVo extends ProductMain {
+	private static final long serialVersionUID = -5746150123683450722L;
+
+
+	public ProductMainParamVo (){
+	}
+	
+	public ProductMainParamVo(ProductMain value) {
+		value.cloneProperties(this);
+	}	
+	
+	private Date createTimeBegin;
+	private Date createTimeEnd;
+	private Date modifyTimeBegin;
+	private Date modifyTimeEnd;	
+	private String likeProductCode;
+	private String likeProductName;
+	
+	
+	public Date getCreateTimeBegin() {
+		return createTimeBegin;
+	}
+
+	public void setCreateTimeBegin(Date value) {
+		this.createTimeBegin = value;
+	}
+
+	public Date getCreateTimeEnd() {
+		return createTimeEnd;
+	}
+
+	public void setCreateTimeEnd(Date value) {
+		this.createTimeEnd = value;
+	}
+
+	public Date getModifyTimeBegin() {
+		return modifyTimeBegin;
+	}
+
+	public void setModifyTimeBegin(Date value) {
+		this.modifyTimeBegin = value;
+	}
+
+	public Date getModifyTimeEnd() {
+		return modifyTimeEnd;
+	}
+
+	public void setModifyTimeEnd(Date value) {
+		this.modifyTimeEnd = value;
+	}
+
+	public String getLikeProductCode() {
+		return likeProductCode;
+	}
+
+	public void setLikeProductCode(String likeProductCode) {
+		this.likeProductCode = likeProductCode;
+	}
+
+	public String getLikeProductName() {
+		return likeProductName;
+	}
+
+	public void setLikeProductName(String likeProductName) {
+		this.likeProductName = likeProductName;
+	}			
+}

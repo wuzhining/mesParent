@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.equip.EquipFixtureConfigMapper">
+	<resultMap id="EquipFixtureConfig" type="com.techsoft.entity.common.EquipFixtureConfig" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FIXTURE_TYPE_DICT_ID" property="fixtureTypeDictId" />
+		<result column="CORRECT_TYPE_DICT_ID" property="correctTypeDictId" />
+		<result column="SCRAP_TYPE_DICT_ID" property="scrapTypeDictId" />
+		<result column="NUMBER_SCRAP_PERIOD" property="numberScrapPeriod" />
+		<result column="NUMBER_SCRAP" property="numberScrap" />
+		<result column="NUMBER_DAY_SCRAP" property="numberDayScrap" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="fixtureTypeDictId != null">
+			AND A.FIXTURE_TYPE_DICT_ID= #{fixtureTypeDictId}
+		</if>
+		<if test="correctTypeDictId != null">
+			AND A.CORRECT_TYPE_DICT_ID= #{correctTypeDictId}
+		</if>
+		<if test="scrapTypeDictId != null">
+			AND A.SCRAP_TYPE_DICT_ID= #{scrapTypeDictId}
+		</if>
+		<if test="numberScrapPeriod != null">
+			AND A.NUMBER_SCRAP_PERIOD= #{numberScrapPeriod}
+		</if>
+		<if test="numberScrap != null">
+			AND A.NUMBER_SCRAP= #{numberScrap}
+		</if>
+		<if test="numberDayScrap != null">
+			AND A.NUMBER_DAY_SCRAP= #{numberDayScrap}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FIXTURE_TYPE_DICT_ID,
+		A.CORRECT_TYPE_DICT_ID,
+		A.SCRAP_TYPE_DICT_ID,
+		A.NUMBER_SCRAP_PERIOD,
+		A.NUMBER_SCRAP,
+		A.NUMBER_DAY_SCRAP,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_EQUIP_FIXTURE_CONFIG_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from EQUIP_FIXTURE_CONFIG
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.EquipFixtureConfig">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_FIXTURE_CONFIG A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.EquipFixtureConfig">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_FIXTURE_CONFIG A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE EQUIP_FIXTURE_CONFIG A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE EQUIP_FIXTURE_CONFIG  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixtureConfig">
+		UPDATE EQUIP_FIXTURE_CONFIG A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixtureConfig">
+		INSERT INTO EQUIP_FIXTURE_CONFIG (
+		TENANT_ID,
+		FIXTURE_TYPE_DICT_ID,
+		CORRECT_TYPE_DICT_ID,
+		SCRAP_TYPE_DICT_ID,
+		NUMBER_SCRAP_PERIOD,
+		NUMBER_SCRAP,
+		NUMBER_DAY_SCRAP,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{fixtureTypeDictId},
+		#{correctTypeDictId},
+		#{scrapTypeDictId},
+		#{numberScrapPeriod},
+		#{numberScrap},
+		#{numberDayScrap},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixtureConfig">
+		UPDATE EQUIP_FIXTURE_CONFIG SET
+		TENANT_ID=#{tenantId},
+		FIXTURE_TYPE_DICT_ID=#{fixtureTypeDictId},
+		CORRECT_TYPE_DICT_ID=#{correctTypeDictId},
+		SCRAP_TYPE_DICT_ID=#{scrapTypeDictId},
+		NUMBER_SCRAP_PERIOD=#{numberScrapPeriod},
+		NUMBER_SCRAP=#{numberScrap},
+		NUMBER_DAY_SCRAP=#{numberDayScrap},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixtureConfig">
+		UPDATE EQUIP_FIXTURE_CONFIG SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="fixtureTypeDictId != null" >
+			FIXTURE_TYPE_DICT_ID=#{fixtureTypeDictId},
+		</if>
+		<if test="correctTypeDictId != null" >
+			CORRECT_TYPE_DICT_ID=#{correctTypeDictId},
+		</if>
+		<if test="scrapTypeDictId != null" >
+			SCRAP_TYPE_DICT_ID=#{scrapTypeDictId},
+		</if>
+		<if test="numberScrapPeriod != null" >
+			NUMBER_SCRAP_PERIOD=#{numberScrapPeriod},
+		</if>
+		<if test="numberScrap != null" >
+			NUMBER_SCRAP=#{numberScrap},
+		</if>
+		<if test="numberDayScrap != null" >
+			NUMBER_DAY_SCRAP=#{numberDayScrap},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.equip.EquipFixtureConfigParamVo"
+		      resultType="com.techsoft.entity.common.EquipFixtureConfig" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_FIXTURE_CONFIG A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

@@ -1,0 +1,14 @@
+package com.techsoft.entity.warehouse;
+
+import com.techsoft.entity.common.WarehouseProductStock;
+
+public class WarehouseProductStockVo extends WarehouseProductStock {
+	private static final long serialVersionUID = -4239936151134423231L;
+
+	public WarehouseProductStockVo() {	
+	}
+	
+	public WarehouseProductStockVo(WarehouseProductStock value) {
+		value.cloneProperties(this);
+	}		
+}

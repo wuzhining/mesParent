@@ -1,0 +1,104 @@
+package com.techsoft.dao.bill;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.mapper.bill.BillInventoryMapper;
+
+@Repository
+public class BillInventoryDaoImpl extends BaseDaoImpl<BillInventory> implements BillInventoryDao {
+	@Resource
+	protected BillInventoryMapper billInventoryMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<BillInventory> getEntityClass() {
+		return BillInventory.class;
+	}	
+	
+	@Override
+	public BaseMapper<BillInventory> getBaseMapper() {
+		return this.billInventoryMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "BILL_INVENTORY";
+	}
+	
+	@Override
+	public void insertSaveCheck(BillInventory value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(BillInventory value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(BillInventory value) throws BusinessException, SQLException {
+	
+	}
+	
+	
+	@Override
+	public ResultMessage updateBillStatusMain(Long id, Long billStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		 ResultMessage resultMessage = new ResultMessage();
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			BillInventory item = this.selectById(id);
+			item.setBillStatusDictId(billStatusDictId);
+			item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			//item.setModifyUserId((long) 1);
+			this.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+		
+		resultMessage.setIsSuccess(true);
+		return resultMessage;
+	}
+	
+	@Override
+	public ResultMessage updateAuditStatus(Long id, Long auditStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		 ResultMessage resultMessage = new ResultMessage();
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			BillInventory item = this.selectById(id);
+			item.setAuditStatusDictId(auditStatusDictId);
+			item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			this.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+		
+		resultMessage.setIsSuccess(true);
+		return resultMessage;
+	}
+}

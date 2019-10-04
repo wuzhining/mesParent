@@ -1,0 +1,8 @@
+package com.techsoft.dao.bill;
+
+import com.techsoft.common.BaseDao;
+import com.techsoft.entity.common.BillSaleorderItem;
+
+public interface BillSaleorderItemDao extends BaseDao<BillSaleorderItem> {
+
+}

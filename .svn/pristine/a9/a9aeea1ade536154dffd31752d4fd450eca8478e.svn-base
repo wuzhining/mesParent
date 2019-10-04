@@ -1,0 +1,42 @@
+package com.techsoft.entity.common;
+
+import com.techsoft.common.BaseEntity;
+
+public class StructProdlineEquip extends BaseEntity {
+	private static final long serialVersionUID = -8842253145918199139L;
+
+
+	public StructProdlineEquip(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private Long productionlineId;	
+	   
+	private Long equipId;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public Long getProductionlineId() {
+		return productionlineId;
+	}
+
+	public void setProductionlineId(Long productionlineId) {
+		this.productionlineId = productionlineId;
+	}
+                		
+	public Long getEquipId() {
+		return equipId;
+	}
+
+	public void setEquipId(Long equipId) {
+		this.equipId = equipId;
+	}
+}

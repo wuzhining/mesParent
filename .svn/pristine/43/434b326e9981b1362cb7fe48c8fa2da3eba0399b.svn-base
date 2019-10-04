@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+               <td id="td1" width="15%" class="tableleft">员工编码</td>
+               <td id="td2">
+                <input type="text" name="employeeCode" class="layui-input" maxlength="20" disabled="true" value="${(entity.employeeCode)!''}"/>
+               </td> 
+               
+               <td width="15%" class="tableleft">中文名称</td>
+               <td><input type="text" name="realName" class="layui-input" maxlength="16" value="${(entity.realName)!''}"/></td>
+             
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">员工状态</td>
+               <td>
+               	   <select name="employeeStatusDictId"> 
+                    <#if dictionaryList??>
+                     <#list dictionaryList as item>
+			            <option value="${item.id?c}" <#if (entity.employeeStatusDictId??&&entity.employeeStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			       </select>
+               </td>
+                <td width="15%" class="tableleft">所属岗位</td>
+                <td>
+                	<div class="div-choiceBox-intd ">  
+                		<input type="hidden"  id="workpostId" name="workpostId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.workpostId??>${entity.workpostId?c}<#else></#if>">
+                		<input type="text" id="postName" name="postName" value="${(firmPost.postName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd"/> 
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="firmPostSearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div> 
+                </td>
+
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">身份证号</td>
+               <td>
+                <input type="text" name="identityCode" class="layui-input" maxlength="20" value="${(entity.identityCode)!''}"/>
+               </td> 
+               
+               <td width="15%" class="tableleft">籍贯</td>
+               <td><input type="text" name="nativeplace" class="layui-input" maxlength="16" value="${(entity.nativeplace)!''}"/></td>
+             
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">手机号</td>
+               <td>
+                   <input type="text" name="mobileNumber"  class="layui-input" maxlength="20" value="${(entity.mobileNumber)!''}"/>
+               </td>
+               <td width="15%" class="tableleft">IC卡号</td>
+               <td>
+                 <input type="text" name="iccardCode"  class="layui-input" maxlength="20" value="${(entity.iccardCode)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">入职日期</td>
+               <td>
+                   <input class="layui-input" autocomplete="off" placeholder="入职时间" name="dateEntry" id="dateEntry" maxlength="20" value="${(entity.dateEntry)!''}"/>
+               </td>
+               <td width="15%" class="tableleft">离职日期</td>
+               <td>
+                 <input class="layui-input" autocomplete="off" placeholder="离职时间" name="dateQuit" id="dateQuit" maxlength="20" value="${(entity.dateQuit)!''}"/>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    var ids = $('#id').val();
+    if(ids ==null || ids ==""){
+  	  	$("#td1").hide();
+  	  	$("#td2").hide();
+    }
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery , laydate = layui.laydate;;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+          
+          
+          
+          //打开车间信息列表
+           $('#firmPostSearch').on('click',function(e){
+        	   openWinSelectCurrency('/firm/firmPost/firmPostOpen',"workpostId","postName","","","","","","");
+         		e.preventDefault();//默认from表单提交时不刷新
+          })
+          
+        
+          //自定义验证规则
+          form.verify({
+        	 factoryName: function(value){
+              if(value.length < 5){
+                return '用户名至少得5个字符啊';
+              }
+            }
+            ,mobileNumber: [/(.+){11,11}$/, '手机号码必须11位']
+            ,email: function(value){
+                if($('#email').val()!=$('#email').val()){
+                    return '不一致';
+                }
+            }
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/firm/firmEmployee/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+	        laydate.render({
+	      		elem: '#dateEntry' //指定元素
+	      		,type: 'date'
+	      		,format: 'yyyy-MM-dd' //可任意组合
+	      	});
+		      	
+	      	laydate.render({
+	      		elem: '#dateQuit' //指定元素
+	      		,type: 'date'
+	      		,format: 'yyyy-MM-dd' //可任意组合
+	      	});
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

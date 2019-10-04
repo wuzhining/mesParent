@@ -1,0 +1,226 @@
+package com.techsoft.client.service.firm;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.FirmEmployee;
+import com.techsoft.entity.common.FirmPost;
+import com.techsoft.entity.firm.FirmEmployeeVo;
+import com.techsoft.entity.firm.FirmEmployeeParamVo;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.firm.FirmEmployeeService;
+import com.techsoft.service.firm.FirmPostService;
+
+@org.springframework.stereotype.Service
+public class ClientFirmEmployeeServiceImpl extends BaseClientServiceImpl<FirmEmployee>
+		implements ClientFirmEmployeeService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmEmployeeService firmEmployeeService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmPostService firmPostService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+
+	@Override
+	public BaseService<FirmEmployee> getBaseService() {
+		return firmEmployeeService;
+	}
+
+	private FirmEmployeeVo getVo(FirmEmployee firmEmployee, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		FirmEmployeeVo vo = new FirmEmployeeVo(firmEmployee);
+		if (vo.getWorkpostId() != null && vo.getWorkpostId() > 0L) {
+			FirmPost firmPost = firmPostService.selectById(vo.getWorkpostId(), commonParam);
+			if (firmPost != null) {
+				vo.setFirmPost(firmPost);
+			}
+		}
+		if (vo.getEmployeeStatusDictId() != null && vo.getEmployeeStatusDictId() > 0L) {
+			ConfigDictionary configDictionary = configDictionaryService.selectById(vo.getEmployeeStatusDictId(),
+					commonParam);
+			if (configDictionary != null) {
+				vo.setConfigDictionary(configDictionary);
+			}
+		}
+		return vo;
+	}
+
+	private FirmEmployeeVo getExtendVo(FirmEmployee firmEmployee, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		FirmEmployeeVo vo = this.getVo(firmEmployee, commonParam);
+
+		return vo;
+	}
+
+	private List<FirmEmployeeVo> getVoList(List<FirmEmployee> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<FirmEmployeeVo> voList = new ArrayList<FirmEmployeeVo>();
+		for (FirmEmployee entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<FirmEmployeeVo> getExtendVoList(List<FirmEmployee> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<FirmEmployeeVo> voList = new ArrayList<FirmEmployeeVo>();
+		for (FirmEmployee entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public FirmEmployeeVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		FirmEmployee entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<FirmEmployeeVo> selectListVoByParamVo(FirmEmployeeParamVo firmEmployee, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (firmEmployee == null) {
+			firmEmployee = new FirmEmployeeParamVo();
+		}
+		firmEmployee.setTenantId(commonParam.getTenantId());
+
+		List<FirmEmployee> list = (List<FirmEmployee>) this.getBaseService().selectListByParamVo(firmEmployee,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<FirmEmployeeVo> selectPageVoByParamVo(FirmEmployeeParamVo firmEmployee, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (firmEmployee == null) {
+			firmEmployee = new FirmEmployeeParamVo();
+		}
+		firmEmployee.setTenantId(commonParam.getTenantId());
+
+		PageInfo<FirmEmployee> list = (PageInfo<FirmEmployee>) this.getBaseService().selectPageByParamVo(firmEmployee,
+				commonParam, pageNo, pageSize);
+		List<FirmEmployeeVo> volist = new ArrayList<FirmEmployeeVo>();
+
+		Iterator<FirmEmployee> iter = list.getList().iterator();
+		FirmEmployeeVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<FirmEmployeeVo> vpage = new Page<FirmEmployeeVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public FirmEmployeeVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		FirmEmployee entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<FirmEmployeeVo> selectListExtendVoByParamVo(FirmEmployeeParamVo firmEmployee, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (firmEmployee == null) {
+			firmEmployee = new FirmEmployeeParamVo();
+		}
+		firmEmployee.setTenantId(commonParam.getTenantId());
+
+		List<FirmEmployee> list = (List<FirmEmployee>) this.getBaseService().selectListByParamVo(firmEmployee,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<FirmEmployeeVo> selectPageExtendVoByParamVo(FirmEmployeeParamVo firmEmployee,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (firmEmployee == null) {
+			firmEmployee = new FirmEmployeeParamVo();
+		}
+		firmEmployee.setTenantId(commonParam.getTenantId());
+
+		PageInfo<FirmEmployee> list = (PageInfo<FirmEmployee>) this.getBaseService().selectPageByParamVo(firmEmployee,
+				commonParam, pageNo, pageSize);
+		List<FirmEmployeeVo> volist = new ArrayList<FirmEmployeeVo>();
+
+		Iterator<FirmEmployee> iter = list.getList().iterator();
+		FirmEmployeeVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<FirmEmployeeVo> vpage = new Page<FirmEmployeeVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(FirmEmployeeParamVo firmEmployeeParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		FirmEmployee firmEmployee = null;
+		if (firmEmployeeParamVo.getEmployeeCode() == null) {
+			resultMessage.addErr("员工编码不能为空");
+			return resultMessage;
+		}
+		if (firmEmployeeParamVo.getRealName() == null) {
+			resultMessage.addErr("中午名称不能为空");
+			return resultMessage;
+		}
+		if (firmEmployeeParamVo.getEmployeeStatusDictId() == null) {
+			resultMessage.addErr("员工状态不能为空");
+			return resultMessage;
+		}
+		if (firmEmployeeParamVo.getWorkpostId() == null) {
+			resultMessage.addErr("所属岗位不能为空");
+			return resultMessage;
+		}
+		try {
+			if (firmEmployeeParamVo.getId() == null) {// 新增
+
+				firmEmployeeParamVo.setTenantId(commonParam.getTenantId());
+				firmEmployee = firmEmployeeService.saveOrUpdate(firmEmployeeParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				FirmEmployee firmEmployeeVoTemp = this.selectById(firmEmployeeParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(firmEmployeeVoTemp, firmEmployeeParamVo);
+
+				firmEmployee = firmEmployeeService.saveOrUpdate(firmEmployeeVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(firmEmployee);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

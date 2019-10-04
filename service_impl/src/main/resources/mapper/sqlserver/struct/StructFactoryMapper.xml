@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.struct.StructFactoryMapper">
+	<cache type="org.mybatis.caches.redis.RedisCache"/>
+	<resultMap id="StructFactory" type="com.techsoft.entity.common.StructFactory" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_NAME" property="factoryName" />
+		<result column="FACTORY_CODE" property="factoryCode" />
+		<result column="FACTORY_TYPE_DICT_ID" property="factoryTypeDictId" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="ADDRESS" property="address" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryName != null">
+			AND A.FACTORY_NAME= #{factoryName}
+		</if>
+		<if test="factoryCode != null">
+			AND A.FACTORY_CODE= #{factoryCode}
+		</if>
+		<if test="factoryTypeDictId != null">
+			AND A.FACTORY_TYPE_DICT_ID= #{factoryTypeDictId}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="address != null">
+			AND A.ADDRESS= #{address}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	   <if test="likeFactoryId != null">
+		  <bind name="likeFactoryId" value="'%' + _parameter.likeFactoryId + '%'" />
+		  AND A.FACTORY_CODE LIKE #{likeFactoryId}
+		</if>
+		<if test="likeFactoryName != null">
+		  <bind name="likeFactoryName" value="'%' + _parameter.likeFactoryName + '%'" />
+		  AND A.FACTORY_NAME LIKE #{likeFactoryName}
+		</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_NAME,
+		A.FACTORY_CODE,
+		A.FACTORY_TYPE_DICT_ID,
+		A.IS_VALID,
+		A.ADDRESS,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for STRUCT_FACTORY_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STRUCT_FACTORY
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StructFactory">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_FACTORY A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StructFactory">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_FACTORY A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_FACTORY A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE   A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_FACTORY A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StructFactory">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_FACTORY A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructFactory">
+		INSERT INTO STRUCT_FACTORY (
+		TENANT_ID,
+		FACTORY_NAME,
+		FACTORY_CODE,
+		FACTORY_TYPE_DICT_ID,
+		IS_VALID,
+		ADDRESS,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryName},
+		#{factoryCode},
+		#{factoryTypeDictId},
+		#{isValid},
+		#{address},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructFactory">
+		UPDATE STRUCT_FACTORY SET
+		TENANT_ID=#{tenantId},
+		FACTORY_NAME=#{factoryName},
+		FACTORY_CODE=#{factoryCode},
+		FACTORY_TYPE_DICT_ID=#{factoryTypeDictId},
+		IS_VALID=#{isValid},
+		ADDRESS=#{address},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructFactory">
+		UPDATE STRUCT_FACTORY SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryName != null" >
+			FACTORY_NAME=#{factoryName},
+		</if>
+		<if test="factoryCode != null" >
+			FACTORY_CODE=#{factoryCode},
+		</if>
+		<if test="factoryTypeDictId != null" >
+			FACTORY_TYPE_DICT_ID=#{factoryTypeDictId},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="address != null" >
+			ADDRESS=#{address},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.struct.StructFactoryParamVo"
+		      resultType="com.techsoft.entity.common.StructFactory" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_FACTORY A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

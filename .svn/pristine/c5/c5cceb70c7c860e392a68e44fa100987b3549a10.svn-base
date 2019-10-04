@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">设备管理</a> <a><cite>生产设备栈位</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <input type="text" name="equipStackArea"  placeholder="设备栈位区域" autocomplete="off" class="layui-input">
+          <select name="equipWorkId">    
+                <option value="">请选择设备名称</option> 
+                 <#if workList1??>
+                     <#list workList1 as item>
+			            <option value="${item.id?c}" >${item.equipName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select> 
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加生产设备栈位','/equip/equipWorkStack/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script> 
+
+<script type="text/html" id="equipName">
+	{{#  if(d.equipWork){}}
+		{{ d.equipWork.equipName 
+
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="equipCode">
+	{{#  if(d.equipWork){}}
+		{{ d.equipWork.equipCode 
+
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/equip/equipWorkStack/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center'}
+    	    ,{field:'equipWorkId',  title: '生产设备', align:'center',minWidth: 120}
+    	    ,{field:'equipCode',  title: '生产设备编码', align:'center',minWidth: 180,templet: '#equipCode'}
+    	    ,{field:'equipName',  title: '生产设备名称', align:'center',minWidth: 180,templet: '#equipName'}
+    	    ,{field:'equipStackArea', width:180, title: '设备栈位区域',align:'center'}
+    	    ,{field:'equipStackCode', width:180, title: '设备栈位编码', align:'center'}
+    	    ,{field:'equipStackName',  title: '设备栈位名称',align:'center', minWidth: 180}
+    	    ,{field:'remark',  title: '描述', align:'center',minWidth: 205}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 200}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+		, done: function (res, curr, count) {
+			$("[data-field='id']").css('display','none');
+			$("[data-field='equipWorkId']").css('display','none');
+			//merge(res, curr, count);
+			layuiRowspan('equipCode',1);
+            layuiRowspan(['equipName','equipStackArea'],1);//支持数组
+		}
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑生产设备栈位','/equip/equipWorkStack/edit?id=' + data.id); 
+		}
+	});
+	
+});	
+
+
+/**
+ * 合并单元格
+ * @param res 表格数据
+ * @param curr 当前页
+ * @param count 总数
+ */
+ /* function merge(res, curr, count) {
+     var data = res.resultlist;
+     //alert(JSON.stringify(data));
+     var mergeIndex = 0;//定位需要添加合并属性的行数
+     var mark = 1; //这里涉及到简单的运算，mark是计算每次需要合并的格子数
+     var columsName = ['equipCode','equipName','equipStackArea'];//需要合并的列名称
+     var columsIndex = [2,3,4];//需要合并的列索引值
+     for (var k = 0; k < columsName.length; k++)//这里循环所有要合并的列
+     {
+    	 mergeIndex = 0;
+         mark = 1;
+         var trArr = $(".layui-table-body>.layui-table").find("tr");//所有行
+         for (var i = 1; i < res.resultlist.length; i++) { //这里循环表格当前的数据
+             var tdCurArr = trArr.eq(i).find("td").eq(columsIndex[k]);//获取当前行的当前列
+             var tdPreArr = trArr.eq(mergeIndex).find("td").eq(columsIndex[k]);//获取相同列的第一列
+             if(columsName[k] == 'equipStackArea'){
+            	 if (data[i][columsName[k]] === data[i - 1][columsName[k]]) { //后一行的值与前一行的值做比较，相同就需要合并
+                     mark += 1;
+                     tdPreArr.each(function () {//相同列的第一列增加rowspan属性
+                         $(this).attr("rowspan", mark);
+                     });
+                     tdCurArr.each(function () {//当前行隐藏
+                         $(this).css("display", "none");
+                     });
+                 }else {
+                     mergeIndex = i;
+                     mark = 1;//一旦前后两行的值不一样了，那么需要合并的格子数mark就需要重新计算
+                 }
+             }else{
+            	 if (data[i].equipWork[columsName[k]] === data[i - 1].equipWork[columsName[k]]) { //后一行的值与前一行的值做比较，相同就需要合并
+                     mark += 1;
+                     tdPreArr.each(function () {//相同列的第一列增加rowspan属性
+                         $(this).attr("rowspan", mark);
+                     });
+                     tdCurArr.each(function () {//当前行隐藏
+                         $(this).css("display", "none");
+                     });
+                 }else {
+                     mergeIndex = i;
+                     mark = 1;//一旦前后两行的值不一样了，那么需要合并的格子数mark就需要重新计算
+                 } 
+             }
+         }
+     }
+     
+ } */
+ 
+	//合并数据表格行
+	function layuiRowspan(fieldNameTmp,index,flag){
+		   let fieldName = [];
+		   if(typeof fieldNameTmp == "string"){
+		     fieldName.push(fieldNameTmp);
+		   }else{
+		     fieldName = fieldName.concat(fieldNameTmp);
+		   }
+		   for(let i = 0;i<fieldName.length;i++){
+		     execRowspan(fieldName[i],index,flag);
+		   }
+	}
+
+   function execRowspan(fieldName,index,flag){
+   // 1为不冻结的情况，左侧列为冻结的情况
+   let fixedNode = index=="1"?$(".layui-table-body")[index - 1]:(index=="3"?$(".layui-table-fixed-r"):$(".layui-table-fixed-l"));
+   // 左侧导航栏不冻结的情况
+   let child = $(fixedNode).find("td");
+   let childFilterArr = [];
+   // 获取data-field属性为fieldName的td
+   for(let i = 0; i < child.length; i++){
+     if(child[i].getAttribute("data-field") == fieldName){
+       childFilterArr.push(child[i]);
+     }
+   }
+   // 获取td的个数和种类
+   let childFilterTextObj = {};
+   for(let i = 0; i < childFilterArr.length; i++){
+     let childText = flag?childFilterArr[i].innerHTML:childFilterArr[i].textContent;
+     if(childFilterTextObj[childText] == undefined){
+       childFilterTextObj[childText] = 1;
+     }else{
+       let num = childFilterTextObj[childText];
+       childFilterTextObj[childText] = num*1 + 1;
+     }
+   }
+   let canRowspan = true;
+   let maxNum;//以前列单元格为基础获取的最大合并数
+   let finalNextIndex;//获取其下第一个不合并单元格的index
+   let finalNextKey;//获取其下第一个不合并单元格的值
+   for(let i = 0; i < childFilterArr.length; i++){
+     (maxNum>9000||!maxNum)&&(maxNum = $(childFilterArr[i]).prev().attr("rowspan")&&fieldName!="8"?$(childFilterArr[i]).prev().attr("rowspan"):9999);
+     let key = flag?childFilterArr[i].innerHTML:childFilterArr[i].textContent;//获取下一个单元格的值
+     let nextIndex = i+1;
+     let tdNum = childFilterTextObj[key];
+     let curNum = maxNum<tdNum?maxNum:tdNum;
+     if(canRowspan){
+       for(let j =1;j<=curNum&&(i+j<childFilterArr.length);){//循环获取最终合并数及finalNext的index和key
+         finalNextKey = flag?childFilterArr[i+j].innerHTML:childFilterArr[i+j].textContent;
+         finalNextIndex = i+j;
+         if((key!=finalNextKey&&curNum>1)||maxNum == j){
+           canRowspan = true;
+           curNum = j;
+           break;
+         }
+         j++;
+         if((i+j)==childFilterArr.length){
+           finalNextKey=undefined;
+           finalNextIndex=i+j;
+           break;
+         }
+       }
+       childFilterArr[i].setAttribute("rowspan",curNum);
+       if($(childFilterArr[i]).find("div.rowspan").length>0){//设置td内的div.rowspan高度适应合并后的高度
+         $(childFilterArr[i]).find("div.rowspan").parent("div.layui-table-cell").addClass("rowspanParent");
+         $(childFilterArr[i]).find("div.layui-table-cell")[0].style.height= curNum*38-10 +"px";
+       }
+       canRowspan = false;
+     }else{
+       childFilterArr[i].style.display = "none";
+     }
+     if(--childFilterTextObj[key]==0|--maxNum==0|--curNum==0|(finalNextKey!=undefined&&nextIndex==finalNextIndex)){//||(finalNextKey!=undefined&&key!=finalNextKey)
+       canRowspan = true;
+     }
+   }
+ }
+</script>
+ 
+  </body>
+
+</html>      

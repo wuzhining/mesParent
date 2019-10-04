@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.scada.ScadaDfldipMapper">
+	<resultMap id="ScadaDfldip" type="com.techsoft.entity.common.ScadaDfldip" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="UPLOADTIME" property="uploadtime" />
+		<result column="MACHINENAME" property="machinename" />
+		<result column="STATIONNAME" property="stationname" />
+		<result column="IPADDRESS" property="ipaddress" />
+		<result column="MACHINEMODEL" property="machinemodel" />
+		<result column="SUPPLIER" property="supplier" />
+		<result column="SKUNO" property="skuno" />
+		<result column="PARAMNO" property="paramno" />
+		<result column="PARAMNAME" property="paramname" />
+		<result column="PARAMDESC" property="paramdesc" />
+		<result column="PARAMVALUE" property="paramvalue" />
+		<result column="PARAMTYPE" property="paramtype" />
+		<result column="UNITS" property="units" />
+		<result column="VALUETYPE" property="valuetype" />
+		<result column="ADJVALUE" property="adjvalue" />
+		<result column="LOWLIMIT" property="lowlimit" />
+		<result column="UPPLIMIT" property="upplimit" />
+		<result column="PARAMGUID" property="paramguid" />
+		<result column="PARAMRESULT" property="paramresult" />
+		<result column="PARAMMSG" property="parammsg" />
+		<result column="SN_NO" property="snNo" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="uploadtime != null">
+			AND A.UPLOADTIME= #{uploadtime}
+		</if>
+		<if test="machinename != null">
+			AND A.MACHINENAME= #{machinename}
+		</if>
+		<if test="stationname != null">
+			AND A.STATIONNAME= #{stationname}
+		</if>
+		<if test="ipaddress != null">
+			AND A.IPADDRESS= #{ipaddress}
+		</if>
+		<if test="machinemodel != null">
+			AND A.MACHINEMODEL= #{machinemodel}
+		</if>
+		<if test="supplier != null">
+			AND A.SUPPLIER= #{supplier}
+		</if>
+		<if test="skuno != null">
+			AND A.SKUNO= #{skuno}
+		</if>
+		<if test="paramno != null">
+			AND A.PARAMNO= #{paramno}
+		</if>
+		<if test="paramname != null">
+			AND A.PARAMNAME= #{paramname}
+		</if>
+		<if test="paramdesc != null">
+			AND A.PARAMDESC= #{paramdesc}
+		</if>
+		<if test="paramvalue != null">
+			AND A.PARAMVALUE= #{paramvalue}
+		</if>
+		<if test="paramtype != null">
+			AND A.PARAMTYPE= #{paramtype}
+		</if>
+		<if test="units != null">
+			AND A.UNITS= #{units}
+		</if>
+		<if test="valuetype != null">
+			AND A.VALUETYPE= #{valuetype}
+		</if>
+		<if test="adjvalue != null">
+			AND A.ADJVALUE= #{adjvalue}
+		</if>
+		<if test="lowlimit != null">
+			AND A.LOWLIMIT= #{lowlimit}
+		</if>
+		<if test="upplimit != null">
+			AND A.UPPLIMIT= #{upplimit}
+		</if>
+		<if test="paramguid != null">
+			AND A.PARAMGUID= #{paramguid}
+		</if>
+		<if test="paramresult != null">
+			AND A.PARAMRESULT= #{paramresult}
+		</if>
+		<if test="parammsg != null">
+			AND A.PARAMMSG= #{parammsg}
+		</if>
+		<if test="snNo != null">
+			AND A.SN_NO= #{snNo}
+		</if>	
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+	
+	<sql id="Order_By_Sql">
+	 	order by SN_NO
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.UPLOADTIME,
+		A.MACHINENAME,
+		A.STATIONNAME,
+		A.IPADDRESS,
+		A.MACHINEMODEL,
+		A.SUPPLIER,
+		A.SKUNO,
+		A.PARAMNO,
+		A.PARAMNAME,
+		A.PARAMDESC,
+		A.PARAMVALUE,
+		A.PARAMTYPE,
+		A.UNITS,
+		A.VALUETYPE,
+		A.ADJVALUE,
+		A.LOWLIMIT,
+		A.UPPLIMIT,
+		A.PARAMGUID,
+		A.PARAMRESULT,
+		A.PARAMMSG,
+		A.SN_NO
+	</sql>
+
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.scada.ScadaDfldipParamVo"
+		      resultType="com.techsoft.entity.common.ScadaDfldip" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SCADA_DFLDIP A
+		WHERE (1 = 1)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-unselect{
+			height:1px;
+		}
+	
+	</style>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+  			<div class="layui-col-md12">
+    			<div class="layui-form-query">
+    				<form class="layui-form m20">
+    				<input type="hidden"  id="ids" />
+    				<input type="hidden"  id="idss" />
+    					<div class="layui-form-item">
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						        <input type="text" name="likeFixtureCode"  placeholder="工具编码" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						          <input type="text" name="likeFixtureLabel"  placeholder="工具标签" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline">
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+						      </div>
+						    </div>
+			  			</div>
+            		</form>
+            	</div>
+            </div>
+		    <div class="layui-col-md12" style='text-align:right;'>
+		    	<a class="layui-btn-small" href='javascript:void(0)' onclick="layer_window_show('添加产线工具','/struct/structProdlineEquipFixture/addEquipFixture')"><i class="layui-icon"></i>添加产线工具</a>
+		    </div>
+            <div class="layui-col-md12">
+        		<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="shelf_result" lay-filter="shelf_result"></table>
+        			</div>
+        		</div>
+        	</div>
+        </div>
+    </div>
+</div>   
+</body>
+
+<script type="text/html" id="barDemo">	
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="fixtureCode">
+	{{#  if(d.equipFixture){}}
+		{{ d.equipFixture.fixtureCode 
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="fixtureLabel">
+	{{#  if(d.equipFixture){}}
+		{{ d.equipFixture.fixtureLabel 
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="fixtureSpecsName">
+	{{#  if(d.equipSpecsFixture){}}
+		{{ d.equipSpecsFixture.fixtureSpecsName 
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="fixtureSpecsCode">
+	{{#  if(d.equipSpecsFixture){}}
+		{{ d.equipSpecsFixture.fixtureSpecsCode 
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="fixtureClasses">
+	{{#  if(d.equipClassesFixture){}}
+		{{ d.equipClassesFixture.classesName 
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="fixtureStatus">
+	{{#  if(d.fixturestatus){}}
+		{{ d.fixturestatus.dictName 
+ 	}}
+	{{# } }}
+</script>
+ 
+<script type="text/javascript">
+	var returnData = [];
+	layui.config({
+	    base: '/static/plugins/layui/base/',
+	    v: new Date().getTime()
+	}).use(['form','table','layuiconfig','layuiformajax','layuitable'], function(){
+		var form = layui.form, 
+		$ = layui.jquery,  table = layui.table,layuitable = layui.layuitable
+		layer = layui.layer,layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+		var layuiformajax = layui.layuiformajax;
+		var url = $(window.parent.document).find("iframe").attr("src");
+	    var arr = url.split('?');
+	    var arrs = arr[1].split('&&')
+	    //console.log(arrs);
+	    var result=url.indexOf("?");
+	    if(result>0){
+	    	var productionlineId = arrs[0].split('=')[1];
+	    	var workshopId = arrs[1].split('=')[1];
+	    	console.log(productionlineId);
+	    	console.log(workshopId);
+	    	$("#ids").val(productionlineId);
+	    	$("#idss").val(workshopId);
+	    }
+		var curTable = layuitable.render({
+	    	elem: '#shelf_result'
+	    	,id:'shelf_result'
+	    	,url:'/struct/structProdlineEquipFixture/list/json?productionlineId=' + productionlineId
+	    	,height:640
+	   		,cols: [[
+			    	 {field:'id',  title: 'ID',align:'center', width: 220}
+	   	    	    ,{field:'fixtureCode',  title: '工具编码',align:'center', width: 220,templet:'#fixtureCode'}
+	   	    	 	,{field:'fixtureLabel',  title: '工具标签',align:'center', width: 200,templet:'#fixtureLabel'}
+	   	    	 	,{field:'fixtureSpecsCode',  title: '工具品种规格编码',align:'center', width: 200,templet:'#fixtureSpecsCode'}
+	   	    	 	,{field:'fixtureSpecsName',  title: '工具品种规格名称',align:'center', width: 200,templet:'#fixtureSpecsName'}
+	   	    	 	,{field:'classesId',  title: '工具分类',align:'center', width: 200,templet:'#fixtureClasses'}
+	   	    	 	,{field:'fixtureStatusDictId',  title: '工具状态',align:'center', width: 200,templet:'#fixtureStatus'}
+	   	    	 	,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+	     	    	]],done:function(){
+	     	    		// 隐藏列
+	     	    		$(".layui-table-box").find("[data-field='id']").css("display","none"); 
+	     	    	}
+	  	});
+		
+		form.on('submit(search)', function (data) {
+			curTable.reload(data.field);
+	        return false;
+	  	});
+		
+		table.on('tool(shelf_result)', function(obj) {
+			var data = obj.data;
+			if (obj.event === 'del') {
+		          //监听提交
+	       	  var url = '/struct/structProdlineEquipFixture/del?id='+ data.id;
+	       	  layuiformajax.postJson(url, '', function (result) {
+	       		  layer.msg('删除成功!', {icon: 1, time: 1000},function () {
+	     	                // 获得frame索引
+	     	                var index = parent.layer.getFrameIndex(window.name);
+	     				  	location.reload(); 
+	     	                layer.close(index);
+	     	            });
+	     		  });
+		
+			}
+		});
+	});
+
+</script>
+
+</html>

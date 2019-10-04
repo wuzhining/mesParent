@@ -1,0 +1,22 @@
+package com.techsoft.service.bill;
+
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.entity.bill.BillWorkorderVo;
+import com.techsoft.entity.common.BillWorkorder;
+
+public interface BillWorkorderService extends BaseService<BillWorkorder> {
+	
+	/**
+	 * 工单审核校验该工单对应产品ID是否存在BOM、对应BOM、半成品是否存在工艺路线、工序、工序工具、指令步骤等
+	 * @param billWorkorderVo
+	 * @param commonParam
+	 * @throws BusinessException
+	 * @throws SQLException
+	 */
+	public ResultMessage updateAudit(BillWorkorderVo billWorkorderVo,CommonParam commonParam);
+	
+}

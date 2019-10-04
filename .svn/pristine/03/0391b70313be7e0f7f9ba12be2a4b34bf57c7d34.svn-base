@@ -1,0 +1,5 @@
+#template_update_delay=0  
+#locale=zh_CN  
+default_encoding=UTF-8  
+number_format=0.00
+date_format=yyyy-MM-dd HH:mm:ss  

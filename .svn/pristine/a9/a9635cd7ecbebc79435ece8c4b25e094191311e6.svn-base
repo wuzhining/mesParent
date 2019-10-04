@@ -1,0 +1,74 @@
+package com.techsoft.entity.equip;
+
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipFixture;
+import com.techsoft.entity.common.FirmEmployee;
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.WarehouseLocation;
+
+public class EquipFixtureVo extends EquipFixture {
+	private static final long serialVersionUID = -3435359616474752856L;
+    private StructWarehouse structWarehouse;//仓库
+    private WarehouseLocation warehouseLocation;//仓库
+    private ConfigDictionary configDictionary;//数据字典
+    private ConfigDictionary configDictionaryStatus;//数据字典
+    private FirmPartner firmPartner;//供应商
+    private FirmEmployee firmEmployee;//校验确认人-员工
+    
+	public EquipFixtureVo() {	
+	}
+	
+	public EquipFixtureVo(EquipFixture value) {
+		value.cloneProperties(this);
+	}
+
+	public ConfigDictionary getConfigDictionaryStatus() {
+		return configDictionaryStatus;
+	}
+
+	public void setConfigDictionaryStatus(ConfigDictionary configDictionaryStatus) {
+		this.configDictionaryStatus = configDictionaryStatus;
+	}
+
+	public WarehouseLocation getWarehouseLocation() {
+		return warehouseLocation;
+	}
+
+	public void setWarehouseLocation(WarehouseLocation warehouseLocation) {
+		this.warehouseLocation = warehouseLocation;
+	}
+
+	public StructWarehouse getStructWarehouse() {
+		return structWarehouse;
+	}
+
+	public void setStructWarehouse(StructWarehouse structWarehouse) {
+		this.structWarehouse = structWarehouse;
+	}
+
+	public ConfigDictionary getConfigDictionary() {
+		return configDictionary;
+	}
+
+	public void setConfigDictionary(ConfigDictionary configDictionary) {
+		this.configDictionary = configDictionary;
+	}
+
+	public FirmPartner getFirmPartner() {
+		return firmPartner;
+	}
+
+	public void setFirmPartner(FirmPartner firmPartner) {
+		this.firmPartner = firmPartner;
+	}
+
+	public FirmEmployee getFirmEmployee() {
+		return firmEmployee;
+	}
+
+	public void setFirmEmployee(FirmEmployee firmEmployee) {
+		this.firmEmployee = firmEmployee;
+	}
+	
+}

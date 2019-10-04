@@ -1,0 +1,14 @@
+package com.techsoft.entity.struct;
+
+import com.techsoft.entity.common.StructProdlineEquipFixture;
+
+public class StructProdlineEquipFixtureVo extends StructProdlineEquipFixture {
+	private static final long serialVersionUID = 6188943429402725785L;
+
+	public StructProdlineEquipFixtureVo() {	
+	}
+	
+	public StructProdlineEquipFixtureVo(StructProdlineEquipFixture value) {
+		value.cloneProperties(this);
+	}		
+}

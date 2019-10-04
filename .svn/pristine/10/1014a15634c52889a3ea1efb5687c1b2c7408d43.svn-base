@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-unselect{
+			height:1px;
+		}
+	
+	</style>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+  			<div class="layui-col-md12">
+    			<div class="layui-form-query">
+    				<form class="layui-form m20">
+    					<div class="layui-form-item">
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						        <input type="text" name="nodeCode"  placeholder="工序节点编码" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						          <input type="text" name="nodeNames"  placeholder="工序节点名称" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline">
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+						      </div>
+						    </div>
+			  			</div>
+            		</form>
+            	</div>
+            </div>
+            <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12">
+        				<table  class="layui-hide" id="shelf_result" lay-filter="shelf_result"></table>
+        			</div>
+        		</div>
+        	</div>
+        
+        </div>
+    </div>
+</div>   
+</body>
+
+ 
+<style type="text/css">
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+            vertical-align:middle;
+        }
+      
+</style>
+ 
+<script type="text/javascript">
+var returnData = [];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use(['form','table','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery,  table = layui.table,layuitable = layui.layuitable
+	layer = layui.layer;
+	
+	var curTable = layuitable.render({
+    	elem: '#shelf_result'
+    	,id:'shelf_result'
+    	,url:'/struct/structProcessNode/list/json'
+    	,height:300
+   		,cols: [[
+		    	 {type:'radio'}
+		    	,{field:'id',  title: 'ID',align:'center', width: 220}
+   	    	    ,{field:'nodeCode',  title: '工序节点编码',align:'center', width: 220}
+   	    	    ,{field:'nodeName',  title: '工序节点名称',align:'center', width: 170}
+     	    	]],done:function(){
+     	    		// 隐藏列
+     	    		$(".layui-table-box").find("[data-field='id']").css("display","none"); 
+     	    	}
+  	});
+	
+	form.on('submit(search)', function (data) {
+		var localData={};
+		
+		if (data.field.nodeCode!='') {
+			localData.nodeCode=data.field.nodeCode;
+		}
+		
+		if (data.field.nodeNames!='') {
+			localData.nodeName=data.field.nodeNames;
+		}
+		
+		curTable.reload(localData);
+        return false;
+  	});
+	
+	// table.on('tool(product_result)', product_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+	table.on('radio(shelf_result)', function(obj){
+	  //console.log(obj.checked); //当前是否选中状态
+	  //console.log(obj.data); //选中行的相关数据
+	  //console.log(obj.type); //如果触发的是全选，则为：all，如果触发的是单选，则为：one
+	  var checkStatus = table.checkStatus('shelf_result')
+      ,selectData = checkStatus.data;
+	  for (var i = 0; i < selectData.length; i++) {
+		  selectData[i]['strategyUpShelfName']=selectData[i].nodeName;
+	  }
+	   returnData.push(selectData);
+	});
+
+ 
+});	
+function selected() {
+	return returnData;
+}
+</script>
+ 
+  
+
+</html>

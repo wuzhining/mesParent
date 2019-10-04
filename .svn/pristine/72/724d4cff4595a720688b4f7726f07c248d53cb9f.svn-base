@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="hidden"  id="ids" />
+          <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+          <select name="labelFunctionId">    
+                <option value="">请选择功能定义</option> 
+                 <#if configLabelFunctionList1??>
+                     <#list configLabelFunctionList1 as item>
+			            <option value="${item.id?c}" >${item.value}</option>
+			         </#list>
+			         </#if> 
+          </select> 
+          <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+
+       
+	    <div class="layui-col-md12" style='text-align:right;'>
+	    	<a class="layui-btn-small" href='javascript:void(0)' onclick="layer_window_show('功能定义信息','/config/configCodeRuleItem/choiceFunct')"><i class="layui-icon"></i>添加功能定义</a>
+	    </div>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable_details" lay-filter="tablefilter_details"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="del">删除</a>
+</script>
+  <script type="text/html" id="codeRuleName">
+    {{#  if(d.configCodeRule){ }}
+		{{ d.configCodeRule.codeRuleName 
+
+     }}
+	{{#  } }}
+  </script>
+<script type="text/html" id="labelFunctionName">
+	{{#  if(d.labelFunctionName){ }}
+		{{ d.labelFunctionName 
+
+ }}
+{{#  } }}
+</script>
+   
+<script type="text/javascript">
+
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arr = url.split('=');
+	var ids = arr[1];
+	$("#ids").val(ids);
+	var layuiformajax = layui.layuiformajax;
+        	var curTable = layuitable.render({
+            	elem: '#listTable_details'
+            	,id:'listTable_details'
+            	,url:'/config/configCodeRuleItem/list/json?codeRuleId='+ids
+            	,cols: [[
+            	    /*  {type: 'checkbox', fixed: 'left'}, */
+            	     {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+            	    ,{field:'codeRuleId',  title: '编码规则id', align:'center',minWidth: 140}
+             	    ,{field:'codeRuleName', width:160, title: '编码规则名称',align:'center',templet: '#codeRuleName'}
+            	    ,{field:'labelFunctionId',  title: '功能定义类型',align:'center', minWidth: 140}
+            	    ,{field:'labelFunctionName', width:260, title: '功能定义类型',align:'center',templet: '#labelFunctionName'}
+            	    ,{field:'value',  title: '值',align:'center', minWidth: 140}
+            	    ,{field:'sortNo',  title: '序列号(可编辑)',align:'center', minWidth: 140,edit: 'text'}
+            	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+            	]]
+	        	 ,done: function () {
+	    	        $("[data-field='labelFunctionId']").css('display','none');
+	    	        $("[data-field='codeRuleId']").css('display','none');
+	    	    } 
+          	});
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+	
+	//监听单元格编辑
+	table.on('edit(tablefilter_details)', function(obj){
+		var value = obj.value //得到修改后的值
+	    ,data = obj.data //得到所在行所有键值
+	    ,field = obj.field; //得到字段
+	    
+	    var url = '/config/configCodeRuleItem/save';
+        layuiformajax.postJson(url, {"id":data.id,"sortNo":value}, function (result) {
+   	    	if (result.isSuccess) {
+   	    	    layer.alert("保存成功", {icon: 6},function () {
+   	                // 获得frame索引
+   	                var index = layer.getFrameIndex(window.name);
+   				  	location.reload(); 
+   	                layer.close(index);
+   	            });	
+   			}else{
+   				layer.alert(result.message, {
+   					icon : 2
+   				});
+   			}
+		});
+	});
+    
+	table.on('tool(tablefilter_details)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'del') {
+	          //监听提交
+       	  var url = '/config/configCodeRuleItem/del?id='+ data.id;
+       	  layuiformajax.postJson(url, '', function (result) {
+       		  layer.msg('删除成功!', {icon: 1, time: 1000},function () {
+     	                // 获得frame索引
+     	                var index = parent.layer.getFrameIndex(window.name);
+     				  	location.reload(); 
+     	                layer.close(index);
+     	            });
+       		  
+     	    	   /* layer.alert("删除成功", {icon: 1},function () {
+     	                // 获得frame索引
+     	                var index = parent.layer.getFrameIndex(window.name);
+     				  	location.reload(); 
+     	                layer.close(index);
+     	            }); */
+     		  });
+	
+		}
+	});
+ 	
+
+});	
+</script>
+ 
+  </body>
+
+</html>

@@ -1,0 +1,173 @@
+package com.techsoft.dao.equip;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.mapper.equip.EquipWorkMapper;
+
+@Repository
+public class EquipWorkDaoImpl extends BaseDaoImpl<EquipWork> implements EquipWorkDao {
+	@Resource
+	protected EquipWorkMapper equipWorkMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<EquipWork> getEntityClass() {
+		return EquipWork.class;
+	}	
+	
+	@Override
+	public BaseMapper<EquipWork> getBaseMapper() {
+		return this.equipWorkMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "EQUIP_WORK";
+	}
+	
+	@Override
+	public void insertSaveCheck(EquipWork value) throws BusinessException, SQLException {
+		if (value.getEquipCode() == null) {
+			throw new BusinessException("设备编码不能为空");
+		}
+		
+		if (value.getEquipLabel() == null) {
+			throw new BusinessException("设备标签不能为空");
+		}
+		
+		if (value.getEquipName() == null) {
+			throw new BusinessException("设备名称不能为空");
+		}
+		
+		if (value.getEquipPattern() == null) {
+			throw new BusinessException("设备型号不能为空");
+		}
+		
+
+		if (value.getClassesId() == null) {
+			throw new BusinessException("设备分类不能为空");
+		}
+		
+		
+		if (value.getEquipStatusDictId() == null) {
+			throw new BusinessException("设备状态不能为空");
+		}
+
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("工厂名称不能为空");
+		}
+		 
+
+		if (value.getWorkshopId() == null || value.getWorkshopId().equals(0L)) {
+			throw new BusinessException("所属车间不能为空");
+		}
+		
+		if (value.getWorkshopAreaId() == null || value.getWorkshopAreaId().equals(0L)) {
+			throw new BusinessException("所属车间区域不能为空");
+		}
+		
+
+		if (value.getSpeedWorktime() == null || value.getSpeedWorktime().equals(0L)) {
+			throw new BusinessException("生产速度-工时不能为空");
+		}
+		
+		if (value.getSpeedQuantity() == null || value.getSpeedQuantity().equals(0L)) {
+			throw new BusinessException("生产速度-工时不能为空");
+		}
+		
+		if (value.getSpeedWorktime() == null || value.getSpeedWorktime().equals(0L)) {
+			throw new BusinessException("生产速度-数量不能为空");
+		}
+		
+		if (value.getStandarlive() == null || value.getStandarlive().equals(0L)) {
+			throw new BusinessException("标准寿命不能为空");
+		}
+
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("创建人不能为空");
+		}
+	}
+	
+	@Override
+	public void updateSaveCheck(EquipWork value) throws BusinessException, SQLException {
+		if (value.getEquipCode() == null) {
+			throw new BusinessException("设备编码不能为空");
+		}
+		
+		if (value.getEquipLabel() == null) {
+			throw new BusinessException("设备标签不能为空");
+		}
+		
+		if (value.getEquipName() == null) {
+			throw new BusinessException("设备名称不能为空");
+		}
+		
+		if (value.getEquipPattern() == null) {
+			throw new BusinessException("设备型号不能为空");
+		}
+		
+
+		if (value.getClassesId() == null) {
+			throw new BusinessException("设备分类不能为空");
+		}
+		
+		
+		if (value.getEquipStatusDictId() == null) {
+			throw new BusinessException("设备状态不能为空");
+		}
+
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("工厂名称不能为空");
+		}
+		 
+
+		if (value.getWorkshopId() == null || value.getWorkshopId().equals(0L)) {
+			throw new BusinessException("所属车间不能为空");
+		}
+		
+		if (value.getWorkshopAreaId() == null || value.getWorkshopAreaId().equals(0L)) {
+			throw new BusinessException("所属车间区域不能为空");
+		}
+		
+
+		if (value.getSpeedWorktime() == null || value.getSpeedWorktime().equals(0L)) {
+			throw new BusinessException("生产速度-工时不能为空");
+		}
+		
+		if (value.getSpeedQuantity() == null || value.getSpeedQuantity().equals(0L)) {
+			throw new BusinessException("生产速度-工时不能为空");
+		}
+		
+		if (value.getSpeedWorktime() == null || value.getSpeedWorktime().equals(0L)) {
+			throw new BusinessException("生产速度-数量不能为空");
+		}
+		
+		if (value.getStandarlive() == null || value.getStandarlive().equals(0L)) {
+			throw new BusinessException("标准寿命不能为空");
+		}
+		if (value.getModifyUserId() == null || value.getModifyUserId().equals(0L)) {
+			throw new BusinessException("修改人不能为空");
+		}
+	}
+	
+	@Override
+	public void deleteSaveCheck(EquipWork value) throws BusinessException, SQLException {
+	
+	}
+			
+}

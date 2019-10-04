@@ -1,0 +1,690 @@
+package com.techsoft.service.bill;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumBarcodeRule;
+import com.techsoft.common.enums.EnumBarcodeStatus;
+import com.techsoft.common.enums.EnumBillStatus;
+import com.techsoft.common.enums.EnumBillType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.barcode.BarcodeMainVo;
+import com.techsoft.entity.bill.BillInventoryParamVo;
+import com.techsoft.entity.bill.BillPurchaseItemVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillDelivery;
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.BillInventoryItem;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.entity.track.TrackBarcodeVo;
+import com.techsoft.entity.warehouse.WarehouseLocationStockParamVo;
+import com.techsoft.entity.warehouse.WarehouseLocationStockVo;
+import com.techsoft.dao.barcode.BarcodeMainDao;
+import com.techsoft.dao.bill.BillInventoryDao;
+import com.techsoft.dao.bill.BillInventoryItemDao;
+import com.techsoft.dao.history.HistoryBillStatusDao;
+import com.techsoft.dao.product.ProductMainDao;
+import com.techsoft.dao.product.ProductMaterialDao;
+import com.techsoft.dao.track.TrackBarcodeDao;
+import com.techsoft.dao.warehouse.WarehouseLocationStockDao;
+
+@Service
+public class BillInventoryItemServiceImpl extends BaseServiceImpl<BillInventoryItem> implements BillInventoryItemService {
+	@Autowired
+	private BillInventoryItemDao billInventoryItemDao;
+	@Autowired
+	private BillInventoryDao billInventoryDao;
+	@Autowired
+	private BarcodeMainDao barcodeMainDao;
+	@Autowired
+	private TrackBarcodeDao trackBarcodeDao;
+	@Autowired
+	private WarehouseLocationStockDao warehouseLocationStockDao;
+	@Autowired
+	private ProductMaterialDao productMaterialDao;
+	@Autowired
+	private ProductMainDao productMainDao;
+	@Autowired
+	private HistoryBillStatusDao historyBillStatusDao;
+	
+	
+	@Override
+	public BaseDao<BillInventoryItem> getBaseDao() {
+		return billInventoryItemDao;
+	}	
+	
+	@Override
+	public Class<BillInventoryItem> getEntityClass() {
+		return BillInventoryItem.class;
+	}
+	
+	@Override
+	protected BillInventoryItem insertEntity(BillInventoryItem entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillInventoryItem updatePartEntity(BillInventoryItem entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillInventoryItem updateEntity(BillInventoryItem entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}		
+	
+	@Override
+	public ResultMessage addInventoryItem(List<WarehouseLocationStockVo> stockList, Long billId, CommonParam commonParam) throws BusinessException, SQLException{
+		ResultMessage resultMessage = new ResultMessage();
+		
+		
+		
+		//查询盘点主单信息
+		BillInventory billInventory = billInventoryDao.selectById(billId);
+		//查询仓库是否存在已下架的条码
+		BarcodeMainParamVo barParamVo=new BarcodeMainParamVo();
+		barParamVo.setWarehouseId(billInventory.getWarehouseId());
+		barParamVo.setBarcodeStatusDictId(EnumBarcodeStatus.OFFSTORE.getValue());
+		List<BarcodeMain> barcodeMains=barcodeMainDao.selectListByParamVo(barParamVo);
+		if (barcodeMains.size()==0) {
+			List<BillInventoryItem>itemList=new ArrayList<BillInventoryItem>();
+			DecimalFormat df=new DecimalFormat("0000");
+			Integer indexItem = 0;
+			String idItemString = "";
+			Long idItemLong = 0L;
+			Long billItemId=billInventoryItemDao.getIdValue();
+			
+			//新增盘点明细表
+			for (WarehouseLocationStockVo item : stockList) {
+				BillInventoryItem  billInventoryItem=new BillInventoryItem();
+				indexItem++;
+				idItemString=df.format(indexItem);
+				idItemLong = Long.valueOf(billItemId.toString() + idItemString);
+				billInventoryItem.setId(idItemLong);
+				billInventoryItem.setBillId(billId);
+				billInventoryItem.setMaterialId(item.getMaterialId());
+				billInventoryItem.setProductId(item.getProductId());
+				billInventoryItem.setQuantity(0.0);
+				billInventoryItem.setQuantityStock(item.getSumqty());
+				billInventoryItem.setTenantId(commonParam.getTenantId());
+				billInventoryItem.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+				billInventoryItem.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				itemList.add(billInventoryItem);
+			}
+			billInventoryItemDao.insertBatch(itemList, commonParam);
+			
+			//新增盘点单条码追踪表
+			List<TrackBarcode> trackList=new ArrayList<TrackBarcode>();
+			for (BillInventoryItem billItem : itemList) {
+			BarcodeMainParamVo paramVo=new BarcodeMainParamVo();
+			paramVo.setWarehouseId(billInventory.getWarehouseId());
+			paramVo.setBarcodeStatusDictId(EnumBarcodeStatus.INSTORE.getValue());
+			paramVo.setMaterialId(billItem.getMaterialId());
+			paramVo.setProductId(billItem.getProductId());
+			List<BarcodeMain> barcodeList=barcodeMainDao.selectListByParamVo(paramVo);
+			
+			if (barcodeList.size()>0) {
+				Integer indexBar = 0;
+				String idBarString = "";
+				Long idBarLong = 0L;
+				Long barId=trackBarcodeDao.getIdValue();
+				for (BarcodeMain barcodeMain : barcodeList) {
+					TrackBarcode trackBarcode=new TrackBarcode();
+					indexBar++;
+					idBarString=df.format(indexBar);
+					idBarLong = Long.valueOf(barId.toString() + idBarString);
+					trackBarcode.setId(idBarLong);
+					trackBarcode.setFactoryId(barcodeMain.getFactoryId());
+					trackBarcode.setBarcode(barcodeMain.getBarcode());
+					trackBarcode.setBarcodeId(barcodeMain.getId());
+					trackBarcode.setBarcodePackboxId(barcodeMain.getBarcodePackboxId());
+					trackBarcode.setBarcodeRuleDictId(barcodeMain.getBarcodeRuleDictId());
+					trackBarcode.setBarcodeStatusDictId(barcodeMain.getBarcodeStatusDictId());
+					trackBarcode.setMaterialId(barcodeMain.getMaterialId());
+					trackBarcode.setProductId(barcodeMain.getProductId());
+					trackBarcode.setSupplierId(barcodeMain.getSupplierId());
+					trackBarcode.setBatchNumber(barcodeMain.getBatchNumber());
+					trackBarcode.setBillId(billId);
+				    trackBarcode.setBillItemId(billItem.getId());
+					trackBarcode.setBillTypeDictId(EnumBillType.BILL_TYPE_INVENTORY.getValue());
+					trackBarcode.setBillStatusDictId(billInventory.getBillStatusDictId());;
+					trackBarcode.setLocationId(barcodeMain.getLocationId());
+					trackBarcode.setWarehouseId(barcodeMain.getWarehouseId());
+					trackBarcode.setOperationStatusDictId((long) 0);
+					trackBarcode.setQuantity(barcodeMain.getQuantity());
+					trackBarcode.setTenantId(commonParam.getTenantId());
+					trackBarcode.setQuantityStock(0.0);
+					trackList.add(trackBarcode);
+				}
+			}
+			
+			}
+			if(trackList.size()>0){
+			trackBarcodeDao.insertBatchSn(trackList, commonParam);
+			}
+			
+			resultMessage.setIsSuccess(true);
+		} else {
+			throw new BusinessException("仓库还有下架标签未处理，请将下架标签出库！");
+		}
+		
+		
+		return resultMessage;
+	}
+	
+	
+	@Override
+	public ResultMessage deleteItem(Long Id, CommonParam commonParam) throws BusinessException, SQLException{
+		ResultMessage resultMessage = new ResultMessage();
+			List<Long> ids=new ArrayList<Long>();
+			//查询盘点明细详情
+			BillInventoryItem item=billInventoryItemDao.selectById(Id);
+			
+			//删除明细信息
+			billInventoryItemDao.deleteById(Id);
+			
+			//查询要删除的盘点单条码
+			TrackBarcodeParamVo paramVo=new TrackBarcodeParamVo();
+			paramVo.setBillTypeDictId(EnumBillType.BILL_TYPE_INVENTORY.getValue());
+			paramVo.setBillId(item.getBillId());
+			paramVo.setBillItemId(item.getId());
+			List<TrackBarcode> trackBarcode =new ArrayList<TrackBarcode>(); 
+			trackBarcode=trackBarcodeDao.selectListByParamVo(paramVo);
+			for (TrackBarcode bar : trackBarcode) {
+				ids.add(bar.getId());
+			}
+			if(trackBarcode.size()>0){
+			trackBarcodeDao.deleteByIds(ids);
+			}
+			resultMessage.setIsSuccess(true);
+		    return resultMessage;
+	}
+
+	@Override
+	public ResultMessage billInventoryCheck(BillInventoryParamVo billInventoryParamVo, CommonParam commonParam) throws BusinessException, SQLException{
+		ResultMessage resultMessage = new ResultMessage();
+		
+		//查询单据信息
+		BillInventory billInventory=billInventoryDao.selectById(billInventoryParamVo.getId());
+		
+		//查询仓库是否存在已下架的条码
+		BarcodeMainParamVo barParamVo=new BarcodeMainParamVo();
+		barParamVo.setWarehouseId(billInventory.getWarehouseId());
+		barParamVo.setBarcodeStatusDictId(EnumBarcodeStatus.OFFSTORE.getValue());
+		List<BarcodeMain> barcodeMains=barcodeMainDao.selectListByParamVo(barParamVo);
+		if (barcodeMains.size()>0) {
+		
+		List<BillInventoryItem>itemList=new ArrayList<BillInventoryItem>();
+		
+		//查询该仓库所有物料及库存
+		WarehouseLocationStockParamVo paramVo=new WarehouseLocationStockParamVo();
+		paramVo.setWarehouseId(billInventory.getWarehouseId());
+		List<WarehouseLocationStockVo> materiallist=warehouseLocationStockDao.selectSumQtyByWarehouse(paramVo, commonParam);
+		
+		//新增盘点明细表
+		DecimalFormat df=new DecimalFormat("0000");
+		Integer indexItem = 0;
+		String idItemString = "";
+		Long idItemLong = 0L;
+		Long billItemId=billInventoryItemDao.getIdValue();
+		for (WarehouseLocationStockVo item : materiallist) {
+			BillInventoryItem  billInventoryItem=new BillInventoryItem();
+			
+			indexItem++;
+			idItemString=df.format(indexItem);
+			idItemLong = Long.valueOf(billItemId.toString() + idItemString);
+			billInventoryItem.setId(idItemLong);
+			billInventoryItem.setBillId(billInventory.getId());
+			billInventoryItem.setMaterialId(item.getMaterialId());
+			billInventoryItem.setProductId(item.getProductId());
+			billInventoryItem.setQuantity(0.0);
+			billInventoryItem.setQuantityStock(item.getSumqty());
+			billInventoryItem.setTenantId(commonParam.getTenantId());
+			billInventoryItem.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			billInventoryItem.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			itemList.add(billInventoryItem);
+		}
+		billInventoryItemDao.insertBatch(itemList, commonParam);
+		
+		
+		//新增盘点单条码追踪表
+		List<TrackBarcode> trackList=new ArrayList<TrackBarcode>();
+		BarcodeMainParamVo barcodeMainParamVo=new BarcodeMainParamVo();
+		barcodeMainParamVo.setWarehouseId(billInventory.getWarehouseId());
+		barcodeMainParamVo.setBarcodeStatusDictId(EnumBarcodeStatus.INSTORE.getValue());
+		List<BarcodeMain> barcodeList=barcodeMainDao.selectListByParamVo(barcodeMainParamVo);
+		Integer indexBar = 0;
+		String idBarString = "";
+		Long idBarLong = 0L;
+		Long barId=trackBarcodeDao.getIdValue();
+		for (BarcodeMain barcodeMain : barcodeList) {
+			TrackBarcode trackBarcode=new TrackBarcode();
+			indexBar++;
+			idBarString=df.format(indexBar);
+			idBarLong = Long.valueOf(barId.toString() + idBarString);
+			trackBarcode.setId(idBarLong);
+			trackBarcode.setFactoryId(barcodeMain.getFactoryId());
+			trackBarcode.setBarcode(barcodeMain.getBarcode());
+			trackBarcode.setBarcodeId(barcodeMain.getId());
+			trackBarcode.setBarcodePackboxId(barcodeMain.getBarcodePackboxId());
+			trackBarcode.setBarcodeRuleDictId(barcodeMain.getBarcodeRuleDictId());
+			trackBarcode.setBarcodeStatusDictId(barcodeMain.getBarcodeStatusDictId());
+			trackBarcode.setMaterialId(barcodeMain.getMaterialId());
+			trackBarcode.setProductId(barcodeMain.getProductId());
+			trackBarcode.setSupplierId(barcodeMain.getSupplierId());
+			trackBarcode.setBatchNumber(barcodeMain.getBatchNumber());
+			trackBarcode.setBillId(billInventory.getId());
+			for (BillInventoryItem billInventoryItem : itemList) {
+				if (billInventoryItem.getMaterialId().equals(barcodeMain.getMaterialId())&&billInventoryItem.getProductId().equals(barcodeMain.getProductId())) {
+					trackBarcode.setBillItemId(billInventoryItem.getId());
+				}
+			}
+			trackBarcode.setBillTypeDictId(EnumBillType.BILL_TYPE_INVENTORY.getValue());
+			trackBarcode.setBillStatusDictId(billInventory.getBillStatusDictId());;
+			trackBarcode.setLocationId(barcodeMain.getLocationId());
+			trackBarcode.setWarehouseId(barcodeMain.getWarehouseId());
+			trackBarcode.setOperationStatusDictId((long) 0);
+			trackBarcode.setQuantity(barcodeMain.getQuantity());
+			trackBarcode.setTenantId(commonParam.getTenantId());
+			trackBarcode.setQuantityStock(0.0);
+			trackList.add(trackBarcode);
+		}
+		trackBarcodeDao.insertBatchSn(trackList, commonParam);
+		
+		resultMessage.setIsSuccess(true);
+		
+		} else {
+			resultMessage.setMessage("仓库还有下架标签未处理，请将下架标签出库！");
+			resultMessage.setIsSuccess(false);
+		}
+		return resultMessage;
+		
+	}
+
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年7月3日上午9:19:09
+	*@param parentId  父级ID
+	*@param billId    单据id
+	*@param billItemId 单据明细ID
+	*@param commonParam
+	*@param listBarcode 返回结果
+	*@description  遍历外箱信息
+	*/
+	private void recursion(Long parentId, Long billId,Long billItemId,CommonParam commonParam, List<TrackBarcode> listBarcode) {
+		TrackBarcodeParamVo paramVo = new TrackBarcodeParamVo();
+		paramVo.setBarcodePackboxId(parentId);
+		paramVo.setBillId(billId);
+		paramVo.setBillItemId(billItemId);
+		paramVo.setBillTypeDictId(EnumBillType.BILL_TYPE_INVENTORY.getValue());
+		try {
+			List<TrackBarcode> packBoxlist = trackBarcodeDao.selectListByParamVo(paramVo);
+			for (TrackBarcode barcodeMain : packBoxlist) {
+				barcodeMain.setQuantityStock(barcodeMain.getQuantity());
+				barcodeMain.setBillStatusDictId(EnumBillStatus.FINISHED.getValue());
+				//barcodeMain.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				barcodeMain.setModifyUserId((long) 1);
+				listBarcode.add(barcodeMain);
+				if (barcodeMain.getBarcodeRuleDictId().equals(EnumBarcodeRule.PRODUCT_PACKBOX.getValue())) {
+					recursion(barcodeMain.getId(),billId, billItemId,commonParam, listBarcode);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return;
+	}
+	
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年7月3日上午9:19:00
+	*@param trackBarcode  条码对象
+	*@param billId     单据ID
+	*@param billItemId 单据明细ID
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description  获取内外向标签信息
+	*/
+	private List<TrackBarcode> getInsideBarcode(TrackBarcode trackBarcode,Long billId,Long billItemId,CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<TrackBarcode> barCodeList = new ArrayList<TrackBarcode>();
+		// 将当前扫描条码记录
+		trackBarcode.setQuantityStock(trackBarcode.getQuantity());
+		trackBarcode.setBillStatusDictId(EnumBillStatus.FINISHED.getValue());
+		//trackBarcode.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+		trackBarcode.setModifyUserId((long) 1);
+		barCodeList.add(trackBarcode);
+		// 如果扫描为包装箱 遍历取得内置所有条码
+		if (trackBarcode.getBarcodeRuleDictId().equals(EnumBarcodeRule.PRODUCT_PACKBOX.getValue())) {
+			// 遍历方法
+			recursion(trackBarcode.getId(), billId,billItemId,commonParam,barCodeList);
+		}
+		return barCodeList;
+	}
+	
+	
+	
+	@Override
+	public ResultMessage barcodeInventory(TrackBarcodeParamVo paramVo, CommonParam commonParam) throws BusinessException, SQLException {
+		ResultMessage resultMessage = new ResultMessage();
+		resultMessage.setMark(1);;
+		
+		//查询标签信息
+		BarcodeMainParamVo barcodeMainParamVo=new BarcodeMainParamVo();
+		barcodeMainParamVo.setBarcode(paramVo.getBarcode());
+		List<BarcodeMain> barcodeMain=barcodeMainDao.selectListByParamVo(barcodeMainParamVo);
+		
+		//先判断标签是否存在
+		if (barcodeMain.size()==0) {
+			resultMessage.setMessage("扫描标签不存在");
+			resultMessage.setIsSuccess(false);
+		}else {
+			if (barcodeMain.get(0).getBarcodePackboxId()==0) {
+			//判断该标签是否属于所选物料明细
+			paramVo.setBillTypeDictId(EnumBillType.BILL_TYPE_INVENTORY.getValue());
+			List<TrackBarcode> trackList=trackBarcodeDao.selectListByParamVo(paramVo);
+			if (trackList.size()==0) {
+				BillInventoryItem item=billInventoryItemDao.selectById(paramVo.getBillItemId());
+				if (barcodeMain.get(0).getMaterialId().equals(item.getMaterialId())&&barcodeMain.get(0).getProductId().equals(item.getProductId())) {
+					resultMessage.setMessage("标签并非在架状态,请确认是否盘入?");
+					resultMessage.setIsSuccess(true);
+					resultMessage.setMark(2);
+				} else {
+					resultMessage.setMessage("扫描标签不属于所选的盘点物料");
+					resultMessage.setIsSuccess(false);
+				}
+				
+			}else{
+				if (trackList.get(0).getBillStatusDictId().equals(EnumBillStatus.FINISHED)) {
+					resultMessage.setMessage("扫描标签已盘点");
+					resultMessage.setIsSuccess(false);
+					
+				} else {
+					//查询内外箱所有标签信息
+					List<TrackBarcode> barcodeList=new ArrayList<TrackBarcode>();
+					barcodeList=this.getInsideBarcode(trackList.get(0), paramVo.getBillId(), paramVo.getBillItemId(), commonParam);
+					
+					//更新盘点单为处理中
+					billInventoryDao.updateBillStatusMain(paramVo.getBillId(), EnumBillStatus.DOING.getValue(), commonParam);
+					
+					//新增盘点单处理中状态的历史表
+					//查询单据号
+					BillInventory bill=billInventoryDao.selectById(paramVo.getBillId());
+					historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_INVENTORY.getValue(), EnumBillStatus.DOING.getValue(), paramVo.getBillId(),bill.getBillCode(), commonParam);
+					
+					//更新盘点标签数量
+					trackBarcodeDao.updateBatchTrack(barcodeList, commonParam);
+					
+					//更新盘点明细数量
+					billInventoryItemDao.updateQTYofInventory(paramVo.getBillItemId(), trackList.get(0).getQuantity(), commonParam);
+					
+					//返回数据
+					List<TrackBarcodeVo> returnList=new ArrayList<TrackBarcodeVo>();
+					for (TrackBarcode item : trackList) {
+						TrackBarcodeVo vo=new TrackBarcodeVo();
+						try {
+							BeanUtil.copyNotNullProperties(vo, item);
+							vo.setQuantityStock(vo.getQuantity());
+							if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+								ProductMaterial productMaterial = productMaterialDao.selectById(vo.getMaterialId());
+								if (productMaterial != null) {
+									vo.setProductMaterial(productMaterial);
+								}
+							}
+							
+							if (vo.getProductId() != null && vo.getProductId() > 0L) {
+								ProductMain productMain=productMainDao.selectById(vo.getProductId());
+								if (productMain != null) {
+									vo.setProductMain(productMain);
+								}
+							}
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							e.printStackTrace();
+						}
+						returnList.add(vo);
+						
+					}
+					resultMessage.setIsSuccess(true);
+					resultMessage.put(returnList);
+				}
+				
+			}
+		 }else{
+			    resultMessage.setMessage("扫描标签并非最外层箱号");
+				resultMessage.setIsSuccess(false);
+		 }
+	  }
+	
+	return resultMessage;
+	}
+	
+	@Override
+	public ResultMessage endBill(Long billId, CommonParam commonParam) throws BusinessException, SQLException{
+		    ResultMessage resultMessage = new ResultMessage();
+		    resultMessage=billInventoryDao.updateBillStatusMain(billId, EnumBillStatus.FINISHED.getValue(), commonParam);
+		     //新增盘点单处理中状态的历史表
+		     //查询单据号
+			BillInventory bill=billInventoryDao.selectById(billId);
+			historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_INVENTORY.getValue(), EnumBillStatus.FINISHED.getValue(), billId,bill.getBillCode(), commonParam);
+		    return resultMessage;
+	}
+	
+	
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年7月3日下午5:26:19
+	*@param parentId  父级ID
+	*@param commonParam
+	*@param listBarcode 返回结果
+	*@description 遍历外箱信息
+	*/
+	private void recursionBarcode(Long parentId,CommonParam commonParam, List<BarcodeMain> listBarcode) {
+		BarcodeMainParamVo paramVo = new BarcodeMainParamVo();
+		paramVo.setBarcodePackboxId(parentId);
+		try {
+			List<BarcodeMain> packBoxlist = barcodeMainDao.selectListByParamVo(paramVo);
+			for (BarcodeMain barcodeMain : packBoxlist) {
+				listBarcode.add(barcodeMain);
+				if (barcodeMain.getBarcodeRuleDictId().equals(EnumBarcodeRule.PRODUCT_PACKBOX.getValue())) {
+					recursionBarcode(barcodeMain.getId(),commonParam, listBarcode);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return;
+	}
+	
+	
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年7月3日下午5:25:35
+	*@param barcodeMain  条码对象
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description  获取内外箱标签信息
+	*/
+	private List<BarcodeMain> getInsideBarcodeMain(BarcodeMain barcodeMain,CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BarcodeMain> barCodeList = new ArrayList<BarcodeMain>();
+		// 将当前扫描条码记录
+		barCodeList.add(barcodeMain);
+		// 如果扫描为包装箱 遍历取得内置所有条码
+		if (barcodeMain.getBarcodeRuleDictId().equals(EnumBarcodeRule.PRODUCT_PACKBOX.getValue())) {
+			// 遍历方法
+			recursionBarcode(barcodeMain.getId(),commonParam,barCodeList);
+		}
+		return barCodeList;
+	}
+	
+	
+	
+	
+	@Override
+	public ResultMessage insertBarcode(TrackBarcodeParamVo paramVo, CommonParam commonParam) throws BusinessException, SQLException{
+		    ResultMessage resultMessage = new ResultMessage();
+		    List<TrackBarcodeVo> returnList=new ArrayList<TrackBarcodeVo>();
+		    //查询标签详情
+		    BarcodeMain barcodeMain=barcodeMainDao.selectByBarCode(paramVo.getBarcode(), commonParam);
+		    
+		    //获取内外箱所有标签信息
+		    List<BarcodeMain> barcodeList=this.getInsideBarcodeMain(barcodeMain,commonParam);
+		    
+		    //循环内外箱信息转换对象
+		    List<TrackBarcode> trackList=new ArrayList<TrackBarcode>();
+		    DecimalFormat df=new DecimalFormat("0000");
+			Integer indexBar = 0;
+			String idBarString = "";
+			Long idBarLong = 0L;
+			Long barId=trackBarcodeDao.getIdValue();
+		    for (BarcodeMain item : barcodeList) {
+		    	TrackBarcode trackBarcode=new TrackBarcode();
+				indexBar++;
+				idBarString=df.format(indexBar);
+				idBarLong = Long.valueOf(barId.toString() + idBarString);
+				trackBarcode.setId(idBarLong);
+				try {
+					BeanUtil.copyNotNullProperties(trackBarcode, item);
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				/*trackBarcode.setFactoryId(item.getFactoryId());
+				trackBarcode.setBarcode(item.getBarcode());
+				trackBarcode.setBarcodeId(item.getId());
+				trackBarcode.setBarcodePackboxId(item.getBarcodePackboxId());
+				trackBarcode.setBarcodeRuleDictId(item.getBarcodeRuleDictId());
+				trackBarcode.setBarcodeStatusDictId(item.getBarcodeStatusDictId());
+				trackBarcode.setMaterialId(item.getMaterialId());
+				trackBarcode.setProductId(item.getProductId());
+				trackBarcode.setBatchNumber(item.getBatchNumber());*/
+				trackBarcode.setBillId(paramVo.getBillId());
+				trackBarcode.setBillItemId(paramVo.getBillItemId());
+				trackBarcode.setBillTypeDictId(EnumBillType.BILL_TYPE_INVENTORY.getValue());
+				trackBarcode.setBillStatusDictId(EnumBillStatus.FINISHED.getValue());;
+				/*trackBarcode.setLocationId(item.getLocationId());
+				trackBarcode.setWarehouseId(item.getWarehouseId());*/
+				trackBarcode.setOperationStatusDictId((long) 0);
+				trackBarcode.setQuantity(0.0);
+				trackBarcode.setTenantId(commonParam.getTenantId());
+				/*trackBarcode.setQuantityStock(item.getQuantity());*/
+				trackList.add(trackBarcode);
+			}
+		    trackBarcodeDao.insertBatchSn(trackList, commonParam);
+		    
+		    //更新盘点明细数量
+		    billInventoryItemDao.updateItemQty(paramVo.getBillItemId(), barcodeMain.getQuantity(), "add", commonParam);
+		    
+		    
+			//返回数据
+			List<TrackBarcode> barcode=new ArrayList<TrackBarcode>();
+			TrackBarcodeParamVo trackBarcodeParamVo=new TrackBarcodeParamVo();
+			trackBarcodeParamVo.setBarcode(paramVo.getBarcode());
+			trackBarcodeParamVo.setBillTypeDictId(EnumBillType.BILL_TYPE_INVENTORY.getValue());
+			trackBarcodeParamVo.setBillId(paramVo.getBillId());
+			trackBarcodeParamVo.setBillItemId(paramVo.getBillItemId());
+			barcode=trackBarcodeDao.selectListByParamVo(trackBarcodeParamVo);
+			
+			for (TrackBarcode item : barcode) {
+				TrackBarcodeVo vo=new TrackBarcodeVo();
+				try {
+					BeanUtil.copyNotNullProperties(vo, item);
+					vo.setQuantityStock(vo.getQuantity());
+					if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+						ProductMaterial productMaterial = productMaterialDao.selectById(vo.getMaterialId());
+						if (productMaterial != null) {
+							vo.setProductMaterial(productMaterial);
+						}
+					}
+					
+					if (vo.getProductId() != null && vo.getProductId() > 0L) {
+						ProductMain productMain=productMainDao.selectById(vo.getProductId());
+						if (productMain != null) {
+							vo.setProductMain(productMain);
+						}
+					}
+					vo.setQuantityStock(item.getQuantityStock());
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
+				returnList.add(vo);
+				
+			}
+		    
+		    resultMessage.setIsSuccess(true);
+		    resultMessage.put(returnList);
+		    return resultMessage;
+	}
+	
+	@Override
+	public ResultMessage updateBarcodeQty(TrackBarcodeParamVo paramVo, CommonParam commonParam) throws BusinessException, SQLException{
+		    ResultMessage resultMessage = new ResultMessage();
+		    Double updateQty=0.0;
+		    String type=null;
+		    //查询标签数据
+		    TrackBarcodeParamVo trackBarcodeParamVo=new TrackBarcodeParamVo();
+		    trackBarcodeParamVo.setBarcode(paramVo.getBarcode());
+		    trackBarcodeParamVo.setBillTypeDictId(EnumBillType.BILL_TYPE_INVENTORY.getValue());
+		    trackBarcodeParamVo.setBillId(paramVo.getBillId());
+		    trackBarcodeParamVo.setBillItemId(paramVo.getBillItemId());
+		    List<TrackBarcode> list=trackBarcodeDao.selectListByParamVo(trackBarcodeParamVo);
+		    
+		    if (list.get(0).getQuantityStock()>=paramVo.getQuantityStock()) {
+		    	updateQty=list.get(0).getQuantityStock()-paramVo.getQuantityStock();
+		    	type="reduce";
+			} else if(list.get(0).getQuantityStock()<paramVo.getQuantityStock()){
+				updateQty=paramVo.getQuantityStock()-list.get(0).getQuantityStock();
+		    	type="add";
+			}
+		    
+		    //更改标签数量
+		    TrackBarcodeParamVo updateParamVo=new TrackBarcodeParamVo(list.get(0));
+		    updateParamVo.setQuantityStock(paramVo.getQuantityStock());
+		    trackBarcodeDao.updateEntity(updateParamVo, commonParam);
+		    
+		    //更改盘点明细数量
+		    billInventoryItemDao.updateItemQty(paramVo.getBillItemId(),updateQty, type, commonParam);
+		    
+		    resultMessage.setIsSuccess(true);
+		    return resultMessage;
+	}
+	
+}

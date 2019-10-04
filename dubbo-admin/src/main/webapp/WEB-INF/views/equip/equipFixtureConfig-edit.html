@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+           	 <td width="15%" class="tableleft">工具类型</td>
+               <td>
+               	<select name="fixtureTypeDictId"> 
+                  <#if fixtureTypeDict??>
+                   <#list fixtureTypeDict as item>
+		            <option value="${item.id?c}" <#if (entity.fixtureTypeDictId??&&entity.fixtureTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+		           </#list>
+		          </#if>
+		        </select>
+               </td>               
+               <td width="15%" class="tableleft">校正管控类型</td>
+              	<td>
+               	<select name="correctTypeDictId"> 
+                  <#if correctTypeDict??>
+                   <#list correctTypeDict as item>
+		            <option value="${item.id?c}" <#if (entity.correctTypeDictId??&&entity.correctTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+		           </#list>
+		          </#if>
+		        </select>
+             </td>
+           </tr>
+           <tr>
+           	 <td width="10%" class="tableleft">报废管控类型</td>
+               <td>
+               	<select name="scrapTypeDictId"> 
+                  <#if scrapTypeDict??>
+                   <#list scrapTypeDict as item>
+		            <option value="${item.id?c}" <#if (entity.scrapTypeDictId??&&entity.scrapTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+		           </#list>
+		          </#if>
+		        </select>
+               </td> 
+               <td width="15%" class="tableleft">校正周期次数</td>
+               <td>
+               	 <input type="text" name="numberScrapPeriod" class="layui-input" maxlength="16" value="<#if entity??&&entity.numberScrapPeriod??>${entity.numberScrapPeriod?c}<#else>0</#if>"/>
+               </td>
+           </tr>
+           <tr>
+           	 <td width="15%" class="tableleft">报废管控次数</td>
+               <td>
+               	 <input type="text" name="numberScrap" class="layui-input" maxlength="16" value="<#if entity??&&entity.numberScrap??>${entity.numberScrap?c}<#else>0</#if>"/>
+               </td> 
+               <td width="15%" class="tableleft">报废管控时间(天)</td>
+              	<td>
+               	<input type="text" name="numberDayScrap" class="layui-input" maxlength="16" value="<#if entity??&&entity.numberDayScrap??>${entity.numberDayScrap?c}<#else>0</#if>"/>
+             </td>
+           </tr>
+           <tr>
+           	 <td width="15%" class="tableleft">描述</td>
+               <td>
+               	 <input type="text" name="remark" class="layui-input" maxlength="16" value="${(entity.remark)!''}"/>
+               </td> 
+           </tr>
+           
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery,  laydate = layui.laydate;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/equip/equipFixtureConfig/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+	      	    	 if (result.isSuccess) {
+	         	    	   layer.alert("保存成功", {icon: 6},function () {
+	       	                // 获得frame索引
+	       	                var index = parent.layer.getFrameIndex(window.name);
+	       				  	parent.location.reload(); 
+	       	                parent.layer.close(index);
+	       	            });	
+	      			}else{
+	      				layer.alert(result.message, {
+	      					icon : 2
+	      				});
+	      			}
+      		  });
+      		  
+            return false;
+          });
+          
+        });
+    </script>
+  </body>
+
+</html>

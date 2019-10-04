@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.quality.QualitySampleLevelMapper">
+	<resultMap id="QualitySampleLevel" type="com.techsoft.entity.common.QualitySampleLevel" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="SAMPLE_LETTER" property="sampleLetter" />
+		<result column="SAMPLE_LEVEL_DICT_ID" property="sampleLevelDictId" />
+		<result column="SAMPLE_LEVEL_RANK_DICT_ID" property="sampleLevelRankDictId" />
+		<result column="MINIMUM" property="minimum" />
+		<result column="MAXIMUM" property="maximum" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="sampleLetter != null">
+			AND A.SAMPLE_LETTER= #{sampleLetter}
+		</if>
+		<if test="sampleLevelDictId != null">
+			AND A.SAMPLE_LEVEL_DICT_ID= #{sampleLevelDictId}
+		</if>
+		<if test="sampleLevelRankDictId != null">
+			AND A.SAMPLE_LEVEL_RANK_DICT_ID= #{sampleLevelRankDictId}
+		</if>
+		<if test="minimum != null">
+			AND A.MINIMUM= #{minimum}
+		</if>
+		<if test="maximum != null">
+			AND A.MAXIMUM= #{maximum}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<if test="compareQty != null">
+			AND A.MINIMUM &lt;= #{compareQty}
+		</if>
+		
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+	
+	<sql id="Order_By_Sql">
+ 		order by MINIMUM  DESC
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.SAMPLE_LETTER,
+		A.SAMPLE_LEVEL_DICT_ID,
+		A.SAMPLE_LEVEL_RANK_DICT_ID,
+		A.MINIMUM,
+		A.MAXIMUM,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_QUALITY_SAMPLE_LEVEL_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from QUALITY_SAMPLE_LEVEL
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.QualitySampleLevel">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM QUALITY_SAMPLE_LEVEL A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.QualitySampleLevel">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM QUALITY_SAMPLE_LEVEL A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE QUALITY_SAMPLE_LEVEL A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE QUALITY_SAMPLE_LEVEL  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.QualitySampleLevel">
+		UPDATE QUALITY_SAMPLE_LEVEL A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.QualitySampleLevel">
+		INSERT INTO QUALITY_SAMPLE_LEVEL (
+		TENANT_ID,
+		SAMPLE_LETTER,
+		SAMPLE_LEVEL_DICT_ID,
+		SAMPLE_LEVEL_RANK_DICT_ID,
+		MINIMUM,
+		MAXIMUM,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{sampleLetter},
+		#{sampleLevelDictId},
+		#{sampleLevelRankDictId},
+		#{minimum},
+		#{maximum},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.QualitySampleLevel">
+		UPDATE QUALITY_SAMPLE_LEVEL SET
+		TENANT_ID=#{tenantId},
+		SAMPLE_LETTER=#{sampleLetter},
+		SAMPLE_LEVEL_DICT_ID=#{sampleLevelDictId},
+		SAMPLE_LEVEL_RANK_DICT_ID=#{sampleLevelRankDictId},
+		MINIMUM=#{minimum},
+		MAXIMUM=#{maximum},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.QualitySampleLevel">
+		UPDATE QUALITY_SAMPLE_LEVEL SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="sampleLetter != null" >
+			SAMPLE_LETTER=#{sampleLetter},
+		</if>
+		<if test="sampleLevelDictId != null" >
+			SAMPLE_LEVEL_DICT_ID=#{sampleLevelDictId},
+		</if>
+		<if test="sampleLevelRankDictId != null" >
+			SAMPLE_LEVEL_RANK_DICT_ID=#{sampleLevelRankDictId},
+		</if>
+		<if test="minimum != null" >
+			MINIMUM=#{minimum},
+		</if>
+		<if test="maximum != null" >
+			MAXIMUM=#{maximum},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.quality.QualitySampleLevelParamVo"
+		      resultType="com.techsoft.entity.common.QualitySampleLevel" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM QUALITY_SAMPLE_LEVEL A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

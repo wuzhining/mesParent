@@ -1,0 +1,222 @@
+package com.techsoft.entity.common;
+
+import com.techsoft.common.BaseEntity;
+
+public class EquipWork extends BaseEntity {
+	private static final long serialVersionUID = 8352954221071092839L;
+
+
+	public EquipWork(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private String equipCode;	
+	   
+	private String equipLabel;	
+	   
+	private String equipName;	
+	   
+	private String equipPattern;	
+	   
+	private Long specsWorkId;	
+	   
+	private Long classesId;	
+	   
+	private Long equipStatusDictId;	
+	   
+	private Long factoryId;	
+	   
+	private Long workshopId;	
+	   
+	private Long workshopAreaId;	
+	   
+	private Long productionlineId;	
+	   
+	private Long processNodeId;	
+	   
+	private Long speedWorktime;	
+	   
+	private Double speedQuantity;	
+	   
+	private String ipaddress;	
+	   
+	private Integer hoursMaintain;	
+	   
+	private Integer standarlive;	
+	   
+	private String dateMake;	
+	   
+	private String dateEnter;	
+	   
+	private String remark;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public String getEquipCode() {
+		return equipCode;
+	}
+
+	public void setEquipCode(String equipCode) {
+		this.equipCode = equipCode;
+	}
+                		
+	public String getEquipLabel() {
+		return equipLabel;
+	}
+
+	public void setEquipLabel(String equipLabel) {
+		this.equipLabel = equipLabel;
+	}
+                		
+	public String getEquipName() {
+		return equipName;
+	}
+
+	public void setEquipName(String equipName) {
+		this.equipName = equipName;
+	}
+                		
+	public String getEquipPattern() {
+		return equipPattern;
+	}
+
+	public void setEquipPattern(String equipPattern) {
+		this.equipPattern = equipPattern;
+	}
+                		
+	public Long getSpecsWorkId() {
+		return specsWorkId;
+	}
+
+	public void setSpecsWorkId(Long specsWorkId) {
+		this.specsWorkId = specsWorkId;
+	}
+                		
+	public Long getClassesId() {
+		return classesId;
+	}
+
+	public void setClassesId(Long classesId) {
+		this.classesId = classesId;
+	}
+                		
+	public Long getEquipStatusDictId() {
+		return equipStatusDictId;
+	}
+
+	public void setEquipStatusDictId(Long equipStatusDictId) {
+		this.equipStatusDictId = equipStatusDictId;
+	}
+                		
+	public Long getFactoryId() {
+		return factoryId;
+	}
+
+	public void setFactoryId(Long factoryId) {
+		this.factoryId = factoryId;
+	}
+                		
+	public Long getWorkshopId() {
+		return workshopId;
+	}
+
+	public void setWorkshopId(Long workshopId) {
+		this.workshopId = workshopId;
+	}
+                		
+	public Long getWorkshopAreaId() {
+		return workshopAreaId;
+	}
+
+	public void setWorkshopAreaId(Long workshopAreaId) {
+		this.workshopAreaId = workshopAreaId;
+	}
+                		
+	public Long getProductionlineId() {
+		return productionlineId;
+	}
+
+	public void setProductionlineId(Long productionlineId) {
+		this.productionlineId = productionlineId;
+	}
+                		
+	public Long getProcessNodeId() {
+		return processNodeId;
+	}
+
+	public void setProcessNodeId(Long processNodeId) {
+		this.processNodeId = processNodeId;
+	}
+                		
+	public Long getSpeedWorktime() {
+		return speedWorktime;
+	}
+
+	public void setSpeedWorktime(Long speedWorktime) {
+		this.speedWorktime = speedWorktime;
+	}
+                		
+	public Double getSpeedQuantity() {
+		return speedQuantity;
+	}
+
+	public void setSpeedQuantity(Double speedQuantity) {
+		this.speedQuantity = speedQuantity;
+	}
+                		
+	public String getIpaddress() {
+		return ipaddress;
+	}
+
+	public void setIpaddress(String ipaddress) {
+		this.ipaddress = ipaddress;
+	}
+                		
+	public Integer getHoursMaintain() {
+		return hoursMaintain;
+	}
+
+	public void setHoursMaintain(Integer hoursMaintain) {
+		this.hoursMaintain = hoursMaintain;
+	}
+                		
+	public Integer getStandarlive() {
+		return standarlive;
+	}
+
+	public void setStandarlive(Integer standarlive) {
+		this.standarlive = standarlive;
+	}
+                		
+	public String getDateMake() {
+		return dateMake;
+	}
+
+	public void setDateMake(String dateMake) {
+		this.dateMake = dateMake;
+	}
+                		
+	public String getDateEnter() {
+		return dateEnter;
+	}
+
+	public void setDateEnter(String dateEnter) {
+		this.dateEnter = dateEnter;
+	}
+                		
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

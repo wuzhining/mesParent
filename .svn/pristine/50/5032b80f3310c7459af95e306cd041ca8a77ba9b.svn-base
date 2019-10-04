@@ -1,0 +1,300 @@
+package com.techsoft.client.service.struct;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.alibaba.dubbo.common.utils.StringUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructFloor;
+import com.techsoft.entity.common.StructWorkshop;
+import com.techsoft.entity.common.StructWorkshopArea;
+import com.techsoft.entity.common.StructWorkstation;
+import com.techsoft.entity.struct.StructWorkstationParamVo;
+import com.techsoft.entity.struct.StructWorkstationVo;
+import com.techsoft.service.config.ConfigCodeRuleService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.struct.StructFactoryService;
+import com.techsoft.service.struct.StructFloorService;
+import com.techsoft.service.struct.StructProductionlineService;
+import com.techsoft.service.struct.StructWorkshopAreaService;
+import com.techsoft.service.struct.StructWorkshopService;
+import com.techsoft.service.struct.StructWorkstationService;
+
+@org.springframework.stereotype.Service
+public class ClientStructWorkstationServiceImpl extends BaseClientServiceImpl<StructWorkstation>
+		implements ClientStructWorkstationService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkstationService structWorkstationService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructFactoryService structFactoryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProductionlineService structProductionlineService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopService structWorkshopService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopAreaService structWorkshopAreaService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructFloorService structFloorService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigCodeRuleService configCodeRuleService;
+
+	@Override
+	public BaseService<StructWorkstation> getBaseService() {
+		return structWorkstationService;
+	}
+
+	private StructWorkstationVo getVo(StructWorkstation structWorkstation, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		StructWorkstationVo vo = new StructWorkstationVo(structWorkstation);
+		//工厂
+		if (vo.getFactoryId() != null && vo.getFactoryId() > 0L) {
+			StructFactory structFactory = structFactoryService.selectById(vo.getFactoryId(), commonParam);
+			if (structFactory != null) {
+				vo.setStructFactory(structFactory);
+			}
+		}
+		
+		
+		//车间
+		if (vo.getWorkshopId() != null && vo.getWorkshopId() > 0L) {
+			StructWorkshop structWorkshop = structWorkshopService.selectById(vo.getWorkshopId(), commonParam);
+			if (structWorkshop != null) {
+				vo.setStructWorkshop(structWorkshop);
+				//通过车间查楼层
+				StructFloor structFloor = structFloorService.selectById(structWorkshop.getFloorId(), commonParam);
+				if (structFloor != null) {
+				    vo.setStructFloor(structFloor);
+				}
+			}
+		}
+		
+		//车间区域
+		if (vo.getWorkshopAreaId() != null && vo.getWorkshopAreaId() > 0L) {
+			StructWorkshopArea structWorkshopArea = structWorkshopAreaService.selectById(vo.getWorkshopAreaId(), commonParam);
+			if (structWorkshopArea != null) {
+				vo.setStructWorkshopArea(structWorkshopArea);
+			}
+		}
+		//执行方
+		if(vo.getExecutiveTypeDictId() != null && vo.getExecutiveTypeDictId() > 0L){
+			ConfigDictionary configDictionarylist = configDictionaryService.selectById(vo.getExecutiveTypeDictId(), commonParam);
+			if(configDictionarylist != null){
+				vo.setExecutive(configDictionarylist);
+			}
+		}
+		
+		return vo;
+	}
+
+	private StructWorkstationVo getExtendVo(StructWorkstation structWorkstation, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		StructWorkstationVo vo = this.getVo(structWorkstation, commonParam);
+
+		return vo;
+	}
+
+	private List<StructWorkstationVo> getVoList(List<StructWorkstation> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<StructWorkstationVo> voList = new ArrayList<StructWorkstationVo>();
+		for (StructWorkstation entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<StructWorkstationVo> getExtendVoList(List<StructWorkstation> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<StructWorkstationVo> voList = new ArrayList<StructWorkstationVo>();
+		for (StructWorkstation entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public StructWorkstationVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StructWorkstation entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<StructWorkstationVo> selectListVoByParamVo(StructWorkstationParamVo structWorkstation,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (structWorkstation == null) {
+			structWorkstation = new StructWorkstationParamVo();
+		}
+		structWorkstation.setTenantId(commonParam.getTenantId());
+
+		List<StructWorkstation> list = (List<StructWorkstation>) this.getBaseService()
+				.selectListByParamVo(structWorkstation, commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<StructWorkstationVo> selectPageVoByParamVo(StructWorkstationParamVo structWorkstation,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (structWorkstation == null) {
+			structWorkstation = new StructWorkstationParamVo();
+		}
+		structWorkstation.setTenantId(commonParam.getTenantId());
+
+		PageInfo<StructWorkstation> list = (PageInfo<StructWorkstation>) this.getBaseService()
+				.selectPageByParamVo(structWorkstation, commonParam, pageNo, pageSize);
+		List<StructWorkstationVo> volist = new ArrayList<StructWorkstationVo>();
+
+		Iterator<StructWorkstation> iter = list.getList().iterator();
+		StructWorkstationVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<StructWorkstationVo> vpage = new Page<StructWorkstationVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public StructWorkstationVo getExtendVoByID(Long id, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		StructWorkstation entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<StructWorkstationVo> selectListExtendVoByParamVo(StructWorkstationParamVo structWorkstation,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (structWorkstation == null) {
+			structWorkstation = new StructWorkstationParamVo();
+		}
+		structWorkstation.setTenantId(commonParam.getTenantId());
+
+		List<StructWorkstation> list = (List<StructWorkstation>) this.getBaseService()
+				.selectListByParamVo(structWorkstation, commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<StructWorkstationVo> selectPageExtendVoByParamVo(StructWorkstationParamVo structWorkstation,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (structWorkstation == null) {
+			structWorkstation = new StructWorkstationParamVo();
+		}
+		structWorkstation.setTenantId(commonParam.getTenantId());
+
+		PageInfo<StructWorkstation> list = (PageInfo<StructWorkstation>) this.getBaseService()
+				.selectPageByParamVo(structWorkstation, commonParam, pageNo, pageSize);
+		List<StructWorkstationVo> volist = new ArrayList<StructWorkstationVo>();
+
+		Iterator<StructWorkstation> iter = list.getList().iterator();
+		StructWorkstationVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<StructWorkstationVo> vpage = new Page<StructWorkstationVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(StructWorkstationParamVo structWorkstationParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		StructWorkstation structWorkstation = null;
+		/*if (structWorkstationParamVo.getWorkstationCode() == null) {
+			resultMessage.addErr("工站编码不能为空");
+			return resultMessage;
+		}*/
+		if (structWorkstationParamVo.getWorkstationName() == null) {
+			resultMessage.addErr("工站名不能为空");
+			return resultMessage;
+		}
+		if (structWorkstationParamVo.getFactoryId() == null) {
+			resultMessage.addErr("请选择工厂名称");
+			return resultMessage;
+		}
+		
+		if (structWorkstationParamVo.getWorkshopId() == null) {
+			resultMessage.addErr("车间不能为空");
+			return resultMessage;
+		}
+		
+		if (structWorkstationParamVo.getWorkshopAreaId() == null) {
+			resultMessage.addErr("请选择车间区域");
+			return resultMessage;
+		}
+
+		if (structWorkstationParamVo.getRemark() == null) {
+			resultMessage.addErr("备注不能为空");
+			return resultMessage;
+		}
+
+		try {
+			if (structWorkstationParamVo.getId() == null) {// 新增
+				//生成编码
+				String code = structWorkstationParamVo.getWorkstationCode();
+				if(StringUtils.isBlank(code)){
+					code = configCodeRuleService.createCode(StructWorkstation.class.getName(), null, null, commonParam);
+					structWorkstationParamVo.setWorkstationCode(code);
+				}
+				if(StringUtils.isBlank(code)){
+					resultMessage.addErr("工站编码不能为空");
+					return resultMessage;
+				}
+				//检验编码是否已存在
+				StructWorkstationParamVo structWorkstationSearch = new StructWorkstationParamVo();
+				structWorkstationSearch.setWorkstationCode(code);
+				List<StructWorkstation> list = structWorkstationService.selectListByParamVo(structWorkstationSearch, commonParam);
+				if((list != null) && (!list.isEmpty())){
+					resultMessage.addErr("工站编码已存在");
+					return resultMessage;
+				}
+				structWorkstationParamVo.setTenantId(commonParam.getTenantId());
+				structWorkstation = structWorkstationService.saveOrUpdate(structWorkstationParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				StructWorkstation structWorkstationVoTemp = this.selectById(structWorkstationParamVo.getId(),
+						commonParam);
+
+				BeanUtil.copyNotNullProperties(structWorkstationVoTemp, structWorkstationParamVo);
+
+				structWorkstation = structWorkstationService.saveOrUpdate(structWorkstationVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(structWorkstation);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

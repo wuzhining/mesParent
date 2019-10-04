@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+<style type="text/css">
+
+.ListTableHeader
+{
+    font-size: 12px;
+    font-weight: bold;
+    text-align: left;
+    height: 21px;
+    overflow: hidden;
+    line-height: 18px;
+    color: #183152;
+    margin-left: 3px;
+    border: 0px;
+    padding: 0px;
+    font-family: Verdana, 微软雅黑,黑体, 宋体;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    
+}
+.ListTableHeader th
+{
+     
+    height: 22px;
+    border: 1px solid #d3d3d3;
+    background: #ececec url(images/gridheaderbg.jpg) repeat-x;
+    font-family: Verdana, 微软雅黑,黑体, 宋体;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.Field
+{
+     height: 26px;
+    background-color: #fff;
+    padding: 5px 0px 5px 5px;
+    border-top: 1px solid #d3d3d3;
+    border-left: 1px solid #d3d3d3;
+    border-right: 1px solid #d3d3d3;
+    border-bottom: 1px solid #d3d3d3;
+    
+}
+em
+{
+    color: #F75000;
+    font-family: Verdana, 微软雅黑,黑体, 宋体;
+    font-size: 11px;
+    font-weight: bold;
+    padding-left: 5px;
+    padding-right: 5px;
+    vertical-align: middle;
+    
+}
+</style>
+  </head>
+
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+        <tbody>
+           <tr>
+               <td width="10%" class="tableleft">规则名<span style="color:red">*</span></td>
+               <td><input type="text" name="sampleRuleName" class="layui-input" lay-verify="sampleRuleName" maxlength="16" value="${(entity.sampleRuleName)!''}"/></td>
+               <td width="10%" class="tableleft">抽样检验方式</td>
+               <td>
+                 <select name="inspectModeDictId"> 
+                    <#if inspectModeList??>
+                     <#list inspectModeList as item>
+			            <option value="${item.id?c}" <#if (entity.inspectModeDictId??&&entity.inspectModeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+
+               </td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">备注</td>
+               <td colspan="4"><input type="text" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+           </tr>
+		</tbody>
+       </table>
+       
+       <table id="tblExpand" cellspacing="0" cellpadding="4"
+				style="border-width: 0px; width: 100%; border-collapse: collapse; margin-top: 5px;">
+				<tbody>
+					<tr class="ListTableHeader">
+
+						<th  style="width: 10%;">抽检索引字母</th>
+						<th  style="width: 35%;">抽检样本数<em>*</em>
+						</th>
+						<th  style="width: 20%;">AC<em>*</em>
+						</th>
+						<th  style="width: 35%;">RE<em>*</em>
+						</th>
+					</tr>
+
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="A"/>A
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityA'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcA' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReA'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="B"/>B
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityB'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcB' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReB'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+					
+ 				 <tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="C"/>C
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityC'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcC' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReC'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="D"/>D
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityD'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcD' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReD'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="E"/>E
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityE'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcE' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReE'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="F"/>F
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityF'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcF' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReF'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="G"/>G
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityG'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcG' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReG'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+					
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="H"/>H
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityH'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcH' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReH'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="J"/>J
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityJ'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcJ' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReJ'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+	
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="K"/>K
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityK'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcK' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReK'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="L"/>L
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityL'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcL' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReL'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+				  <tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="M"/>M
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityM'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcM' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReM'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+	
+					
+				   <tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="N"/>N
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityN'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcN' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReN'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+
+					
+				   	<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="P"/>P
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityP'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcP' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReP'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+					
+				   <tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="Q"/>Q
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityQ'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcQ' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReQ'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+					
+	
+					
+					<tr class="ListTableOddRow">
+						<td align="center" class="Field">
+							<input type="hidden" class="LotLetter" name="sampleLetter" value="R"/>R
+						</td>
+						<td align="center" class="Field">
+						    <input id='quantityR'  type="text" lay-verify="quantity" style="width: 90%;" maxlength="10" name="quantity"  value="${(entity.quantity)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input id ='quantityAcR' type="text" lay-verify="quantityAc"  maxlength="10" style="width: 90%;" class="ACValue"  name="quantityAc"  value="${(entity.quantityAc)!''}"/>
+						</td>
+						<td align="center" class="Field">
+						   <input type="text" id ='quantityReR'   maxlength="10" lay-verify="quantityRe" style="width: 90%;" class="REValue" name="quantityRe"  value="${(entity.quantityRe)!''}"/>
+						</td>
+					</tr>
+
+
+				</tbody>
+			</table>
+       
+
+	    <div class="layui-col-md12" style='text-align:center; margin-top:20px;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+
+	  <div id="hidden1" lay-filter="hidden1" style="display: none">
+        <table id="sampleLevel_result" lay-filter="sampleLevel_result"></table>
+	  </div>
+    </div>
+    
+	 <script type="text/html" id="sampleLevelSelect">
+        <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+	 </script>
+    
+  <script>
+  layui.config({
+      base: '/static/plugins/layui/base/',
+      v: new Date().getTime()
+  }).use([ 'form','table','layer','layuiconfig','layuiformajax','layuitable'], function(){
+		  	$ = layui.$, 
+		  	admin = layui.admin, 
+		  	table = layui.table, 
+		  	layer = layui.layer, 
+		  	laydate = layui.laydate,
+		  	layuitable = layui.layuitable,
+		  	form = layui.form; 
+			var layuiformajax = layui.layuiformajax;
+            var ids=[];
+	    	var problemId=0;
+		  	  if($("#id").val() != ''){
+		  		  problemId=$("#id").val();
+		  	  }
+	       	  var url = '/quality/qualitySampleRuleItem/list/ruleItemJson?sampleRuleId='+ problemId;
+				 $.ajax({
+				        // type: "post",
+						 dataType: "",
+						 contentType:'application/x-www-form-urlencoded',
+						 url:url,		
+				         success: function(res){
+					         //console.log(res);
+					 	     resjosn=JSON.parse(res);
+					 	     
+						 for (var i = 0; i < resjosn.length; i++) {
+					       		ids.push(resjosn[i].id);
+					       		$("#quantityA").val(resjosn[0].quantity);
+					       		$("#quantityAcA").val(resjosn[0].quantityAc);
+					       		$("#quantityReA").val(resjosn[0].quantityRe); 
+					       		
+					       		$("#quantityB").val(resjosn[1].quantity);
+					       		$("#quantityAcB").val(resjosn[1].quantityAc);
+					       		$("#quantityReB").val(resjosn[1].quantityRe); 
+			
+				       		    $("#quantityC").val(resjosn[2].quantity);
+					       		$("#quantityAcC").val(resjosn[2].quantityAc);
+					       		$("#quantityReC").val(resjosn[2].quantityRe); 
+					       		
+					       		$("#quantityD").val(resjosn[3].quantity);
+					       		$("#quantityAcD").val(resjosn[3].quantityAc);
+					       		$("#quantityReD").val(resjosn[3].quantityRe); 
+					       		
+					       		$("#quantityE").val(resjosn[4].quantity);
+					       		$("#quantityAcE").val(resjosn[4].quantityAc);
+					       		$("#quantityReE").val(resjosn[4].quantityRe); 
+					       		
+					       		$("#quantityF").val(resjosn[5].quantity);
+					       		$("#quantityAcF").val(resjosn[5].quantityAc);
+					       		$("#quantityReF").val(resjosn[5].quantityRe); 
+					       		
+					       		$("#quantityG").val(resjosn[6].quantity);
+					       		$("#quantityAcG").val(resjosn[6].quantityAc);
+					       		$("#quantityReG").val(resjosn[6].quantityRe); 
+					       		
+					       		$("#quantityH").val(resjosn[7].quantity);
+					       		$("#quantityAcH").val(resjosn[7].quantityAc);
+					       		$("#quantityReH").val(resjosn[7].quantityRe); 
+					       		
+					       		$("#quantityJ").val(resjosn[8].quantity);
+					       		$("#quantityAcJ").val(resjosn[8].quantityAc);
+					       		$("#quantityReJ").val(resjosn[8].quantityRe); 
+					       		
+					       		$("#quantityK").val(resjosn[9].quantity);
+					       		$("#quantityAcK").val(resjosn[9].quantityAc);
+					       		$("#quantityReK").val(resjosn[9].quantityRe); 
+					       		
+					       		$("#quantityL").val(resjosn[10].quantity);
+					       		$("#quantityAcL").val(resjosn[10].quantityAc);
+					       		$("#quantityReL").val(resjosn[10].quantityRe); 
+					       		
+					       		$("#quantityM").val(resjosn[11].quantity);
+					       		$("#quantityAcM").val(resjosn[11].quantityAc);
+					       		$("#quantityReM").val(resjosn[11].quantityRe); 
+							 
+	
+					       		$("#quantityN").val(resjosn[12].quantity);
+					       		$("#quantityAcN").val(resjosn[12].quantityAc);
+					       		$("#quantityReN").val(resjosn[12].quantityRe); 
+					       		
+					       		$("#quantityP").val(resjosn[13].quantity);
+					       		$("#quantityAcP").val(resjosn[13].quantityAc);
+					       		$("#quantityReP").val(resjosn[13].quantityRe);
+					       		
+					       		$("#quantityQ").val(resjosn[14].quantity);
+					       		$("#quantityAcQ").val(resjosn[14].quantityAc);
+					       		$("#quantityReQ").val(resjosn[14].quantityRe); 
+		
+					       		$("#quantityR").val(resjosn[15].quantity);
+					       		$("#quantityAcR").val(resjosn[15].quantityAc);
+					       		$("#quantityReR").val(resjosn[15].quantityRe);    
+					  　　　　　　}
+
+				       }
+				   }); 
+          
+          
+           //自定义验证规则
+           var reg = /^[+]{0,1}(\d+)$/;
+           form.verify({
+        	 sampleRuleName: function(valueName){
+              if(valueName =='' ||valueName==null){
+                return '规则名称不能为空！';
+              }
+            }
+            ,quantity: function(valueTy){
+            	 if(valueTy =='' ||valueTy==null){
+                    return '抽检样本数不能为空!';
+                }else if(!reg.test(valueTy)){
+                    return '抽检样本数需为正整数!';
+                }
+            }
+            ,quantityAc: function(valueAc){
+           	 if(valueAc =='' ||valueAc==null){
+                   return 'AC数不能为空!';
+               }else if(!reg.test(valueAc)){
+                   return 'AC数需为正整数!';
+               }
+           }
+            ,quantityRe: function(valueRe){
+           	 if(valueRe =='' ||valueRe==null){
+                   return 'RE数不能为空!';
+               }else if(!reg.test(valueRe)){
+                   return 'RE数数需为正整数!';
+               }
+           }
+          }); 
+          
+          
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+       	      var arrSampleLetter = [];
+        	  $("[name='sampleLetter']").each(function(item){
+        		  arrSampleLetter.push($(this).val());
+        	 });
+         	  
+         	   var arrQuantity = [];
+         	  $("[name='quantity']").each(function(item){
+         		  arrQuantity.push($(this).val());
+       		 });
+         	  
+         	  var arrACValue = [];
+         	  $(".ACValue").each(function(item){
+         		  arrACValue.push($(this).val());
+         		});
+         	  
+         	  var arrREValue = [];
+         	  $(".REValue").each(function(item){
+         		  arrREValue.push($(this).val());
+
+         	 });  
+        	   var url = '/quality/qualitySampleRule/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+        		  if(result.isSuccess==true){
+        			  var vid = result.baseEntity.id;
+        			  console.log(ids); 
+	            	  $.ajax({
+	            		  url:"/quality/qualitySampleRuleItem/save",
+	            	      type: "POST",
+	            	      data: {
+	            	    	  sampleRuleId:vid,
+	            	    	  ids:JSON.stringify(ids), 
+	            	    	  "listSampleLetter": JSON.stringify(arrSampleLetter),
+	            	    	  'listQuantity':JSON.stringify(arrQuantity), 
+	            	    	  'listACValue':JSON.stringify(arrACValue), 
+	            	    	  'listREValue':JSON.stringify(arrREValue)},
+	            	      success: function (data) {
+		        	    	     layer.alert("保存成功", {icon: 6},function () {
+			    	                // 获得frame索引
+			    	                var index = parent.layer.getFrameIndex(window.name);
+			    				  	parent.location.reload(); 
+			    	                parent.layer.close(index);
+			    	                }); 
+	            	      }
+	            	  });
+
+  
+        		  }
+        		  
+      		  });
+      		   
+            return false;
+          });
+          
+          
+        });
+  
+		/* 
+		    检验水平弹出框
+		*/
+		//页面上隐藏的用于弹层的所有物料的列表的相关设置 
+		var sampleLevel_result_table_options = {
+		 		elem: '#sampleLevel_result'
+			    	,id:'sampleLevel_result'
+			    	,url:'/quality/qualitySampleLevel/list/json'
+			    	,cols: [[
+			    	     {field:'sampleLevelDictId',  title: '检验水平名称', width: 120,align:'center',templet:'#sampleLevelTpl'}
+			    	    ,{field:'sampleLevelRank',  title: '检验水平级别',align:'center', width: 120}
+			    	    ,{field:'sampleLetter',  title: '索引字母',align:'center', width: 110}
+			    	    ,{field:'minimum',  title: '批量最小值',align:'center', width: 150}
+			    	    ,{field:'maximum',  title: '批量最大值',align:'center', width: 150}
+			      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#sampleLevelSelect', fixed: 'right'}
+			    	]]
+		 };
+		
+		
+		 
+		//点击查询物料弹窗触发该函数
+			function sampleLevel_input_focus_handler(){
+				layer.open({
+					type : 1
+					, area : [ '850px', '500px' ]
+					, content : $('#hidden1')
+					, success : function () {
+						// 重新加载表格中的数据
+						table.reload('sampleLevel_result', sampleLevel_result_table_options);
+						$('#hidden1').css('display', 'block');
+					}
+				});
+		
+			};
+		 
+			//点击弹出的“物料信息”弹层上的表格中“选中”按钮的触发函数，回填input框
+			function sampleLevel_tool_event_handler(obj) {
+				var data = obj.data;
+				switch (obj.event) {
+					case 'select':
+						$('#sampleLevelId').val(data.id);
+						$('#sampleLeveName').val(data.sampleLevelDictId=='10486'? "一般检验水平": "特殊检验水平");
+						layer.close(layer.index);
+							break;
+				}
+			};
+    
+    </script>
+
+  </body>
+
+</html>

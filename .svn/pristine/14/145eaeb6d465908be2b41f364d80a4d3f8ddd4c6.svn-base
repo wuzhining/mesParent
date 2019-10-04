@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">产品</a> <a><cite>实物产品规格</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+			<input type="text" name="materialCode"  placeholder="产品规格编码" autocomplete="off" class="layui-input">
+			<input type="hidden" name="materialId" id="materialId" placeholder="请选择物料" autocomplete="off" class="layui-input">
+			<input type="text" name="materialName" id="materialName" disabled="disabled"  placeholder="请选择产品规格" autocomplete="off" class="layui-input">
+	           <button class="layui-btn layui-btn-sm  " id="materialSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+			</button>
+			<input type="hidden" name="productId" id="productId" placeholder="请选择产品" autocomplete="off" class="layui-input">
+        	<input type="text" name="productName" id="productName" disabled="disabled"  placeholder="请选择产品" autocomplete="off" class="layui-input">
+            <button class="layui-btn layui-btn-sm  " id="productSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+			</button> 
+             <select name="productTypeDictId" lay-search id="productTypeDictId">    
+                <option value="">请选择产品类型</option> 
+                 <#if productTypeList??>
+                     <#list productTypeList as item>
+			            <option value="${item.id?c}">${item.dictName}</option>
+			         </#list>
+			      </#if>
+          </select>
+          <select name="supplierId" lay-search>    
+                <option value="">请选择供应商</option> 
+                 <#if firmPartnerList??>
+                     <#list firmPartnerList as item>
+			            <option value="${item.id?c}">${item.companyName}</option>
+			         </#list>
+			      </#if>
+          </select>
+             <select name="materialStatusDictId" lay-search>    
+                <option value="">请选择实物状态</option> 
+                 <#if materialStatusDictList??>
+                     <#list materialStatusDictList as item>
+			            <option value="${item.id?c}">${item.dictName}</option>
+			         </#list>
+			      </#if>
+          </select>
+          <button type="reset" class="layui-btn layui-btn-sm" id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn" onclick="layer_window_show('添加实物产品规格','/product/productMaterial/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="print">打印</a>
+</script>  
+<script type="text/html" id="productName2">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+
+ 	}}
+	{{# } }}
+</script>  
+ <script type="text/html" id="productType">
+	{{#  if(d.productType){}}
+		{{ d.productType.dictName
+ 	}}
+	{{# } }}
+</script>   
+ <script type="text/html" id="supplierName">
+	{{#  if(d.firmPartner){}}
+		{{ d.firmPartner.companyName 
+
+ 	}}
+	{{# } }}
+</script>   
+ <script type="text/html" id="warehouseName">
+	{{#  if(d.structWarehouse){}}
+		{{ d.structWarehouse.warehouseName 
+
+ 	}}
+	{{# } }}
+</script>   
+ <script type="text/html" id="classesName">
+	{{#  if(d.productClasses){}}
+		{{ d.productClasses.classesName 
+
+ 	}}
+	{{# } }}
+</script> 
+<script type="text/html" id="skvalues">
+    {{#  if(d.skuValue != null && d.skuValue != ''){ }}
+        {{#  
+			var strs= JSON.parse(d.skuValue);
+			var str="";
+			 for (var i = 0; i < strs.length; i++) {
+        	 	str+=strs[i].name+":"+strs[i].value;
+				if(strs.length>0&&i!=strs.length-1){
+        			str+=","; 
+        		 }
+			}
+		}}
+     		<span> {{ str }}</span>
+	{{# } }}
+</script>
+ <script type="text/html" id="materialStatusName">
+	{{#  if(d.materialStatus){}}
+		{{ d.materialStatus.dictName 
+ 	}}
+	{{# } }}
+</script>    
+ <script type="text/html" id="stockUnitDict">
+	{{#  if(d.stockUnitDict){}}
+		{{ d.stockUnitDict.dictName 
+ 	}}
+	{{# } }}
+</script>    
+ <script type="text/html" id="workUnitDict">
+	{{#  if(d.workUnitDict){}}
+		{{ d.workUnitDict.dictName 
+ 	}}
+	{{# } }}
+</script>    
+ <script type="text/html" id="downStrategyName">
+	{{#  if(d.warehouseStrategyDownshelf){}}
+		{{ d.warehouseStrategyDownshelf.strategyName 
+ 	}}
+	{{# } }}
+</script>   
+ <script type="text/html" id="upStrategyName">
+	{{#  if(d.warehouseStrategyUpshelf){}}
+		{{ d.warehouseStrategyUpshelf.strategyName 
+ 	}}
+	{{# } }}
+</script>   
+ <script type="text/html" id="isPeriodControl">
+    {{#  if(d.isPeriodControl == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+</script>   
+ <script type="text/html" id="isUnpackBox">
+    {{#  if(d.isUnpackBox == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+</script>   
+ <script type="text/html" id="isUnpackInnerbox">
+    {{#  if(d.isUnpackInnerbox == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+</script>   
+<script type="text/javascript">
+var materialId;
+var skuValue;
+var strategyUpName;
+var strategyDownName;
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/product/productMaterial/list/json'
+    	,cols: [[
+    	    {field:'productName',  title: '产品名称', align:'center',minWidth: 120,templet: '#productName2'}     
+    	    ,{field:'materialCode',  title: '产品规格编码',align:'center', minWidth: 120}
+    	    ,{field:'materialName',  title: '产品规格名称',align:'center', minWidth: 120}
+    	    ,{field:'sku', title: '产品规格值', align:'center',minWidth: 220}
+    	    ,{field:'productId', title: '产品ID',align:'center', minWidth: 120}
+    	   
+    	    ,{field:'supplierId',  title: '供应商ID', align:'center',minWidth: 120}
+    	    ,{field:'companyName',  title: '供应商名称', align:'center',minWidth: 120,templet: '#supplierName'}
+    	    ,{field:'productTypeDictId', title: '产品类型ID',align:'center', minWidth: 120}
+    	    ,{field:'productType',  title: '产品类型', align:'center',minWidth: 120,templet: '#productType'}
+    	    ,{field:'materialStatusDictId',  title: '实物状态',align:'center', minWidth: 120,templet: '#materialStatusName'}
+    	    ,{field:'stockUnitDictId',  title: '库存单位', align:'center',minWidth: 120}
+    	    ,{field:'materialStatusDictId',  title: '库存单位',align:'center', minWidth: 120,templet: '#stockUnitDict'}
+    	    ,{field:'workUnitDictId',  title: '生产单位', align:'center',minWidth: 120}
+    	    ,{field:'materialStatusDictId',  title: '生产单位',align:'center', minWidth: 120,templet: '#workUnitDict'}
+    	    ,{field:'ratioUnit',  title: '单位系数', align:'center',minWidth: 120}
+    	    ,{field:'volume',  title: '体积限制', align:'center',minWidth: 120}
+    	    ,{field:'weight',  title: '重量限制', align:'center',minWidth: 120}
+    	    ,{field:'sizeLength',  title: '尺寸-长', align:'center',minWidth: 120}
+    	    ,{field:'sizeHeight',  title: '尺寸-高', align:'center',minWidth: 120}
+    	    ,{field:'sizeWidth',  title: '尺寸-宽', align:'center',minWidth: 120}
+    	    ,{field:'isPeriodControl',  title: '是否有效期控制', align:'center',minWidth: 120,templet:'#isPeriodControl'}
+    	    ,{field:'periodManufacture',  title: '生产有效期', align:'center',minWidth: 120}
+    	    ,{field:'periodWarehouseOut',  title: '出库有效期', align:'center',minWidth: 120}
+    	    ,{field:'failurePeriodWarn',  title: '失效期预警', align:'center',minWidth: 120}
+    	    ,{field:'quantityStock',  title: '库存数量', align:'center',minWidth: 120}
+    	    ,{field:'strategyName',  title: '默认上架策略',align:'center', minWidth: 120,templet:'#upStrategyName'}
+    	    ,{field:'strategyName',  title: '默认下架策略',align:'center', minWidth: 120,templet:'#downStrategyName'}
+    	    ,{field:'isUnpackBox',  title: '是否允许拆箱包装',align:'center', minWidth: 120,templet:'#isUnpackBox'}
+    	    ,{field:'isUnpackInnerbox',  title: '是否允许拆内包装',align:'center', minWidth: 120,templet:'#isUnpackInnerbox'}
+   
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]],done:function(){
+    		// 隐藏列
+    		$(".layui-table-box").find("[data-field='warehouseId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='productTypeDictId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='productId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='supplierId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='stockUnitDictId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='workUnitDictId']").css("display","none");   
+    	}
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			 skuValue=data.skuValue;
+			 strategyUpName=data.warehouseStrategyUpshelf.strategyName;
+			 strategyDownName=data.warehouseStrategyDownshelf.strategyName;
+			layer_window_show('编辑实物产品规格','/product/productMaterial/edit?id=' + data.id+"&&productName="+data.productMain.productName); 
+		}
+		if (obj.event === 'print') { //打印
+			materialId=data.id;
+			openWinPrint('/barcode/barcodeMain/printOpen');
+			//labelFeildData=selectItemById({"id":data.id,"configBarcodeRule":"10359","quantity":1},url);
+        	 
+		}
+	});
+	
+	
+	laydate.render({
+		elem: '#startTime' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd' //可任意组合
+	});
+	
+	laydate.render({
+		elem: '#endTime' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd' //可任意组合
+	});
+	
+	$('#materialSearch').on('click',function(e){
+		openWinSelect('/product/productMaterial/productMaterialOpen',"materialId","materialName");
+		e.preventDefault();//默认from表单提交时不刷新
+	}) 
+	$('#productSearch').on('click',function(e){
+   		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	}) 
+   	
+   	//重置
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	}) 
+});		
+</script>
+ 
+  </body>
+
+</html>

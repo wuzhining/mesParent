@@ -1,0 +1,106 @@
+package com.techsoft.dao.bill;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+import com.techsoft.entity.common.BillDelivery;
+import com.techsoft.entity.common.BillPurchase;
+import com.techsoft.entity.common.BillPurchaseItem;
+import com.techsoft.mapper.bill.BillPurchaseMapper;
+
+@Repository
+public class BillPurchaseDaoImpl extends BaseDaoImpl<BillPurchase> implements BillPurchaseDao {
+	@Resource
+	protected BillPurchaseMapper billPurchaseMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<BillPurchase> getEntityClass() {
+		return BillPurchase.class;
+	}	
+	
+	@Override
+	public BaseMapper<BillPurchase> getBaseMapper() {
+		return this.billPurchaseMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "BILL_PURCHASE";
+	}
+	
+	@Override
+	public void insertSaveCheck(BillPurchase value) throws BusinessException, SQLException {
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("请先登录 ");
+		}
+		if (value.getSupplierId() == null  ) {
+			throw new BusinessException("供应商不能为空 ");
+		}
+		if (value.getDateArrival() == null  ) {
+			throw new BusinessException("预估到货时间不能为空 ");
+		}
+	 
+	}
+	
+	@Override
+	public void updateSaveCheck(BillPurchase value) throws BusinessException, SQLException {
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("请先登录 ");
+		}
+		if (value.getSupplierId() == null  ) {
+			throw new BusinessException("供应商不能为空 ");
+		}
+		if (value.getDateArrival() == null  ) {
+			throw new BusinessException("预估到货时间不能为空 ");
+		}
+	}
+	
+	@Override
+	public void deleteSaveCheck(BillPurchase value) throws BusinessException, SQLException {
+	
+	}
+	
+	/**
+	*@auther:Chenzj
+	*@version:2019年5月27日下午4:35:16
+	*@param id                  采购单明细ID
+	*@param billStatusDictId    单据状态
+	*@description
+	*/
+	
+	@Override
+	public void updatePurchaseBillMain(Long id, Long billStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			BillPurchase item = billPurchaseMapper.selectById(id);
+			item.setBillStatusDictId(billStatusDictId);
+			item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			item.setTenantId(commonParam.getTenantId());
+			billPurchaseMapper.updatePartEntity(item);
+		} finally {
+			distributedLock.unlock();
+		}
+
+	}
+}

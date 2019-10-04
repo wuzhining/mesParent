@@ -1,0 +1,24 @@
+package com.techsoft.entity.equip;
+
+import com.techsoft.entity.common.EquipSpecsWork;
+import com.techsoft.entity.common.EquipWorkClasses;
+
+public class EquipSpecsWorkVo extends EquipSpecsWork {
+	private static final long serialVersionUID = 3236278804772193558L;
+	private EquipWorkClasses equipWorkClasses;
+	
+	public EquipSpecsWorkVo() {	
+	}
+	
+	public EquipSpecsWorkVo(EquipSpecsWork value) {
+		value.cloneProperties(this);
+	}
+	public EquipWorkClasses getEquipWorkClasses() {
+		return equipWorkClasses;
+	}
+
+	public void setEquipWorkClasses(EquipWorkClasses equipWorkClasses) {
+		this.equipWorkClasses = equipWorkClasses;
+	}	
+	
+}

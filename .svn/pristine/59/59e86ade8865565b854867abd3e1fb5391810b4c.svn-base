@@ -1,0 +1,43 @@
+package com.techsoft.service.work;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+
+import com.techsoft.entity.common.WorkPlanWorkstation;
+import com.techsoft.dao.work.WorkPlanWorkstationDao;
+
+@Service
+public class WorkPlanWorkstationServiceImpl extends BaseServiceImpl<WorkPlanWorkstation> implements WorkPlanWorkstationService {
+	@Autowired
+	private WorkPlanWorkstationDao workPlanWorkstationDao;
+	
+	@Override
+	public BaseDao<WorkPlanWorkstation> getBaseDao() {
+		return workPlanWorkstationDao;
+	}	
+	
+	@Override
+	public Class<WorkPlanWorkstation> getEntityClass() {
+		return WorkPlanWorkstation.class;
+	}
+	
+	@Override
+	protected WorkPlanWorkstation insertEntity(WorkPlanWorkstation entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected WorkPlanWorkstation updatePartEntity(WorkPlanWorkstation entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected WorkPlanWorkstation updateEntity(WorkPlanWorkstation entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}					
+}

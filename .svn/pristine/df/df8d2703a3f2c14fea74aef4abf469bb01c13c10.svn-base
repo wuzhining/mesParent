@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+   <script type="text/html" id="isValidTpl">
+    {{#  if(d.isLocked == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script>
+  <script type="text/html" id="processName">
+	{{#  if(d.structProcess){}}
+		{{ d.structProcess.processName 
+ 	}}
+	{{# } }}
+   </script>
+  <script type="text/html" id="workshopName">
+	{{#  if(d.structWorkshop){}}
+		{{ d.structWorkshop.workshopName 
+ 	}}
+	{{# } }}
+   </script>
+ 
+   
+   <script type="text/html" id="customerIdTpl">
+	{{#  if(d.customerDictionary){}}
+		{{ d.customerDictionary.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   
+   <script type="text/html" id="productName2">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   
+   <script type="text/html" id="productNameTpl">
+	{{#  if(d.processDictDictionary){}}
+		{{ d.processDictDictionary.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   
+   <script type="text/html" id="statusTpl">
+	{{#  if(d.workorderStatusDictionary){}}
+		{{ d.workorderStatusDictionary.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="auditStatusName">
+	{{#  if(d.workAuditStatusDictionary){}}
+		{{ d.workAuditStatusDictionary.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="bomName">
+	{{#  if(d.productBom){}}
+		{{ d.productBom.bomName 
+ 	}}
+	{{# } }}
+   </script>
+  <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+ 	}}
+	{{# } }}
+	</script>	
+ <script type="text/html" id="auditStatusDictName">
+	{{#  if(d.auditStatusDict){}}
+		{{ d.auditStatusDict.dictName 
+ 	}}
+	{{# } }}
+ </script> 
+ <script type="text/html" id="bomName">
+	{{#  if(d.productBom){}}
+		{{ d.productBom.bomName
+ 	}}
+	{{# } }}
+ </script> 
+ <script type="text/html" id="createUser">
+	{{#  if(d.userPassport){}}
+		{{ d.userPassport.realName
+ 	}}
+	{{# } }}
+ </script> 
+ <script type="text/html" id="modifyUser">
+	{{#  if(d.userPassport){}}
+		{{ d.userPassport.realName
+ 	}}
+	{{# } }}
+ </script> 
+ <script type="text/html" id="factoryName">
+	{{#  if(d.structFactory){}}
+		{{ d.structFactory.factoryName
+ 	}}
+	{{# } }}
+ </script> 
+   
+  
+  <body style='width:100%;height:100%'>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">生产管理</a> <a><cite>工单管理</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input class="layui-input" placeholder="计划开始时间" name="timePlanStartBegin" id="timePlanStartBegin">
+          <input class="layui-input" placeholder="计划结束时间" name="timePlanStartEnd" id="timePlanStartEnd">
+          <input type="text" name="workorderCode" id="workorderCode" placeholder="请输入工单编码" autocomplete="off" class="layui-input">
+          <input type="hidden" name="productId" id="productId" placeholder="请选择产品" autocomplete="off" class="layui-input">
+        	<input type="text" name="productName" id="productName" placeholder="请选择产品" autocomplete="off" class="layui-input">
+            <button class="layui-btn layui-btn-sm  " id="productSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+			</button> 
+          <select name="factoryId" lay-search>    
+                <option value="">请选择车间</option> 
+                 <#if structFactoryList??>
+                     <#list structFactoryList as item>
+			            <option value="${item.id?c}">${item.factoryName}</option>
+			         </#list>
+			      </#if>
+          </select>
+         <select name="workorderStatusDictId" lay-search>    
+                <option value="">请选择工单状态</option> 
+                 <#if workorderStatusList??>
+                     <#list workorderStatusList as item>
+			            <option value="${item.id?c}">${item.dictName}</option>
+			         </#list>
+			      </#if>
+          </select>
+           <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>
+          <button class="layui-btn  layui-btn-sm "  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn" onclick="layer_window_show('添加工单信息','/bill/billWorkorder/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12" id='topTab'>
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="check">审核</a>
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="viewTaskProcedure">工作工序任务</a>
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="viewPlanMaterial">工作物料计划</a>
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="viewPlanEquip">工作设备计划</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="viewEquipFixture">工作治具计划</a>
+	
+</script>    
+<!-- {{#  if(d.workorderStatusDictId==10459){}} {{# } }} 
+<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="audit">审核</a>
+-->
+<script type="text/javascript">
+	var productName="";
+	var materialName="";
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,curTable= layuitable,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,height: '600'
+    	,url:'/bill/billWorkorder/list/json'
+        ,limits:[5,10,15,20]
+    	,cols: [[
+    	     {field:'id',  title: '工单id',align:'center', minWidth: 120}
+    	    ,{field:'customerId', width:120, title: '客户ID',align:'center'}
+    	    ,{field:'customerName', width:120, title: '客户',align:'center',templet:'#customerIdTpl'}
+    	    ,{field:'workorderCode',  title: '工单编码',align:'center', minWidth: 120}
+    	    ,{field:'factoryId',  title: '工厂id',align:'center', minWidth: 120 }
+    	    ,{field:'factoryName',  title: '工厂',align:'center', minWidth: 120,templet:'#factoryName'}
+    	    ,{field:'workshopId',  title: '车间id',align:'center', minWidth: 120 }
+    	    ,{field:'workshopName',  title: '车间',align:'center', minWidth: 120,templet:'#workshopName'}
+    	    ,{field:'productId',  title: '产品ID', align:'center',minWidth: 120 }
+    	    ,{field:'bomId',  title: '产品BOM名称',align:'center', minWidth: 120,templet: '#bomName'}
+    	    ,{field:'productName',  title: '产品', align:'center',minWidth: 120,templet:'#productName2'}
+    	    ,{field:'materialId',  title: '产品规格ID',align:'center', minWidth: 120}
+    	    ,{field:'materialName',  title: '产品规格名称',align:'center', minWidth: 120,templet: '#materialName'}
+    	    ,{field:'sku',  title: '产品规格值',align:'center', minWidth: 120,templet: '#sku'}
+    	    ,{field:'workorderStatusDictId',  title: '工单状态',align:'center', minWidth: 120,templet:'#statusTpl'}
+    	   /*  ,{field:'auditStatusName',  title: '工单审核状态',align:'center', minWidth: 120,templet:'#auditStatusName'} */
+    	    ,{field:'auditStatusDictName',  title: '审核状态',align:'center', minWidth: 120,templet:'#auditStatusDictName'}
+    	    ,{field:'priority',  title: '优先级',align:'center', minWidth: 120}
+    	    ,{field:'quantity',  title: '工单数量',align:'center', minWidth: 120}
+    	    ,{field:'quantityMaximumInput',  title: '最大入库数量',align:'center', minWidth: 120}
+    	    ,{field:'quantityInput',  title: '已投入数量',align:'center', minWidth: 120}
+    	    ,{field:'quantityOutput',  title: '已产出数量',align:'center', minWidth: 120}
+    	    ,{field:'ratioAllowover',  title: '允超比率',align:'center', minWidth: 120}
+    	    ,{field:'timePlanStart',  title: '计划开始时间',align:'center', minWidth: 120}
+    	    ,{field:'timePlanEnd',  title: '计划结束时间',align:'center', minWidth: 120}
+    	    ,{field:'timeActualStart',  title: '实际上线时间',align:'center', minWidth: 120}
+    	    ,{field:'timeActualEnd',  title: '实际结案时间',align:'center', minWidth: 120}
+    	    ,{field:'isLocked',  title: '是否锁定', align:'center',minWidth: 120,templet:'#isValidTpl'}
+    	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+    	    ,{field:'modifyTime',  title: '更新时间', align:'center',minWidth: 120}
+    	    ,{field:'createUserId',  title: '创建人', align:'center',minWidth: 120, templet:'#createUser'}
+    	    ,{field:'modifyUserId',  title: '更新人', align:'center',minWidth: 120, templet:'#modifyUser'}
+      		,{field:'', width:'32%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]],done:function(){
+    		// 隐藏列
+    		$(".layui-table-box").find("[data-field='id']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='workshopId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='productId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='customerId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='materialId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='factoryId']").css("display","none");   
+    	}
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+	
+ 
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		productName=data.productMain.productName;
+	    materialName=data.productMaterial.materialName;
+	    bomName=data.productBom.bomName;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑工单','/bill/billWorkorder/edit?id=' + data.id); 
+		}
+		if(obj.event === 'check'){
+			if(data.workAuditStatusDictionary.dictName =='待审核'){
+				  var url = '/bill/billWorkorder/workorderCheck?id='+ data.id;
+		       	  layuiformajax.postJson(url, '', function (result) {
+		       	     parent.layer.msg('审核成功!', {icon: 1, time: 1000},function () {
+    				  	location.reload(); 
+    	             });
+		          });
+			}else{
+				var str='';
+				str='工单不是待审核状态,无需再次审核！';
+				layer.alert("【"+data.workorderCode+"】"+str);  
+			}
+		}
+		
+		//工作工序任务
+		if(obj.event === 'viewTaskProcedure'){
+			layer_window_show('工作工序任务','/bill/billWorkorder/viewTaskProcedure?billWorkorderId=' + data.id);
+		}
+		
+		//工作物料计划
+		if(obj.event === 'viewPlanMaterial'){
+			layer_window_show('工作物料计划','/bill/billWorkorder/viewPlanMaterial?billWorkorderId=' + data.id);
+		}
+		
+		//工作设备计划
+		if(obj.event === 'viewPlanEquip'){
+			layer_window_show('工作物料计划','/bill/billWorkorder/viewPlanEquip?billWorkorderId=' + data.id);
+		}
+		
+		//工作治具计划
+		if(obj.event === 'viewEquipFixture'){
+			layer_window_show('工作物料计划','/bill/billWorkorder/viewEquipFixture?billWorkorderId=' + data.id);
+		}
+		 
+		
+		/* }else if(obj.event === 'audit'){
+			url="/bill/billWorkorder/save";//用于保存审核状态的url
+			auditStatusDictId=data.auditStatusDictId;
+			remark=data.remark;
+			id=data.id;
+			layer_window_show('单据审核','/bill/billSaleorder/audit?id=' + data.id,"900","500"); 
+		}  */
+	});
+	
+	
+ 
+	laydate.render({
+		elem: '#timePlanStartBegin' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+	});
+	laydate.render({
+		elem: '#timePlanStartEnd' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+	});
+	$('#productSearch').on('click',function(e){
+   		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	}) 
+   	
+   	//重置
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	}) 
+});	
+</script>
+ 
+  </body>
+
+</html>

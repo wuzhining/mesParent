@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.work.WorkTaskProcedureMapper">
+	<resultMap id="WorkTaskProcedure" type="com.techsoft.entity.common.WorkTaskProcedure" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="BILL_WORKORDER_ID" property="billWorkorderId" />
+		<result column="WORKSHOP_ID" property="workshopId" />
+		<result column="PRODUCTIONLINE_ID" property="productionlineId" />
+		<result column="PROCESS_ID" property="processId" />
+		<result column="PROCESS_NODE_ID" property="processNodeId" />
+		<result column="TASK_CODE" property="taskCode" />
+		<result column="TASK_STATUS_DICT_ID" property="taskStatusDictId" />
+		<result column="BOM_ID" property="bomId" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="PRIORITY" property="priority" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="QUANTITY_INPUT" property="quantityInput" />
+		<result column="QUANTITY_OUTPUT" property="quantityOutput" />
+		<result column="SORT_NO" property="sortNo" />
+		<result column="EXECUTIVE_TYPE_DICT_ID" property="executiveTypeDictId" />
+		<result column="WORKTIME" property="worktime" />
+		<result column="BUFFERTIME_PRE" property="buffertimePre" />
+		<result column="BUFFERTIME_POST" property="buffertimePost" />
+		<result column="TIME_PLAN_START" property="timePlanStart" />
+		<result column="TIME_PLAN_END" property="timePlanEnd" />
+		<result column="TIME_ACTUAL_START" property="timeActualStart" />
+		<result column="TIME_ACTUAL_END" property="timeActualEnd" />
+		<result column="IS_LOCKED" property="isLocked" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="billWorkorderId != null">
+			AND A.BILL_WORKORDER_ID= #{billWorkorderId}
+		</if>
+		<if test="workshopId != null">
+			AND A.WORKSHOP_ID= #{workshopId}
+		</if>
+		<if test="productionlineId != null">
+			AND A.PRODUCTIONLINE_ID= #{productionlineId}
+		</if>
+		<if test="processId != null">
+			AND A.PROCESS_ID= #{processId}
+		</if>
+		<if test="processNodeId != null">
+			AND A.PROCESS_NODE_ID= #{processNodeId}
+		</if>
+		<if test="taskCode != null">
+			AND A.TASK_CODE= #{taskCode}
+		</if>
+		<if test="taskStatusDictId != null">
+			AND A.TASK_STATUS_DICT_ID= #{taskStatusDictId}
+		</if>
+		<if test="bomId != null">
+			AND A.BOM_ID= #{bomId}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="priority != null">
+			AND A.PRIORITY= #{priority}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="quantityInput != null">
+			AND A.QUANTITY_INPUT= #{quantityInput}
+		</if>
+		<if test="quantityOutput != null">
+			AND A.QUANTITY_OUTPUT= #{quantityOutput}
+		</if>
+		<if test="sortNo != null">
+			AND A.SORT_NO= #{sortNo}
+		</if>
+		<if test="executiveTypeDictId != null">
+			AND A.EXECUTIVE_TYPE_DICT_ID= #{executiveTypeDictId}
+		</if>
+		<if test="worktime != null">
+			AND A.WORKTIME= #{worktime}
+		</if>
+		<if test="buffertimePre != null">
+			AND A.BUFFERTIME_PRE= #{buffertimePre}
+		</if>
+		<if test="buffertimePost != null">
+			AND A.BUFFERTIME_POST= #{buffertimePost}
+		</if>
+		<if test="isLocked != null">
+			AND A.IS_LOCKED= #{isLocked}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+		<if test="timePlanStartBegin != null">
+		<![CDATA[
+		   AND A.TIME_PLAN_START >=  #{timePlanStartBegin}
+		]]>
+		</if>
+		<if test="timePlanStartEnd != null">
+		<![CDATA[
+		   AND A.TIME_PLAN_START <= #{timePlanStartEnd}
+		]]>
+		</if>		
+		<if test="timePlanEndBegin != null">
+		<![CDATA[
+		   AND A.TIME_PLAN_END >=  #{timePlanEndBegin}
+		]]>
+		</if>
+		<if test="timePlanEndEnd != null">
+		<![CDATA[
+		   AND A.TIME_PLAN_END <= #{timePlanEndEnd}
+		]]>
+		</if>		
+		<if test="timeActualStartBegin != null">
+		<![CDATA[
+		   AND A.TIME_ACTUAL_START >=  #{timeActualStartBegin}
+		]]>
+		</if>
+		<if test="timeActualStartEnd != null">
+		<![CDATA[
+		   AND A.TIME_ACTUAL_START <= #{timeActualStartEnd}
+		]]>
+		</if>		
+		<if test="timeActualEndBegin != null">
+		<![CDATA[
+		   AND A.TIME_ACTUAL_END >=  #{timeActualEndBegin}
+		]]>
+		</if>
+		<if test="timeActualEndEnd != null">
+		<![CDATA[
+		   AND A.TIME_ACTUAL_END <= #{timeActualEndEnd}
+		]]>
+		</if>		
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.BILL_WORKORDER_ID,
+		A.WORKSHOP_ID,
+		A.PRODUCTIONLINE_ID,
+		A.PROCESS_ID,
+		A.PROCESS_NODE_ID,
+		A.TASK_CODE,
+		A.TASK_STATUS_DICT_ID,
+		A.BOM_ID,
+		A.PRODUCT_ID,
+		A.MATERIAL_ID,
+		A.PRIORITY,
+		A.QUANTITY,
+		A.QUANTITY_INPUT,
+		A.QUANTITY_OUTPUT,
+		A.SORT_NO,
+		A.EXECUTIVE_TYPE_DICT_ID,
+		A.WORKTIME,
+		A.BUFFERTIME_PRE,
+		A.BUFFERTIME_POST,
+		A.TIME_PLAN_START,
+		A.TIME_PLAN_END,
+		A.TIME_ACTUAL_START,
+		A.TIME_ACTUAL_END,
+		A.IS_LOCKED,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_WORK_TASK_PROCEDURE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from WORK_TASK_PROCEDURE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.WorkTaskProcedure">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WORK_TASK_PROCEDURE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.WorkTaskProcedure">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WORK_TASK_PROCEDURE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE WORK_TASK_PROCEDURE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE WORK_TASK_PROCEDURE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.WorkTaskProcedure">
+		UPDATE WORK_TASK_PROCEDURE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.WorkTaskProcedure">
+		INSERT INTO WORK_TASK_PROCEDURE (
+		TENANT_ID,
+		FACTORY_ID,
+		BILL_WORKORDER_ID,
+		WORKSHOP_ID,
+		PRODUCTIONLINE_ID,
+		PROCESS_ID,
+		PROCESS_NODE_ID,
+		TASK_CODE,
+		TASK_STATUS_DICT_ID,
+		BOM_ID,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		PRIORITY,
+		QUANTITY,
+		QUANTITY_INPUT,
+		QUANTITY_OUTPUT,
+		SORT_NO,
+		EXECUTIVE_TYPE_DICT_ID,
+		WORKTIME,
+		BUFFERTIME_PRE,
+		BUFFERTIME_POST,
+		TIME_PLAN_START,
+		TIME_PLAN_END,
+		TIME_ACTUAL_START,
+		TIME_ACTUAL_END,
+		IS_LOCKED,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{billWorkorderId},
+		#{workshopId},
+		#{productionlineId},
+		#{processId},
+		#{processNodeId},
+		#{taskCode},
+		#{taskStatusDictId},
+		#{bomId},
+		#{productId},
+		#{materialId},
+		#{priority},
+		#{quantity},
+		#{quantityInput},
+		#{quantityOutput},
+		#{sortNo},
+		#{executiveTypeDictId},
+		#{worktime},
+		#{buffertimePre},
+		#{buffertimePost},
+		#{timePlanStart},
+		#{timePlanEnd},
+		#{timeActualStart},
+		#{timeActualEnd},
+		#{isLocked},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.WorkTaskProcedure">
+		UPDATE WORK_TASK_PROCEDURE SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		BILL_WORKORDER_ID=#{billWorkorderId},
+		WORKSHOP_ID=#{workshopId},
+		PRODUCTIONLINE_ID=#{productionlineId},
+		PROCESS_ID=#{processId},
+		PROCESS_NODE_ID=#{processNodeId},
+		TASK_CODE=#{taskCode},
+		TASK_STATUS_DICT_ID=#{taskStatusDictId},
+		BOM_ID=#{bomId},
+		PRODUCT_ID=#{productId},
+		MATERIAL_ID=#{materialId},
+		PRIORITY=#{priority},
+		QUANTITY=#{quantity},
+		QUANTITY_INPUT=#{quantityInput},
+		QUANTITY_OUTPUT=#{quantityOutput},
+		SORT_NO=#{sortNo},
+		EXECUTIVE_TYPE_DICT_ID=#{executiveTypeDictId},
+		WORKTIME=#{worktime},
+		BUFFERTIME_PRE=#{buffertimePre},
+		BUFFERTIME_POST=#{buffertimePost},
+		TIME_PLAN_START=#{timePlanStart},
+		TIME_PLAN_END=#{timePlanEnd},
+		TIME_ACTUAL_START=#{timeActualStart},
+		TIME_ACTUAL_END=#{timeActualEnd},
+		IS_LOCKED=#{isLocked},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.WorkTaskProcedure">
+		UPDATE WORK_TASK_PROCEDURE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="billWorkorderId != null" >
+			BILL_WORKORDER_ID=#{billWorkorderId},
+		</if>
+		<if test="workshopId != null" >
+			WORKSHOP_ID=#{workshopId},
+		</if>
+		<if test="productionlineId != null" >
+			PRODUCTIONLINE_ID=#{productionlineId},
+		</if>
+		<if test="processId != null" >
+			PROCESS_ID=#{processId},
+		</if>
+		<if test="processNodeId != null" >
+			PROCESS_NODE_ID=#{processNodeId},
+		</if>
+		<if test="taskCode != null" >
+			TASK_CODE=#{taskCode},
+		</if>
+		<if test="taskStatusDictId != null" >
+			TASK_STATUS_DICT_ID=#{taskStatusDictId},
+		</if>
+		<if test="bomId != null" >
+			BOM_ID=#{bomId},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="priority != null" >
+			PRIORITY=#{priority},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="quantityInput != null" >
+			QUANTITY_INPUT=#{quantityInput},
+		</if>
+		<if test="quantityOutput != null" >
+			QUANTITY_OUTPUT=#{quantityOutput},
+		</if>
+		<if test="sortNo != null" >
+			SORT_NO=#{sortNo},
+		</if>
+		<if test="executiveTypeDictId != null" >
+			EXECUTIVE_TYPE_DICT_ID=#{executiveTypeDictId},
+		</if>
+		<if test="worktime != null" >
+			WORKTIME=#{worktime},
+		</if>
+		<if test="buffertimePre != null" >
+			BUFFERTIME_PRE=#{buffertimePre},
+		</if>
+		<if test="buffertimePost != null" >
+			BUFFERTIME_POST=#{buffertimePost},
+		</if>
+		<if test="timePlanStart != null" >
+			TIME_PLAN_START=#{timePlanStart},
+		</if>
+		<if test="timePlanEnd != null" >
+			TIME_PLAN_END=#{timePlanEnd},
+		</if>
+		<if test="timeActualStart != null" >
+			TIME_ACTUAL_START=#{timeActualStart},
+		</if>
+		<if test="timeActualEnd != null" >
+			TIME_ACTUAL_END=#{timeActualEnd},
+		</if>
+		<if test="isLocked != null" >
+			IS_LOCKED=#{isLocked},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.work.WorkTaskProcedureParamVo"
+		      resultType="com.techsoft.entity.common.WorkTaskProcedure" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WORK_TASK_PROCEDURE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	<insert id="insertBatch" flushCache="true" parameterType="java.util.List">
+		INSERT INTO WORK_TASK_PROCEDURE (
+		ID,
+		TENANT_ID,
+		FACTORY_ID,
+		BILL_WORKORDER_ID,
+		WORKSHOP_ID,
+		PRODUCTIONLINE_ID,
+		PROCESS_ID,
+		PROCESS_NODE_ID,
+		TASK_CODE,
+		TASK_STATUS_DICT_ID,
+		BOM_ID,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		PRIORITY,
+		QUANTITY,
+		QUANTITY_INPUT,
+		QUANTITY_OUTPUT,
+		SORT_NO,
+		EXECUTIVE_TYPE_DICT_ID,
+		WORKTIME,
+		BUFFERTIME_PRE,
+		BUFFERTIME_POST,
+		TIME_PLAN_START,
+		TIME_PLAN_END,
+		TIME_ACTUAL_START,
+		TIME_ACTUAL_END,
+		IS_LOCKED,
+		REMARK,
+		CREATE_TIME,
+		MODIFY_TIME,
+		VERSION,
+		DEL_FLAG,
+		CREATE_USER_ID,
+		MODIFY_USER_ID
+		)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+		(
+		#{item.id},	
+	    #{item.tenantId},
+		#{item.factoryId},
+		#{item.billWorkorderId},
+		#{item.workshopId},
+		#{item.productionlineId},
+		#{item.processId},
+		#{item.processNodeId},
+		#{item.taskCode},
+		#{item.taskStatusDictId},
+		#{item.bomId},
+		#{item.productId},
+		#{item.materialId},
+		#{item.priority},
+		#{item.quantity},
+		#{item.quantityInput},
+		#{item.quantityOutput},
+		#{item.sortNo},
+		#{item.executiveTypeDictId},
+		#{item.worktime},
+		#{item.buffertimePre},
+		#{item.buffertimePost},
+		#{item.timePlanStart},
+		#{item.timePlanEnd},
+		#{item.timeActualStart},
+		#{item.timeActualEnd},
+		#{item.isLocked},
+		#{item.remark},
+		now(),
+		now(),
+		1,0,#{item.createUserId},#{item.modifyUserId}
+		)
+		</foreach>
+	</insert>
+	
+</mapper>

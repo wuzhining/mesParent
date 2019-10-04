@@ -1,0 +1,219 @@
+package com.techsoft.service.bill;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumAuditStatus;
+import com.techsoft.common.enums.EnumBillStatus;
+import com.techsoft.common.enums.EnumBillType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.dao.barcode.BarcodeMainDao;
+import com.techsoft.dao.bill.BillDeliveryDao;
+import com.techsoft.dao.bill.BillDeliveryItemDao;
+import com.techsoft.dao.bill.BillPurchaseDao;
+import com.techsoft.dao.bill.BillPurchaseItemDao;
+import com.techsoft.dao.bill.BillWarehouseDao;
+import com.techsoft.dao.config.ConfigCodeRuleDao;
+import com.techsoft.dao.history.HistoryBillStatusAuditDao;
+import com.techsoft.dao.history.HistoryBillStatusDao;
+import com.techsoft.dao.track.TrackBarcodeDao;
+import com.techsoft.entity.bill.BillDeliveryItemParamVo;
+import com.techsoft.entity.bill.BillDeliveryItemVo;
+import com.techsoft.entity.bill.BillPurchaseItemParamVo;
+import com.techsoft.entity.bill.BillPurchaseItemVo;
+import com.techsoft.entity.common.BillDelivery;
+import com.techsoft.entity.common.BillDeliveryItem;
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.BillPurchase;
+import com.techsoft.entity.common.BillPurchaseItem;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.BillWarehouseItem;
+
+/**
+*@auther:Chenzj
+*@version:2019年5月27日下午2:52:24
+*@param:
+*@description
+*/
+@Service
+public class BillWarehouseDeliveryServiceImpl extends BaseServiceImpl<BillWarehouse> implements BillWarehouseDeliveryService {
+	@Autowired
+	private BillWarehouseDao billWarehouseDao;
+	@Autowired
+	private BarcodeMainDao barcodeMainDao;
+	@Autowired
+	private TrackBarcodeDao trackBarcodeDao;
+	@Autowired
+	private BillDeliveryDao  billDeliveryDao;
+	@Autowired
+	private BillDeliveryItemDao  billDeliveryItemDao;
+	@Autowired
+	private BillPurchaseItemDao  billPurchaseItemDao;
+	@Autowired
+	private BillPurchaseDao  billPurchaseDao;
+	@Autowired
+	private ConfigCodeRuleDao configCodeRuleDao;
+	@Autowired
+	private HistoryBillStatusDao historyBillStatusDao;
+	@Autowired
+	private HistoryBillStatusAuditDao historyBillStatusAuditDao;
+	
+	
+	
+	@Override
+	public BaseDao<BillWarehouse> getBaseDao() {
+		return billWarehouseDao;
+	}
+
+	@Override
+	public Class<BillWarehouse> getEntityClass() {
+		return BillWarehouse.class;
+	}
+
+
+	@Override
+	public ResultMessage purchaseBatchSaveOrUpdate(List<BillPurchaseItemVo> list, CommonParam commonParam) throws BusinessException, SQLException{
+		ResultMessage resultMessage = new ResultMessage();
+		BillWarehouse billWarehouse = null;
+		String billCode=null;
+		billCode = configCodeRuleDao.createCode(BillDelivery.class.getName(),EnumBillType.BILL_TYPE_DELIVERY.getValue(), null,commonParam);
+		// 新增主表及明细表
+		List<BillDeliveryItem> billWarehous = new ArrayList<BillDeliveryItem>();
+		billWarehous = billDeliveryDao.insertPurchaseBatchMainAndDetail(list, billCode,commonParam);
+		
+		for (BillPurchaseItemVo item : list) {
+			//更新采购单明细为处理中
+			billPurchaseItemDao.updatePurchaseBill(item.getId(), EnumBillStatus.DOING.getValue(), null, commonParam);
+			//更新采购单为处理中
+			billPurchaseDao.updatePurchaseBillMain(item.getBillPurchaseId(), EnumBillStatus.DOING.getValue(), commonParam);
+
+			//新增单据状态历史表
+			//查询单据号
+			BillPurchase bill=billPurchaseDao.selectById(item.getBillPurchaseId());
+			historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_PURCHASE.getValue(), EnumBillStatus.DOING.getValue(), item.getBillPurchaseId(),bill.getBillCode(), commonParam);
+		}
+		
+		//新增单据状态历史表
+		historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_DELIVERY.getValue(), EnumBillStatus.NEW.getValue(), billWarehous.get(0).getBillId(),billCode, commonParam);
+
+		//新增单据审核状态历史表
+		historyBillStatusAuditDao.billHistoryInsert(EnumBillType.BILL_TYPE_DELIVERY.getValue(), EnumAuditStatus.UNAUDITED.getValue(), billWarehous.get(0).getBillId(),billCode, commonParam);
+		
+		
+		resultMessage.setIsSuccess(true);
+		return resultMessage;
+	}
+	
+
+	@Override
+	public ResultMessage purchaseCheckAndPrint(BillDelivery billDelivery, CommonParam commonParam) throws BusinessException, SQLException{
+		ResultMessage resultMessage = new ResultMessage();
+		
+		//审核发货单为处理状态
+		billDeliveryDao.updateBillStatusMain(billDelivery.getId(), EnumBillStatus.DOING.getValue(), commonParam);
+		
+		//审核发货单明细为处理状态
+	    billDeliveryItemDao.updateBillItemStatusMain(billDelivery.getId(), EnumBillStatus.DOING.getValue(), commonParam);
+	    
+	    
+
+	    //新增单据状态历史表
+	    //查询单据号
+		BillDelivery bill=billDeliveryDao.selectById(billDelivery.getId());
+	    historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_DELIVERY.getValue(), EnumBillStatus.DOING.getValue(), billDelivery.getId(),bill.getBillCode(), commonParam);
+	    
+		resultMessage.setIsSuccess(true);
+		return resultMessage;
+	}
+	
+	
+	@Override
+	public ResultMessage deliverySave(List<BillDelivery> billDelivery,Long factoryId, CommonParam commonParam) throws BusinessException, SQLException{
+		ResultMessage resultMessage = new ResultMessage();
+		
+		for (BillDelivery item : billDelivery) {
+			
+		
+		String billCode=null;
+		billCode = configCodeRuleDao.createCode(BillWarehouse.class.getName(),EnumBillType.BILL_TYPE_WAREHOUSE_ARRIVAL.getValue(), null,commonParam);
+		
+		BillDeliveryItemParamVo paramVo=new BillDeliveryItemParamVo();
+		paramVo.setBillId(item.getId());
+		List<BillDeliveryItemVo> list=new ArrayList<BillDeliveryItemVo>();
+		list=billDeliveryItemDao.selectSumQtyByBillId(paramVo);
+		
+		//新增到货单主表及明细表
+		List<BillWarehouseItem> itemList=new ArrayList<BillWarehouseItem>();
+		itemList=billWarehouseDao.insertArrivalMainAndDetail(list, billCode,factoryId, commonParam);
+		
+		//新增到货单新建、处理中状态的历史表
+		historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_WAREHOUSE_ARRIVAL.getValue(), EnumBillStatus.NEW.getValue(), itemList.get(0).getBillId(),billCode ,commonParam);
+		historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_WAREHOUSE_ARRIVAL.getValue(), EnumBillStatus.DOING.getValue(), itemList.get(0).getBillId(),billCode, commonParam);
+				
+		//新增到货单标签表
+		trackBarcodeDao.insertArrivalSnList(itemList,item.getId(),commonParam);
+		
+		//更新送货单为完结
+		//送货单置为完结状态
+		billDeliveryDao.updateBillStatusMain(item.getId(), EnumBillStatus.FINISHED.getValue(), commonParam);
+		//新增送货单完结状态的历史表
+		//查询单据号
+		BillDelivery bill=billDeliveryDao.selectById(item.getId());
+		historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_DELIVERY.getValue(), EnumBillStatus.FINISHED.getValue(), itemList.get(0).getBillId(),billCode ,commonParam);
+		//新增检验单待审核状态的历史表+billInpect.getInspectCode(), commonParam);		
+		//送货单明细置为完结状态
+		billDeliveryItemDao.updateBillItemStatusMain(item.getId(), EnumBillStatus.FINISHED.getValue(), commonParam);
+		
+		//送货单条码表置为完结状态
+		trackBarcodeDao.updateTrackStatus(item.getId(), EnumBillStatus.FINISHED.getValue(), commonParam);
+		
+		//根据送货单明细更新采购数量以及判断采购单是否需要完结
+		//根据送货单查询送货单明细
+		List<BillDeliveryItem>  billDeliveryItem = new ArrayList<>();
+		BillDeliveryItemParamVo billParam =new BillDeliveryItemParamVo();
+		billParam.setBillId(item.getId());
+		billDeliveryItem=billDeliveryItemDao.selectListByParamVo(billParam);
+		
+		for (BillDeliveryItem billItem : billDeliveryItem) {
+			List<BillPurchaseItem> purchase =new ArrayList<BillPurchaseItem>();
+			BillPurchaseItemParamVo purchaseItemParamVo = new BillPurchaseItemParamVo();
+			purchaseItemParamVo.setBillPurchaseId(billItem.getFromBillId());
+			purchaseItemParamVo.setMaterialId(billItem.getMaterialId());
+			purchase=billPurchaseItemDao.selectListByParamVo(purchaseItemParamVo);
+			
+			//根据采购明细ID更新相关物料数量
+			billPurchaseItemDao.updatePurchaseBill(purchase.get(0).getId(), EnumBillStatus.DOING.getValue(), billItem.getQuantity(), commonParam);
+			
+			if (purchase.get(0).getQuantity().equals(purchase.get(0).getQuantityFinish()+billItem.getQuantity())) {
+				billPurchaseItemDao.updatePurchaseBillStatus(purchase.get(0).getId(), EnumBillStatus.FINISHED.getValue(), commonParam);
+			}
+			
+			
+			BillPurchaseItemParamVo billPurchaseItemParamVo=new BillPurchaseItemParamVo();
+			billPurchaseItemParamVo.setBillPurchaseId(billItem.getFromBillId());
+			billPurchaseItemParamVo.setNotFinish(EnumBillStatus.FINISHED.getValue());
+			List<BillPurchaseItem> billlist=billPurchaseItemDao.selectListByParamVo(billPurchaseItemParamVo);
+			if (billlist.size()==0) {
+				billPurchaseDao.updatePurchaseBillMain(purchase.get(0).getBillPurchaseId(), EnumBillStatus.FINISHED.getValue(), commonParam);
+				//新增采购单完结状态的历史表
+				//查询单据号
+				BillPurchase billPurchase=billPurchaseDao.selectById(purchase.get(0).getBillPurchaseId());
+				historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_PURCHASE.getValue(), EnumBillStatus.FINISHED.getValue(), purchase.get(0).getBillPurchaseId(),billPurchase.getBillCode(), commonParam);
+			}
+		}
+		
+		
+		}
+		resultMessage.setIsSuccess(true);
+		return resultMessage;
+	}
+	
+}

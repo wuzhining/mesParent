@@ -1,0 +1,16 @@
+package com.techsoft.common.enums;
+
+public enum EnumTaskStatus {
+	BG01(10580L), // 未开始
+	BG02(10581L), // 进行中
+	BG03(10582L); // 结束
+	private Long value;
+
+	private EnumTaskStatus(Long value) {
+		this.value = value;
+	}
+
+	public Long getValue() {
+		return value;
+	}
+}

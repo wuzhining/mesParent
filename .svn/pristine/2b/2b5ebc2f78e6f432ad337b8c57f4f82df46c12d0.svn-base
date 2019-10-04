@@ -1,0 +1,28 @@
+package com.techsoft.common.enums;
+
+public enum EnumDictBarcodeType {
+	PRODUCT(10344L),//产品编码
+	PRODUCT_MATERIAL(10345L),//物料编码
+	PRODUCT_PACKBOX(10346L),//包装箱条码
+	PRODUCT_BOM(10347L),//产品BOM编码
+	WAREHOUSE_PALLET(10348L),//栈板条码
+	BILL_WORKORDER(10349L),//工单编码
+	BILL_INSPECT(10350L),//检验单编码
+	BILL_WAREHOUSE_IN(10351L),//入库单编码
+	BILL_WAREHOUSE_OUT(10352L),//出库单编码
+	BILL_WAREHOUSE_PICKING(10353L),//领料单编码
+	BILL_WAREHOUSE_MATER_RETURN (10354L),//退料单编码
+	BILL_WAREHOUSE_PURCHASE(10355L),//备货单编码
+	BILL_WAREHOUSE_DELIVERY(10356L),//发货单编码
+	BILL_WAREHOUSE_ARRIVAL(10357L);//到货单编码
+	  
+	private Long value;
+
+	private EnumDictBarcodeType(Long value) {
+		this.value = value;
+	}
+
+	public Long getValue() {
+		return value;
+	}
+}

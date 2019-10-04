@@ -1,0 +1,48 @@
+package com.techsoft.service.bill;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.dao.bill.BillWorkorderDao;
+import com.techsoft.entity.common.BillWorkorder;
+
+@Service
+public class BillWorkorderServiceImpl extends BaseServiceImpl<BillWorkorder> implements BillWorkorderService {
+	@Autowired
+	private BillWorkorderDao billWorkorderDao;
+	@Autowired
+	
+	@Override
+	public BaseDao<BillWorkorder> getBaseDao() {
+		return billWorkorderDao;
+	}	
+	
+	@Override
+	public Class<BillWorkorder> getEntityClass() {
+		return BillWorkorder.class;
+	}
+	
+	@Override
+	protected BillWorkorder insertEntity(BillWorkorder entity, CommonParam commonParam) throws BusinessException, SQLException {
+	
+		
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillWorkorder updatePartEntity(BillWorkorder entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillWorkorder updateEntity(BillWorkorder entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}
+
+ 					
+}

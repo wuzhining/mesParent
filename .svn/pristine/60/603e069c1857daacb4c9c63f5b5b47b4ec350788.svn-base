@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-form > div{
+			width:100%;
+		}
+		.layui-row > div >div{
+			height:100%;
+			border:1px solid #E5E5E5;
+			border-radius:10px;
+		}
+		.layui-row > div{
+			height:100%;
+		}
+		.layui-row{
+			height:100%;
+		}
+		.layui-row > div >div >div:first-child{
+			height:26%;
+			background-color:#E5E5E5;
+			border-radius:9px 9px 0 0;
+			color:#01AAED;
+			text-align:center;
+			font-weight:bold;
+		}
+		 .layui-inline > div{
+			height:30px;
+			margin-left:50px;
+		} 
+		.layui-inline > div:first-child > div:last-child{
+			margin-left:28px;
+		}
+		.grid{
+			height:42%;
+			width:100%;
+			margin-top:10px;
+		}
+	</style>
+  </head>
+  
+  <script type="text/html" id="processName">
+	{{#  if(d.structProcess){}}
+		{{ d.structProcess.processName
+ 	}}
+	{{# } }}
+  </script>
+  
+  <body style='height:100%'>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">生产管理</a> <a><cite>任务计划</cite></a>
+      </span>
+    </div>
+    <div class="x-body" style='height:93%'>
+    	<!-- 头部form框 -->
+    	<form class="layui-form" style="height:12%;width:100%">
+			<div class="layui-container" style='height:100%;'>  
+		  		<div class="layui-row layui-col-space10">
+		    		<div class="layui-col-md2">
+		    			<div>
+		    				<div>过滤品目</div>
+		    				<div style='margin-top:5px;'>
+	    						<select name="processId">
+					            	<option value="">请选择工艺路线</option> 
+					                <#if factoryList??>
+					                   <#list factoryList as item>
+							           <option value="${item.id?c}" >${item.factoryName}</option>
+							           </#list>
+							     	</#if> 
+				          		</select>
+		    				</div>
+		    			</div>
+		    		</div>
+		    		<div class="layui-col-md1">
+		    			<div>
+		    				<div>过滤时间段</div>
+		    				<div>
+		    					<input class="layui-input" placeholder="开始时间" id="timeStart">
+          						<input class="layui-input" placeholder="结束时间" id="timeEnd">
+		    				</div>
+		    			</div>
+		    		</div>
+		    		<div class="layui-col-md2">
+		    			<div>
+		    				<div>统计周期</div>
+		    				<div class="layui-inline">
+		    					<div class="layui-input-inline">
+							      <input type="radio" name="time" value="day" title="天" checked>
+							      <input type="radio" name="time" value="month" title="月">
+							    </div>
+							    <div class="layui-input-inline">
+							      <input type="radio" name="time" value="yearOfMonth" title="月度周">
+							      <input type="radio" name="time" value="yearOfWeek" title="年度周">
+							    </div>
+		    				</div>
+		    			</div>
+		    		</div>
+		    		<div class="layui-col-md1">
+		    			<div>
+		    				<div>统计时刻</div>
+		    				<div>
+		    					<input class="layui-input" placeholder="开始时间" id="countTimeStart">
+          						<input class="layui-input" placeholder="结束时间" id="countTimeEnd">
+		    				</div>
+		    			</div>
+		    		</div>
+		    		<div class="layui-col-md3">
+		    			<div>
+		    				<div>订单种类</div>
+		    				<div style='text-align:center;margin-top:5px'>
+		    					<input type="checkbox" name="" title="需求订单" lay-skin="primary" checked>
+								<input type="checkbox" name="" title="库存绝对" lay-skin="primary"> 
+								<input type="checkbox" name="" title="库存增量" lay-skin="primary">
+		    				</div>
+		    				<div style='text-align:center;margin-top:5px'>
+		    					<input type="checkbox" name="" title="制造订单" lay-skin="primary">
+								<input type="checkbox" name="" title="采购订单" lay-skin="primary"> 
+								<input type="checkbox" name="" title="销售订单" lay-skin="primary">
+		    				</div>
+		    			</div>
+		    		</div>
+		    		<div class="layui-col-md3">
+		    			<div>
+		    				<div>操作</div>
+		    				<div style='text-align:center;margin-top:10px'>
+		    					<button class="layui-btn"  lay-submit lay-filter="search">查询</button>
+		    					<button class="layui-btn"  lay-submit lay-filter="search">提交</button>
+		    					<button class="layui-btn"  lay-submit lay-filter="search">撤销</button>
+		    				</div>
+		    			</div>
+		    		</div>
+		    	</div>
+		  	</div>
+		</form>
+		<div class="layui-container grid">
+			<div class='layui-row layui-col-space5'>
+				<div class="layui-col-md8">
+					<table class="layui-hide" id="indentTable" lay-filter="indentTablefilter"></table>
+				</div>
+				<div class="layui-col-md4">
+					<table class="layui-hide" id="dailyPlanTable" lay-filter="dailyPlanTablefilter"></table>
+				</div>
+			</div>
+		</div>
+		<div class="layui-container grid">
+			<div class='layui-row layui-col-space5'>
+				<div class="layui-col-md3">
+					<table class="layui-hide" id="resourceTable" lay-filter="resourceTablefilter"></table>
+				</div>
+				<div class="layui-col-md9">
+					<table class="layui-hide" id="scheduleTable" lay-filter="scheduleTablefilter"></table>
+				</div>
+			</div>
+		</div>
+    </div>
+	<script type="text/javascript">
+		layui.config({
+		    base: '/static/plugins/layui/base/',
+		    v: new Date().getTime()
+		}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+			var form = layui.form, 
+			$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+			layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+			var layuiformajax = layui.layuiformajax;
+			
+		    
+		    var timeStart = laydate.render({
+		    	elem: '#timeStart' //指定元素
+		    	,type: 'date'
+				,format: 'yyyy-MM-dd' //可任意组合
+				,done: function (value, date) {
+                	if (value !== '') {
+                		timeEnd.config.min.year = date.year;
+                		timeEnd.config.min.month = date.month - 1;
+                		timeEnd.config.min.date = date.date;
+	                 } else {
+	                	 timeEnd.config.min.year = '';
+	                	 timeEnd.config.min.month = '';
+	                	 timeEnd.config.min.date = '';
+	                 }
+	             }
+		    });
+		    
+		    var timeEnd = laydate.render({
+		    	elem: '#timeEnd' //指定元素
+		    	,type: 'date'
+				,format: 'yyyy-MM-dd' //可任意组合
+				,done: function (value, date) {
+	                if (value !== '') {
+	                	timeStart.config.max.year = date.year;
+	                	timeStart.config.max.month = date.month - 1;
+	                	timeStart.config.max.date = date.date;
+	                } else {
+	                	timeStart.config.max.year = '';
+	                	timeStart.config.max.month = '';
+	                	timeStart.config.max.date = '';
+	                }
+	            }
+		    });
+		    
+		    var countTimeStart = laydate.render({
+		    	elem: '#countTimeStart' //指定元素
+		    	,type: 'date'
+				,format: 'yyyy-MM-dd' //可任意组合
+				,done: function (value, date) {
+                	if (value !== '') {
+                		 countTimeEnd.config.min.year = date.year;
+                		 countTimeEnd.config.min.month = date.month - 1;
+                		 countTimeEnd.config.min.date = date.date;
+	                }else{
+	                	 countTimeEnd.config.min.year = '';
+	                	 countTimeEnd.config.min.month = '';
+	                	 countTimeEnd.config.min.date = '';
+	                }
+	             }
+		    });
+		    
+		    var countTimeEnd = laydate.render({
+		    	elem: '#countTimeEnd' //指定元素
+		    	,type: 'date'
+				,format: 'yyyy-MM-dd' //可任意组合
+				,done: function (value, date) {
+	                if (value !== '') {
+	                	countTimeStart.config.max.year = date.year;
+	                	countTimeStart.config.max.month = date.month - 1;
+	                	countTimeStart.config.max.date = date.date;
+	                } else {
+	                	countTimeStart.config.max.year = '';
+	                	countTimeStart.config.max.month = '';
+	                	countTimeStart.config.max.date = '';
+	                }
+	            }
+		    });
+		    
+		    //订单信息表
+		    var indent = table.render({
+	        	elem: '#indentTable'
+	        	,id:'indentTablefilter'
+	        	,url:'/bill/billPurchaseItem/list/json?billPurchaseId'
+	        	,cols: [[
+	             	   {field:'1',  title: '基本信息',align:'center', minWidth: 120,colspan:2}
+	             	   ,{field:'2',  title: '订单数量相关列',align:'center', minWidth: 120,colspan:8}
+	        	],[
+						 {field:'id', width:120, title: 'ID',align:'center'}
+						 ,{field:'billPurchaseId',  title: '产品编码',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'billCode',  title: '产品名称',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'productId',  title: '需求数量',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'productName',  title: '现有库存',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'materialId',  title: '采购数量',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'materialName',  title: '工序差额',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'sku', title: '已排数量', align:'center',minWidth: 220,colspan:1}
+						 ,{field:'billStatusDictId',  title: '未排数量',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'billStatusDictName',  title: '距交期天数',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'quantity',  title: '合计',align:'center', minWidth: 120,colspan:1}
+	        	   ]]
+		    	,done: function () {
+			        
+			    }
+	      	});
+		    
+		    //日计划信息表
+		    var dailyPlan = table.render({
+	        	elem: '#dailyPlanTable'
+	        	,id:'dailyPlanTablefilter'
+	        	,url:'/bill/billPurchaseItem/list/json?billPurchaseId'
+	        	,cols: [[
+		             	   {field:'1',  title: '基本信息',align:'center', minWidth: 120,colspan:2}
+		             	   ,{field:'2',  title: '订单数量相关列',align:'center', minWidth: 120,colspan:8}
+		        	],[
+							 {field:'id', width:120, title: 'ID',align:'center'}
+							 ,{field:'billPurchaseId',  title: '产品编码',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'billCode',  title: '产品名称',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'productId',  title: '需求数量',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'productName',  title: '现有库存',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'materialId',  title: '采购数量',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'materialName',  title: '工序差额',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'sku', title: '已排数量', align:'center',minWidth: 220,colspan:1}
+							 ,{field:'billStatusDictId',  title: '未排数量',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'billStatusDictName',  title: '距交期天数',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'quantity',  title: '合计',align:'center', minWidth: 120,colspan:1}
+		        	   ]]
+		    	,done: function () {
+			        
+			    }
+	      	});
+		    
+		    //资源信息表
+		    var resource = table.render({
+	        	elem: '#resourceTable'
+	        	,id:'resourceTablefilter'
+	        	,url:'/bill/billPurchaseItem/list/json?billPurchaseId'
+	        	,cols: [[
+						 {field:'id', width:120, title: 'ID',align:'center'}
+						 ,{field:'billPurchaseId',  title: '资源编码',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'billCode',  title: '资源名称',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'productId',  title: '资源组',align:'center', minWidth: 120,colspan:1}
+	        	   ]]
+		    	,done: function () {
+			        
+			    }
+	      	});
+		    
+		    //排程信息表
+		    var schedule = table.render({
+	        	elem: '#scheduleTable'
+	        	,id:'scheduleTablefilter'
+	        	,url:'/bill/billPurchaseItem/list/json?billPurchaseId'
+	        	,cols: [[
+	             	   {field:'1',  title: '基本信息',align:'center', minWidth: 120,colspan:2}
+	             	   ,{field:'2',  title: '订单数量相关列',align:'center', minWidth: 120,colspan:8}
+	        	],[
+						 {field:'id', width:120, title: 'ID',align:'center'}
+						 ,{field:'billPurchaseId',  title: '产品编码',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'billCode',  title: '产品名称',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'productId',  title: '需求数量',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'productName',  title: '现有库存',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'materialId',  title: '采购数量',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'materialName',  title: '工序差额',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'sku', title: '已排数量', align:'center',minWidth: 220,colspan:1}
+						 ,{field:'billStatusDictId',  title: '未排数量',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'billStatusDictName',  title: '距交期天数',align:'center', minWidth: 120,colspan:1}
+						 ,{field:'quantity',  title: '合计',align:'center', minWidth: 120,colspan:1}
+	        	   ]]
+		    	,done: function () {
+			        
+			    }
+	      	});
+		});	
+	</script>
+ 
+  </body>
+
+</html>

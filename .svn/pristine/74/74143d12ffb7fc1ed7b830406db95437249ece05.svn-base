@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.struct.StructProcedureMapper">
+	<resultMap id="StructProcedure" type="com.techsoft.entity.common.StructProcedure" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="PROCEDURE_NAME" property="procedureName" />
+		<result column="PROCEDURE_CODE" property="procedureCode" />
+		<result column="PROCESS_DICT_ID" property="processDictId" />
+		<result column="WORKGROUP_DICT_ID" property="workgroupDictId" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="procedureName != null">
+			AND A.PROCEDURE_NAME= #{procedureName}
+		</if>
+		<if test="procedureCode != null">
+			AND A.PROCEDURE_CODE= #{procedureCode}
+		</if>
+		<if test="processDictId != null">
+			AND A.PROCESS_DICT_ID= #{processDictId}
+		</if>
+		<if test="workgroupDictId != null">
+			AND A.WORKGROUP_DICT_ID= #{workgroupDictId}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.PROCEDURE_NAME,
+		A.PROCEDURE_CODE,
+		A.PROCESS_DICT_ID,
+		A.WORKGROUP_DICT_ID,
+		A.IS_VALID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for STRUCT_PROCEDURE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STRUCT_PROCEDURE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StructProcedure">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCEDURE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StructProcedure">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCEDURE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_PROCEDURE A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE   A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_PROCEDURE A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StructProcedure">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_PROCEDURE A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcedure">
+		INSERT INTO STRUCT_PROCEDURE (
+		TENANT_ID,
+		FACTORY_ID,
+		PROCEDURE_NAME,
+		PROCEDURE_CODE,
+		PROCESS_DICT_ID,
+		WORKGROUP_DICT_ID,
+		IS_VALID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{procedureName},
+		#{procedureCode},
+		#{processDictId},
+		#{workgroupDictId},
+		#{isValid},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcedure">
+		UPDATE STRUCT_PROCEDURE SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		PROCEDURE_NAME=#{procedureName},
+		PROCEDURE_CODE=#{procedureCode},
+		PROCESS_DICT_ID=#{processDictId},
+		WORKGROUP_DICT_ID=#{workgroupDictId},
+		IS_VALID=#{isValid},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcedure">
+		UPDATE STRUCT_PROCEDURE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="procedureName != null" >
+			PROCEDURE_NAME=#{procedureName},
+		</if>
+		<if test="procedureCode != null" >
+			PROCEDURE_CODE=#{procedureCode},
+		</if>
+		<if test="processDictId != null" >
+			PROCESS_DICT_ID=#{processDictId},
+		</if>
+		<if test="workgroupDictId != null" >
+			WORKGROUP_DICT_ID=#{workgroupDictId},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.struct.StructProcedureParamVo"
+		      resultType="com.techsoft.entity.common.StructProcedure" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCEDURE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+          <tr>
+               <td width="15%" class="tableleft">销售退货单号</td>
+                <td>
+                    <input type="text" name="billCode"  class="layui-input" maxlength="20" value="${(entity.billCode)!''}"/>
+                </td> 
+               <td width="10%" class="tableleft" >单据状态</td>
+               <td>
+                 <select id="billStatusDictId" name="billStatusDictId" disabled="true" > 
+                    <#if billStatusDictIdList??>
+                     <#list billStatusDictIdList as item>
+			            <option value="${item.id?c}" <#if (entity.billStatusDictId??&&entity.billStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+            </tr>
+           
+            <tr>
+                <td width="15%" class="tableleft">描述</td>
+                <td colspan="3">
+                    <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+                </td> 
+            </tr>
+       </table> 
+         <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+				     <div class="layui-col-md12" style='text-align:center;'>
+			    	      <span class="layui-breadcrumb"> 
+					         <cite>销售退货单明细</cite>
+					      </span>
+					</div>
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   			
+		   			<div class="layui-col-md12" style='text-align:center;'>
+			    	      <span class="layui-breadcrumb"> 
+					         <cite>操作历史记录</cite>
+					      </span>
+					</div>
+		   			<div class="layui-col-md12" style="text-align: center;">
+		   				<div class="layui-row grid-demo">
+			   				<div class="layui-col-md6">
+			   					<span class="layui-breadcrumb"> 	
+							         <span style="color:#7F7F7F">状态变更记录</span>
+							      </span>
+			   					<table class="layui-hide" id="statusChange" lay-filter="statusChange"></table>
+			   				</div>
+			   				<div class="layui-col-md6">
+			   					<span class="layui-breadcrumb"> 	
+							         <span style="color:#7F7F7F">审核记录</span>
+							    </span>
+			   					<table class="layui-hide" id="auditLogging" lay-filter="auditLogging"></table>
+			   				</div>
+			   			</div>
+		   			</div>
+		   		</div>
+	    </div> 
+      </form>
+    </div>
+ <script type="text/html" id="productName">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+
+ 	}}
+	{{# } }}
+</script>  
+ <script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+
+ 	}}
+	{{# } }}
+</script>
+  <script type="text/html" id="billStatusDictNameTpl">
+	{{#  if(d.billStatusDictionary){}}
+		{{ d.billStatusDictionary.dictName
+ 	}}
+	{{# } }}
+ </script>  
+  <script type="text/html" id="createUserNameTpl">
+	{{#  if(d.caretUserPassport){}}
+		{{ d.caretUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="modifyUserNameTpl">
+	{{#  if(d.modifyUserPassport){}}
+		{{ d.modifyUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+ 
+    <script>
+    var statusDictId="10313";
+    var ids = $("#id").val();
+    var statuId=window.parent.billStatusDictId;
+    if (ids!=null&&ids!=""){
+  	if(statuId=='10488'){
+  		$('#billStatusDictId').attr("disabled", false);
+  	}
+    }else{
+  	    ids="0";
+  		$('#billStatusDictId').val(10488);
+  		$('#auditStatusDictId').val(10585);
+    }
+    
+    //var ids = $('#productId').val();
+    if(ids!=''){
+       layui.config({
+          base: '/static/plugins/layui/base/',
+          v: new Date().getTime()
+      }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+      	var form = layui.form, 
+      	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+      	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+      	var layuiformajax = layui.layuiformajax;
+      	
+      	var urlArr = window.location.href.toString().split("?");
+      	function getParam(urlArr,paraName){
+      		if (urlArr.length > 1) {
+    	  　　　　　　var arrPara = urlArr[1].split("&");
+    	  　　　　　　var arr;
+    	  　　　　　　for (var i = 0; i < arrPara.length; i++) {
+    	  　　　　　　　　arr = arrPara[i].split("=");
+
+    	  　　　　　　　　if (arr != null && arr[0] == paraName) {
+    	  　　　　　　　　　　return arr[1];
+    	  　　　　　　　　}
+    	  　　　　　　}
+    	  　　　　　　return "";
+    	  　　　　}
+    	  　　　　else {
+    	  　　　　　　return "";
+    	  　　　　}
+      	};
+      	var ids = getParam(urlArr,'id');		//
+      	
+      	if (ids ==''){
+      		ids='0';
+      	}
+      	var curTable = layuitable.render({
+          	elem: '#listTable'
+          	,height:200
+          	,id:'listTable'
+          	,url:'/bill/billWarehouseItem/list/json?billId='+ids
+          	,cols: [[
+              	     /* {type: 'checkbox', fixed: 'left'}, */
+               	    {field:'billId',  title: '单据号',align:'center', minWidth: 120}
+		    	    ,{field:'materialId',  title: '物料编码', align:'center',minWidth: 120}
+		    	    ,{field:'billStatusDictId',  title: '单据状态', align:'center',minWidth: 120}
+		    	    ,{field:'quantity',  title: '数量',align:'center', minWidth: 120}
+		    	    ,{field:'quantityFinish',  title: '完成数量',align:'center', minWidth: 120}
+		    	    ,{field:'quantityScan',  title: '扫描数量',align:'center', minWidth: 120}
+		    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+          	]]
+        	});
+      	
+        //查看
+		$("form :input").prop('disabled',true)//整个form表单不可编辑
+		layui.form.render('select');//layui禁用下拉框必须加，否则无效
+		
+    	//状态变更记录表
+    	var statusChangeTable = layuitable.render({
+        	elem: '#statusChange'
+        	,height:300
+        	,id:'historyBillStatus'
+        	,url:'/history/historyBillStatus/list/json?billId='+ids+'&&billTypeDictId=10275'
+        	,page:false
+        	,cols: [[
+            	      
+             	     {field:'id',hide:true, width:120, title: 'ID',align:'center'}
+             	    ,{field:'billStatusDictName',  title: '状态',align:'center', minWidth: 120,templet:'#billStatusDictNameTpl'} 
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+		           	,{field:'createTime',  title: '操作时间',align:'center', minWidth: 120}
+	          	    ,{field:'createUserName',  title: '操作人',align:'center', minWidth: 120,templet:'#createUserNameTpl'}
+        	]]
+      	});
+    	
+    	//审核记录表	
+    	var auditLoggingTable = layuitable.render({
+        	elem: '#auditLogging'
+        	,height:300
+        	,id:'listTable'
+        	,url:'/history/historyBillStatusAudit/list/json?billId='+ids+'&&billTypeDictId=10275'
+        	,page:false
+        	,cols: [[
+             	     {field:'id',hide:true, width:120, title: 'ID',align:'center'}
+             	    ,{field:'auditStatusDictName',  title: '审核状态',align:'center', minWidth: 120,templet:'#auditStatusDictNameTpl'} 
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+		           	,{field:'createTime',  title: '操作时间',align:'center', minWidth: 120}
+	          	    ,{field:'createUserName',  title: '操作人',align:'center', minWidth: 120,templet:'#createUserNameTpl2'}
+        	]]
+      	});
+
+      });
+      
+    };
+    </script>
+    <script></script>
+  </body>
+
+</html>

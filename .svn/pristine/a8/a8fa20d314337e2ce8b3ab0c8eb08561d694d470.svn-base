@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">公司资料</a> <a><cite>员工</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <input type="text" name="realNameLike"  placeholder="请输入员工名称" autocomplete="off" class="layui-input">
+          <input type="text" name="employeeCodeLike"  placeholder="请输入员工编码" autocomplete="off" class="layui-input">
+          <input type="text" name="nativeplaceLike"  placeholder="请输入籍贯" autocomplete="off" class="layui-input">
+          <select name="employeeStatusDictId">    
+                <option value="">请选择员工状态</option> 
+                 <#if dictionaryList??>
+                     <#list dictionaryList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          </select> 
+           <input type="hidden" name="workpostId" id="workpostId" placeholder="请选择岗位" autocomplete="off" class="layui-input">
+       	   <input type="text" name="postName" id="postName" placeholder="请选择岗位" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="firmPostSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		   </button> 
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button> 
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加员工','/firm/firmEmployee/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script> 
+<script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+</script>   
+
+<script type="text/html" id="postNameTpl">
+	{{#  if(d.firmPost){ }}
+		{{ d.firmPost.postName
+
+ }}
+	{{#  } }}
+</script> 
+
+<script type="text/html" id="employeeStatusDictName">
+	{{#  if(d.configDictionary){ }}
+		{{ d.configDictionary.dictName
+
+ }}
+	{{#  } }}
+</script> 
+ 
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/firm/firmEmployee/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center'}
+    	    ,{field:'employeeCode', width:120, title: '员工编码',align:'center'}
+    	    ,{field:'realName',  title: '员工名称',align:'center', minWidth: 100}
+    	    ,{field:'employeeStatusDictId',  title: '员工状态',align:'center', minWidth: 100}
+    	    ,{field:'employeeStatusDictName',  title: '员工状态',align:'center', minWidth: 100,templet:'#employeeStatusDictName'}
+    	    ,{field:'postName',  title: '所属岗位', align:'center',minWidth: 150,templet:'#postNameTpl'}
+    	    ,{field:'identityCode',  title: '身份证号码',align:'center', minWidth: 220}
+    	    ,{field:'nativeplace',  title: '籍贯',align:'center', minWidth: 100}
+    	    ,{field:'mobileNumber',  title: '手机号', align:'center',minWidth: 150}
+    	    ,{field:'iccardCode',  title: 'IC卡号', align:'center',minWidth: 100}
+    	    ,{field:'dateEntry',  title: '入职日期', align:'center',minWidth: 120}
+    	    ,{field:'dateQuit',  title: '离职日期', align:'center',minWidth: 120}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+		,done: function () {
+	        $("[data-field='employeeStatusDictId']").css('display','none');
+	    }
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+	
+	$('#firmPostSearch').on('click',function(e){
+		openWinSelect('/firm/firmPost/firmPostOpen',"workpostId","postName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑员工','/firm/firmEmployee/edit?id=' + data.id); 
+		}
+	});
+	laydate.render({
+		elem: '#dateEntry' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd hh:mm:ss' //可任意组合
+	});
+	
+	laydate.render({
+		elem: '#dateQuit' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd hh:mm:ss' //可任意组合
+	});
+   	//重置
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	})
+});	
+</script>
+ 
+  </body>
+
+</html>

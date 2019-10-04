@@ -1,0 +1,26 @@
+package com.techsoft.service.history;
+
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.entity.common.HistoryBillStatus;
+
+public interface HistoryBillStatusService extends BaseService<HistoryBillStatus> {
+
+	/**
+	*@auther:Chen
+	*@version:2019年6月19日上午11:18:19
+	*@param billType
+	*@param billStatus
+	*@param billId
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description
+	*/
+	public ResultMessage billHistoryInsert(Long billType, Long billStatus, Long billId, CommonParam commonParam)throws BusinessException, SQLException;
+
+}

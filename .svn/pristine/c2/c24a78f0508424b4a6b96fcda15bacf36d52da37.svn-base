@@ -1,0 +1,185 @@
+package com.techsoft.client.service.work;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+
+import com.techsoft.entity.common.WorkTaskProcedure;
+import com.techsoft.entity.work.WorkTaskProcedureVo;
+import com.techsoft.entity.work.WorkTaskProcedureParamVo;
+import com.techsoft.service.work.WorkTaskProcedureService;
+
+@org.springframework.stereotype.Service
+public class ClientWorkTaskProcedureServiceImpl extends BaseClientServiceImpl<WorkTaskProcedure> implements ClientWorkTaskProcedureService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WorkTaskProcedureService workTaskProcedureService;
+    
+	@Override
+	public BaseService<WorkTaskProcedure> getBaseService() {
+		return workTaskProcedureService;
+	}	    	
+    
+	private WorkTaskProcedureVo getVo(WorkTaskProcedure workTaskProcedure, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkTaskProcedureVo vo = new WorkTaskProcedureVo(workTaskProcedure);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+	
+	private WorkTaskProcedureVo getExtendVo(WorkTaskProcedure workTaskProcedure, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkTaskProcedureVo vo = this.getVo(workTaskProcedure, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<WorkTaskProcedureVo> getVoList(List<WorkTaskProcedure> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<WorkTaskProcedureVo> voList = new ArrayList<WorkTaskProcedureVo>();
+		for (WorkTaskProcedure entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<WorkTaskProcedureVo> getExtendVoList(List<WorkTaskProcedure> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<WorkTaskProcedureVo> voList = new ArrayList<WorkTaskProcedureVo>();
+		for (WorkTaskProcedure entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public WorkTaskProcedureVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkTaskProcedure entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<WorkTaskProcedureVo>  selectListVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure, CommonParam commonParam) throws BusinessException, SQLException {
+		if(workTaskProcedure==null){
+			workTaskProcedure = new WorkTaskProcedureParamVo();
+		}
+		workTaskProcedure.setTenantId(commonParam.getTenantId());	
+	
+		List<WorkTaskProcedure> list = (List<WorkTaskProcedure>) this.getBaseService().selectListByParamVo(workTaskProcedure, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<WorkTaskProcedureVo> selectPageVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(workTaskProcedure==null){
+			workTaskProcedure = new WorkTaskProcedureParamVo();
+		}
+		workTaskProcedure.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<WorkTaskProcedure> list  = (PageInfo<WorkTaskProcedure>) this.getBaseService().selectPageByParamVo(workTaskProcedure, commonParam, pageNo, pageSize);
+		List<WorkTaskProcedureVo> volist = new ArrayList<WorkTaskProcedureVo>();
+		
+		Iterator<WorkTaskProcedure> iter = list.getList().iterator();
+		WorkTaskProcedureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<WorkTaskProcedureVo> vpage = new Page<WorkTaskProcedureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public WorkTaskProcedureVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkTaskProcedure entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<WorkTaskProcedureVo>  selectListExtendVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(workTaskProcedure==null){
+			workTaskProcedure = new WorkTaskProcedureParamVo();
+		}
+		workTaskProcedure.setTenantId(commonParam.getTenantId());	
+					
+		List<WorkTaskProcedure> list = (List<WorkTaskProcedure>) this.getBaseService().selectListByParamVo(workTaskProcedure, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<WorkTaskProcedureVo> selectPageExtendVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(workTaskProcedure==null){
+			workTaskProcedure = new WorkTaskProcedureParamVo();
+		}
+		workTaskProcedure.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<WorkTaskProcedure> list  = (PageInfo<WorkTaskProcedure>) this.getBaseService().selectPageByParamVo(workTaskProcedure, commonParam, pageNo, pageSize);
+		List<WorkTaskProcedureVo> volist = new ArrayList<WorkTaskProcedureVo>();
+		
+		Iterator<WorkTaskProcedure> iter = list.getList().iterator();
+		WorkTaskProcedureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<WorkTaskProcedureVo> vpage = new Page<WorkTaskProcedureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(WorkTaskProcedureParamVo workTaskProcedureParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		WorkTaskProcedure workTaskProcedure = null;
+		try {
+			if (workTaskProcedureParamVo.getId() == null) {//新增
+			 
+				workTaskProcedureParamVo.setTenantId(commonParam.getTenantId());
+				workTaskProcedure = workTaskProcedureService.saveOrUpdate(workTaskProcedureParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				WorkTaskProcedure workTaskProcedureVoTemp = this.selectById(workTaskProcedureParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(workTaskProcedureVoTemp,
+						workTaskProcedureParamVo);
+  
+				workTaskProcedure = workTaskProcedureService.saveOrUpdate(
+						workTaskProcedureVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(workTaskProcedure);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

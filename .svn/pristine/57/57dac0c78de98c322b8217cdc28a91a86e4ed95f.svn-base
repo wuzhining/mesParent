@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.scada.ScadaSpiSolderPcbMapper">
+	<resultMap id="ScadaSpiSolderPcb" type="com.techsoft.entity.common.ScadaSpiSolderPcb" > 
+	    <id column="ID" property="id" />
+		<result column="INSPECTTIME" property="inspecttime" />
+		<result column="DURATION" property="duration" />
+		<result column="PASTENUM" property="pastenum" />
+		<result column="RESULT" property="result" />
+		<result column="PRODUCTNO" property="productno" />
+		<result column="INVALIDNUM" property="invalidnum" />
+		<result column="NGPADCNT" property="ngpadcnt" />
+		<result column="FOFFSET" property="foffset" />
+		<result column="SYMBOL" property="symbol" />
+		<result column="PCBNAME" property="pcbname" />
+		<result column="PROGRAMFILE" property="programfile" />
+		<result column="RESULTPATH" property="resultpath" />
+		<result column="RESERVED1BYSHORT" property="reserved1byshort" />
+		<result column="RESERVED2BYSHORT" property="reserved2byshort" />
+		<result column="RESERVED1BYINT" property="reserved1byint" />
+		<result column="RESERVED2BYINT" property="reserved2byint" />
+		<result column="RESERVED1BYFLOAT" property="reserved1byfloat" />
+		<result column="RESERVED2BYFLOAT" property="reserved2byfloat" />
+		<result column="RESERVED1BYCHAR" property="reserved1bychar" />
+		<result column="RESERVED2BYCHAR" property="reserved2bychar" />
+		<result column="RESERVED3BYCHAR" property="reserved3bychar" />
+		<result column="RESERVED4BYCHAR" property="reserved4bychar" />
+		<result column="RESERVED3BYSHORT" property="reserved3byshort" />
+		<result column="RESERVED4BYSHORT" property="reserved4byshort" />
+		<result column="RESERVED3BYINT" property="reserved3byint" />
+		<result column="RESERVED4BYINT" property="reserved4byint" />
+		<result column="RESERVED3BYFLOAT" property="reserved3byfloat" />
+		<result column="RESERVED4BYFLOAT" property="reserved4byfloat" />
+		<result column="RESERVED5BYFLOAT" property="reserved5byfloat" />
+		<result column="RESERVED6BYFLOAT" property="reserved6byfloat" />
+		<result column="RESERVED5BYCHAR" property="reserved5bychar" />
+		<result column="RESERVED6BYCHAR" property="reserved6bychar" />
+		<result column="AVGVPER" property="avgvper" />
+		<result column="AVGAPER" property="avgaper" />
+		<result column="AVGHEIGHT" property="avgheight" />
+		<result column="AVGSHIFTX" property="avgshiftx" />
+		<result column="AVGSHIFTY" property="avgshifty" />
+		<result column="SVPER" property="svper" />
+		<result column="SAPER" property="saper" />
+		<result column="SHEIGHT" property="sheight" />
+		<result column="SSHIFTX" property="sshiftx" />
+		<result column="SSHIFTY" property="sshifty" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="duration != null">
+			AND A.DURATION= #{duration}
+		</if>
+		<if test="pastenum != null">
+			AND A.PASTENUM= #{pastenum}
+		</if>
+		<if test="result != null">
+			AND A.RESULT= #{result}
+		</if>
+		<if test="productno != null">
+			AND A.PRODUCTNO= #{productno}
+		</if>
+		<if test="invalidnum != null">
+			AND A.INVALIDNUM= #{invalidnum}
+		</if>
+		<if test="ngpadcnt != null">
+			AND A.NGPADCNT= #{ngpadcnt}
+		</if>
+		<if test="foffset != null">
+			AND A.FOFFSET= #{foffset}
+		</if>
+		<if test="symbol != null">
+			AND A.SYMBOL= #{symbol}
+		</if>
+		<if test="pcbname != null">
+			AND A.PCBNAME= #{pcbname}
+		</if>
+		<if test="programfile != null">
+			AND A.PROGRAMFILE= #{programfile}
+		</if>
+		<if test="resultpath != null">
+			AND A.RESULTPATH= #{resultpath}
+		</if>
+		<if test="reserved1byshort != null">
+			AND A.RESERVED1BYSHORT= #{reserved1byshort}
+		</if>
+		<if test="reserved2byshort != null">
+			AND A.RESERVED2BYSHORT= #{reserved2byshort}
+		</if>
+		<if test="reserved1byint != null">
+			AND A.RESERVED1BYINT= #{reserved1byint}
+		</if>
+		<if test="reserved2byint != null">
+			AND A.RESERVED2BYINT= #{reserved2byint}
+		</if>
+		<if test="reserved1byfloat != null">
+			AND A.RESERVED1BYFLOAT= #{reserved1byfloat}
+		</if>
+		<if test="reserved2byfloat != null">
+			AND A.RESERVED2BYFLOAT= #{reserved2byfloat}
+		</if>
+		<if test="reserved1bychar != null">
+			AND A.RESERVED1BYCHAR= #{reserved1bychar}
+		</if>
+		<if test="reserved2bychar != null">
+			AND A.RESERVED2BYCHAR= #{reserved2bychar}
+		</if>
+		<if test="reserved3bychar != null">
+			AND A.RESERVED3BYCHAR= #{reserved3bychar}
+		</if>
+		<if test="reserved4bychar != null">
+			AND A.RESERVED4BYCHAR= #{reserved4bychar}
+		</if>
+		<if test="reserved3byshort != null">
+			AND A.RESERVED3BYSHORT= #{reserved3byshort}
+		</if>
+		<if test="reserved4byshort != null">
+			AND A.RESERVED4BYSHORT= #{reserved4byshort}
+		</if>
+		<if test="reserved3byint != null">
+			AND A.RESERVED3BYINT= #{reserved3byint}
+		</if>
+		<if test="reserved4byint != null">
+			AND A.RESERVED4BYINT= #{reserved4byint}
+		</if>
+		<if test="reserved3byfloat != null">
+			AND A.RESERVED3BYFLOAT= #{reserved3byfloat}
+		</if>
+		<if test="reserved4byfloat != null">
+			AND A.RESERVED4BYFLOAT= #{reserved4byfloat}
+		</if>
+		<if test="reserved5byfloat != null">
+			AND A.RESERVED5BYFLOAT= #{reserved5byfloat}
+		</if>
+		<if test="reserved6byfloat != null">
+			AND A.RESERVED6BYFLOAT= #{reserved6byfloat}
+		</if>
+		<if test="reserved5bychar != null">
+			AND A.RESERVED5BYCHAR= #{reserved5bychar}
+		</if>
+		<if test="reserved6bychar != null">
+			AND A.RESERVED6BYCHAR= #{reserved6bychar}
+		</if>
+		<if test="avgvper != null">
+			AND A.AVGVPER= #{avgvper}
+		</if>
+		<if test="avgaper != null">
+			AND A.AVGAPER= #{avgaper}
+		</if>
+		<if test="avgheight != null">
+			AND A.AVGHEIGHT= #{avgheight}
+		</if>
+		<if test="avgshiftx != null">
+			AND A.AVGSHIFTX= #{avgshiftx}
+		</if>
+		<if test="avgshifty != null">
+			AND A.AVGSHIFTY= #{avgshifty}
+		</if>
+		<if test="svper != null">
+			AND A.SVPER= #{svper}
+		</if>
+		<if test="saper != null">
+			AND A.SAPER= #{saper}
+		</if>
+		<if test="sheight != null">
+			AND A.SHEIGHT= #{sheight}
+		</if>
+		<if test="sshiftx != null">
+			AND A.SSHIFTX= #{sshiftx}
+		</if>
+		<if test="sshifty != null">
+			AND A.SSHIFTY= #{sshifty}
+		</if>
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+		<if test="inspecttimeBegin != null">
+		<![CDATA[
+		   AND A.INSPECTTIME >=  #{inspecttimeBegin}
+		]]>
+		</if>
+		<if test="inspecttimeEnd != null">
+		<![CDATA[
+		   AND A.INSPECTTIME <= #{inspecttimeEnd}
+		]]>
+		</if>		
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	</sql>		
+	<sql id="Base_Column_List">    
+	    A.ID,
+		A.INSPECTTIME,
+		A.DURATION,
+		A.PASTENUM,
+		A.RESULT,
+		A.PRODUCTNO,
+		A.INVALIDNUM,
+		A.NGPADCNT,
+		A.FOFFSET,
+		A.SYMBOL,
+		A.PCBNAME,
+		A.PROGRAMFILE,
+		A.RESULTPATH,
+		A.RESERVED1BYSHORT,
+		A.RESERVED2BYSHORT,
+		A.RESERVED1BYINT,
+		A.RESERVED2BYINT,
+		A.RESERVED1BYFLOAT,
+		A.RESERVED2BYFLOAT,
+		A.RESERVED1BYCHAR,
+		A.RESERVED2BYCHAR,
+		A.RESERVED3BYCHAR,
+		A.RESERVED4BYCHAR,
+		A.RESERVED3BYSHORT,
+		A.RESERVED4BYSHORT,
+		A.RESERVED3BYINT,
+		A.RESERVED4BYINT,
+		A.RESERVED3BYFLOAT,
+		A.RESERVED4BYFLOAT,
+		A.RESERVED5BYFLOAT,
+		A.RESERVED6BYFLOAT,
+		A.RESERVED5BYCHAR,
+		A.RESERVED6BYCHAR,
+		A.AVGVPER,
+		A.AVGAPER,
+		A.AVGHEIGHT,
+		A.AVGSHIFTX,
+		A.AVGSHIFTY,
+		A.SVPER,
+		A.SAPER,
+		A.SHEIGHT,
+		A.SSHIFTX,
+		A.SSHIFTY
+	</sql>
+
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from SCADA_SPI_SOLDER_PCB
+	</select>
+		
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.scada.ScadaSpiSolderPcbParamVo"
+		      resultType="com.techsoft.entity.common.ScadaSpiSolderPcb" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SCADA_SPI_SOLDER_PCB A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

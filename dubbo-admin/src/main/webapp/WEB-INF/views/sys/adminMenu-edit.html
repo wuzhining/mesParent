@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+            <td width="15%" class="tableleft">菜单名</td>
+                 <td><input type="text" name="menuName" class="layui-input" maxlength="100" value="${(entity.menuName)!''}"/></td>
+               <td width="15%" class="tableleft">菜单URL</td>
+               <td><input type="text" name="menuUrl" class="layui-input" maxlength="100" value="${(entity.menuUrl)!''}"/></td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">菜单正则表达式</td>
+                 <td>
+                 <input type="text" name="menuReg"  class="layui-input" maxlength="20" value="${(entity.menuReg)!''}"/>
+                 </td>
+               <td width="15%" class="tableleft">上级菜单</td>
+                   <!-- <td colspan='2'>		
+               		  <div class="div-choiceBox-intd ">   
+               		  <input type="hidden"  id="parentId"  name="parentId" value="<#if entity??&&entity.parentId??>${entity.parentId?c}<#else></#if>" />  
+		          		<input type="text" id="parentmenu" name="parentmenu" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if menu??&&menu.menuName??>${menu.menuName}<#else></#if>">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="search1">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	          		  </div>  
+                 </td>   -->
+                 <td>
+                 <select name="parentId"> 
+                    <option value="0" >请选择</option>
+                    <#if adminMenu??>
+                     <#list adminMenu as item>
+			            <option value="${item.id?c}" <#if (entity.parentId??&&entity.parentId==item.id)>selected="selected"</#if>>${item.menuName}</option>
+			         </#list>
+			         </#if>
+			       </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft"> 系统类型</td>
+               <td>  
+                    <select name="systemTypeDictId"> 
+	                    <#if dictionaryList??>
+	                     <#list dictionaryList as item>
+				            <option value="${item.id?c}" <#if (entity.systemTypeDictId??&&entity.systemTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+				         </#list>
+				         </#if>
+				    </select>
+               </td> 
+               <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+          </tr>  
+          <tr>
+         		 <td width="15%" class="tableleft">菜单编码</td>
+	               <td>
+	                  <input type="text"  lay-verify="menuCode" name="menuCode"  class="layui-input" maxlength="20"  value="${(entity.menuCode)!''}"/>
+	               </td>
+                 <td width="15%" class="tableleft">排序</td>
+	               <td>
+	                  <input type="text"  lay-verify="sortNo" name="sortNo"  class="layui-input" maxlength="20"
+	                 value="<#if entity??&&entity.sortNo??>${entity.sortNo?c}<#else></#if>"/>
+	               </td>
+           </tr>
+          <!--  <tr>
+         		 <td width="15%" class="tableleft">图片路径</td>
+	               <td> <input type="text"   name="imagePath"  class="layui-input" maxlength="20"  value="${(entity.imagePath)!''}"/></td>
+           </tr> -->
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+     <!--   <div id="hidden1" lay-filter="hidden1" style="display: none">
+       	<div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="text" name="menuName"  placeholder="菜单名称" autocomplete="off" class="layui-input" >
+       	  <button class="layui-btn"  lay-submit lay-filter="search3"><i class="layui-icon">&#xe615;</i></button> 
+       	  </form> 
+       	  </div>
+        <table id="material_result" lay-filter="material_result"></table>
+	  </div> -->
+    </div>
+    
+     <!-- 添加 弹出上一级表格的 tool（里面的按钮）-->
+ 	
+ <!--  	<script type="text/html" id="materialSelect1">
+        <a class="layui-btn layui-btn-xs" lay-event="select1">选择</a>
+	</script>-->
+    
+    <script >
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+    	
+    	
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  var url = '/sys/adminMenu/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function (index) {
+      	    		 	layer.close(index);
+      				  	parent.location.reload(); 
+      	            });
+      		  });
+              return false;
+          });
+          /* 
+        	var urlArr = decodeURI(decodeURI(window.location.href)).toString().split("?");
+    	  	function getParam(urlArr,paraName){
+    	  		if (urlArr.length > 1) {
+    		  　　　　　　var arrPara = urlArr[1].split("&");
+    		  　　　　　　var arr;
+    		  　　　　　　for (var i = 0; i < arrPara.length; i++) {
+    		  　　　　　　　　arr = arrPara[i].split("=");
+
+    		  　　　　　　　　if (arr != null && arr[0] == paraName) {
+    		  　　　　　　　　　　return arr[1];
+    		  　　　　　　　　}
+    		  　　　　　　}
+    		  　　　　　　return "";
+    		  　　　　}
+    		  　　　　else {
+    		  　　　　　　return "";
+    		  　　　　}
+    	  	}; */
+    	  	var addType = getParam('add');
+    	  	if(addType === '1'){		//新增
+    	  		$(':input','#dataForm') 
+	    	  		.not(':button, :submit, :reset, :hidden') 
+	    	  		.val('') 
+	    	  		.removeAttr('checked') 
+	    	  		.removeAttr('selected');
+    	  		$("#id").val('');	
+    	  		$("#version").val('');
+    	  	
+    	  		var prtID = getParam('id');
+	    	  	if(prtID){						//新增二级菜单
+	    	  		$("select[name='parentId']").val(prtID);
+	    	  		layui.form.render('select');		//select设置选中后必须render才能刷新出选中效果
+	    	  	};
+    	  	};
+        });
+    
+   //页面上隐藏的用于弹层的所有菜单的列表的相关设置
+   /*  var menu_result_table_options = {
+    		elem: '#material_result'
+   	    	,id:'material_result'
+   	    	,url:'/sys/adminMenu/list/json'
+   	    	,cols: [[
+   	    	     {field:'menuName',  title: '菜单名称',align:'center', width: 220}
+   	    	    ,{field:'menuUrl',  title: '菜单地址',align:'center', width: 170}
+   	      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#materialSelect1', fixed: 'right'}
+   	    	]]
+    };
+  //点击查询上一级菜单弹窗触发该函数
+	function menu_input_focus_handler(){
+		layer.open({
+			type : 1
+			, area : [ '650px', '600px' ]
+			, content : $('#hidden1')
+			, success : function () {
+				// 重新加载表格中的数据
+				table.reload('material_result', menu_result_table_options);
+				$('#hidden1').css('display', 'block');
+			}
+		});
+
+	}
+	//点击弹出的“菜单信息”弹层上的表格中“选中”按钮的触发函数，回填input框
+	function menu_tool_event_handler(obj) {
+		
+		var data = obj.data;
+		switch (obj.event) {
+			case 'select1':
+				$('#parentId').val(data.id);
+				$('#parentmenu').val(data.menuName);
+				layer.close(layer.index);
+					break;
+		}
+	}  */
+    </script>
+    <script></script>
+  </body>
+</html>

@@ -1,0 +1,120 @@
+package com.techsoft.dao.history;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.dao.warehouse.WarehouseLocationDao;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.mapper.track.TrackBarcodeMapper;
+import com.techsoft.mapper.warehouse.WarehouseLocationMapper;
+import com.techsoft.entity.common.HistoryInventoryLocation;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.mapper.history.HistoryInventoryLocationMapper;
+
+@Repository
+public class HistoryInventoryLocationDaoImpl extends BaseDaoImpl<HistoryInventoryLocation> implements HistoryInventoryLocationDao {
+	@Resource
+	protected HistoryInventoryLocationMapper historyInventoryLocationMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	@Resource
+	protected TrackBarcodeMapper trackBarcodeMapper;	
+	@Resource
+	protected WarehouseLocationMapper warehouseLocationMapper;
+	
+	@Override
+	public Class<HistoryInventoryLocation> getEntityClass() {
+		return HistoryInventoryLocation.class;
+	}	
+	
+	@Override
+	public BaseMapper<HistoryInventoryLocation> getBaseMapper() {
+		return this.historyInventoryLocationMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "HISTORY_INVENTORY_LOCATION";
+	}
+	
+	@Override
+	public void insertSaveCheck(HistoryInventoryLocation value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(HistoryInventoryLocation value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(HistoryInventoryLocation value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public  ResultMessage billInventoryHistoryInsert(Long billId, CommonParam commonParam) throws BusinessException, SQLException  {
+		ResultMessage resultMessage = new ResultMessage();
+		
+		List<TrackBarcode> sumList=new ArrayList<>();
+		TrackBarcodeParamVo paramVo=new TrackBarcodeParamVo();
+		paramVo.setBillId(billId);
+		paramVo.setBillTypeDictId(EnumDictBillType.BILL_TYPE_INVENTORY.getValue());
+		sumList=trackBarcodeMapper.selectSumQtyByCondition(paramVo);
+		
+		
+		List<HistoryInventoryLocation> itemList=new ArrayList<HistoryInventoryLocation>();
+		Long tracknum=historyInventoryLocationMapper.getIDValue();
+	 	Integer index = 0;
+		String idString = "";
+		Long idLong = 0L;
+		DecimalFormat df = new DecimalFormat("000000");
+		for (TrackBarcode trackBarcode : sumList) {
+			HistoryInventoryLocation item=new HistoryInventoryLocation();
+			index++;
+	    	idString = df.format(index);
+			idLong = Long.valueOf(tracknum.toString() + idString);
+			item.setId(idLong);
+			item.setBillId(trackBarcode.getBillId());
+			item.setBillItemId(trackBarcode.getBillItemId());
+			item.setMaterialId(trackBarcode.getMaterialId());
+			item.setProductId(trackBarcode.getProductId());
+			item.setLocationId(trackBarcode.getLocationId());
+			item.setWarehouseId(trackBarcode.getWarehouseId());
+			WarehouseLocation location=warehouseLocationMapper.selectById(trackBarcode.getLocationId());
+			item.setAreaId(location.getAreaId());
+			item.setRackId(location.getRackId());
+			item.setQuantity(trackBarcode.getQuantity());
+			item.setQuantityStock(trackBarcode.getQuantityStock());
+			item.setTenantId(commonParam.getTenantId());
+			item.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			itemList.add(item);
+		}
+		historyInventoryLocationMapper.insertBatch(itemList);
+		
+		resultMessage.setIsSuccess(true);
+		return resultMessage;
+	}
+	
+}

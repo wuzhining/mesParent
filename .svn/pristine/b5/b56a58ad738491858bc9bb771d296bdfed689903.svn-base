@@ -1,0 +1,69 @@
+package com.techsoft.controller.pda;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.techsoft.client.service.equip.ClientEquipWorkService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.equip.EquipWorkParamVo;
+import com.techsoft.entity.equip.EquipWorkVo;
+
+/**
+ * pda请求生产设备信息controller层
+ * 
+ * @author wuzhining
+ *
+ */
+@Controller
+@RequestMapping("/pda/pdaEquipWork")
+public class PdaEquipWorkController extends BaseController {
+	@Autowired
+	private ClientEquipWorkService clientEquipWorkService;
+
+	@ResponseBody
+	@PostMapping("/list")
+	public ResultMessage getEquipWorkList(HttpServletRequest request, Long factoryId, Long workshopId) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<EquipWorkVo> equipWorkList = new ArrayList<EquipWorkVo>();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+		}
+		 
+		try {
+			EquipWorkParamVo equipWorkParamVo = new EquipWorkParamVo();
+			equipWorkParamVo.setFactoryId(factoryId);
+			equipWorkParamVo.setWorkshopId(workshopId);
+			equipWorkParamVo.setIsMonitor(EnumYesOrNo.YES.getValue());
+			equipWorkList = clientEquipWorkService.selectListVoByParamVo(equipWorkParamVo,
+					this.getCommonParam(request));
+
+			if ((equipWorkList==null)||(equipWorkList.isEmpty())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无生产设备信息");
+			} else {
+				resultMessage.setIsSuccess(true);
+				resultMessage.put(equipWorkList);
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+}

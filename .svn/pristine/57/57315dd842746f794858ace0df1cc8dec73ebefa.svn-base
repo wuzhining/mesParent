@@ -1,0 +1,204 @@
+package com.techsoft.controller.warehouse;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.product.ClientProductClassesService;
+import com.techsoft.client.service.struct.ClientStructFactoryService;
+import com.techsoft.client.service.struct.ClientStructWarehouseService;
+import com.techsoft.client.service.warehouse.ClientWarehouseAreaService;
+import com.techsoft.client.service.warehouse.ClientWarehouseRackService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ProductClasses;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.WarehouseArea;
+import com.techsoft.entity.common.WarehouseRack;
+import com.techsoft.entity.product.ProductClassesParamVo;
+import com.techsoft.entity.struct.StructFactoryParamVo;
+import com.techsoft.entity.struct.StructWarehouseParamVo;
+import com.techsoft.entity.warehouse.WarehouseAreaParamVo;
+import com.techsoft.entity.warehouse.WarehouseRackParamVo;
+import com.techsoft.entity.warehouse.WarehouseRackVo;
+
+@Controller
+@RequestMapping("/warehouse/warehouseRack")
+public class WarehouseRackController extends BaseController {
+	@Autowired
+	private ClientWarehouseRackService clientWarehouseRackService;
+	@Autowired
+	private ClientStructWarehouseService ClientStructWarehouseService;
+	@Autowired
+	private ClientStructFactoryService ClientStructFactoryService;
+	@Autowired
+	private ClientProductClassesService ClientProductClassesService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientWarehouseAreaService clientWarehouseAreaService;
+	/**
+	 * 页面关联数据初始化
+	 * 
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) {
+		try {
+			// 取工厂集合
+			StructFactoryParamVo ParamVo = new StructFactoryParamVo();
+			List<StructFactory> factoryList = ClientStructFactoryService.selectListByParamVo(ParamVo,
+					this.getCommonParam(null));
+			modelAndView.addObject("factoryList", factoryList);
+
+			// 取仓库集合
+			StructWarehouseParamVo ParamVowarehosue = new StructWarehouseParamVo();
+			List<StructWarehouse> warehouseList = ClientStructWarehouseService.selectListByParamVo(ParamVowarehosue,
+					this.getCommonParam(null));
+			modelAndView.addObject("warehouseList", warehouseList);
+
+			// 取产品分类集合
+			ProductClassesParamVo ParamVoproclass = new ProductClassesParamVo();
+			List<ProductClasses> classesList = ClientProductClassesService.selectListByParamVo(ParamVoproclass,
+					this.getCommonParam(null));
+			modelAndView.addObject("classesList", classesList);
+
+			// 取产品类别集合
+			List<ConfigDictionary> proTypeList = clientConfigDictionaryService
+					.selectListByParentId(EnumDictionary.PRODUCT_TYPE.getValue());
+			modelAndView.addObject("proTypeList", proTypeList);
+			
+			
+			//取仓库区域名称集合
+			WarehouseAreaParamVo warehouseArea = new WarehouseAreaParamVo();
+			List<WarehouseArea> warehouseAreaList = clientWarehouseAreaService.selectListByParamVo(warehouseArea,this.getCommonParam(null));
+			modelAndView.addObject("warehouseAreaList", warehouseAreaList);
+			
+			//取库位类型集合
+			List<ConfigDictionary> warehouseDicList = clientConfigDictionaryService
+					.selectListByParentId(EnumDictionary.WAREHOURE_LOCATION_TYPE.getValue());
+					modelAndView.addObject("warehouseDicList", warehouseDicList);
+			
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());
+	}
+
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("warehouse/warehouseRack-list");
+		return modelAndView;
+	}
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("warehouse/warehouseRack-edit");
+		WarehouseRackVo entity = new WarehouseRackVo();
+		try {
+			if (id != null) {
+				entity = clientWarehouseRackService.getVoByID(id, this.getCommonParam(request));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("entity", entity);
+		initData(modelAndView);
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")
+	public ReturnPageInfo listJson(HttpServletRequest request, WarehouseRackParamVo warehouseRackParamVo,
+			Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}
+		try {
+			if (warehouseRackParamVo == null) {
+				warehouseRackParamVo = new WarehouseRackParamVo();
+			}
+			// warehouseRackParamVo.setTenantId(getLoginTenantId(request));
+			pageInfo = clientWarehouseRackService.selectPageVoByParamVo(warehouseRackParamVo,
+					this.getCommonParam(request), pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request, WarehouseRackParamVo warehouseRackParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+
+		warehouseRackParamVo.setModifyUserId(getLoginUserId(request));
+
+		resultMessage = clientWarehouseRackService.saveOrUpdate(warehouseRackParamVo, this.getCommonParam(request));
+
+		return resultMessage;
+	}
+	
+	/**
+	*@auther:Wang
+	*@version:2019年6月6日上午9:20:30
+	*@param:
+	*@description 货架下拉级联接口
+	*/
+	@ResponseBody
+	@RequestMapping("/rackLink")
+	public List<WarehouseRack> rackLink(HttpServletRequest request, WarehouseRackParamVo warehouseRackParamVo) {
+		if (warehouseRackParamVo == null) {
+			warehouseRackParamVo = new WarehouseRackParamVo();
+		}
+		warehouseRackParamVo.setTenantId(getLoginTenantId(request));
+		warehouseRackParamVo.setIsValid("1");
+		List<WarehouseRack> rackList = new ArrayList<WarehouseRack>();
+		try {
+			rackList = clientWarehouseRackService.selectListByParamVo(warehouseRackParamVo, this.getCommonParam(request));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rackList;
+	}
+	
+	@RequestMapping("/warehouseRackOpen")
+	public ModelAndView warehouseRackWinlist(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("warehouse/warehouseRackOpen");
+		return modelAndView;
+	}
+
+}

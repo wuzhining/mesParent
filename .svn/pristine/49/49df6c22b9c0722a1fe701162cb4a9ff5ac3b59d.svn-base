@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-unselect{
+			height:1px;
+		}
+	</style>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+  		
+  			<div class="layui-col-md12">
+    			<div class="layui-form-query">
+    				<form class="layui-form m20">
+    					<div class="layui-form-item">
+    					
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						        <input type="text" name="materialCode"  placeholder="产品规格编码" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						          <input type="text" name="materialName"  placeholder="产品规格名称" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    
+						    <div class="layui-inline">
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+						      </div>
+						    </div>
+						    
+			  			</div>
+            		</form>
+            	</div>
+            </div>
+            
+            <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12">
+        				<table  class="layui-hide" id="shelf_result" lay-filter="shelf_result"></table>
+        			</div>
+        		</div>
+        	</div>
+        
+        </div>
+    </div>
+</body>
+ 
+<style type="text/css">
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+            vertical-align:middle;
+        }
+</style>
+ 
+<script type="text/javascript">
+var returnData = [];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use(['form','table','layuitable'], function(){
+	var form = layui.form;
+	var $ = layui.jquery;  
+	var table = layui.table;
+	var layuitable = layui.layuitable;
+	var layer = layui.layer;
+	
+	var curTable = layuitable.render({
+    	elem: '#shelf_result'
+    	,id:'shelf_result'
+    	,url:'/product/productMaterial/list/json'
+    	,height:300
+    	,cellMinWidth:180
+   		,cols: [[
+		    	 {type:'radio'}
+		    	,{field:'id',  title: 'ID',align:'center'}
+		    	,{field:'productId',  title: '产品ID',align:'center'}
+   	    	    ,{field:'materialCode',  title: '产品规格编码',align:'center'}
+   	    	    ,{field:'materialName',  title: '产品规格名称',align:'center'}
+   	    	    ,{field:'skuValue',  title: '产品规格值',minWidth:280,align:'center'}
+     	    	]],done:function(){
+     	    		// 隐藏列
+     	    		$(".layui-table-box").find("[data-field='id']").css("display","none");
+     	    		$(".layui-table-box").find("[data-field='productId']").css("display","none");
+     	    	}
+  	});
+	
+	form.on('submit(search)', function (formData) {
+		curTable.reload(formData.field);
+        return false;
+  	});
+	
+	table.on('radio(shelf_result)', function(obj){
+		var checkStatus = table.checkStatus('shelf_result');
+    	var selectData = checkStatus.data;
+      
+		for (var i = 0; i < selectData.length; i++) {
+			selectData[i]['strategyUpShelfName']=selectData[i].fixtureName;
+		}
+	   returnData.push(selectData);
+	});
+});	
+
+function selected() {
+	return returnData;
+}
+</script>
+</html>

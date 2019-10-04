@@ -1,0 +1,187 @@
+package com.techsoft.controller.product;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.product.ClientProductClassesService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapUserStatus;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.common.persistence.ZTreeNode;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ProductClasses;
+import com.techsoft.entity.product.ProductClassesParamVo;
+import com.techsoft.entity.product.ProductClassesVo;
+
+@Controller
+@RequestMapping("/product/productClasses")
+public class ProductClassesController extends BaseController {
+	@Autowired
+	private ClientProductClassesService clientProductClassesService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());  
+		modelAndView.addObject("mapUserStatus", MapUserStatus.getMap());  
+		try {
+			//拿到产品分类的单位数据字典
+		List<ConfigDictionary> unitDictIdList = clientConfigDictionaryService
+				.selectListByParentId(EnumDictionary.PRODUCT_CLASSES_UNIT.getValue());
+		modelAndView.addObject("unitDictIdList", unitDictIdList);
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("product/productClasses-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		try {
+		    ProductClassesVo entity = new ProductClassesVo();
+		    
+		    
+		    ProductClassesParamVo productClassesParamVo = new ProductClassesParamVo();
+		    productClassesParamVo.setParent(0);
+			List<ProductClasses> productClassesList = clientProductClassesService.selectListByParamVo(productClassesParamVo,this.getCommonParam(null));
+			modelAndView.addObject("productClassesList", productClassesList);
+			if (id != null) {
+				entity = clientProductClassesService.getVoByID(id, this.getCommonParam(request));
+			}
+			modelAndView.setViewName("product/productClasses-edit");
+			modelAndView.addObject("entity", entity);
+			initData(modelAndView);
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			ProductClassesParamVo productClassesParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}		
+		try {
+            if(productClassesParamVo==null){
+            	productClassesParamVo = new ProductClassesParamVo();
+            }
+			pageInfo = clientProductClassesService.selectPageVoByParamVo(
+					productClassesParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			ProductClassesParamVo productClassesParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+	    productClassesParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientProductClassesService.saveOrUpdate(productClassesParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	
+	@ResponseBody
+	@RequestMapping("/loadZtree")
+	public List<ZTreeNode> loadZtree(HttpServletRequest request,ProductClassesParamVo productClassesParamVo, Integer pageIndex) {
+		List<ZTreeNode> nodeList = new ArrayList<ZTreeNode>();
+		try {
+            List<ProductClasses> itemList= clientProductClassesService.selectListByParamVo(new ProductClassesParamVo(), this.getCommonParam(request));
+            List<ProductClasses> parentItemList= new ArrayList<ProductClasses>();
+			for(ProductClasses item : itemList){
+				   if(item.getParentId()==0){
+					  parentItemList.add(item);
+				   }
+				}	
+				for(ProductClasses item : parentItemList){
+					ZTreeNode nodes = new ZTreeNode();
+					  
+					  List<ZTreeNode> list_sub = new ArrayList<ZTreeNode>();
+					  for(ProductClasses item2 : itemList){
+						   if(item2.getParentId().equals(item.getId())){
+							  ZTreeNode nodes2 = new ZTreeNode();
+							  nodes2.setId(item2.getId());
+							  nodes2.setParentId(item2.getParentId());
+							  nodes2.setName(item2.getClassesName());
+							  nodes2.setOpen(false);
+							  list_sub.add(nodes2);
+
+						   } 
+						 
+					 }
+					  nodes.setChildren(list_sub);
+					  nodes.setId(item.getId());
+					  nodes.setParentId(item.getParentId());
+					  nodes.setName(item.getClassesName());
+					  nodes.setOpen(false);
+					  nodeList.add(nodes);
+	  
+				}
+				
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return  nodeList;
+	}
+
+	@RequestMapping("/productClassesOpen")
+	public ModelAndView productClassesOpen(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("product/productClasses-Open");
+		return modelAndView;
+	}
+	
+}

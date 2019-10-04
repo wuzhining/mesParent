@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <script type="text/html" id="fromBillTypeTpl">
+	{{#  if(d.fromBillTypeList){}}
+		{{ d.fromBillTypeList.dictName 
+ 	}}
+	{{# } }}
+   </script>
+
+  <script type="text/html" id="statusTpl">
+	{{#  if(d.inspectStatusList){}}
+		{{ d.inspectStatusList.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   
+   <script type="text/html" id="resultTpl">
+	{{#  if(d.inspectResultList){}}
+		{{ d.inspectResultList.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   
+
+   
+   <script type="text/html" id="dealResultTpl">
+	{{#  if(d.dealResultList){}}
+		{{ d.dealResultList.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="supplierNameTpl">
+	{{#  if(d.firmPartnerList){}}
+		{{ d.firmPartnerList.companyName 
+ 	}}
+	{{# } }}
+   </script> 
+   <script type="text/html" id="materialNameTpl">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="inspectModeTpl">
+	{{#  if(d.inspectModeList){}}
+		{{ d.inspectModeList.dictName 
+ 	}}
+	{{# } }}
+   </script>  
+   
+   <!--工厂名称-->
+ <script type="text/html" id="factoryNameTpl">
+	{{#  if(d.structFactorylist){}}
+		{{ d.structFactorylist.factoryName 
+ 	}}
+	{{# } }}
+   </script> 
+  <!--操作人-->
+   <script type="text/html" id="createUserIdTpl">
+	{{#  if(d.userPassportList){}}
+		{{ d.userPassportList.realName 
+ 	}}
+	{{# } }}
+   </script> 
+   <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script>
+  <body style='width:100%;height:100%'>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">品质管理</a> <a><cite>检验单</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input class="layui-input" placeholder="开始时间" name="createTimeBegin" id="startTime">
+          <input class="layui-input" placeholder="结束时间" name="createTimeEnd" id="endTime">
+          <input type="text" name="inspectCodeLike"  placeholder="请输入检验单编码" autocomplete="off" class="layui-input">
+          <input type="hidden" name="supplierId" id="supplierId" placeholder="请选择供应商名称" autocomplete="off" class="layui-input">
+       	  <input type="text" name="companyName" id="companyName" placeholder="请选择供应商名称" autocomplete="off" class="layui-input">
+          <button class="layui-btn layui-btn-sm  " id="supplierSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		  </button>
+		  <input type="hidden" name="materialId" id="materialId" placeholder="请选择物料" autocomplete="off" class="layui-input">
+		  <input type="text" name="materialName" id="materialName" placeholder="请选择产品规格" autocomplete="off" class="layui-input">
+	      <button class="layui-btn layui-btn-sm  " id="materialSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+		 </button>
+	     <p style="height:5px;width:150px;overflow:hidden;"> </p>
+	               <select name="fromBillTypeDictId"  lay-search>    
+		                <option value="">请选择源单据类型</option> 
+		                <#if fromBillTypeList??>
+		                    <#list fromBillTypeList as item>
+				            <option value="${item.id?c}" >${item.dictName}</option>
+				         </#list>
+				         </#if> 
+	               </select> 
+	               <select name="inspectStatusDictId"  lay-search>    
+		                <option value="">请选择检验单状态</option> 
+		                 <#if inspectStatusList??>
+		                     <#list inspectStatusList as item>
+					            <option value="${item.id?c}" >${item.dictName}</option>
+					         </#list>
+					         </#if> 
+	               </select>          
+	               <select name="inspectResultDictId"  lay-search>    
+		                <option value="">请选择检验结果</option> 
+		                 <#if inspectResultList??>
+		                     <#list inspectResultList as item>
+					            <option value="${item.id?c}" >${item.dictName}</option>
+					         </#list>
+					         </#if> 
+	               </select>
+	               <select name="dealResultDictId"  lay-search>    
+		                <option value="">请选择处理结果</option> 
+		                 <#if dealResultList??>
+		                     <#list dealResultList as item>
+					            <option value="${item.id?c}" >${item.dictName}</option>
+					         </#list>
+					         </#if> 
+	               </select>
+	               <select name="inspectModeDictId"  lay-search>    
+		                <option value="">请选择抽样检验方式</option> 
+		                 <#if inspectModeList??>
+		                     <#list inspectModeList as item>
+					            <option value="${item.id?c}" >${item.dictName}</option>
+					         </#list>
+					         </#if> 
+	                </select>
+		          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>
+		          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+       <div class="layui-col-md12" id='topTab'>
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+
+    </div>
+<script type="text/html" id="barDemo">	
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="select">查看</a>
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="verify">审核</a>
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="inspection">质检</a>
+</script>
+
+<script type="text/javascript">
+var statusDictId="10313";
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/bill/billInspect/list/json'
+    	,cols: [[
+    	     {field:'id',  title: 'ID',align:'center', minWidth: 120,fixed:'left'}
+    	    ,{field:'factoryId',  title: '所属工厂名称', align:'center',minWidth: 120,templet:'#factoryNameTpl'}
+    	    ,{field:'inspectCode', width:180, title: '检验单编码',align:'center',templet:'#customerIdTpl'}
+    	    ,{field:'supplierId',  title: '供应商ID',align:'center', minWidth: 120 }
+    	    ,{field:'supplierName',  title: '供应商名称',align:'center', minWidth: 200,templet:'#supplierNameTpl'}
+    	    ,{field:'fromBillTypeDictId',  title: '源单据类型', align:'center',minWidth: 120,templet:'#fromBillTypeTpl'}
+    	    ,{field:'fromBillId',  title: '到货单据单号', align:'center',minWidth: 120,templet:'#fromBillId'}
+    	    ,{field:'materialId',  title: '物料ID', align:'center',minWidth: 120}
+    	    ,{field:'materialName',  title: '物料名称', align:'center',minWidth: 300,templet:'#materialNameTpl'}
+    	    ,{field:'sku', title: '物料规格值', align:'center',minWidth: 250,templet: '#sku'}
+    	    ,{field:'inspectStatusDictId',  title: '检验单状态', align:'center',minWidth: 120,templet:'#statusTpl'}
+    	    ,{field:'inspectResultDictId',  title: '检验结果',align:'center', minWidth: 120,templet:'#resultTpl'}
+    	    ,{field:'dealResultDictId',  title: '处理结果',align:'center', minWidth: 120,templet:'#dealResultTpl'}
+    	    ,{field:'inspectModeDictId',  title: '抽样检验方式',align:'center', minWidth: 120,templet:'#inspectModeTpl'}
+    	    ,{field:'quantity',  title: '检出数量',align:'center', minWidth: 120}
+    	    ,{field:'quantitySample',  title: '实际抽样数量',align:'center', minWidth: 120}
+    	    ,{field:'quantitySampleFail',  title: '抽样不合格数量',align:'center', minWidth: 150}
+    	    ,{field:'remark',  title: '备注',align:'center', minWidth: 150}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 180}
+    	    ,{field:'createUserId',  title: '操作人', align:'center',minWidth: 120,templet:'#createUserIdTpl'}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]],done:function(){
+    		// 隐藏列
+    		$(".layui-table-box").find("[data-field='supplierId']").css("display","none");   
+    		$(".layui-table-box").find("[data-field='materialId']").css("display","none");     
+    	}
+  	});
+	
+  	$('#supplierSearch').on('click',function(e){
+		openWinSelect('/firm/firmPartner/firmPartnerOpen',"supplierId","companyName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'select') {
+			layer_window_show('查看检验单','/bill/billInspect/edit?id=' + data.id +'&add=1'); 
+		}else if(obj.event === 'verify'){
+			if(data.inspectStatusDictId =='10488'){
+				url="/bill/billInspect/verify";//用于保存审核状态的url
+				auditStatusDictId=data.auditStatusDictId;
+				remark=data.remark;
+				id=data.id;
+				layer_window_show('单据审核','/bill/billSaleorder/audit?id=' + data.id,"900","500"); 
+				/* var url = '/bill/billInspect/verify?id=' + data.id;
+		       	  layuiformajax.postJson(url, '', function (result) {
+		       		parent.layer.msg('检验单审核成功!', {icon: 1, time: 1000},function () {
+		     				  	location.reload(); 
+		     	            });
+		     		  }); */
+			}else{
+				var str='';
+				if(data.inspectStatusDictId==10489){
+					str='检验单处理中,无需再审核！';
+				}else if(data.inspectStatusDictId==10490){
+					str='检验单已完结,不能再审核！';
+				}
+				layer.alert("【"+data.inspectCode+"】"+str);
+			} 	  
+		}else if(obj.event === 'inspection'){
+			if(data.inspectStatusDictId =='10489' && data.auditStatusDictId=='10587'){
+			   layer_window_show('质检检验单','/bill/billInspect/edit?id=' + data.id); 
+			}else{
+				var str='';
+                 if(data.inspectStatusDictId==10490){
+					str='检验单已完结,不能再质检！';
+				}else if(data.auditStatusDictId=='10586'){
+					str='检验单审核不通过,不能质检！';
+				}else{
+					str='检验单还没审核,不能质检！';
+				}
+				layer.alert("【"+data.inspectCode+"】"+str);
+			}
+		} 
+	});
+
+    var startDate=laydate.render({
+	        elem: '#startTime'
+   		   ,type: 'datetime'
+    	   ,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+		   ,done:function(value,date){
+				if(value!=""){
+				date.month=date.month-1;
+				endDate.config.min=date;
+				}else{
+					endDate.config.min=startDate.config.min;
+				}
+			},
+	});
+	var endDate=laydate.render({
+		     elem: '#endTime'
+    		,type: 'datetime'
+        	,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+			,done:function(value,date){
+				if(value!=""){
+			       date.month=date.month-1;
+			       startDate.config.max=date;
+				}else{
+					startDate.config.max=endDate.config.max;
+				}
+			}
+	});
+
+	$('#materialSearch').on('click',function(e){
+		openWinSelect('/product/productMaterial/productMaterialOpen',"materialId","materialName");
+		e.preventDefault();//默认from表单提交时不刷新
+	}) 
+   	
+   	//重置
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	}) 
+
+
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

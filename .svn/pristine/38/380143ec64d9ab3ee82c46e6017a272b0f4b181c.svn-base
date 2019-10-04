@@ -1,0 +1,505 @@
+package com.techsoft.dao.track;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBarcodeStatus;
+import com.techsoft.common.enums.EnumDictBillStatus;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillDeliveryItem;
+import com.techsoft.entity.common.BillInspect;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.mapper.track.TrackBarcodeMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+
+@Repository
+public class TrackBarcodeDaoImpl extends BaseDaoImpl<TrackBarcode> implements TrackBarcodeDao {
+	@Resource
+	protected TrackBarcodeMapper trackBarcodeMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<TrackBarcode> getEntityClass() {
+		return TrackBarcode.class;
+	}	
+	
+	@Override
+	public BaseMapper<TrackBarcode> getBaseMapper() {
+		return this.trackBarcodeMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "TRACK_BARCODE";
+	}
+	
+	@Override
+	public void insertSaveCheck(TrackBarcode value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(TrackBarcode value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(TrackBarcode value) throws BusinessException, SQLException {
+	
+	}
+
+	@Override
+	public void insertBatchSn(List<TrackBarcode> listsns, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		try {
+			for (TrackBarcode item : listsns) {
+				item.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+				item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			}
+			int rows = this.trackBarcodeMapper.insertBatchSn(listsns);
+			if (rows != listsns.size()) {
+				throw new BusinessException("批量增加的条码数据与传入的条码列表数量不一致， 请检查!");
+			}
+
+		} catch (RuntimeException e) {
+			throw new SQLException(e.getMessage());
+		}
+		
+	}
+
+	@Override
+	public void updateBatchTrack(List<TrackBarcode> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		try {
+			for (TrackBarcode item : list) {
+				//item.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+				//item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			}
+			int rows = this.trackBarcodeMapper.updateBatchTrack(list);
+			/*if (rows != list.size()) {
+				throw new BusinessException("批量修改的条码数据与传入数量不一致， 请检查!");
+			}*/
+
+		} catch (RuntimeException e) {
+			throw new SQLException(e.getMessage());
+		}
+		
+	}
+
+	@Override
+	public List<TrackBarcode> exchangeBarcode(List<BarcodeMain> list, String insertOrUpdate, CommonParam commonParam) throws BusinessException, SQLException{
+		List<TrackBarcode> trackList = new ArrayList<TrackBarcode>();
+		for (BarcodeMain item : list) {
+			TrackBarcode trackBarcode = new TrackBarcode();
+			
+			if (insertOrUpdate=="insert"){
+				
+			    trackBarcode.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			}
+			trackBarcode.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			trackBarcode.setBarcode(item.getBarcode());
+			trackBarcode.setBarcodeId(item.getId());
+			
+			trackBarcode.setBillId(item.getBillId());
+			trackBarcode.setBillItemId(item.getBillItemId());
+			trackBarcode.setTenantId(item.getTenantId());
+			trackBarcode.setBarcodePackboxId(item.getBarcodePackboxId());
+			trackBarcode.setBarcodeRuleDictId(item.getBarcodeRuleDictId());
+			trackBarcode.setBillStatusDictId(item.getBillStatusDictId());
+			trackBarcode.setMaterialId(item.getMaterialId());
+			trackBarcode.setFactoryId(item.getFactoryId());
+			trackBarcode.setWarehouseId(item.getWarehouseId());
+			trackBarcode.setLocationId(item.getLocationId());
+			trackBarcode.setBarcodeStatusDictId(item.getBarcodeStatusDictId());
+			trackBarcode.setProductId(item.getProductId());
+			trackBarcode.setQuantity(item.getQuantity());
+			trackList.add(trackBarcode);
+		}
+		return trackList;
+	}
+
+	@Override
+	public void insertSnlist(TrackBarcodeParamVo paramVo, CommonParam commonParam) throws BusinessException, SQLException{
+		List<TrackBarcode> listsns =paramVo.getListSn();
+		DecimalFormat df=new DecimalFormat("000000");
+		Integer index = 0;
+		String idString = "";
+		Long idLong = 0L;
+		Long billSnId = this.getIdValue();
+		 
+		for (TrackBarcode itemSn : listsns) {
+			index++;
+			idString=df.format(index);
+			idLong = Long.valueOf(billSnId.toString() + idString);
+			itemSn.setId(idLong);
+			itemSn.setTenantId(commonParam.getTenantId());
+		}
+			this.insertBatchSn(listsns, commonParam);
+	}
+
+	
+	@Override
+	public List<TrackBarcode> insertAllocationSnList( List<BarcodeMain> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		
+		DecimalFormat df=new DecimalFormat("0000");
+		Integer index = 0;
+		String idString = "";
+		Long idLong = 0L;
+		Long billItemId=this.getIdValue();
+		
+		List<TrackBarcode> trackList = new ArrayList<TrackBarcode>();
+		for (BarcodeMain trItem : list) {
+			TrackBarcode trackBarcodeItem = new TrackBarcode();
+			
+			index++;
+			idString=df.format(index);
+			idLong = Long.valueOf(billItemId.toString() + idString);
+			trackBarcodeItem.setId(idLong);
+			trackBarcodeItem.setBarcode(trItem.getBarcode());
+			trackBarcodeItem.setBillId(trItem.getBillId());
+			trackBarcodeItem.setBillItemId(trItem.getBillItemId());
+			trackBarcodeItem.setTenantId(trItem.getTenantId());
+			trackBarcodeItem.setBarcodeStatusDictId(EnumDictBarcodeStatus.OFFSTORE.getValue());
+			trackBarcodeItem.setBarcodePackboxId(trItem.getBarcodePackboxId());
+			trackBarcodeItem.setBarcodeRuleDictId(trItem.getBarcodeRuleDictId());
+			trackBarcodeItem.setBillTypeDictId(EnumDictBillType.BILL_TYPE_WAREHOUSE_ALLOCATION.getValue());
+			trackBarcodeItem.setMaterialId(trItem.getMaterialId());
+			trackBarcodeItem.setProductId(trItem.getProductId());
+			trackBarcodeItem.setQuantity(trItem.getQuantity());
+			trackBarcodeItem.setWarehouseId(trItem.getWarehouseId());
+			trackBarcodeItem.setLocationId(trItem.getLocationId());
+			trackBarcodeItem.setBillStatusDictId(EnumDictBillStatus.DOING.getValue());
+			trackBarcodeItem.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			trackBarcodeItem.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			
+			trackList.add(trackBarcodeItem);
+			}
+		//新增调拨单追踪条码
+		this.insertBatchSn(trackList, commonParam);
+		return trackList;
+	}
+//
+	@Override
+	public List<TrackBarcode> insertAllocationInOrOutSnList(Long billId,Long billType,Long billStatus,Long barcodeStatus,List<TrackBarcode> list, List<BillWarehouseItem> itemList,String type,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		
+		DecimalFormat df=new DecimalFormat("0000");
+		Integer index = 0;
+		String idString = "";
+		Long idLong = 0L;
+		Long billItemId=this.getIdValue();
+		List<TrackBarcode> allOutBarList = new ArrayList<TrackBarcode>();
+		
+		
+		for (TrackBarcode allOutBarItem : list) {
+			TrackBarcode outBarcodeItem = new TrackBarcode();
+			index++;
+			idString=df.format(index);
+			idLong = Long.valueOf(billItemId.toString() + idString);
+			outBarcodeItem.setId(idLong);
+			if (type.equals("OUT")) {
+				outBarcodeItem.setBarcodeStatusDictId(barcodeStatus);
+				outBarcodeItem.setBillStatusDictId(billStatus);
+				outBarcodeItem.setBillTypeDictId(billType);
+				outBarcodeItem.setWarehouseId(allOutBarItem.getWarehouseId());
+				outBarcodeItem.setLocationId(allOutBarItem.getLocationId());
+				
+			} else if(type.equals("IN")){
+				outBarcodeItem.setBarcodeStatusDictId(barcodeStatus);
+				outBarcodeItem.setBillStatusDictId(billStatus);
+				outBarcodeItem.setBillTypeDictId(billType);
+				
+			}else if(type.equals("CHECK")){
+				outBarcodeItem.setBarcodeStatusDictId(barcodeStatus);
+				outBarcodeItem.setBillStatusDictId(billStatus);
+				outBarcodeItem.setBillTypeDictId(billType);
+			}
+			outBarcodeItem.setBarcode(allOutBarItem.getBarcode());
+			outBarcodeItem.setBarcodePackboxId(allOutBarItem.getBarcodePackboxId());
+			outBarcodeItem.setBarcodeRuleDictId(allOutBarItem.getBarcodeRuleDictId());
+			outBarcodeItem.setBillId(billId);
+
+			//查询相应的明细Id
+			for (BillWarehouseItem billItem : itemList) {
+				if (billItem.getMaterialId().equals(allOutBarItem.getMaterialId())) {
+					outBarcodeItem.setBillItemId(billItem.getId());
+				}
+			}
+			outBarcodeItem.setMaterialId(allOutBarItem.getMaterialId());
+			outBarcodeItem.setProductId(allOutBarItem.getProductId());
+			outBarcodeItem.setQuantity(allOutBarItem.getQuantity());
+			outBarcodeItem.setTenantId(commonParam.getTenantId());
+			
+			//暂时赋值传回
+			outBarcodeItem.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			outBarcodeItem.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			allOutBarList.add(outBarcodeItem);
+		}
+		//批量新增调拨单出库追踪表
+		this.insertBatchSn(allOutBarList, commonParam);
+		
+		return allOutBarList;
+	}
+	
+	/**
+	*@auther:Wang
+	*@version:2019年5月27日下午4:46:07
+	*@param billId             主表ID
+	*@param billStatusDictId   单据状态
+	*@description
+	*/
+	@Override
+	public void updateTrackStatus(Long billId, Long billStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		//查询标签信息ID更新
+				List<TrackBarcode> list =new ArrayList<TrackBarcode>();
+				TrackBarcodeParamVo paramVo =new TrackBarcodeParamVo();
+				paramVo.setBillId(billId);
+				list=trackBarcodeMapper.selectListByEntityParamVo(paramVo);
+				
+				List<Long> ids = new ArrayList<Long>();
+				for (TrackBarcode trackBarcode : list) {
+						//updateSaveCheck(item);
+						trackBarcode.setBillStatusDictId(billStatusDictId);
+						trackBarcode.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+						trackBarcode.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+						trackBarcode.setTenantId(commonParam.getTenantId());
+						ids.add(trackBarcode.getId());
+					}
+				List<DistributedLock> listlock = LockManager.getLongZKDistributedLock(TrackBarcode.class.getName(), ids);
+				LockManager.lockList(listlock);
+				try {
+					this.trackBarcodeMapper.updateBatchTrack(list);
+				} finally {
+					LockManager.unLockList(listlock);
+				}
+	}
+	
+	
+	
+	/**
+	 *@auther :Yang
+	 *@version :2019年5月29日
+	 *@param billId
+	 *@param billStatusDictId
+	 *@param commonParam
+	 *@throws BusinessException
+	 *@throws SQLException
+	 *@description
+	 */
+	@Override
+	public void updateCheckTrackStatus(Long billId, Long billStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		//查询标签信息ID更新
+				List<TrackBarcode> list =new ArrayList<TrackBarcode>();
+				TrackBarcodeParamVo paramVo =new TrackBarcodeParamVo();
+				paramVo.setBillItemId(billId);
+				list=trackBarcodeMapper.selectListByEntityParamVo(paramVo);
+				
+				List<Long> ids = new ArrayList<Long>();
+				for (TrackBarcode trackBarcode : list) {
+						//updateSaveCheck(item);
+						trackBarcode.setBillStatusDictId(billStatusDictId);
+						trackBarcode.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+						trackBarcode.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+						trackBarcode.setTenantId(commonParam.getTenantId());
+						ids.add(trackBarcode.getId());
+					}
+				List<DistributedLock> listlock = LockManager.getLongZKDistributedLock(TrackBarcode.class.getName(), ids);
+				LockManager.lockList(listlock);
+				try {
+					this.trackBarcodeMapper.updateBatchTrack(list);
+				} finally {
+					LockManager.unLockList(listlock);
+				}
+	}
+	
+	
+	
+	
+	@Override
+	public TrackBarcode insertIqcSnlist(Long arrivalBillId,List<BillInspect> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		
+		DecimalFormat df=new DecimalFormat("0000");
+		Integer index = 0;
+		String idString = "";
+		Long idLong = 0L;
+		Long bilItemId=trackBarcodeMapper.getIDValue();
+		
+		
+		List<TrackBarcode> arrivallistSn = new ArrayList<TrackBarcode>();
+		List<TrackBarcode> listSn = new ArrayList<TrackBarcode>();
+		TrackBarcodeParamVo aItemParamVo = new TrackBarcodeParamVo ();
+		aItemParamVo.setBillId(arrivalBillId);
+		arrivallistSn=trackBarcodeMapper.selectListByEntityParamVo(aItemParamVo);
+		
+		
+		
+		for (TrackBarcode iqcSn : arrivallistSn){
+			
+			index++;
+			idString=df.format(index);
+			idLong = Long.valueOf(bilItemId.toString() + idString);
+			
+			
+			TrackBarcode trackBarcode =new TrackBarcode();
+			trackBarcode.setId(idLong);
+			trackBarcode.setBarcode(iqcSn.getBarcode());
+			trackBarcode.setBarcodePackboxId(iqcSn.getBarcodePackboxId());
+			trackBarcode.setBarcodeRuleDictId(iqcSn.getBarcodeRuleDictId());
+			trackBarcode.setBillStatusDictId(EnumDictBillStatus.NEW.getValue());
+			trackBarcode.setOperationStatusDictId((long) 10506);
+			trackBarcode.setMaterialId(iqcSn.getMaterialId());
+			trackBarcode.setProductId(iqcSn.getProductId());
+			trackBarcode.setBarcodeStatusDictId(EnumDictBarcodeStatus.NEW.getValue());
+			trackBarcode.setBillTypeDictId(EnumDictBillType.BILL_TYPE_EXAMINE.getValue());
+			//取质检明细单
+			for (BillInspect billInspect : list) {
+				if (iqcSn.getMaterialId().equals(billInspect.getMaterialId())) {
+					trackBarcode.setBillItemId(billInspect.getId());
+					trackBarcode.setBillId(billInspect.getId());
+				}
+			}
+			
+			
+			trackBarcode.setTenantId(commonParam.getTenantId());
+			trackBarcode.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			trackBarcode.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			trackBarcode.setQuantity(iqcSn.getQuantity());
+			listSn.add(trackBarcode);
+		}
+		trackBarcodeMapper.insertBatchSn(listSn);
+		return null;
+	}
+	
+	@Override
+	public List<TrackBarcode> insertDeliveryToSuplierSnList(List<BillDeliveryItem> itemList,CommonParam commonParam) throws BusinessException, SQLException {
+		
+		List<TrackBarcode> allOutBarList = new ArrayList<TrackBarcode>();
+		for (BillDeliveryItem item : itemList) {
+			
+		   //根据主单查询标签
+		   List<TrackBarcode> barcodeItem= new ArrayList<TrackBarcode>();
+		   TrackBarcodeParamVo paramVo =new TrackBarcodeParamVo();
+		   paramVo.setBillId(item.getFromBillId());
+		   barcodeItem=trackBarcodeMapper.selectListByEntityParamVo(paramVo);
+		   
+		   DecimalFormat df=new DecimalFormat("0000");
+		   Integer index = 0;
+		   String idString = "";
+		   Long idLong = 0L;
+		   Long billItemId=trackBarcodeMapper.getIDValue();
+		   
+		   //批量新增标签
+		   for (TrackBarcode trackBarcode : barcodeItem) {
+			   TrackBarcode BarcodeItem = new TrackBarcode();
+				index++;
+				idString=df.format(index);
+				idLong = Long.valueOf(billItemId.toString() + idString);
+				BarcodeItem.setId(idLong);
+				BarcodeItem.setBarcodeStatusDictId(EnumDictBarcodeStatus.NEW.getValue());
+				BarcodeItem.setBillStatusDictId(EnumDictBillStatus.NEW.getValue());
+				BarcodeItem.setBillTypeDictId(EnumDictBillType.BILL_TYPE_DELIVERY_SUPPLIER.getValue());
+				BarcodeItem.setBarcode(trackBarcode.getBarcode());
+				BarcodeItem.setBarcodePackboxId(trackBarcode.getBarcodePackboxId());
+				BarcodeItem.setBarcodeRuleDictId(trackBarcode.getBarcodeRuleDictId());
+				BarcodeItem.setBillId(item.getBillId());
+				//查询相应的明细Id
+				BarcodeItem.setBillItemId(item.getId());
+				BarcodeItem.setMaterialId(trackBarcode.getMaterialId());
+				BarcodeItem.setProductId(trackBarcode.getProductId());
+				BarcodeItem.setQuantity(trackBarcode.getQuantity());
+				BarcodeItem.setTenantId(commonParam.getTenantId());
+				
+				//暂时赋值传回
+				BarcodeItem.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+				BarcodeItem.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				allOutBarList.add(BarcodeItem);
+		}
+		 
+			
+		}
+		//批量新增发货单出库追踪表
+		 trackBarcodeMapper.insertBatchSn(allOutBarList);
+		return allOutBarList;
+	}
+	
+	
+	@Override
+	public List<TrackBarcode> insertArrivalSnList(List<BillWarehouseItem> itemList,Long deliveryCode,CommonParam commonParam) throws BusinessException, SQLException {
+		
+		
+		   List<TrackBarcode> allOutBarList = new ArrayList<TrackBarcode>();
+			
+		   //根据主单查询标签
+		   List<TrackBarcode> barcodeItem= new ArrayList<TrackBarcode>();
+		   TrackBarcodeParamVo paramVo =new TrackBarcodeParamVo();
+		   paramVo.setBillId(deliveryCode);
+		   barcodeItem=trackBarcodeMapper.selectListByEntityParamVo(paramVo);
+		   
+		   DecimalFormat df=new DecimalFormat("0000");
+		   Integer index = 0;
+		   String idString = "";
+		   Long idLong = 0L;
+		   Long billItemId=trackBarcodeMapper.getIDValue();
+		   
+		   //批量新增标签
+		   for (TrackBarcode trackBarcode : barcodeItem) {
+			   TrackBarcode BarcodeItem = new TrackBarcode();
+				index++;
+				idString=df.format(index);
+				idLong = Long.valueOf(billItemId.toString() + idString);
+				BarcodeItem.setId(idLong);
+				BarcodeItem.setBarcodeStatusDictId(EnumDictBarcodeStatus.NEW.getValue());
+				BarcodeItem.setBillStatusDictId(EnumDictBillStatus.DOING.getValue());
+				BarcodeItem.setBillTypeDictId(EnumDictBillType.BILL_TYPE_WAREHOUSE_ARRIVAL.getValue());
+				BarcodeItem.setBarcode(trackBarcode.getBarcode());
+				BarcodeItem.setBarcodePackboxId(trackBarcode.getBarcodePackboxId());
+				BarcodeItem.setBarcodeRuleDictId(trackBarcode.getBarcodeRuleDictId());
+				BarcodeItem.setBillId(itemList.get(0).getBillId());
+				//查询相应的明细Id
+				for (BillWarehouseItem billItem : itemList) {
+					if (billItem.getMaterialId().equals(trackBarcode.getMaterialId())) {
+						BarcodeItem.setBillItemId(billItem.getId());
+					}
+				}
+				BarcodeItem.setMaterialId(trackBarcode.getMaterialId());
+				BarcodeItem.setProductId(trackBarcode.getProductId());
+				BarcodeItem.setQuantity(trackBarcode.getQuantity());
+				BarcodeItem.setTenantId(commonParam.getTenantId());
+				BarcodeItem.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+				BarcodeItem.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				allOutBarList.add(BarcodeItem);
+		}
+		 
+		//批量新增发货单出库追踪表
+		 trackBarcodeMapper.insertBatchSn(allOutBarList);
+		return allOutBarList;
+	}
+	
+}

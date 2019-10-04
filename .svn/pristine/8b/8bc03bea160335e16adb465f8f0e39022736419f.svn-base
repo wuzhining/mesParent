@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="hidden"  id="ids" />
+          <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+           <select name="labelFieldId">    
+                <option value="">请选择标签属性名称</option> 
+                 <#if configLabelFieldList??>
+                    <#list configLabelFieldList as item>
+		            <option value="${item.id?c}" >${item.labelFieldName}</option>
+		         </#list>
+		         </#if> 
+          </select>
+          <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button> 
+        </form>
+      </div>
+
+       
+	    <div class="layui-col-md12" style='text-align:right;'>
+	    	<a class="layui-btn-small" href='javascript:void(0)' onclick="layer_window_show('字段类型信息','/config/configLabelField/labelFieldAdd')"><i class="layui-icon"></i>添加标签字段</a>
+	    </div>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable_details" lay-filter="tablefilter_details"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+	<script type="text/html" id="labelFieldIdTpl">
+	{{#  if(d.configLabelField){ }}
+		{{ d.configLabelField.labelFieldName 
+
+    }}
+   {{#  } }}
+	</script>
+	
+	
+	<script type="text/html" id="labelIdTpl">
+	{{#  if(d.configLabel){ }}
+		{{ d.configLabel.labelName 
+
+    }}
+    {{#  } }}
+	</script>
+
+<script type="text/html" id="barDemo">	
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="del">删除</a>
+</script>   
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arr = url.split('=');
+	var ids = arr[1];
+	$("#ids").val(ids);
+	var layuiformajax = layui.layuiformajax;
+        	var curTable = layuitable.render({
+            	elem: '#listTable_details'
+            	,id:'listTable_details'
+            	,url:'/config/configLabelItem/list/json?labelId='+ids
+            	,cols: [[
+                 	    /*  {type: 'checkbox', fixed: 'left'}, */
+                 	         {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+                 	        ,{field:'labelId',  title: '标签名称',align:'center', minWidth: 400,templet:'#labelIdTpl'}  
+                     	    ,{field:'labelFieldName',  title: '标签属性名称',align:'center', minWidth: 280,templet:'#labelFieldIdTpl'}
+     	            	    ,{field:'sortNo',  title: '排序号(可编辑)',align:'center', minWidth: 180,edit: 'text'}
+     	            	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+                 	]]
+        	,done:function(){
+       		 $("[data-field='id']").css('display','none');
+       	 }
+          	});
+        	
+        	
+        	
+        	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+	
+	
+	
+	//监听单元格编辑-->保存排序号操作
+	table.on('edit(tablefilter_details)', function(obj){
+		var value = obj.value //得到修改后的值
+	    ,data = obj.data //得到所在行所有键值
+	    ,field = obj.field; //得到字段
+
+ 	     var url = '/config/configLabelItem/saveDetail';
+        layuiformajax.postJson(url, {"id":data.id,"labelId":ids,"sortNo":value}, function (result) {
+   	    	if (result.isSuccess) {
+   	    	    layer.alert("保存成功", {icon: 6},function () {
+   	                // 获得frame索引
+   	                var index = layer.getFrameIndex(window.name);
+   				  	location.reload(); 
+   	                layer.close(index);
+   	            });	
+   			}else{
+   				layer.alert(resjosn.message,{icon:2},function () {
+   	                var index = layer.getFrameIndex(window.name);
+   				  	location.reload(); 
+   	                layer.close(index);
+   				});
+   			}
+		}); 
+        
+        
+/*    	  $.ajax({
+		  url:"/config/configLabelItem/saveDetail",
+	      type: "POST",
+	      data: {
+	    	  "id":data.id,
+	    	  "sortNo":value
+	    	  },
+	      success: function (result) {
+	    	  resjosn=JSON.parse(result);
+	   	    	if (resjosn.isSuccess) {
+	   	    	    layer.alert("保存成功", {icon: 6},function () {
+	   	                // 获得frame索引
+	   	                var index = layer.getFrameIndex(window.name);
+	   				  	location.reload(); 
+	   	                layer.close(index);
+	   	            });	
+	   			}else{
+	   				layer.alert(resjosn.message,{icon:2},function () {
+	   	                var index = layer.getFrameIndex(window.name);
+	   				  	location.reload(); 
+	   	                layer.close(index);
+	   				});
+	   			}
+	      }
+	  }); */
+         
+        
+	});
+
+    
+	table.on('tool(tablefilter_details)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'del') {
+	          //监听提交
+       	  var url = '/config/configLabelItem/del?id='+ data.id;
+       	  layuiformajax.postJson(url, '', function (result) {
+       		  layer.msg('删除成功!', {icon: 1, time: 1000},function () {
+     	                // 获得frame索引
+     	                var index = parent.layer.getFrameIndex(window.name);
+     				  	location.reload(); 
+     	                layer.close(index);
+     	            });
+       		  
+     		  });
+	
+		}
+	});
+ 	
+
+});	
+</script>
+</body>
+
+</html>

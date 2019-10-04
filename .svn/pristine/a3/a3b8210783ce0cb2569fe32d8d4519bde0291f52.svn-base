@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+    <script type="text/javascript" src="/static/plugins/highcharts/code/modules/sankey.js"></script>
+	<script type="text/javascript" src="/static/plugins/highcharts/code/modules/organization.js"></script>
+	<style type="text/css">
+	#container {
+	min-width: 80%;
+	max-width: 90%;
+	margin: 1em auto;
+	border: 1px solid silver;
+	}
+	#container h4 {
+	text-transform: none;
+	font-size: 14px;
+	font-weight: normal;
+	}
+	#container p {
+	font-size: 13px;
+	line-height: 16px;
+	}
+	</style>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">产品</a> <a><cite>产品bom树状图</cite></a>
+      </span>
+    </div>
+    <div class="row">
+ 	<div id="container"></div>
+ 	</div>
+ 	
+
+<script type="text/javascript">
+var datas=[];
+var nodesJson=[];
+var productId=parent.productId;
+var url='/product/productBom/list/json';
+	$.ajax({
+		type: "post",
+		dataType: "json",
+		contentType:'application/x-www-form-urlencoded',
+		async: false,
+		url:url,
+		data:{"productId":productId},
+		success: function(res){
+			var data=res.resultlist;
+			var bomArray=[];
+			var sonArray=[];
+			var productArray=[];
+			var node=[];
+			var json={};
+			var sonJson={};
+			if(data.length>0){
+				for (var i = 0; i < data.length; i++) {
+					if(data[i].parentId==0){
+							var sonData="";//子集信息
+							var parentData=data[i];//父级信息
+							var allData=selectItemById("",url)
+							allData=allData.resultlist;
+							for (var j = 0; j < allData.length; j++) {
+								if(allData[j].parentId==data[i].id){
+									sonData=allData[j];
+									console.log(sonData);
+									
+									bomArray=[parentData.bomCode + '</br>'+ parentData.productMain.productName,parentData.productMaterial.materialName+i];
+									sonArray=[parentData.bomCode + '</br>'+ parentData.productMain.productName,sonData.bomCode + '</br>'+ sonData.productMain.productName];
+									productArray=[sonData.bomCode + '</br>'+ sonData.productMain.productName,sonData.productMaterial.materialName+j];
+
+									datas.push(bomArray);
+									datas.push(sonArray);
+									datas.push(productArray);
+									
+									json={id:parentData.productMaterial.materialName+i,name:parentData.productMaterial.materialName};
+									sonJson={id:sonData.productMaterial.materialName+j,name:sonData.productMaterial.materialName};
+									nodesJson.push(json);
+									nodesJson.push(sonJson);
+								}else{
+									bomArray=[data[i].bomCode + '</br>'+ data[i].productMain.productName,data[i].productMaterial.materialName+i];
+									datas.push(bomArray);
+									
+									json={id:data[i].productMaterial.materialName+i,name:data[i].productMaterial.materialName};
+									nodesJson.push(json);
+								};
+							}
+					};
+				console.log(nodesJson);
+			}
+			}	
+        }
+		  });
+var chart1 = new Highcharts.chart('container', {
+	chart: {
+		height: 600,
+		inverted: true
+	},
+	title: {
+		text: '产品 Bom'
+	},
+	series: [{
+		type: 'organization',
+		name: 'Bom',
+		color: 'red',
+		keys: ['from', 'to'],
+		data:datas,
+		levels: [{
+			level: 0,
+			color: '#189F92',
+			height: 25
+		}, {
+			level: 1,
+			color: '#008EBD',
+			height: 25
+		}, {
+			level: 2,
+			color: 'silver',
+			dataLabels: {
+				color: 'black'
+			}
+		}, {
+			level: 3,
+			color: 'silver'
+		}, {
+			level: 4,
+			color: '#359154'
+		}],
+		nodes: nodesJson,
+		colorByPoint: false,
+		color: '#007ad0',
+		dataLabels: {
+			color: 'white'
+		},
+		borderColor: 'white',
+		nodeWidth: 65
+	}],
+	tooltip: {
+		outside: true
+	}
+});	
+	
+       
+
+</script>
+ 
+  </body>
+
+</html>

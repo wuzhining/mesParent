@@ -1,0 +1,185 @@
+package com.techsoft.client.service.work;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+
+import com.techsoft.entity.common.WorkPlanEquipFixture;
+import com.techsoft.entity.work.WorkPlanEquipFixtureVo;
+import com.techsoft.entity.work.WorkPlanEquipFixtureParamVo;
+import com.techsoft.service.work.WorkPlanEquipFixtureService;
+
+@org.springframework.stereotype.Service
+public class ClientWorkPlanEquipFixtureServiceImpl extends BaseClientServiceImpl<WorkPlanEquipFixture> implements ClientWorkPlanEquipFixtureService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WorkPlanEquipFixtureService workPlanEquipFixtureService;
+    
+	@Override
+	public BaseService<WorkPlanEquipFixture> getBaseService() {
+		return workPlanEquipFixtureService;
+	}	    	
+    
+	private WorkPlanEquipFixtureVo getVo(WorkPlanEquipFixture workPlanEquipFixture, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkPlanEquipFixtureVo vo = new WorkPlanEquipFixtureVo(workPlanEquipFixture);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+	
+	private WorkPlanEquipFixtureVo getExtendVo(WorkPlanEquipFixture workPlanEquipFixture, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkPlanEquipFixtureVo vo = this.getVo(workPlanEquipFixture, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<WorkPlanEquipFixtureVo> getVoList(List<WorkPlanEquipFixture> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<WorkPlanEquipFixtureVo> voList = new ArrayList<WorkPlanEquipFixtureVo>();
+		for (WorkPlanEquipFixture entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<WorkPlanEquipFixtureVo> getExtendVoList(List<WorkPlanEquipFixture> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<WorkPlanEquipFixtureVo> voList = new ArrayList<WorkPlanEquipFixtureVo>();
+		for (WorkPlanEquipFixture entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public WorkPlanEquipFixtureVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkPlanEquipFixture entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<WorkPlanEquipFixtureVo>  selectListVoByParamVo(WorkPlanEquipFixtureParamVo workPlanEquipFixture, CommonParam commonParam) throws BusinessException, SQLException {
+		if(workPlanEquipFixture==null){
+			workPlanEquipFixture = new WorkPlanEquipFixtureParamVo();
+		}
+		workPlanEquipFixture.setTenantId(commonParam.getTenantId());	
+	
+		List<WorkPlanEquipFixture> list = (List<WorkPlanEquipFixture>) this.getBaseService().selectListByParamVo(workPlanEquipFixture, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<WorkPlanEquipFixtureVo> selectPageVoByParamVo(WorkPlanEquipFixtureParamVo workPlanEquipFixture, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(workPlanEquipFixture==null){
+			workPlanEquipFixture = new WorkPlanEquipFixtureParamVo();
+		}
+		workPlanEquipFixture.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<WorkPlanEquipFixture> list  = (PageInfo<WorkPlanEquipFixture>) this.getBaseService().selectPageByParamVo(workPlanEquipFixture, commonParam, pageNo, pageSize);
+		List<WorkPlanEquipFixtureVo> volist = new ArrayList<WorkPlanEquipFixtureVo>();
+		
+		Iterator<WorkPlanEquipFixture> iter = list.getList().iterator();
+		WorkPlanEquipFixtureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<WorkPlanEquipFixtureVo> vpage = new Page<WorkPlanEquipFixtureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public WorkPlanEquipFixtureVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkPlanEquipFixture entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<WorkPlanEquipFixtureVo>  selectListExtendVoByParamVo(WorkPlanEquipFixtureParamVo workPlanEquipFixture, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(workPlanEquipFixture==null){
+			workPlanEquipFixture = new WorkPlanEquipFixtureParamVo();
+		}
+		workPlanEquipFixture.setTenantId(commonParam.getTenantId());	
+					
+		List<WorkPlanEquipFixture> list = (List<WorkPlanEquipFixture>) this.getBaseService().selectListByParamVo(workPlanEquipFixture, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<WorkPlanEquipFixtureVo> selectPageExtendVoByParamVo(WorkPlanEquipFixtureParamVo workPlanEquipFixture, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(workPlanEquipFixture==null){
+			workPlanEquipFixture = new WorkPlanEquipFixtureParamVo();
+		}
+		workPlanEquipFixture.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<WorkPlanEquipFixture> list  = (PageInfo<WorkPlanEquipFixture>) this.getBaseService().selectPageByParamVo(workPlanEquipFixture, commonParam, pageNo, pageSize);
+		List<WorkPlanEquipFixtureVo> volist = new ArrayList<WorkPlanEquipFixtureVo>();
+		
+		Iterator<WorkPlanEquipFixture> iter = list.getList().iterator();
+		WorkPlanEquipFixtureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<WorkPlanEquipFixtureVo> vpage = new Page<WorkPlanEquipFixtureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(WorkPlanEquipFixtureParamVo workPlanEquipFixtureParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		WorkPlanEquipFixture workPlanEquipFixture = null;
+		try {
+			if (workPlanEquipFixtureParamVo.getId() == null) {//新增
+			 
+				workPlanEquipFixtureParamVo.setTenantId(commonParam.getTenantId());
+				workPlanEquipFixture = workPlanEquipFixtureService.saveOrUpdate(workPlanEquipFixtureParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				WorkPlanEquipFixture workPlanEquipFixtureVoTemp = this.selectById(workPlanEquipFixtureParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(workPlanEquipFixtureVoTemp,
+						workPlanEquipFixtureParamVo);
+  
+				workPlanEquipFixture = workPlanEquipFixtureService.saveOrUpdate(
+						workPlanEquipFixtureVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(workPlanEquipFixture);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

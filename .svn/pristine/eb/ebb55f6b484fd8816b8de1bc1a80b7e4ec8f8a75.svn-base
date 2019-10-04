@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">调拨单</a> <a><cite>单据明细</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <input class="layui-input" placeholder="开始时间" name="startTime" id="startTime">
+          <input class="layui-input" placeholder="结束时间" name="endTime" id="endTime">
+          <select name="materialId">    
+                <option value="">请选择物料</option> 
+                 <#if materialList??>
+                     <#list materialList as item>
+			            <option value="${item.id?c}" >${item.materialName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select> 
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+       <!--   <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button>  -->
+         <button class="layui-btn layui-btn-sm" id="add" ><i class="layui-icon"></i>添加</button>
+<!--          <button class="layui-btn" id="print" ><i class="layui-icon"></i>打印标签</button> -->
+<!--          <button id="improt" class="layui-btn" class="layui-icon">导入模板</button> -->
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+ 	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="list_sn">标签详情</a>
+</script> 
+ <script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+
+ 	}}
+	{{# } }}
+</script>
+   <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script>   
+<script type="text/javascript">
+var bill ;
+var billStatusDictId;
+var barcodeResultData=[];
+var trackBarcodeResultData=[];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	
+   	var urlArr = window.location.href.toString().split("?");
+  	function getParam(urlArr,paraName){
+  		if (urlArr.length > 1) {
+	  　　　　　　var arrPara = urlArr[1].split("&");
+	  　　　　　　var arr;
+	  　　　　　　for (var i = 0; i < arrPara.length; i++) {
+	  　　　　　　　　arr = arrPara[i].split("=");
+
+	  　　　　　　　　if (arr != null && arr[0] == paraName) {
+	  　　　　　　　　　　return arr[1];
+	  　　　　　　　　}
+	  　　　　　　}
+	  　　　　　　return "";
+	  　　　　}
+	  　　　　else {
+	  　　　　　　return "";
+	  　　　　}
+  	};
+  	var billId = getParam(urlArr,'billId');		//
+  	bill=billId;
+    billStatusDictId = getParam(urlArr,'billStatusDictId');
+	  	
+	var layuiformajax = layui.layuiformajax;
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arr = url.split('=');
+	//var billId = arr[1].split("&&")[0];
+	var id = arr[2];
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/bill/billWarehouseAllocationItem/list/json?billId='+billId
+		    	,cols: [[
+// 		    	     {field:'billId',  title: '单据号',align:'center', minWidth: 120}
+// 		    	    ,{field:'billStatusDictId',  title: '单据状态', align:'center',minWidth: 120}
+		    	    {field:'materialName',  title: '物料', align:'center',minWidth: 120,templet: '#materialName'}
+		    	    ,{field:'sku', title: '物料规格值', align:'center',minWidth: 220,templet: '#sku'}
+		    	    ,{field:'quantity',  title: '数量',align:'center', minWidth: 120}
+		    	    ,{field:'quantityFinish',  title: '完成数量',align:'center', minWidth: 120}
+		    	    ,{field:'quantityScan',  title: '扫描数量',align:'center', minWidth: 120}
+		    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+		      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+		    	  ]],done:function(){
+		    	}
+		  	});
+	
+	 //打印标签操作
+  	//打印预览
+//       $("#print").click(function(){
+//     	 datas=selectItemById("billId",bill, '/barcode/barcodeMain/billWarehouseItemById');
+//     	 print_Preview(datas,methodName); 
+    	 
+//     		result(function(message){//自定义异步回调函数，用来判断打印是否成功
+//     		  if(message||message>0){//如果直接打印判断Boolean，如果预览打印，判断message大于0，预览打印返回打印次数
+//         		 //保存打印的数据到
+//         	 	var barcodeUrl = '/barcode/barcodeMain/insertBarcodeMain';
+//         	 	var trackBarcodeUrl ='/track/trackBarcode/insertPrintBarcode';
+        	 	
+//         	 	insertPrintData(barcodeResultData,barcodeUrl);//保存条码打印数据到条码主表,已经插入成功了，数据库当前时间对不上
+//         		insertPrintData(trackBarcodeResultData,trackBarcodeUrl);//保存条码打印数据到条码记录表，已经插入成功，数据库当前时间对不上
+//     		  }
+//     		}); 
+	
+	
+//           })    	
+  	//导入模板
+//   	$("#improt").click(function(){
+//   	    myReadFile();
+  	        	  
+//   	  });
+			
+			form.on('submit(search)', function (data) {
+				layuitable.reload(data.field);
+		        return false;
+		  	});
+	
+			table.on('tool(tablefilter)', function(obj) {
+				var data = obj.data;
+				
+				if (obj.event === 'edit') {
+					if (data.billStatusDictId =='10488'){
+					layer_window_show('编辑单据明细','/bill/billWarehouseAllocationItem/edit?id=' + data.id); 
+					}else{
+						var str='';
+						if(data.billStatusDictId==10489){
+							str='单据处理中，不能修改明细信息！';
+						}else if(data.billStatusDictId==10490){
+							str='单据已完结,不能修改明细信息！';
+						}
+						layer.alert(str);  
+					}
+				}else if(obj.event=== 'del'){
+					if(data.billStatusDictId =='10488'){
+					var url = '/bill/billWarehouseItem/del';
+					var datas={"id":data.id};
+			       	  layuiformajax.postJson(url, datas, function (result) {
+			       		  layer.msg('删除成功!', {icon: 1, time: 1000},function () {
+			     	                // 获得frame索引
+			     	                var index = parent.layer.getFrameIndex(window.name);
+			     				  	location.reload(); 
+			     	                layer.close(index);
+			     	            });
+			     		  });
+					}else{
+						var str='';
+						if(data.billStatusDictId==10489){
+							str='单据处理中，不能删除明细信息！';
+						}else if(data.billStatusDictId==10490){
+							str='单据已完结,不能删除明细信息！';
+						}
+						layer.alert(str);  
+					}
+				}else if (obj.event === 'list_sn'){
+					var url='/bill/billWarehouseItem/listsn?billItemId='+data.id+'&billId='+data.billId+'&materialId='+data.materialId;
+					
+					layer_window_show('标签详情',url);
+					}
+			});
+			
+			$("#add").click(function(){
+				 //判断单据是否已完结 
+		         if (billStatusDictId =='10488'){
+					layer_window_show('添加单据明细','/bill/billWarehouseAllocationItem/edit?billId='+billId+'&billStatusDictId='+billStatusDictId); 
+					console.log('&billStatusDictId='+billStatusDictId);
+		         }else{
+		        	 var str='';
+						if(billStatusDictId==10489){
+							str='单据处理中，不能添加明细信息！';
+						}else if(billStatusDictId==10490){
+							str='单据已完结,不能添加明细信息！';
+						}
+						layer.alert(str);  
+		         }
+			});
+			
+			laydate.render({
+				elem: '#startTime' //指定元素
+				,type: 'date'
+				,format: 'yyyy-MM-dd' //可任意组合
+			});
+			
+			laydate.render({
+				elem: '#endTime' //指定元素
+				,type: 'date'
+				,format: 'yyyy-MM-dd' //可任意组合
+			});
+		});	
+//自定义方法：用来变量赋值
+//   methodName = function (datas,str){
+//   	var oldQuantity="";
+//   	var quantity="";
+//   	var materialId="";
+//   	var materialName="";
+//   	var barcode="";
+//   		for (var i = 0; i < datas.length; i++) {
+//   			/**
+//   			 * 该方法下面需要写自己对应模板的变量名赋值；下面的两个变量是例子，可以替换成自己需要的字段
+//   			 */
+//   			     materialId=datas[i].materialId;
+// 	    			 if(datas[i].quantity!=null){
+// 	    				 oldQuantity=datas[i].quantity; // 数量
+// 	    			 }
+// 	    			 if(datas[i].materialId!=null){
+// 	    				 //用物料id拿到产品id,然后通过产品id拿到包装箱最小包装数，然后用物料总数除以最小包装数向上取整，得到物料条码张数，最后一张条码通过取余得到条码物料剩余数
+// 	    				 //不能直接用查询物料的url。。得重新写后台byId查询方法
+// 	    				 var productData=selectItemById("id",datas[i].materialId,'/product/productMaterial/selectProductByMaterilId');
+// 	    				 materialName=productData[0].materialName;
+// 	    				 var productId="";
+// 	    				 for (var x = 0; x < productData.length; x++) {
+// 	    					 productId= productData[x].productId;
+// 						}
+// 	    				 //拿到包装箱的详细信息
+// 	    				 var packBoxData=selectItemById("productId",productId,'/product/productPackbox/selectPackboxByProductId');
+// 	    				 var quantityMinimum=0;
+	    				
+// 	    				quantityMinimum= packBoxData[i].quantityMinimum;//根据物料id得到相应的最小包装数
+// 	    				var decodeQuantity= Math.ceil(oldQuantity/quantityMinimum);//条码打印张数
+// 	    				var decodeModQuantity=oldQuantity%quantityMinimum; //条码打印最后一张物料数量
+	    				 
+// 	    				 for (var k = 0; k < decodeQuantity; k++) {
+// 	    					 LODOP.NewPage();
+// 	    					 barcode=datas[i].materialId+RndNum(10); // 物料条码=物料ID+10位随机数
+// 	    					 if(k==decodeQuantity-1){//最后一张条码
+// 	    						 if(decodeModQuantity!=0){
+// 	    						quantity=decodeModQuantity;
+// 	    						 }
+// 	    					 }else{//每张条码打印的应该是最小包装数
+// 	    						 quantity= quantityMinimum;
+// 	    					 }
+// 		    					 barcodeResultData.push({"billId":datas[i].billId,
+// 		    						                     "materialId":datas[i].materialId,
+// 		    						                     "id":barcode,
+// 		    						                     "barcode":barcode,
+// 		    						                     "quantity":quantity,
+// 		    						                     "billItemId":datas[i].id,
+// 		    						                     "barcodePackboxId":0,
+// 		    						                     "billStatusDictId":10488
+// 		    						 });//库存条码
+// 		    			 		 trackBarcodeResultData.push({"billId":datas[i].billId,
+// 		    			 			                          "materialId":datas[i].materialId,
+// 		    			 			                          "barcodeId":barcode,
+// 		    			 			                          "barcode":barcode,
+// 		    			 			                          "quantity":quantity,
+// 		    			 			                          "billItemId":datas[i].id,
+// 		    			 			                         "barcodePackboxId":0,
+// 			    						                     "barcodeStatusDictId":10510,
+// 			    						                     "billStatusDictId":10488
+// 		    			 		     });//单据条码
+							
+//   						eval(str); //加载模板
+// 						}
+						
+// 	    			 }
+  			
+//   		}	
+//   	};
+</script>
+ 
+  </body>
+
+</html>

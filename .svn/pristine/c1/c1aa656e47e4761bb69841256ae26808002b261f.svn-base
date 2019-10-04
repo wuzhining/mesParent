@@ -1,0 +1,231 @@
+ <!DOCTYPE html>
+<html>
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+ <body>
+    <div class="x-body" >
+      <form id="form"  method="post" class="layui-form">
+       <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+       <div class="layui-row">
+  	 	  <div class="layui-col-md12">
+				<form class="layui-form layui-col-md12 x-so">
+					<table class="layui-table">
+						<tr>
+						   <td colspan="2" id="td1" >工厂</td>
+						</tr>
+						<tr>
+						    <td id="factoryId" style="height:100px;margin-bottom:20px" >
+				    	    </td>
+				    	</tr>
+					</table>
+				   </form>
+        	</div>
+        </div>
+     
+	     <div class="layui-row">
+	     	<div class="layui-col-md12">
+	     		<form class="layui-form layui-col-md12 x-so">
+	     			<table class="layui-table">
+	          			<tr>
+	          				<td colspan="2" id="td2">仓库</td>
+	          			</tr>
+	          			<tr>
+			          		<td id="warehouseId" style="height:100px;margin-bottom:20px" >
+			          			
+			          		</td>
+			          	</tr>
+	          		</table>
+	          	</form>
+	        </div>
+	     </div>
+		 <div class="layui-row" >
+     	<div class="layui-col-md12">
+     		<form class="layui-form layui-col-md12 x-so">
+     			<table class="layui-table">
+          			<tr>
+          				<td colspan="2" id="td3">车间</td>
+          			</tr>
+          			<tr>
+			          	<td id="workshopId" style="height:100px;margin-bottom:20px">
+			          	</td>
+			         </tr>
+          		</table>
+          	</form>
+        </div>
+     </div>
+     <div style="text-align:center">
+     	  <tr>
+            <td colspan="5"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save" >保存</button>	
+            
+            	</td>
+           </tr> 
+     </div>
+     </form>
+    </div>
+    <script >
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','table','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+          
+      	
+          //自定义验证规则
+          form.verify({
+        	  factoryId: function(value){
+              if(value.length == 0 || $.trim(value) == ''){
+                return '工厂不能为空';
+              }
+            }
+          
+          });
+         
+         
+        //监听，获取复选框选中的值
+		form.on('checkbox(number)',function(data){
+			var checkId = $(this).attr("id");
+			linkByFactory(data.value,checkId);
+			linkByWarehouse(data.value,checkId);
+		})
+        
+        
+		//监听提交
+        form.on('submit(save)', function(data){
+        	var userId = parent.$("#ids").val();
+        	 obj = document.getElementsByName("factory");
+        	 obj1 = $("input[name='warehouse']");
+        	 obj2 = $("input[name='workshop']");
+     	     check_val = [];
+     	     check_warehouse = [];
+     	    check_workshop = [];
+     	    for(k in obj){
+     	        if(obj[k].checked)
+     	            check_val.push(obj[k].value);
+     	    }
+     	   alert(check_val);
+     	   for(k in obj1){
+    	        if(obj1[k].checked)
+    	            check_warehouse.push(obj1[k].value);
+    	    }
+     	   alert(check_warehouse);
+     	  for(k in obj2){
+   	        if(obj2[k].checked)
+   	            check_workshop.push(obj2[k].value);
+   	    }
+     	  alert(check_workshop)
+      	  var url ='/sys/adminAuthOrgUser/save';
+      	   layuiformajax.postJson(url, {str:check_val,warehouse:check_warehouse,workshop:check_workshop,userId:userId}, function (result) {
+    	    	   layer.alert("保存成功", {icon: 6},function () {
+    	                // 获得frame索引
+    	                var index = parent.layer.getFrameIndex(window.name);
+    				  	parent.location.reload(); 
+    	                parent.layer.close(index);
+    	            });
+    		  });
+        });
+        
+        });
+  //工厂—仓库级联监听
+    function linkByFactory(id,checkId){
+	  var isChecked= $('#'+checkId).prop('checked');//判断当前的值是否选中
+     	layui.use([ 'form'], function(){
+   		var form = layui.form;
+   		var resjosn=null;
+   		$.ajax({
+   			type: "post",
+   			dataType: "",
+   			contentType:'application/x-www-form-urlencoded',
+   			url:"/sys/adminAuthOrgUser/linkByFactory?factoryId="+id+" ",
+   	        success: function(res){
+   				resjosn=JSON.parse(res);
+   				var div;
+   				var a1;
+   				resjosn.forEach(function(value,key){
+   					if(isChecked==true){
+   						//checkId:工厂id,将class属性与工厂绑定
+   						div=$("<div class='"+checkId+"' style='float:left;margin-left:10px;'>");
+   						a1=$('<input type="checkbox"  name="warehouse"  title="'+value.warehouseName+'"  value="'+value.id+'"  style="width:40px" >');
+   						div.append(a1);
+   						$("#warehouseId").append(div);
+   					}else{
+   						$("."+checkId).remove();
+   					}
+   				});
+   				form.render('checkbox');
+   			}
+			});
+   	});
+   }  
+    //仓库—车间级联监听
+     function linkByWarehouse(id,checkId){
+    	 var isChecked= $('#'+checkId).prop('checked');//判断当前的值是否选中
+    	 layui.use([ 'form'], function(){
+        	 var form = layui.form;
+    		var resjosn=null;
+    		$.ajax({
+    			type: "post",
+    			dataType: "",
+    			contentType:'application/x-www-form-urlencoded',
+    			url:"/sys/adminAuthOrgUser/linkByWarehouse?factoryId="+id+" ",
+    	        success: function(res){
+    				resjosn=JSON.parse(res);
+    				var div;
+    				var c1;
+    				resjosn.forEach(function(value,key){
+    					if(isChecked==true){
+    						div=$("<div class='"+checkId+"' style='float:left;margin-left:10px;'>");
+    						c1=$('<input type="checkbox"  name="workshop"  title="'+value.workshopName+'" value="'+value.id+'" style="width:40px" >');
+    						div.append(c1);
+    						$("#workshopId").append(div);
+       					}else{
+       						$("."+checkId).remove();
+       					}
+    				});
+    				form.render('checkbox');
+    			}
+    	});
+    	 }); 
+    }    
+    var autoNumber=0;
+     function ajaxCon(){
+    	 layui.use([ 'form'], function(){
+    	 var form = layui.form;
+    	$.ajax({
+			type: "post",
+			dataType: "",
+			url: "/sys/adminAuthOrgUser/factory",
+	        success: function(res){
+				var resjosn=JSON.parse(res);
+				var s1;
+				resjosn.forEach(function(value,key){
+					autoNumber++;
+					s1=$('<input type="checkbox" name="factory" id="'+autoNumber+'"  lay-filter="number" title="'+value.factoryName+'" value="'+value.id+'" style="width:40px" >');
+					$("#factoryId").append(s1);
+					//alert(${(entity.factoryName)!''});
+					
+				});
+				form.render('checkbox');
+				
+			}
+		});
+    	 });
+    } 
+     
+     
+</script>
+ <script>
+    $(function () {
+    	ajaxCon();
+    });
+    layui.use('form',function(){
+    	var form=layui.form;
+    	form.render('checkbox');
+    	});
+    </script>
+  </body>
+</html>

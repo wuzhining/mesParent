@@ -1,0 +1,86 @@
+body {
+}
+.tab_child {
+	border-left: 1px solid #95B8E7;
+    border-bottom: 1px solid #95B8E7;
+}
+.tab_child_td
+{
+	border-color:#95B8E7;
+	border-right: 1px solid #95B8E7;
+	border-top: 1px solid #95B8E7;
+	
+}
+.tb_left_child{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    width: 100%;
+    height: 100%;
+}
+.text_hidden{
+	overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    line-height: 23px;
+    max-height: 46px;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+.tb_right_child_td {
+    width: 100%;
+    height: 100%;
+    border-bottom: 1px solid #95B8E7;
+
+}
+
+.td_title {
+    background-color: #CC8F33;
+}
+
+.td_info {
+    background-color: #1AE66B;
+}
+span
+{
+	margin-left:5px;
+	font-size:12px;
+	
+}
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    font-size: 14px;
+}
+
+p {
+    border: 0;
+    height: 0px;
+    line-height: 50%;
+    text-align: center;
+    /*background-color: rgba(0,0,0,0.5); IE9、标准浏览器、IE6和部分IE7内核的浏览器(如QQ浏览器)会读懂 */
+}
+
+    p span {
+        font-family: "微软雅黑","宋体";
+        font-weight: normal;
+        color: #000000;
+        text-align: center;
+        padding-bottom: 1px;
+    }
+
+@media \0screen\,screen\9 { /* 只支持IE6、7、8 */
+    p {
+        background-color: #000000;
+        filter: Alpha(opacity=50);
+        position: static; /* IE6、7、8只能设置position:static(默认属性) ，否则会导致子元素继承Alpha值 */
+        *zoom: 1; /* 激活IE6、7的haslayout属性，让它读懂Alpha */
+    }
+
+        p span {
+            position: relative; /* 设置子元素为相对定位，可让子元素不继承Alpha值 */
+        }
+}

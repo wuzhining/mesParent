@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.equip.EquipFixtureStackMapper">
+	<resultMap id="EquipFixtureStack" type="com.techsoft.entity.common.EquipFixtureStack" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FIXTURE_ID" property="fixtureId" />
+		<result column="SPECS_FIXTURE_AREA_ID" property="specsFixtureAreaId" />
+		<result column="FIXTURE_STACK_CODE" property="fixtureStackCode" />
+		<result column="FIXTURE_STACK_NAME" property="fixtureStackName" />
+		<result column="NUMBER_USED" property="numberUsed" />
+		<result column="NUMBER_STANDARD" property="numberStandard" />
+		<result column="NUMBER_PRINT" property="numberPrint" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="fixtureId != null">
+			AND A.FIXTURE_ID= #{fixtureId}
+		</if>
+		<if test="specsFixtureAreaId != null">
+			AND A.SPECS_FIXTURE_AREA_ID= #{specsFixtureAreaId}
+		</if>
+		<if test="fixtureStackCode != null">
+			AND A.FIXTURE_STACK_CODE= #{fixtureStackCode}
+		</if>
+		<if test="fixtureStackName != null">
+			AND A.FIXTURE_STACK_NAME= #{fixtureStackName}
+		</if>
+		<if test="numberUsed != null">
+			AND A.NUMBER_USED= #{numberUsed}
+		</if>
+		<if test="numberStandard != null">
+			AND A.NUMBER_STANDARD= #{numberStandard}
+		</if>
+		<if test="numberPrint != null">
+			AND A.NUMBER_PRINT= #{numberPrint}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FIXTURE_ID,
+		A.SPECS_FIXTURE_AREA_ID,
+		A.FIXTURE_STACK_CODE,
+		A.FIXTURE_STACK_NAME,
+		A.NUMBER_USED,
+		A.NUMBER_STANDARD,
+		A.NUMBER_PRINT,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for EQUIP_FIXTURE_STACK_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from EQUIP_FIXTURE_STACK
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.EquipFixtureStack">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_FIXTURE_STACK A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.EquipFixtureStack">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_FIXTURE_STACK A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM EQUIP_FIXTURE_STACK A WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM EQUIP_FIXTURE_STACK A WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixtureStack">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM EQUIP_FIXTURE_STACK A WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixtureStack">
+		INSERT INTO EQUIP_FIXTURE_STACK (
+		TENANT_ID,
+		FIXTURE_ID,
+		SPECS_FIXTURE_AREA_ID,
+		FIXTURE_STACK_CODE,
+		FIXTURE_STACK_NAME,
+		NUMBER_USED,
+		NUMBER_STANDARD,
+		NUMBER_PRINT,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{fixtureId},
+		#{specsFixtureAreaId},
+		#{fixtureStackCode},
+		#{fixtureStackName},
+		#{numberUsed},
+		#{numberStandard},
+		#{numberPrint},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixtureStack">
+		UPDATE EQUIP_FIXTURE_STACK SET
+		TENANT_ID=#{tenantId},
+		FIXTURE_ID=#{fixtureId},
+		SPECS_FIXTURE_AREA_ID=#{specsFixtureAreaId},
+		FIXTURE_STACK_CODE=#{fixtureStackCode},
+		FIXTURE_STACK_NAME=#{fixtureStackName},
+		NUMBER_USED=#{numberUsed},
+		NUMBER_STANDARD=#{numberStandard},
+		NUMBER_PRINT=#{numberPrint},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipFixtureStack">
+		UPDATE EQUIP_FIXTURE_STACK SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="fixtureId != null" >
+			FIXTURE_ID=#{fixtureId},
+		</if>
+		<if test="specsFixtureAreaId != null" >
+			SPECS_FIXTURE_AREA_ID=#{specsFixtureAreaId},
+		</if>
+		<if test="fixtureStackCode != null" >
+			FIXTURE_STACK_CODE=#{fixtureStackCode},
+		</if>
+		<if test="fixtureStackName != null" >
+			FIXTURE_STACK_NAME=#{fixtureStackName},
+		</if>
+		<if test="numberUsed != null" >
+			NUMBER_USED=#{numberUsed},
+		</if>
+		<if test="numberStandard != null" >
+			NUMBER_STANDARD=#{numberStandard},
+		</if>
+		<if test="numberPrint != null" >
+			NUMBER_PRINT=#{numberPrint},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.equip.EquipFixtureStackParamVo"
+		      resultType="com.techsoft.entity.common.EquipFixtureStack" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_FIXTURE_STACK A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

@@ -1,0 +1,255 @@
+package com.techsoft.dao.barcode;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.barcode.BarcodeMainVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.mapper.barcode.BarcodeMainMapper;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+
+@Repository
+public class BarcodeMainDaoImpl extends BaseDaoImpl<BarcodeMain> implements BarcodeMainDao {
+	@Resource
+	protected BarcodeMainMapper barcodeMainMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;
+
+	@Override
+	public Class<BarcodeMain> getEntityClass() {
+		return BarcodeMain.class;
+	}
+
+	@Override
+	public BaseMapper<BarcodeMain> getBaseMapper() {
+		return this.barcodeMainMapper;
+	}
+
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+
+	@Override
+	public String getTableName() {
+		return "BARCODE_MAIN";
+	}
+
+	@Override
+	public void insertSaveCheck(BarcodeMain value) throws BusinessException, SQLException {
+		if (value.getBarcode() == null || value.getBarcode().equals(0L)) {
+			throw new BusinessException("条码号不能为空");
+		}
+		if (value.getBarcodeStatusDictId() == null || value.getBarcodeStatusDictId().equals(0L)) {
+			throw new BusinessException("条码状态不能为空");
+		}
+		if (value.getQuantity() == null || value.getQuantity().equals(0L)) {
+			throw new BusinessException("数量不能为空");
+		}
+		if (value.getMaterialId() == null || value.getMaterialId().equals(0L)) {
+			throw new BusinessException("物料编码不能为空");
+		}
+	}
+
+	@Override
+	public void updateSaveCheck(BarcodeMain value) throws BusinessException, SQLException {
+		// if (value.getBarcode() == null || value.getBarcode().equals(0L)) {
+		// throw new BusinessException("条码号不能为空");
+		// }
+		// if (value.getBarcodeStatusDictId() == null ||
+		// value.getBarcodeStatusDictId().equals(0L)) {
+		// throw new BusinessException("条码状态不能为空");
+		// }
+		// if (value.getBillId() == null || value.getBillId().equals(0L)) {
+		// throw new BusinessException("主单据不能为空");
+		// }
+		// if (value.getBillItemId() == null ||
+		// value.getBillItemId().equals(0L)) {
+		// throw new BusinessException("单据明细不能为空");
+		// }
+
+	}
+
+	@Override
+	public void deleteSaveCheck(BarcodeMain value) throws BusinessException, SQLException {
+
+	}
+
+	@Override
+	public int insertPrintBarcodeMain(List<BarcodeMain> lists, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		int resultSum = 0;
+		//新增明细表
+		DecimalFormat df=new DecimalFormat("00000000");
+		Integer index = 0;
+		String idString = "";
+		Long idLong = 0L;
+		Long barcodeId=barcodeMainMapper.getIDValue();
+		
+		//List<BarcodeMain> barcodeMainLists = new ArrayList<BarcodeMain>();
+		for (BarcodeMain barcodeMain : lists) {
+			
+			index++;
+			idString=df.format(index);
+			idLong = Long.valueOf(barcodeId.toString() + idString);
+			barcodeMain.setId(idLong);
+			barcodeMain.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			barcodeMain.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			barcodeMain.setTenantId(commonParam.getTenantId());
+			
+			//用作工单生成条码  如果barcode没有生成 
+			if (barcodeMain.getBarcode() == null) {
+				barcodeMain.setBarcode(barcodeMain.getId().toString());
+			}
+			
+			insertSaveCheck(barcodeMain);
+			int result = barcodeMainMapper.insertEntity(barcodeMain);
+			resultSum=resultSum+result;
+			//barcodeMainLists.add(barcodeMain);
+		}
+		//int result = barcodeMainMapper.insertPrintBarcodeMain(barcodeMainLists);
+		if (resultSum != lists.size()) {
+			throw new BusinessException("批量增加的条码打印数据与传入的条码主表数量不一致， 请检查!");
+		}
+
+		return resultSum;
+	}
+
+	@Override
+	public void updateBatch(List<BarcodeMain> list, CommonParam commonParam) throws BusinessException, SQLException {
+		try {
+			if (commonParam.getUserId() == null) {
+				throw new BusinessException("session超时,请重新登录");
+			}
+			List<Long> ids = new ArrayList<Long>();
+			for (BarcodeMain item : list) {
+				updateSaveCheck(item);
+				item.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+				item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				
+
+				ids.add(item.getId());
+			}
+			List<DistributedLock> listlock = LockManager.getLongZKDistributedLock(BarcodeMain.class.getName(), ids);
+			LockManager.lockList(listlock);
+			try {
+				
+				this.barcodeMainMapper.updateBatch(list);
+			} finally {
+				LockManager.unLockList(listlock);
+			}
+		} catch (RuntimeException e) {
+			throw new SQLException(e.getMessage());
+		}
+	}
+
+	@Override
+	public Double selectSumQtyByEntity(BarcodeMainParamVo paramVo, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		Double sumQty = 0.00;
+		if (paramVo == null) {
+			paramVo = new BarcodeMainParamVo();
+		}
+
+		// paramVo.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+		try {
+			sumQty = barcodeMainMapper.selectSumQtyByEntity(paramVo);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return sumQty;
+
+	}
+
+	@Override
+	public BarcodeMain selectByBarCode(String barCode, CommonParam commonParam) throws BusinessException, SQLException {
+		if (barCode == null || barCode.equals("")) {
+			throw new BusinessException("扫描标签不能为空");
+		}
+		BarcodeMain result = null;
+		try {
+			result = barcodeMainMapper.selectByBarCode(barCode);
+			if (result == null) {
+				throw new BusinessException("扫描标签不存在");
+			}
+		} catch (Exception e) {
+			throw new SQLException(e.getMessage());
+		}
+		
+		
+		
+		return result;
+	}
+	
+	@Override
+	public List<BarcodeMainVo> selectSumQtyByCondition(BarcodeMainParamVo paramVo)throws BusinessException, SQLException {
+
+		//根据条件汇总数量
+		List<BarcodeMainVo> returnList =new ArrayList<BarcodeMainVo>();
+		returnList=barcodeMainMapper.selectSumQtyByCondition(paramVo);
+		
+		return returnList;
+	}
+	
+	@Override
+	public List<BarcodeMainVo> selectSumQtyByWarehouse(BarcodeMainParamVo paramVo)throws BusinessException, SQLException {
+
+		//根据条件汇总数量
+		List<BarcodeMainVo> returnList =new ArrayList<BarcodeMainVo>();
+		returnList=barcodeMainMapper.selectSumQtyByCondition(paramVo);
+		
+		return returnList;
+	}
+	
+	
+	@Override
+	public void updateStatusByBarcode(BarcodeMain barcodeMain, CommonParam commonParam) throws BusinessException, SQLException {
+		try {
+			//查询标签信息
+			BarcodeMainParamVo paramVo=new BarcodeMainParamVo();
+			paramVo.setBarcode(barcodeMain.getBarcode());
+			List<BarcodeMain> list=barcodeMainMapper.selectListByEntityParamVo(paramVo);
+			
+			List<Long> ids = new ArrayList<Long>();
+			for (BarcodeMain item : list) {
+				updateSaveCheck(item);
+				item.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+				item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				item.setBarcodeStatusDictId(barcodeMain.getBarcodeStatusDictId());
+				item.setBillTypeDictId(barcodeMain.getBillTypeDictId());
+				item.setBillId(barcodeMain.getBillId());
+				item.setBillItemId(barcodeMain.getBillItemId());
+				item.setBillStatusDictId(barcodeMain.getBillStatusDictId());
+				
+				if(barcodeMain.getQuantity()!=null){
+				   item.setQuantity(barcodeMain.getQuantity());
+				}
+				ids.add(item.getId());
+			}
+			List<DistributedLock> listlock = LockManager.getLongZKDistributedLock(BarcodeMain.class.getName(), ids);
+			LockManager.lockList(listlock);
+			try {
+				
+				this.barcodeMainMapper.updateBatch(list);
+			} finally {
+				LockManager.unLockList(listlock);
+			}
+		} catch (RuntimeException e) {
+			throw new SQLException(e.getMessage());
+		}
+	}
+}

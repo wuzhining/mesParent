@@ -1,0 +1,182 @@
+package com.techsoft.entity.common;
+
+import com.techsoft.common.BaseEntity;
+
+public class ProductBom extends BaseEntity {
+	private static final long serialVersionUID = -100718398009667410L;
+
+
+	public ProductBom(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private String bomCode;	
+	   
+	private String bomName;	
+	   
+	private Long productTypeDictId;	
+	   
+	private Long productId;	
+	   
+	private Long materialId;	
+	   
+	private Long bomStatusDictId;	
+	   
+	private Long parentId;	
+	   
+	private String parentIdes;	
+	   
+	private Integer numberLevel;	
+	   
+	private String isDefault;	
+	   
+	private Integer sortNo;	
+	   
+	private Double quantity;	
+	   
+	private Double quantityBase;	
+	   
+	private Double wastageRatio;	
+	   
+	private Double wastageFixvalue;	
+	   
+	private String remark;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public String getBomCode() {
+		return bomCode;
+	}
+
+	public void setBomCode(String bomCode) {
+		this.bomCode = bomCode;
+	}
+                		
+	public String getBomName() {
+		return bomName;
+	}
+
+	public void setBomName(String bomName) {
+		this.bomName = bomName;
+	}
+                		
+	public Long getProductTypeDictId() {
+		return productTypeDictId;
+	}
+
+	public void setProductTypeDictId(Long productTypeDictId) {
+		this.productTypeDictId = productTypeDictId;
+	}
+                		
+	public Long getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Long productId) {
+		this.productId = productId;
+	}
+                		
+	public Long getMaterialId() {
+		return materialId;
+	}
+
+	public void setMaterialId(Long materialId) {
+		this.materialId = materialId;
+	}
+                		
+	public Long getBomStatusDictId() {
+		return bomStatusDictId;
+	}
+
+	public void setBomStatusDictId(Long bomStatusDictId) {
+		this.bomStatusDictId = bomStatusDictId;
+	}
+                		
+	public Long getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Long parentId) {
+		this.parentId = parentId;
+	}
+                		
+	public String getParentIdes() {
+		return parentIdes;
+	}
+
+	public void setParentIdes(String parentIdes) {
+		this.parentIdes = parentIdes;
+	}
+                		
+	public Integer getNumberLevel() {
+		return numberLevel;
+	}
+
+	public void setNumberLevel(Integer numberLevel) {
+		this.numberLevel = numberLevel;
+	}
+                		
+	public String getIsDefault() {
+		return isDefault;
+	}
+
+	public void setIsDefault(String isDefault) {
+		this.isDefault = isDefault;
+	}
+                		
+	public Integer getSortNo() {
+		return sortNo;
+	}
+
+	public void setSortNo(Integer sortNo) {
+		this.sortNo = sortNo;
+	}
+                		
+	public Double getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Double quantity) {
+		this.quantity = quantity;
+	}
+                		
+	public Double getQuantityBase() {
+		return quantityBase;
+	}
+
+	public void setQuantityBase(Double quantityBase) {
+		this.quantityBase = quantityBase;
+	}
+                		
+	public Double getWastageRatio() {
+		return wastageRatio;
+	}
+
+	public void setWastageRatio(Double wastageRatio) {
+		this.wastageRatio = wastageRatio;
+	}
+                		
+	public Double getWastageFixvalue() {
+		return wastageFixvalue;
+	}
+
+	public void setWastageFixvalue(Double wastageFixvalue) {
+		this.wastageFixvalue = wastageFixvalue;
+	}
+                		
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

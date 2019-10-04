@@ -1,0 +1,191 @@
+package com.techsoft.controller.equip;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.common.SQLException;
+import com.techsoft.controller.BaseController;
+import com.techsoft.client.service.equip.ClientEquipWorkService;
+import com.techsoft.client.service.equip.ClientEquipWorkStackService;
+import com.techsoft.entity.equip.EquipWorkStackVo;
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.entity.common.EquipWorkStack;
+import com.techsoft.entity.equip.EquipWorkParamVo;
+import com.techsoft.entity.equip.EquipWorkStackParamVo;
+
+@Controller
+@RequestMapping("/equip/equipWorkStack")
+public class EquipWorkStackController extends BaseController {
+	@Autowired
+	private ClientEquipWorkStackService clientEquipWorkStackService;
+	@Autowired
+	private ClientEquipWorkService clientEquipWorkService;
+
+	/**
+	 * 页面关联数据初始化
+	 * 
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) {
+		try {
+			EquipWorkParamVo EWParamVo = new EquipWorkParamVo();
+			List<EquipWork> workList = clientEquipWorkService.selectListByParamVo(EWParamVo, this.getCommonParam(null));
+			modelAndView.addObject("workList1", workList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());
+	}
+
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("equip/equipWorkStack-list");
+		return modelAndView;
+	}
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		try {
+			EquipWorkParamVo EWParamVo = new EquipWorkParamVo();
+			List<EquipWork> workList = clientEquipWorkService.selectListByParamVo(EWParamVo, this.getCommonParam(null));
+			modelAndView.addObject("workList", workList);
+
+			EquipWorkStackVo entity = new EquipWorkStackVo();
+			if (id != null) {
+				entity = clientEquipWorkStackService.getVoByID(id, this.getCommonParam(request));
+			}
+			modelAndView.addObject("entity", entity);
+			modelAndView.setViewName("equip/equipWorkStack-edit");
+			initData(modelAndView);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")
+	public ReturnPageInfo listJson(HttpServletRequest request, EquipWorkStackParamVo equipWorkStackParamVo,
+			Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}
+		try {
+			if (equipWorkStackParamVo == null) {
+				equipWorkStackParamVo = new EquipWorkStackParamVo();
+			}
+
+			if (!"".equals(equipWorkStackParamVo.getEquipWorkIdLike())
+					&& equipWorkStackParamVo.getEquipWorkIdLike() != null) {
+				EquipWorkParamVo equipWorkParamVo = new EquipWorkParamVo();
+				equipWorkParamVo.setEquipCodeLike(equipWorkStackParamVo.getEquipWorkIdLike());
+				List<EquipWork> equipWorkList = clientEquipWorkService.selectListByParamVo(equipWorkParamVo,
+						this.getCommonParam(null));
+				List<Long> list = new ArrayList<Long>();
+				for (EquipWork equipWork : equipWorkList) {
+					list.add(equipWork.getId());
+					equipWorkStackParamVo.setWorkIdlist(list);
+				}
+
+			}
+
+			pageInfo = clientEquipWorkStackService.selectPageVoByParamVo(equipWorkStackParamVo,
+					this.getCommonParam(request), pageIndex, pageNumber);
+			List<EquipWorkStack> plist = pageInfo.getList();
+			Collections.sort(plist, new Comparator<EquipWorkStack>() {
+				/*
+				 * int compare(EquipWorkStack p1, EquipWorkStack p2) 返回一个基本类型的整型，
+				 */
+				public int compare(EquipWorkStack p1, EquipWorkStack p2) {
+					// 按照字段进行升序排列
+					if (p1.getEquipWorkId().compareTo(p2.getEquipWorkId()) == 0) {
+						if (p1.getEquipStackArea().compareTo(p2.getEquipStackArea()) == 0) {
+							return p1.getEquipStackCode().compareTo(p2.getEquipStackCode());
+						} else {
+							return p1.getEquipStackArea().compareTo(p2.getEquipStackArea());
+						}
+					} else {
+						return p1.getEquipWorkId().compareTo(p2.getEquipWorkId());
+					}
+				}
+			});
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request, EquipWorkStackParamVo equipWorkStackParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+
+		equipWorkStackParamVo.setModifyUserId(getLoginUserId(request));
+		resultMessage = clientEquipWorkStackService.saveOrUpdate(equipWorkStackParamVo, this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	@RequestMapping("/linkProduct")
+	public ModelAndView linkProduct(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		try {
+			EquipWorkParamVo EWParamVo = new EquipWorkParamVo();
+			List<EquipWork> workList = clientEquipWorkService.selectListByParamVo(EWParamVo, this.getCommonParam(null));
+			modelAndView.addObject("workList", workList);
+
+			EquipWorkStackVo entity = new EquipWorkStackVo();
+			if (id != null) {
+				entity = clientEquipWorkStackService.getVoByID(id, this.getCommonParam(request));
+			}
+			modelAndView.addObject("entity", entity);
+			modelAndView.setViewName("equip/equipWorkStack-linkProduct");
+			initData(modelAndView);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+
+	@RequestMapping("/listProduct")
+	public ModelAndView listProduct() {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("equip/equipWorkStack-listProduct");
+		return modelAndView;
+	}
+	
+	@RequestMapping("/searchMaterial")
+	public ModelAndView searchMaterial() {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("equip/equipWorkStack-searchMaterial");
+		return modelAndView;
+	}
+}

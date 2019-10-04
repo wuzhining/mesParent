@@ -1,0 +1,656 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.barcode.BarcodeMainMapper">
+	<resultMap id="BarcodeMain" type="com.techsoft.entity.common.BarcodeMain" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="BARCODE" property="barcode" />
+		<result column="BARCODE_RULE_DICT_ID" property="barcodeRuleDictId" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="BARCODE_PACKBOX_ID" property="barcodePackboxId" />
+		<result column="BARCODE_STATUS_DICT_ID" property="barcodeStatusDictId" />
+		<result column="BATCH_NUMBER" property="batchNumber" />
+		<result column="PALLET_ID" property="palletId" />
+		<result column="BILL_TYPE_DICT_ID" property="billTypeDictId" />
+		<result column="BILL_ID" property="billId" />
+		<result column="BILL_CODE" property="billCode" />
+		<result column="BILL_ITEM_ID" property="billItemId" />
+		<result column="BILL_STATUS_DICT_ID" property="billStatusDictId" />
+		<result column="SUPPLIER_ID" property="supplierId" />
+		<result column="WAREHOUSE_ID" property="warehouseId" />
+		<result column="AREA_ID" property="areaId" />
+		<result column="LOCATION_ID" property="locationId" />
+		<result column="RACK_ID" property="rackId" />
+		<result column="PARTNER_ID" property="partnerId" />
+		<result column="PRODUCTIONLINE_ID" property="productionlineId" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="INSTORE_TIME" property="instoreTime" />
+		<result column="OUTSTORE_TIME" property="outstoreTime" />
+		<result column="DATE_MANUFACTURE" property="dateManufacture" />
+		<result column="DATE_INVALIDATION" property="dateInvalidation" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="barcode != null">
+			AND A.BARCODE= #{barcode}
+		</if>
+		<if test="barcodeRuleDictId != null">
+			AND A.BARCODE_RULE_DICT_ID= #{barcodeRuleDictId}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="barcodePackboxId != null">
+			AND A.BARCODE_PACKBOX_ID= #{barcodePackboxId}
+		</if>
+		<if test="barcodeStatusDictId != null">
+			AND A.BARCODE_STATUS_DICT_ID= #{barcodeStatusDictId}
+		</if>
+		<if test="batchNumber != null">
+			AND A.BATCH_NUMBER= #{batchNumber}
+		</if>
+		<if test="palletId != null">
+			AND A.PALLET_ID= #{palletId}
+		</if>
+		<if test="billTypeDictId != null">
+			AND A.BILL_TYPE_DICT_ID= #{billTypeDictId}
+		</if>
+		<if test="billId != null">
+			AND A.BILL_ID= #{billId}
+		</if>
+		<if test="billCode != null">
+			AND A.BILL_CODE= #{billCode}
+		</if>
+		<if test="billItemId != null">
+			AND A.BILL_ITEM_ID= #{billItemId}
+		</if>
+		<if test="billStatusDictId != null">
+			AND A.BILL_STATUS_DICT_ID= #{billStatusDictId}
+		</if>
+		<if test="supplierId != null">
+			AND A.SUPPLIER_ID= #{supplierId}
+		</if>
+		<if test="warehouseId != null">
+			AND A.WAREHOUSE_ID= #{warehouseId}
+		</if>
+		<if test="areaId != null">
+			AND A.AREA_ID= #{areaId}
+		</if>
+		<if test="locationId != null">
+			AND A.LOCATION_ID= #{locationId}
+		</if>
+		<if test="rackId != null">
+			AND A.RACK_ID= #{rackId}
+		</if>
+		<if test="partnerId != null">
+			AND A.PARTNER_ID= #{partnerId}
+		</if>
+		<if test="productionlineId != null">
+			AND A.PRODUCTIONLINE_ID= #{productionlineId}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+		<if test="instoreTimeBegin != null">
+		<![CDATA[
+		   AND A.INSTORE_TIME >=  #{instoreTimeBegin}
+		]]>
+		</if>
+		<if test="instoreTimeEnd != null">
+		<![CDATA[
+		   AND A.INSTORE_TIME <= #{instoreTimeEnd}
+		]]>
+		</if>		
+		<if test="outstoreTimeBegin != null">
+		<![CDATA[
+		   AND A.OUTSTORE_TIME >=  #{outstoreTimeBegin}
+		]]>
+		</if>
+		<if test="outstoreTimeEnd != null">
+		<![CDATA[
+		   AND A.OUTSTORE_TIME <= #{outstoreTimeEnd}
+		]]>
+		</if>		
+		<if test="dateManufactureBegin != null">
+		<![CDATA[
+		   AND A.DATE_MANUFACTURE >=  #{dateManufactureBegin}
+		]]>
+		</if>
+		<if test="dateManufactureEnd != null">
+		<![CDATA[
+		   AND A.DATE_MANUFACTURE <= #{dateManufactureEnd}
+		]]>
+		</if>		
+		<if test="dateInvalidationBegin != null">
+		<![CDATA[
+		   AND A.DATE_INVALIDATION >=  #{dateInvalidationBegin}
+		]]>
+		</if>
+		<if test="dateInvalidationEnd != null">
+		<![CDATA[
+		   AND A.DATE_INVALIDATION <= #{dateInvalidationEnd}
+		]]>
+		</if>		
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.BARCODE,
+		A.BARCODE_RULE_DICT_ID,
+		A.PRODUCT_ID,
+		A.MATERIAL_ID,
+		A.BARCODE_PACKBOX_ID,
+		A.BARCODE_STATUS_DICT_ID,
+		A.BATCH_NUMBER,
+		A.PALLET_ID,
+		A.BILL_TYPE_DICT_ID,
+		A.BILL_ID,
+		A.BILL_CODE,
+		A.BILL_ITEM_ID,
+		A.BILL_STATUS_DICT_ID,
+		A.SUPPLIER_ID,
+		A.WAREHOUSE_ID,
+		A.AREA_ID,
+		A.LOCATION_ID,
+		A.RACK_ID,
+		A.PARTNER_ID,
+		A.PRODUCTIONLINE_ID,
+		A.QUANTITY,
+		A.INSTORE_TIME,
+		A.OUTSTORE_TIME,
+		A.DATE_MANUFACTURE,
+		A.DATE_INVALIDATION,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_BARCODE_MAIN_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from BARCODE_MAIN
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.BarcodeMain">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BARCODE_MAIN A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.BarcodeMain">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BARCODE_MAIN A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE BARCODE_MAIN A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE BARCODE_MAIN  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.BarcodeMain">
+		UPDATE BARCODE_MAIN A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.BarcodeMain">
+		INSERT INTO BARCODE_MAIN (
+		TENANT_ID,
+		FACTORY_ID,
+		BARCODE,
+		BARCODE_RULE_DICT_ID,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		BARCODE_PACKBOX_ID,
+		BARCODE_STATUS_DICT_ID,
+		BATCH_NUMBER,
+		PALLET_ID,
+		BILL_TYPE_DICT_ID,
+		BILL_ID,
+		BILL_CODE,
+		BILL_ITEM_ID,
+		BILL_STATUS_DICT_ID,
+		SUPPLIER_ID,
+		WAREHOUSE_ID,
+		AREA_ID,
+		LOCATION_ID,
+		RACK_ID,
+		PARTNER_ID,
+		PRODUCTIONLINE_ID,
+		QUANTITY,
+		INSTORE_TIME,
+		OUTSTORE_TIME,
+		DATE_MANUFACTURE,
+		DATE_INVALIDATION,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{barcode},
+		#{barcodeRuleDictId},
+		#{productId},
+		#{materialId},
+		#{barcodePackboxId},
+		#{barcodeStatusDictId},
+		#{batchNumber},
+		#{palletId},
+		#{billTypeDictId},
+		#{billId},
+		#{billCode},
+		#{billItemId},
+		#{billStatusDictId},
+		#{supplierId},
+		#{warehouseId},
+		#{areaId},
+		#{locationId},
+		#{rackId},
+		#{partnerId},
+		#{productionlineId},
+		#{quantity},
+		#{instoreTime},
+		#{outstoreTime},
+		#{dateManufacture},
+		#{dateInvalidation},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.BarcodeMain">
+		UPDATE BARCODE_MAIN SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		BARCODE=#{barcode},
+		BARCODE_RULE_DICT_ID=#{barcodeRuleDictId},
+		PRODUCT_ID=#{productId},
+		MATERIAL_ID=#{materialId},
+		BARCODE_PACKBOX_ID=#{barcodePackboxId},
+		BARCODE_STATUS_DICT_ID=#{barcodeStatusDictId},
+		BATCH_NUMBER=#{batchNumber},
+		PALLET_ID=#{palletId},
+		BILL_TYPE_DICT_ID=#{billTypeDictId},
+		BILL_ID=#{billId},
+		BILL_CODE=#{billCode},
+		BILL_ITEM_ID=#{billItemId},
+		BILL_STATUS_DICT_ID=#{billStatusDictId},
+		SUPPLIER_ID=#{supplierId},
+		WAREHOUSE_ID=#{warehouseId},
+		AREA_ID=#{areaId},
+		LOCATION_ID=#{locationId},
+		RACK_ID=#{rackId},
+		PARTNER_ID=#{partnerId},
+		PRODUCTIONLINE_ID=#{productionlineId},
+		QUANTITY=#{quantity},
+		INSTORE_TIME=#{instoreTime},
+		OUTSTORE_TIME=#{outstoreTime},
+		DATE_MANUFACTURE=#{dateManufacture},
+		DATE_INVALIDATION=#{dateInvalidation},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.BarcodeMain">
+		UPDATE BARCODE_MAIN SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="barcode != null" >
+			BARCODE=#{barcode},
+		</if>
+		<if test="barcodeRuleDictId != null" >
+			BARCODE_RULE_DICT_ID=#{barcodeRuleDictId},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="barcodePackboxId != null" >
+			BARCODE_PACKBOX_ID=#{barcodePackboxId},
+		</if>
+		<if test="barcodeStatusDictId != null" >
+			BARCODE_STATUS_DICT_ID=#{barcodeStatusDictId},
+		</if>
+		<if test="batchNumber != null" >
+			BATCH_NUMBER=#{batchNumber},
+		</if>
+		<if test="palletId != null" >
+			PALLET_ID=#{palletId},
+		</if>
+		<if test="billTypeDictId != null" >
+			BILL_TYPE_DICT_ID=#{billTypeDictId},
+		</if>
+		<if test="billId != null" >
+			BILL_ID=#{billId},
+		</if>
+		<if test="billCode != null" >
+			BILL_CODE=#{billCode},
+		</if>
+		<if test="billItemId != null" >
+			BILL_ITEM_ID=#{billItemId},
+		</if>
+		<if test="billStatusDictId != null" >
+			BILL_STATUS_DICT_ID=#{billStatusDictId},
+		</if>
+		<if test="supplierId != null" >
+			SUPPLIER_ID=#{supplierId},
+		</if>
+		<if test="warehouseId != null" >
+			WAREHOUSE_ID=#{warehouseId},
+		</if>
+		<if test="areaId != null" >
+			AREA_ID=#{areaId},
+		</if>
+		<if test="locationId != null" >
+			LOCATION_ID=#{locationId},
+		</if>
+		<if test="rackId != null" >
+			RACK_ID=#{rackId},
+		</if>
+		<if test="partnerId != null" >
+			PARTNER_ID=#{partnerId},
+		</if>
+		<if test="productionlineId != null" >
+			PRODUCTIONLINE_ID=#{productionlineId},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="instoreTime != null" >
+			INSTORE_TIME=#{instoreTime},
+		</if>
+		<if test="outstoreTime != null" >
+			OUTSTORE_TIME=#{outstoreTime},
+		</if>
+		<if test="dateManufacture != null" >
+			DATE_MANUFACTURE=#{dateManufacture},
+		</if>
+		<if test="dateInvalidation != null" >
+			DATE_INVALIDATION=#{dateInvalidation},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.barcode.BarcodeMainParamVo"
+		      resultType="com.techsoft.entity.common.BarcodeMain" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BARCODE_MAIN A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	<!-- 批量新增条码打印 -->
+	<insert id="insertPrintBarcodeMain" flushCache="true" parameterType="java.util.List">
+	  	INSERT INTO BARCODE_MAIN (
+		TENANT_ID,
+		BARCODE,
+		FACTORY_ID,
+		BARCODE_RULE_DICT_ID,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		BARCODE_PACKBOX_ID,
+		BARCODE_STATUS_DICT_ID,
+		PALLET_ID,
+		BILL_TYPE_DICT_ID,
+		BILL_ID,
+		BILL_ITEM_ID,
+		BILL_STATUS_DICT_ID,
+		SUPPLIER_ID,
+		FACTORY_ID,
+		WAREHOUSE_ID,
+		AREA_ID,
+		RACK_ID,
+		LOCATION_ID,
+		PARTNER_ID,
+		PRODUCTIONLINE_ID,
+		QUANTITY,
+		REMARK,
+		ID
+		,VERSION
+		,DEL_FLAG
+		,CREATE_USER_ID
+		,MODIFY_USER_ID
+		,CREATE_TIME
+		,MODIFY_TIME
+		) VALUES
+			<foreach collection="list" item="item" separator=",">
+			(
+				#{item.tenantId},
+				#{item.barcode},
+				#{item.factoryId},
+				#{item.barcodeRuleDictId},
+				#{item.productId},
+				#{item.materialId},
+				#{item.barcodePackboxId},
+				#{item.barcodeStatusDictId},
+				#{item.palletId},
+				#{item.billTypeDictId},
+				#{item.billId},
+				#{item.billItemId},
+				#{item.billStatusDictId},
+				#{item.supplierId},
+				#{item.factoryId},
+				#{item.warehouseId},
+				#{item.areaId},
+				#{item.rackId},
+				#{item.locationId},
+				#{item.partnerId},
+				#{item.productionlineId},
+				#{item.quantity},
+				#{item.remark},
+				#{item.id},
+				1,
+				0,
+				#{item.createUserId},
+				#{item.modifyUserId},
+				now(),
+				now()
+			)
+			 </foreach>
+	</insert>
+
+	
+	<!-- 批量修改 -->
+	<update id="updateBatch" parameterType="java.util.List">
+	<foreach collection="list" item="item" index="index" separator=";">
+		UPDATE BARCODE_MAIN 
+	    <set>
+	    
+	    	<if test="item.barcodeStatusDictId != null" >
+				 BARCODE_STATUS_DICT_ID=#{item.barcodeStatusDictId},
+			</if>
+			<if test="item.billTypeDictId != null" >
+				 BILL_TYPE_DICT_ID=#{item.billTypeDictId},
+			</if>
+			<if test="item.billId != null" >
+				 BILL_ID=#{item.billId},
+			</if>
+			<if test="item.billItemId != null" >
+				 BILL_ITEM_ID=#{item.billItemId},
+			</if>
+			<if test="item.billStatusDictId != null" >
+				 BILL_STATUS_DICT_ID=#{item.billStatusDictId},
+			</if>
+			<if test="item.factoryId != null" >
+				 FACTORY_ID=#{item.factoryId},
+			</if>
+			<if test="item.areaId != null" >
+				 AREA_ID=#{item.areaId},
+			</if>
+			<if test="item.rackId != null" >
+				 RACK_ID=#{item.rackId},
+			</if>
+			<if test="item.locationId != null" >
+				 LOCATION_ID=#{item.locationId},
+			</if>
+			<if test="item.quantity != null" >
+				 QUANTITY=#{item.quantity},
+			</if>
+			<if test="item.warehouseId != null" >
+				 WAREHOUSE_ID=#{item.warehouseId},
+				 INSTORE_TIME=now(),
+			</if>
+			<if test="item.outstoreTime != null" >
+				 OUTSTORE_TIME=now(),
+			</if>
+		
+		MODIFY_TIME=now(),
+	    VERSION = VERSION + 1
+		</set>
+		WHERE BARCODE=#{item.barcode}	
+		</foreach>	
+	</update>
+	
+	<select id="selectSumQtyByEntity" parameterType="com.techsoft.entity.barcode.BarcodeMainParamVo"
+		      resultType="java.lang.Double" useCache="false">
+		SELECT
+		SUM(A.QUANTITY) as QUANTITY
+		FROM BARCODE_MAIN A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<if test="id != null">
+			AND A.ID= #{id}
+		</if>
+		<if test="version != null">
+			AND A.VERSION= #{version}
+		</if>
+		<if test="delFlag != null">
+			AND A.DEL_FLAG= #{delFlag}
+		</if>
+		<if test="createUserId != null">
+			AND A.CREATE_USER_ID= #{createUserId}
+		</if>
+		<if test="modifyUserId != null">
+			AND A.MODIFY_USER_ID= #{modifyUserId}
+		</if>
+		<if test="createTimeBegin != null">
+		<![CDATA[
+		   AND A.CREATE_TIME >=  #{createTimeBegin}
+		]]>
+		</if>
+		<if test="createTimeEnd != null">
+		<![CDATA[
+		   AND A.CREATE_TIME <= #{createTimeEnd}
+		]]>
+		</if>
+		<if test="modifyTimeBegin != null">
+		<![CDATA[
+		   AND A.MODIFY_TIME >=  #{modifyTimeBegin}
+		]]>
+		</if>
+		<if test="modifyTimeEnd != null">
+		<![CDATA[
+		   AND A.MODIFY_TIME <= #{modifyTimeEnd}
+		]]>
+		</if>
+	</select>	
+	
+	<select id="selectByBarCode" parameterType="java.lang.String" useCache="true"
+			resultType="com.techsoft.entity.common.BarcodeMain">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BARCODE_MAIN A
+		WHERE (A.DEL_FLAG = 0) and (A.BARCODE=#{barCode})
+	</select>	
+	
+	<select id="selectSumQtyByCondition" parameterType="com.techsoft.entity.barcode.BarcodeMainParamVo"
+		      resultType="com.techsoft.entity.barcode.BarcodeMainVo" useCache="false">
+		SELECT
+			A.MATERIAL_ID,
+			A.WAREHOUSE_ID,
+			A.LOCATION_ID,
+			SUM(A.QUANTITY) AS SUMQTY
+		FROM
+			BARCODE_MAIN A
+		WHERE A.DEL_FLAG = 0
+		AND	A.BARCODE_PACKBOX_ID = #{barcodePackboxId}
+		AND BARCODE_STATUS_DICT_ID = #{barcodeStatusDictId}
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="warehouseId != null">
+			AND A.WAREHOUSE_ID= #{warehouseId}
+		</if>
+		<if test="locationId != null">
+			AND A.LOCATION_ID= #{locationId}
+		</if>
+		GROUP BY
+			MATERIAL_ID,
+			WAREHOUSE_ID,
+			LOCATION_ID
+	</select>
+	
+</mapper>

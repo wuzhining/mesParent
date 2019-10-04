@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.equip.EquipSpecsWorkMapper">
+	<resultMap id="EquipSpecsWork" type="com.techsoft.entity.common.EquipSpecsWork" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="EQUIP_SPECS_CODE" property="equipSpecsCode" />
+		<result column="EQUIP_SPECS_NAME" property="equipSpecsName" />
+		<result column="EQUIP_SPECS_PATTERN" property="equipSpecsPattern" />
+		<result column="CLASSES_ID" property="classesId" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="SPEED_WORKTIME" property="speedWorktime" />
+		<result column="SPEED_QUANTITY" property="speedQuantity" />
+		<result column="HOURS_MAINTAIN" property="hoursMaintain" />
+		<result column="STANDARLIVE" property="standarlive" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="equipSpecsCode != null">
+			AND A.EQUIP_SPECS_CODE= #{equipSpecsCode}
+		</if>
+		<if test="equipSpecsName != null">
+			AND A.EQUIP_SPECS_NAME= #{equipSpecsName}
+		</if>
+		<if test="equipSpecsPattern != null">
+			AND A.EQUIP_SPECS_PATTERN= #{equipSpecsPattern}
+		</if>
+		<if test="classesId != null">
+			AND A.CLASSES_ID= #{classesId}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="speedWorktime != null">
+			AND A.SPEED_WORKTIME= #{speedWorktime}
+		</if>
+		<if test="speedQuantity != null">
+			AND A.SPEED_QUANTITY= #{speedQuantity}
+		</if>
+		<if test="hoursMaintain != null">
+			AND A.HOURS_MAINTAIN= #{hoursMaintain}
+		</if>
+		<if test="standarlive != null">
+			AND A.STANDARLIVE= #{standarlive}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.EQUIP_SPECS_CODE,
+		A.EQUIP_SPECS_NAME,
+		A.EQUIP_SPECS_PATTERN,
+		A.CLASSES_ID,
+		A.QUANTITY,
+		A.SPEED_WORKTIME,
+		A.SPEED_QUANTITY,
+		A.HOURS_MAINTAIN,
+		A.STANDARLIVE,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for EQUIP_SPECS_WORK_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from EQUIP_SPECS_WORK
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.EquipSpecsWork">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_SPECS_WORK A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.EquipSpecsWork">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_SPECS_WORK A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM EQUIP_SPECS_WORK A WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM EQUIP_SPECS_WORK A WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.EquipSpecsWork">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM EQUIP_SPECS_WORK A WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipSpecsWork">
+		INSERT INTO EQUIP_SPECS_WORK (
+		TENANT_ID,
+		EQUIP_SPECS_CODE,
+		EQUIP_SPECS_NAME,
+		EQUIP_SPECS_PATTERN,
+		CLASSES_ID,
+		QUANTITY,
+		SPEED_WORKTIME,
+		SPEED_QUANTITY,
+		HOURS_MAINTAIN,
+		STANDARLIVE,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{equipSpecsCode},
+		#{equipSpecsName},
+		#{equipSpecsPattern},
+		#{classesId},
+		#{quantity},
+		#{speedWorktime},
+		#{speedQuantity},
+		#{hoursMaintain},
+		#{standarlive},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipSpecsWork">
+		UPDATE EQUIP_SPECS_WORK SET
+		TENANT_ID=#{tenantId},
+		EQUIP_SPECS_CODE=#{equipSpecsCode},
+		EQUIP_SPECS_NAME=#{equipSpecsName},
+		EQUIP_SPECS_PATTERN=#{equipSpecsPattern},
+		CLASSES_ID=#{classesId},
+		QUANTITY=#{quantity},
+		SPEED_WORKTIME=#{speedWorktime},
+		SPEED_QUANTITY=#{speedQuantity},
+		HOURS_MAINTAIN=#{hoursMaintain},
+		STANDARLIVE=#{standarlive},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipSpecsWork">
+		UPDATE EQUIP_SPECS_WORK SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="equipSpecsCode != null" >
+			EQUIP_SPECS_CODE=#{equipSpecsCode},
+		</if>
+		<if test="equipSpecsName != null" >
+			EQUIP_SPECS_NAME=#{equipSpecsName},
+		</if>
+		<if test="equipSpecsPattern != null" >
+			EQUIP_SPECS_PATTERN=#{equipSpecsPattern},
+		</if>
+		<if test="classesId != null" >
+			CLASSES_ID=#{classesId},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="speedWorktime != null" >
+			SPEED_WORKTIME=#{speedWorktime},
+		</if>
+		<if test="speedQuantity != null" >
+			SPEED_QUANTITY=#{speedQuantity},
+		</if>
+		<if test="hoursMaintain != null" >
+			HOURS_MAINTAIN=#{hoursMaintain},
+		</if>
+		<if test="standarlive != null" >
+			STANDARLIVE=#{standarlive},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.equip.EquipSpecsWorkParamVo"
+		      resultType="com.techsoft.entity.common.EquipSpecsWork" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_SPECS_WORK A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

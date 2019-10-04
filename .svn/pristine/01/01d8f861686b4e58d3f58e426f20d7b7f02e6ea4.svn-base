@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.sys.UserPassportMapper">
+	<resultMap id="UserPassport" type="com.techsoft.entity.common.UserPassport" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="USER_NAME" property="userName" />
+		<result column="EMAIL" property="email" />
+		<result column="PASSWORD" property="password" />
+		<result column="MOBILE_NUMBER" property="mobileNumber" />
+		<result column="REAL_NAME" property="realName" />
+		<result column="ALIAS_NAME" property="aliasName" />
+		<result column="SYSTEM_ROLETYPE" property="systemRoletype" />
+		<result column="STATUS" property="status" />
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="PROVINCE_ID" property="provinceId" />
+		<result column="CITY_ID" property="cityId" />
+		<result column="AREA_ID" property="areaId" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="userName != null">
+			AND A.USER_NAME= #{userName}
+		</if>
+		<if test="email != null">
+			AND A.EMAIL= #{email}
+		</if>
+		<if test="password != null">
+			AND A.PASSWORD= #{password}
+		</if>
+		<if test="mobileNumber != null">
+			AND A.MOBILE_NUMBER= #{mobileNumber}
+		</if>
+		<if test="realName != null">
+			AND A.REAL_NAME= #{realName}
+		</if>
+		<if test="aliasName != null">
+			AND A.ALIAS_NAME= #{aliasName}
+		</if>
+		<if test="systemRoletype != null">
+			AND A.SYSTEM_ROLETYPE= #{systemRoletype}
+		</if>
+		<if test="status != null">
+			AND A.STATUS= #{status}
+		</if>
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="provinceId != null">
+			AND A.PROVINCE_ID= #{provinceId}
+		</if>
+		<if test="cityId != null">
+			AND A.CITY_ID= #{cityId}
+		</if>
+		<if test="areaId != null">
+			AND A.AREA_ID= #{areaId}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.USER_NAME,
+		A.EMAIL,
+		A.PASSWORD,
+		A.MOBILE_NUMBER,
+		A.REAL_NAME,
+		A.ALIAS_NAME,
+		A.SYSTEM_ROLETYPE,
+		A.STATUS,
+		A.TENANT_ID,
+		A.PROVINCE_ID,
+		A.CITY_ID,
+		A.AREA_ID
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_USER_PASSPORT_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from USER_PASSPORT
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.UserPassport">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM USER_PASSPORT A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.UserPassport">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM USER_PASSPORT A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE USER_PASSPORT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE USER_PASSPORT  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.UserPassport">
+		UPDATE USER_PASSPORT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.UserPassport">
+		INSERT INTO USER_PASSPORT (
+		USER_NAME,
+		EMAIL,
+		PASSWORD,
+		MOBILE_NUMBER,
+		REAL_NAME,
+		ALIAS_NAME,
+		SYSTEM_ROLETYPE,
+		STATUS,
+		TENANT_ID,
+		PROVINCE_ID,
+		CITY_ID,
+		AREA_ID
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{userName},
+		#{email},
+		#{password},
+		#{mobileNumber},
+		#{realName},
+		#{aliasName},
+		#{systemRoletype},
+		#{status},
+		#{tenantId},
+		#{provinceId},
+		#{cityId},
+		#{areaId}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.UserPassport">
+		UPDATE USER_PASSPORT SET
+		USER_NAME=#{userName},
+		EMAIL=#{email},
+		PASSWORD=#{password},
+		MOBILE_NUMBER=#{mobileNumber},
+		REAL_NAME=#{realName},
+		ALIAS_NAME=#{aliasName},
+		SYSTEM_ROLETYPE=#{systemRoletype},
+		STATUS=#{status},
+		TENANT_ID=#{tenantId},
+		PROVINCE_ID=#{provinceId},
+		CITY_ID=#{cityId},
+		AREA_ID=#{areaId},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.UserPassport">
+		UPDATE USER_PASSPORT SET
+		<if test="userName != null" >
+			USER_NAME=#{userName},
+		</if>
+		<if test="email != null" >
+			EMAIL=#{email},
+		</if>
+		<if test="password != null" >
+			PASSWORD=#{password},
+		</if>
+		<if test="mobileNumber != null" >
+			MOBILE_NUMBER=#{mobileNumber},
+		</if>
+		<if test="realName != null" >
+			REAL_NAME=#{realName},
+		</if>
+		<if test="aliasName != null" >
+			ALIAS_NAME=#{aliasName},
+		</if>
+		<if test="systemRoletype != null" >
+			SYSTEM_ROLETYPE=#{systemRoletype},
+		</if>
+		<if test="status != null" >
+			STATUS=#{status},
+		</if>
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="provinceId != null" >
+			PROVINCE_ID=#{provinceId},
+		</if>
+		<if test="cityId != null" >
+			CITY_ID=#{cityId},
+		</if>
+		<if test="areaId != null" >
+			AREA_ID=#{areaId},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.sys.UserPassportParamVo"
+		      resultType="com.techsoft.entity.common.UserPassport" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM USER_PASSPORT A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

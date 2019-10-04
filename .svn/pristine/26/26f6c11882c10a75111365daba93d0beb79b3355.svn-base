@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+		<style type="text/css">
+		.divcss{
+			width:100%;
+			height:85%;
+		}
+		.divcss > form{
+			width:100%;
+			height:100%;
+		}
+		.divcss table {
+			width:100%;
+			height:100%;
+			background: #CCC;
+		}
+		
+		.divcss table td {
+			background: #FFF;
+			text-align: center;
+		}
+		.text{
+			text-align:center;
+		}
+	    .text1{
+	        text-align:center;
+			width:70px;
+			height:23px;
+			white-space:nowrap;
+		}
+		</style>
+  </head>
+  <body style="padding: 0; margin: 0;width:100%;height:100%">
+    <div class="x-nav">
+	      <span class="layui-breadcrumb"> 
+	        <a href="">品质管理</a> <a><cite>批量检验水平</cite></a>
+	      </span>
+    </div>
+	<div class="divcss">
+	  <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" /> 
+        <table class="layui-table " width="80%" border="5" cellspacing="1" cellpadding="1" id='qualitySampleLevel'>
+             <tbody>
+			 	<tr border="1px">
+					<td rowspan="2" style="width: 250px;">批量</td>
+					<td colspan="5">
+					    <input type="hidden" class="layui-input text" name="sampleLevelDictId" value="10487"/>特殊检验水平 <!-- 10487 -->
+					</td>
+					<td colspan="3">
+					    <input type="hidden" class="layui-input text" name="sampleLevelDictId" value="10486"/>一般检验水平 <!-- 10486 -->
+					</td>
+				</tr>
+				
+				<tr name='Standard'>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" value="10526"/>S-1</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" value="10527"/>S-2</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" value="10528"/>S-3</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" value="10529"/>S-4</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" value="10530"/>Other</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" value="10531"/>I</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" value="10532"/>II</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" value="10533"/>III</td>
+				</tr>
+
+				<tr name='row_0'>
+					<td>
+					   <input type="text"  class="text1"  name="scope_min" value="1">
+					   ~
+					   <input type="text" class=" text1" name="scope_max" value="8">
+					</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="B">B</td>
+				</tr>
+
+				<tr name='row_1'>
+				    <td>
+					    <input type="text"  class="text1" name="scope_min" value="9">
+						   ~
+					    <input type="text" class="text1" name="scope_max" value="15">
+				    </td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="C">C</td>
+				</tr>
+
+				<tr name='row_2'>
+				     <td><input type="text"  class="text1" name="scope_min" value="16">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="25"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="D">D</td>
+				</tr>
+
+				<tr name='row_3'>
+					<td><input type="text"  class="text1" name="scope_min" value="26">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="50"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="A">A</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="E">E</td>
+				</tr>
+
+				<tr name='row_4'>
+					<td><input type="text"  class="text1" name="scope_min" value="51">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="90"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="E">E</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="F">F</td>
+				</tr>
+
+				<tr name='row_5'>
+					<td><input type="text"  class="text1" name="scope_min" value="91">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="150"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="F">F</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="G">G</td>
+				</tr>
+
+				<tr name='row_6'>
+					<td><input type="text"  class="text1" name="scope_min" value="151">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="280"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="E">E</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="E">E</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="G">G</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="H">H</td>
+				</tr>
+
+				<tr name='row_7'>
+					<td><input type="text"  class="text1" name="scope_min" value="281">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="500"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="B">B</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="E">E</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="F">F</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="H">H</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="J">J</td>
+				</tr>
+
+				<tr name='row_8'>
+					<td><input type="text"  class="text1" name="scope_min" value="501">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="1200"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="E">E</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="F">F</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="G">G</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="J">J</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="K">K</td>
+				</tr>
+
+				<tr name='row_9'>
+					<td><input type="text"  class="text1" name="scope_min" value="1201">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="3200"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="E">E</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="G">G</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="H">H</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="K">K</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="L">L</td>
+				</tr>
+
+				<tr name='row_10'>
+					<td><input type="text"  class="text1" name="scope_min" value="3201">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="10000"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="F">F</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="G">G</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="J">J</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="L">L</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="M">M</td>
+				</tr>
+
+				<tr name='row_11'>
+					<td><input type="text"  class="text1" name="scope_min" value="10001">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="35000"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="F">F</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="H">H</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="K">K</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="M">M</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="N">N</td>
+				</tr>
+
+				<tr name='row_12'>
+					<td><input type="text"  class="text1" name="scope_min" value="35001">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="150000"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="E">E</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="G">G</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="J">J</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="L">L</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="N">N</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="P">P</td>
+				</tr>
+
+				<tr name='row_13'>
+					<td><input type="text"  class="text1" name="scope_min" value="150001">
+					   ~
+				    <input type="text" class="text1" name="scope_max" value="500000"></td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="E">E</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="G">G</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="J">J</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="M">M</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="P">P</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="Q">Q</td>
+				</tr>
+
+				<tr name='row_14'>
+					<td><input type="text"  class="text1" name="scope_min" value="500001">以上
+						<input type="hidden" class="text1" name="scope_max" value="0">
+					</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="D">D</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="E">E</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="H">H</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="K">K</td>
+					<td><input type="hidden" class="layui-input text" name="sampleLetter" disabled="disabled" value="C">C</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="N">N</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="Q">Q</td>
+					<td><input type="hidden" class="layui-input text" name="latinLetter" disabled="disabled" value="R">R</td>
+				</tr>
+
+			</tbody>
+       </table>
+         
+       
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<!-- <button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	 -->
+	    	 <button class="layui-btn" type="button" id="save" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+</div>
+
+  <script>
+     layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+    	var form = layui.form, 
+    	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+    	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+    	var layuiformajax = layui.layuiformajax;
+    	initPage();
+		
+		function getAjaxData(){
+			/* 数据格式：
+			[
+				{
+					"10487":[
+					        	{
+								"1-8":  {
+									"S-1":"A",
+									"S-2":"A"
+									}
+								},
+					        ]
+				},
+				{
+				
+				}
+			] */
+			
+			var resultsArr =[];		//结果数组
+			
+			var testLevel = [];		//检验水平值数组
+			/* 获取批量标准：特殊检验水平/一般检查水平 */
+			$("#qualitySampleLevel input[name='sampleLevelDictId']").each(function(){
+				testLevel.push($(this).val());
+	        });
+			
+			/* 获取检验标准的value ,两种检验标准*/
+	    	var standards1 = [],standards2 = [];
+	    	$("#qualitySampleLevel tr[name='Standard'] td input[name='sampleLetter']").each(function(){
+	    		standards1.push($(this).val());
+	        });
+	    	$("#qualitySampleLevel tr[name='Standard'] td input[name='latinLetter']").each(function(){
+	    		standards2.push($(this).val());
+	        });
+	    	
+			/* 获取所有的批量范围   并拼接成字符串*/
+			var batchs = [];
+			$("#qualitySampleLevel tr[name^='row_']").each(function(){
+				var min = max = '';
+				$(this).find("input[name^='scope']").each(function(i,n){
+					if(i === 0){
+						min = $(this).val();
+					}else{
+						max = $(this).val();
+					}
+				});
+				batchs.push(min+ '-' + max);
+			});	
+			
+			/* 获取所有的检测标准值，每行标准值为一个对象 */
+			var testStandards1 = [],testStandards2 = [];
+			$("#qualitySampleLevel tr[name^='row_']").each(function(){
+				var StandardsObj1 = {},StandardsObj2 = {};
+				$(this).find("input[name='sampleLetter']").each(function(i,n){
+					StandardsObj1[standards1[i]] = $(this).val();
+				});
+				$(this).find("input[name='latinLetter']").each(function(i,n){
+					StandardsObj2[standards2[i]] = $(this).val();
+				});
+				testStandards1.push(StandardsObj1);
+				testStandards2.push(StandardsObj2);
+			});
+			
+			testLevel.forEach(function(testLevelItem,testLevelIndex){
+				var testLevelObj = {};
+				var batchsObj = {};
+				batchs.forEach(function(batchsItem,batchsIndex){
+					var index = parseInt(testLevelIndex)+1;
+					batchsObj[batchsItem] = eval('testStandards'+index)[batchsIndex];
+				});
+				testLevelObj[testLevelItem] = batchsObj;
+				resultsArr.push(testLevelObj);
+			});
+			return resultsArr;
+		}
+		
+		function initPage(){
+			/* 查询数据 */
+			  $.ajax({
+		   		  url:'/quality/qualitySampleLevel/selectSampleLetter',
+		   	      type: "POST",
+		   	      data: {
+		   	      },
+		   	      success: function (data) {
+		   	    	  	var callBackData = JSON.parse(data).list;
+			   	    	$("input[name='scope_min']").each(function(index,item){
+			   	    		console.log(index)
+			   	    		$(this).val(callBackData[index].minimum);
+			   			});
+			   	    	$("input[name='scope_max']").not($("input[name='scope_max']:last")).each(function(index,item){
+			   	    		$(this).val(callBackData[index].maximum);
+			   			});
+		   	      }
+		   	  });
+		}
+		
+          //监听提交
+      /*     form.on('submit(save)', function(data){
+        	  var resData = getAjaxData();
+        	  $.ajax({
+         		  url:'/quality/qualitySampleLevel/saveBatch',
+         	      type: "POST",
+         	      data: {
+         	    	  "list":JSON.stringify(resData)
+         	      },
+         	      success: function (data) {
+      	    	     layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = layer.getFrameIndex(window.name);
+      	              	initPage(); 
+      	                layer.close(index);
+      	             }); 
+         	      }
+         	  });
+          }); 
+           */
+          
+          
+          $("#save").click(function (data) {
+        	  var resData = getAjaxData();
+        	  $.ajax({
+         		  url:'/quality/qualitySampleLevel/saveBatch',
+         	      type: "POST",
+         	      data: {
+         	    	  "list":JSON.stringify(resData)
+         	      },
+         	      success: function (data) {
+      	    	     layer.alert("保存成功", {icon: 6},function (index) {	 	
+      	              	initPage(); 
+      	                layer.close(index);
+      	             }); 
+         	      }
+         	  });
+          });
+ 
+    
+		
+  });
+
+    </script>
+</body>
+
+</html>

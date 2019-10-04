@@ -1,0 +1,14 @@
+package com.techsoft.entity.history;
+
+import com.techsoft.entity.common.HistoryBillStatusAudit;
+
+public class HistoryBillStatusAuditVo extends HistoryBillStatusAudit {
+	private static final long serialVersionUID = 640133721648504141L;
+
+	public HistoryBillStatusAuditVo() {	
+	}
+	
+	public HistoryBillStatusAuditVo(HistoryBillStatusAudit value) {
+		value.cloneProperties(this);
+	}		
+}

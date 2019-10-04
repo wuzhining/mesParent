@@ -1,0 +1,45 @@
+package com.techsoft.entity.track;
+
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipFixture;
+import com.techsoft.entity.common.TrackFixture;
+
+public class TrackFixtureVo extends TrackFixture {
+	private static final long serialVersionUID = 8821397839565534075L;
+	private EquipFixture equipFixture;//治具
+    private ConfigDictionary configDictionary;//数据字典
+    private ConfigDictionary configDictionaryStatus;//状态数据字典
+
+	public TrackFixtureVo() {	
+	}
+	
+	public TrackFixtureVo(TrackFixture value) {
+		value.cloneProperties(this);
+	}
+
+	public EquipFixture getEquipFixture() {
+		return equipFixture;
+	}
+
+	public void setEquipFixture(EquipFixture equipFixture) {
+		this.equipFixture = equipFixture;
+	}
+
+	public ConfigDictionary getConfigDictionary() {
+		return configDictionary;
+	}
+
+	public void setConfigDictionary(ConfigDictionary configDictionary) {
+		this.configDictionary = configDictionary;
+	}
+
+	public ConfigDictionary getConfigDictionaryStatus() {
+		return configDictionaryStatus;
+	}
+
+	public void setConfigDictionaryStatus(ConfigDictionary configDictionaryStatus) {
+		this.configDictionaryStatus = configDictionaryStatus;
+	}	
+	
+	
+}

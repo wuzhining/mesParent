@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head> 
+	<title>智能工厂云平台管理后台</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "common-header.html"/>
+
+</head>
+<body>
+    <!-- 顶部开始 -->
+    <div class="container">
+        <div class="logo"><a href="/default/index">智能工厂云平台</a></div>
+        <div class="left_open">
+            <i title="展开左侧栏" class="iconfont2">&#xe699;</i>
+        </div>
+      <!--  <ul class="layui-nav left fast-add" lay-filter="">
+          <li class="layui-nav-item">
+            <a href="javascript:;">+切换系统</a>
+            <dl class="layui-nav-child">  
+             <dd><a onclick="layer_window_show('PBS','http://www.baidu.com')"  title="平台基础"><i class="iconfont">&#xe6a2;</i>PBS</a></dd>
+              <dd><a onclick="layer_window_show('WMS','http://www.baidu.com')"  title="智能仓储"><i class="iconfont">&#xe6a2;</i>WMS</a></dd>
+              <dd><a onclick="layer_window_show('MES','http://www.baidu.com')"  title="智能制造"><i class="iconfont">&#xe6a8;</i>MES</a></dd>
+              <dd><a onclick="layer_window_show('MTS','http://www.baidu.com')"  title="生产追溯"><i class="iconfont">&#xe6a8;</i>MTS</a></dd>
+              <dd><a onclick="layer_window_show('QTS','http://www.baidu.com')"  title="质量追溯"><i class="iconfont">&#xe6a8;</i>QTS</a></dd> 
+              <dd><a onclick="layer_window_show('BIS','http://www.baidu.com')"   title="智能报表"><i class="iconfont">&#xe6a8;</i>BIS</a></dd> 
+            </dl>
+          </li>
+        </ul> -->
+        <ul class="layui-nav right" lay-filter="">
+          <li class="layui-nav-item">
+            <a href="javascript:;">admin</a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+             <!--  <dd><a onclick="layer_window_show('个人信息','http://www.baidu.com')">个人信息</a></dd>
+              <dd><a onclick="layer_window_show('切换帐号','http://www.baidu.com')">切换帐号</a></dd> -->
+              <dd><a href="javascript:logout();">退出</a></dd>
+            </dl>
+          </li>
+          <li class="layui-nav-item to-index"><a href="/default/index">首页</a></li>
+        </ul>
+        
+    </div>
+    <!-- 顶部结束 -->
+    <!-- 中部开始 -->
+     <!-- 左侧菜单开始 -->
+      <div class="left-nav" id="admin-side">
+		<div id="side-nav"></div>
+	 </div>
+	 
+    <!-- 左侧菜单结束 -->
+    <!-- 右侧主体开始 -->
+    <div class="page-content">
+        <div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
+          <ul class="layui-tab-title">
+            <li class="home"><i class="layui-icon">&#xe68e;</i>我的桌面</li>
+          </ul>
+          <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <iframe src='/default/welcome' frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="page-content-bg"></div>
+    <!-- 右侧主体结束 -->
+    <!-- 中部结束 -->
+    <!-- 底部开始 -->
+    <!--<div class="footer">
+        <div class="copyright">Copyright ©2019 Mes All Rights Reserved</div>  
+    </div>-->
+    <!-- 底部结束 -->
+    <script>
+    //触发事件
+    var tab = {
+          tabAdd: function(title,url,id){
+            //新增一个Tab项
+            element.tabAdd('xbs_tab', {
+              title: title 
+              ,content: '<iframe tab-id="'+id+'" frameborder="0" src="'+url+'" scrolling="yes" class="x-iframe"></iframe>'
+              ,id: id
+            })
+          }
+          ,tabDelete: function(othis){
+            //删除指定Tab项
+            element.tabDelete('xbs_tab', '44'); //删除：“商品管理”
+            
+            
+            othis.addClass('layui-btn-disabled');
+          }
+          ,tabChange: function(id){
+            //切换到指定Tab项
+            element.tabChange('xbs_tab', id); //切换到：用户管理
+          }
+        };
+
+   function bindEven(){
+   	$('.left-nav #nav li').click(function (event) {
+	        if($(this).children('.sub-menu').length){
+	            if($(this).hasClass('open')){
+	                $(this).removeClass('open');
+	                $(this).find('.nav_right').html('&#xe697;');
+	                $(this).children('.sub-menu').stop().slideUp();
+	                $(this).siblings().children('.sub-menu').slideUp();
+	            }else{
+	                $(this).addClass('open');
+	                $(this).children('a').find('.nav_right').html('&#xe6a6;');
+	                $(this).children('.sub-menu').stop().slideDown();
+	                $(this).siblings().children('.sub-menu').stop().slideUp();
+	                $(this).siblings().find('.nav_right').html('&#xe697;');
+	                $(this).siblings().removeClass('open');
+	            }
+	        }else{
+
+	            var url = $(this).children('a').attr('_href');
+	            var title = $(this).find('cite').html();
+	            var index  = $('.left-nav #nav li').index($(this));
+
+	            for (var i = 0; i <$('.x-iframe').length; i++) {
+	                if($('.x-iframe').eq(i).attr('tab-id')==index+1){
+	                    tab.tabChange(index+1);
+	                    event.stopPropagation();
+	                    return;
+	                }
+	            };
+	            
+	            tab.tabAdd(title,url,index+1);
+	            tab.tabChange(index+1);
+	        }
+	        
+	        event.stopPropagation();
+	         
+	    })
+   	
+   };
+   
+  	 layui.use('element', function(){
+   	  var element = layui.element;
+   	  var html = '';
+   	  $.ajax({
+   	          type: "POST",
+   	          url:'/pda/pdaMenu/menu',
+   	          dataType: "json",
+   			  contentType: "application/x-www-form-urlencoded; charset=utf-8",
+   	          success: function (data) {
+   		  		console.log(data.map.list);
+		    	  		var res=data.map.list;
+		    	  			html += "<ul id='nav'>";
+		    	  				$.each(res,function(i,item){
+		    	  					if(item.parentId==0){//一级菜单进入
+		    	  						html += '<li><a href="javascript:;"><i class="iconfont">'+item.imagePath+'</i><cite>'+item.menuName+'</cite><i class="iconfont2 nav_right">&#xe6a7;</i></a>';
+		    	  					var aa = item.id;
+		    	  					var index=0;
+		    	  					html += "<ul class='sub-menu'>";
+		    	  					$.each(res,function(j,item2){
+		    	  							if(item2.parentId!=null){
+		    	  								//二级菜单进入	
+		    	  								if(item2.parentId==aa){
+		    	  									html += "<li><a  _href="+item2.menuUrl+"><cite>"+item2.menuName+"</cite></a>";
+		    			    	  					html += '</li>';
+		    	  							    }
+		    	  							}
+		    	  						});
+		    	  						html += '</ul>';
+		    	  					html += '</li>';
+		    	  						}
+		    	  		         //渲染html
+		    	  		          });
+		    	  		 html += '</ul>';
+		    	  		$('#side-nav').html(html);	
+		    	  		bindEven();
+   	  		}
+   	  });
+   	  
+   	  console.log($('.left-nav #nav li'));
+   	    element.init();
+   	});
+   
+    </script>
+    <script>
+     function logout(){
+    	  $.postForm('/passport/logout', '', function (result) { 
+    			if(result.isSuccess) {
+    				  location.href='/passport/index'; 
+    			} else { 
+    				$('#alertContent').text(result.message);
+    			}
+    		});
+     }
+    
+    </script>
+</body>
+</html>

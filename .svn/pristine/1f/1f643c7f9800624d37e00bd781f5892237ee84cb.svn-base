@@ -1,0 +1,36 @@
+package com.techsoft.entity.struct;
+
+import com.techsoft.entity.common.StructProcedureWorkstation;
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.entity.common.StructWorkstation;
+
+public class StructProcedureWorkstationVo extends StructProcedureWorkstation {
+	private static final long serialVersionUID = -7830190739010750368L;
+
+	private StructWorkstation structWorkstation;
+	private StructProcessNode structProcessNode;
+	
+	
+	public StructWorkstation getStructWorkstation() {
+		return structWorkstation;
+	}
+
+	public void setStructWorkstation(StructWorkstation structWorkstation) {
+		this.structWorkstation = structWorkstation;
+	}
+
+	public StructProcessNode getStructProcessNode() {
+		return structProcessNode;
+	}
+
+	public void setStructProcessNode(StructProcessNode structProcessNode) {
+		this.structProcessNode = structProcessNode;
+	}
+
+	public StructProcedureWorkstationVo() {	
+	}
+	
+	public StructProcedureWorkstationVo(StructProcedureWorkstation value) {
+		value.cloneProperties(this);
+	}		
+}

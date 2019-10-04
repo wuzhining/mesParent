@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+         <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+           <tr>
+               <td width="15%" class="tableleft">序列号名称</td>
+                 <td>
+              		<input type="text" name="serialName" lay-verify="decimal" class="layui-input" maxlength="30" value="${(entity.serialName)!''}"/>
+                </td>	
+               <td width="15%" class="tableleft">数据表</td>
+               <td>
+                	<select name="tableObjectId"  lay-search> 
+	                    <#if tableObjectList??>
+	                     <#list tableObjectList as item>
+				            <option value="${item.id?c}" <#if (entity.tableObjectId??&&entity.tableObjectId==item.id)>selected="selected"</#if>>${item.tableObjectNameCn}</option>
+				         </#list>
+				         </#if>
+				    </select>
+                </td>	
+           </tr>
+           <tr>
+			   <td width="15%" class="tableleft">序号最小值</td>
+               <td>
+                 <input type="text" name="minimum" id="minimum" lay-verify="barcodeLength" class="layui-input" maxlength="20" value="<#if entity??&&entity.minimum??>${entity.minimum?c}<#else></#if>"/>
+               </td> 
+               <td width="15%" class="tableleft">序号最大值</td>
+               <td>
+                <input type="text" name="maximum" id="maximum" class="layui-input" lay-verify="decimal" maxlength="20" value="<#if entity??&&entity.maximum??>${entity.maximum?c}<#else></#if>"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">当前值</td>
+               <td>
+                 <input type="text" name="valueCurrent"  class="layui-input" maxlength="20" lay-verify="barcodeLength" value="<#if entity??&&entity.valueCurrent??>${entity.valueCurrent?c}<#else></#if>"/>
+               </td> 
+               <td width="15%" class="tableleft">递增值</td>
+               <td>
+                <input type="text" name="valueIncrease" class="layui-input" lay-verify="decimal" maxlength="20" value="<#if entity??&&entity.valueIncrease??>${entity.valueIncrease?c}<#else></#if>"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">复位方式</td>
+               <td>
+                   <select name="resetmodeDictId"> 
+                     <#if resetmodeList??>
+                      <#list resetmodeList as item>
+			            <option value="${item.id?c}" <#if (entity.resetmodeDictId??&&entity.resetmodeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			       </select>
+               </td>
+              <td width="15%" class="tableleft">备注</td>
+               <td><input type="text" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+           </tr>
+           
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          form.verify({
+        	maximum: [/^[1-9]+\d*$/,'最大值必须是正整数']
+        	,valueIncrease: [/^[1-9]+\d*$/,'递增值必须是正整数']
+        	,minimum: [/^\d*$/,'最小值必须是整数']
+        	,valueCurrent: [/^\d*$/,'当前值必须是整数']
+        	
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  maximum = data.field.maximum;
+              minimum = data.field.minimum;
+              if (Number(minimum) > Number(maximum)){
+  		    	layer.alert('序号最大值必须大于序号最小值!',{
+	    			  icon:2
+	    		  });
+  		    	return false;
+  		      }
+              
+        	  var url = '/config/configSerialNumber/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	  if (result.isSuccess){
+      	    		layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            }); 
+      	    	  }else{
+      	    		  layer.alert(result.message,{
+      	    			  icon:2
+      	    		  });
+      	    	  }
+        		  
+      		  });
+        	 
+            return false;
+            
+          });
+          
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

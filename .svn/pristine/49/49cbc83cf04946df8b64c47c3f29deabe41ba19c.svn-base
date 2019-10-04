@@ -1,0 +1,26 @@
+package com.techsoft.service.bill;
+
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.entity.common.BillInventory;
+
+public interface BillInventoryService extends BaseService<BillInventory> {
+
+	/**
+	*@auther:Chen
+	*@version:2019年7月3日下午3:18:00
+	*@param id                  盘点单Id
+	*@param auditStatusDictId   审核状态
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description     根据传回的盘点单喝审核状态更新数据
+	*/
+	public ResultMessage updateAuditStatus(Long id, Long auditStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+}

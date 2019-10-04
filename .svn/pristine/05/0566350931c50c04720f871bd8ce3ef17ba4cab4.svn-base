@@ -1,0 +1,350 @@
+package com.techsoft.client.service.bill;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillInventoryItem;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.entity.track.TrackBarcodeVo;
+import com.techsoft.entity.warehouse.WarehouseLocationStockVo;
+import com.techsoft.entity.bill.BillInventoryItemVo;
+import com.techsoft.entity.bill.BillInventoryParamVo;
+import com.techsoft.entity.bill.BillInventoryItemParamVo;
+import com.techsoft.service.bill.BillInventoryItemService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.track.TrackBarcodeService;
+
+@org.springframework.stereotype.Service
+public class ClientBillInventoryItemServiceImpl extends BaseClientServiceImpl<BillInventoryItem> implements ClientBillInventoryItemService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillInventoryItemService billInventoryItemService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private TrackBarcodeService trackBarcodeService;
+    
+	@Override
+	public BaseService<BillInventoryItem> getBaseService() {
+		return billInventoryItemService;
+	}	    	
+    
+	private BillInventoryItemVo getVo(BillInventoryItem billInventoryItem, CommonParam commonParam) throws BusinessException, SQLException {
+		BillInventoryItemVo vo = new BillInventoryItemVo(billInventoryItem);
+		// TODO 此处填充其它关联字段的处理代码
+		
+		if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+			ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(), commonParam);
+			if (productMaterial != null) {
+				if(productMaterial.getSkuValue()!=null&&productMaterial.getSkuValue()!=""){
+					ProductMaterialVo productMateriaVo=new ProductMaterialVo();
+					productMateriaVo.setSkuValue(productMaterial.getSkuValue());
+					vo.setProductMaterialVo(productMateriaVo);
+					
+				}
+				vo.setProductMaterial(productMaterial);
+			}
+		}
+		
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productMain=productMainService.selectById(vo.getProductId(), commonParam);
+			if (productMain != null) {
+				vo.setProductMain(productMain);
+			}
+		}
+		
+		
+		
+		
+		return vo;
+	} 
+	
+	private BillInventoryItemVo getExtendVo(BillInventoryItem billInventoryItem, CommonParam commonParam) throws BusinessException, SQLException {
+		BillInventoryItemVo vo = this.getVo(billInventoryItem, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<BillInventoryItemVo> getVoList(List<BillInventoryItem> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<BillInventoryItemVo> voList = new ArrayList<BillInventoryItemVo>();
+		for (BillInventoryItem entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<BillInventoryItemVo> getExtendVoList(List<BillInventoryItem> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<BillInventoryItemVo> voList = new ArrayList<BillInventoryItemVo>();
+		for (BillInventoryItem entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public BillInventoryItemVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillInventoryItem entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<BillInventoryItemVo>  selectListVoByParamVo(BillInventoryItemParamVo billInventoryItem, CommonParam commonParam) throws BusinessException, SQLException {
+		if(billInventoryItem==null){
+			billInventoryItem = new BillInventoryItemParamVo();
+		}
+		billInventoryItem.setTenantId(commonParam.getTenantId());	
+	
+		List<BillInventoryItem> list = (List<BillInventoryItem>) this.getBaseService().selectListByParamVo(billInventoryItem, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<BillInventoryItemVo> selectPageVoByParamVo(BillInventoryItemParamVo billInventoryItem, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(billInventoryItem==null){
+			billInventoryItem = new BillInventoryItemParamVo();
+		}
+		billInventoryItem.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<BillInventoryItem> list  = (PageInfo<BillInventoryItem>) this.getBaseService().selectPageByParamVo(billInventoryItem, commonParam, pageNo, pageSize);
+		List<BillInventoryItemVo> volist = new ArrayList<BillInventoryItemVo>();
+		
+		Iterator<BillInventoryItem> iter = list.getList().iterator();
+		BillInventoryItemVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<BillInventoryItemVo> vpage = new Page<BillInventoryItemVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public BillInventoryItemVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillInventoryItem entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<BillInventoryItemVo>  selectListExtendVoByParamVo(BillInventoryItemParamVo billInventoryItem, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(billInventoryItem==null){
+			billInventoryItem = new BillInventoryItemParamVo();
+		}
+		billInventoryItem.setTenantId(commonParam.getTenantId());	
+					
+		List<BillInventoryItem> list = (List<BillInventoryItem>) this.getBaseService().selectListByParamVo(billInventoryItem, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<BillInventoryItemVo> selectPageExtendVoByParamVo(BillInventoryItemParamVo billInventoryItem, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(billInventoryItem==null){
+			billInventoryItem = new BillInventoryItemParamVo();
+		}
+		billInventoryItem.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<BillInventoryItem> list  = (PageInfo<BillInventoryItem>) this.getBaseService().selectPageByParamVo(billInventoryItem, commonParam, pageNo, pageSize);
+		List<BillInventoryItemVo> volist = new ArrayList<BillInventoryItemVo>();
+		
+		Iterator<BillInventoryItem> iter = list.getList().iterator();
+		BillInventoryItemVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<BillInventoryItemVo> vpage = new Page<BillInventoryItemVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(BillInventoryItemParamVo billInventoryItemParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		BillInventoryItem billInventoryItem = null;
+		try {
+			if (billInventoryItemParamVo.getId() == null) {//新增
+			 
+				billInventoryItemParamVo.setTenantId(commonParam.getTenantId());
+				billInventoryItem = billInventoryItemService.saveOrUpdate(billInventoryItemParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				BillInventoryItem billInventoryItemVoTemp = this.selectById(billInventoryItemParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(billInventoryItemVoTemp,
+						billInventoryItemParamVo);
+  
+				billInventoryItem = billInventoryItemService.saveOrUpdate(
+						billInventoryItemVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(billInventoryItem);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+	
+	
+	@Override
+	public ResultMessage addInventoryItem(List<WarehouseLocationStockVo> stockList,Long billId, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			resultMessage = billInventoryItemService.addInventoryItem(stockList, billId,commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+	
+	@Override
+	public ResultMessage deleteItem(Long Id, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			
+			billInventoryItemService.deleteItem(Id, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage billInventoryCheck(BillInventoryParamVo billInventoryParamVo, CommonParam commonParam) {
+		
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			
+			resultMessage=billInventoryItemService.billInventoryCheck(billInventoryParamVo, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage barcodeInventory(TrackBarcodeParamVo paramVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			
+			resultMessage=billInventoryItemService.barcodeInventory(paramVo, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+	
+	@Override
+	public ResultMessage endBill(Long billId, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			resultMessage=billInventoryItemService.endBill(billId, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage insertBarcode(TrackBarcodeParamVo paramVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			resultMessage=billInventoryItemService.insertBarcode(paramVo, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage updateBarcodeQty(TrackBarcodeParamVo paramVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			resultMessage=billInventoryItemService.updateBarcodeQty(paramVo, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

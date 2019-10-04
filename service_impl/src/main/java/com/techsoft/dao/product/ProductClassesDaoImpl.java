@@ -1,0 +1,75 @@
+package com.techsoft.dao.product;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.ProductClasses;
+import com.techsoft.mapper.product.ProductClassesMapper;
+
+@Repository
+public class ProductClassesDaoImpl extends BaseDaoImpl<ProductClasses> implements ProductClassesDao {
+	@Resource
+	protected ProductClassesMapper productClassesMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<ProductClasses> getEntityClass() {
+		return ProductClasses.class;
+	}	
+	
+	@Override
+	public BaseMapper<ProductClasses> getBaseMapper() {
+		return this.productClassesMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "PRODUCT_CLASSES";
+	}
+	
+	@Override
+	public void insertSaveCheck(ProductClasses value) throws BusinessException, SQLException {
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("请先登录 ");
+		}
+		if (value.getClassesName() == null ) {
+			throw new BusinessException("物品分类名称不能为空 ");
+		}
+		if (value.getSortNo()== null || value.getSortNo()<0) {
+			throw new BusinessException("排序号不能为空或小于0 ");
+		}
+		 
+	}
+	
+	@Override
+	public void updateSaveCheck(ProductClasses value) throws BusinessException, SQLException {
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("请先登录 ");
+		}
+		if (value.getClassesName() == null ) {
+			throw new BusinessException("物品分类名称不能为空 ");
+		}
+		if (value.getSortNo()== null || value.getSortNo()<0) {
+			throw new BusinessException("排序号不能为空或小于0 ");
+		}
+	}
+	
+	@Override
+	public void deleteSaveCheck(ProductClasses value) throws BusinessException, SQLException {
+	
+	}
+			
+}

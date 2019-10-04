@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />        
+        <input type="hidden"  id="workorderCode"  name="workorderCode" value="${(entity.workorderCode)!''}" />        
+        <table class="layui-table ">
+           <tr>
+               <td width="10%" class="tableleft">客户ID</td>
+               <td>
+	                <select name="customerId"> 
+	                    <#if customerList??>
+	                     <#list customerList as item>
+				            <option value="${item.id?c}" <#if (entity.customerId??&&entity.customerId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+				         </#list>
+				         </#if>
+				    </select>   
+               </td>
+               <td width="10%" class="tableleft">车间ID</td>
+               <td>
+               	     <select name="workshopId"> 
+	                    <#if structWorkshopList??>
+	                     <#list structWorkshopList as item>
+				            <option value="${item.id?c}" <#if (entity.workshopId??&&entity.workshopId==item.id)>selected="selected"</#if>>${item.workshopName}</option>
+				         </#list>
+				         </#if>
+				    </select>
+               </td> 
+               
+           </tr>
+           
+           <tr>
+           		<td width="10%" class="tableleft">产品BOM名称</td>
+               <td>
+	              <div class="div-choiceBox-intd ">   
+	               		<input type="hidden"  id="bomId" name="bomId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.bomId??>${entity.bomId?c}<#else></#if>">
+	               		<input type="text" id="bomName" name="bomName" disabled="disabled" class="layui-input input-choiceBox-intd">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="bomsearch">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	  </div>
+               </td> 
+               <td width="10%" class="tableleft">产品</td>
+               <td>
+              		<input type="hidden"  id="productId" name="productId" disabled="disabled"  value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>">
+              		<input type="text" id="productName" name="productName" disabled="disabled" class="layui-input">
+               </td>
+           	</tr>
+        
+           <tr>
+             <td width="10%" class="tableleft">产品规格</td>
+               <td>
+               		<input type="hidden"  id="materialId" name="materialId" disabled="disabled"  value="<#if entity??&&entity.materialId??>${entity.materialId?c}<#else></#if>">
+              		<input type="text" id="materialName" name="materialName" disabled="disabled" class="layui-input">
+               </td> 
+               <td width="15%" class="tableleft">是否锁定</td>
+               <td>
+                <select name="isLocked">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isLocked??&&entity.isLocked==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+			    </td>
+           </tr>
+
+           <tr>
+               <td width="10%" class="tableleft">工单状态</td>
+               <td>
+                 <select name="workorderStatusDictId"> 
+                    <#if workorderStatusList??>
+                     <#list workorderStatusList as item>
+			            <option value="${item.id?c}" <#if (entity.workorderStatusDictId??&&entity.workorderStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td> 
+                <td width="10%" class="tableleft" >审核状态</td>
+               <td>
+                 <select id="auditStatusDictId" name="auditStatusDictId"  disabled="true" > 
+                    <#if auditStatusDictList??>
+                     <#list auditStatusDictList as item>
+			            <option value="${item.id?c}" <#if (entity.auditStatusDictId??&&entity.auditStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+           </tr>
+
+           <tr>
+                
+               <td width="10%" class="tableleft">优先级</td>
+               <td>
+                 <input type="text" name="priority" lay-verify="numberOrEmpty" class="layui-input" maxlength="20" value="<#if entity??&&entity.priority??>${entity.priority?c}<#else></#if>"/>
+               </td> 
+               <td width="10%" class="tableleft">工单数量</td>
+               <td>
+                 <input type="text" name="quantity" lay-verify="numberOrEmpty" class="layui-input" maxlength="20" value="<#if entity??&&entity.quantity??>${entity.quantity?c}<#else></#if>"/>
+               </td> 
+           </tr>
+           
+          <tr>
+               <td width="10%" class="tableleft">最大入库数量</td>
+               <td>
+                <input type="text" name="quantityMaximumInput" lay-verify="numberOrEmpty" class="layui-input" maxlength="20" value="<#if entity??&&entity.quantityMaximumInput??>${entity.quantityMaximumInput?c}<#else></#if>"/>
+               </td> 
+               <td width="10%" class="tableleft">已投入数量</td>
+               <td>
+                 <input type="text" name="quantityInput" lay-verify="numberOrEmpty"  class="layui-input" maxlength="20" value="<#if entity??&&entity.quantityInput??>${entity.quantityInput?c}<#else></#if>"/>
+               </td>
+           </tr>
+
+           <tr>
+              <td width="10%" class="tableleft">已产出数量</td>
+               <td>
+                 <input type="text" name="quantityOutput" lay-verify="numberOrEmpty" class="layui-input" maxlength="20" value="<#if entity??&&entity.quantityOutput??>${entity.quantityOutput?c}<#else></#if>"/>
+               </td> 
+              <td width="10%" class="tableleft">允超比率</td>
+               <td>
+                <input type="text" name="ratioAllowover" id="ratioAllowover" lay-verify="ratioAllowover" class="layui-input" maxlength="20" value="<#if entity??&&entity.ratioAllowover??>${entity.ratioAllowover?c}<#else></#if>"/>
+               </td> 
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">计划开始时间</td>
+               <td>
+                 <input type="text" name="timePlanStart" id="timePlanStart" lay-verify="timePlan" class="layui-input" maxlength="20" value="${(entity.timePlanStart?datetime)!''}"/>
+               </td> 
+               <td width="10%" class="tableleft">计划结束时间</td>
+               <td>
+                 <input type="text" name="timePlanEnd" id="timePlanEnd" lay-verify="timePlan" class="layui-input" maxlength="20" value="${(entity.timePlanEnd?datetime)!''}"/>
+               </td> 
+           </tr>
+           <tr>
+    	       <td width="10%" class="tableleft">实际上线时间</td>
+               <td>
+                <input type="text" name="timeActualStart" id="timeActualStart" lay-verify="timeActualStart" class="layui-input" maxlength="20" value="${(entity.timeActualStart?datetime)!''}"/>
+               </td> 
+               <td width="10%" class="tableleft">实际结案时间</td>
+               <td>
+                 <input type="text" name="timeActualEnd" id="timeActualEnd" lay-verify="timeActualEnd" class="layui-input" maxlength="20" value="${(entity.timeActualEnd?datetime)!''}"/>
+               </td> 
+           </tr>
+    	   <tr>
+               <td width="10%" class="tableleft">备注</td>
+               <td colspan="3">
+               <input type="text" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+               </td> 
+
+           </tr>
+           
+           <tr>
+           </tr>
+
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+            <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+	   				<div class="layui-col-md12" style='text-align:center;'>
+		    	      <span class="layui-breadcrumb"> 	
+				         <span>操作历史记录</span>
+				      </span>
+				    </div>
+		   			<div class="layui-col-md12" style="text-align: center;">
+		   				<div class="layui-row grid-demo">
+			   				<div class="layui-col-md6">
+			   					<span class="layui-breadcrumb"> 	
+							         <span style="color:#7F7F7F">状态变更记录</span>
+							      </span>
+			   					<table class="layui-hide" id="statusChange" lay-filter="statusChange"></table>
+			   				</div>
+			   				<div class="layui-col-md6">
+			   					<span class="layui-breadcrumb"> 	
+							         <span style="color:#7F7F7F">审核记录</span>
+							    </span>
+			   					<table class="layui-hide" id="auditLogging" lay-filter="auditLogging"></table>
+			   				</div>
+			   			</div>
+		   			</div>
+		   		</div>
+	    </div> 
+      </form>
+    </div>
+ <script type="text/html" id="billStatusDictName">
+	{{#  if(d.billStatusDictionary){}}
+		{{ d.billStatusDictionary.dictName
+ 	}}
+	{{# } }}
+ </script>  
+  <script type="text/html" id="createUserName">
+	{{#  if(d.caretUserPassport){}}
+		{{ d.caretUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="modifyUserName">
+	{{#  if(d.modifyUserPassport){}}
+		{{ d.modifyUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="billStatusDictNameTpl">
+	{{#  if(d.billStatusDictionary){}}
+		{{ d.billStatusDictionary.dictName
+ 	}}
+	{{# } }}
+ </script>  
+ <script type="text/html" id="auditStatusDictNameTpl">
+	{{#  if(d.auditStatusictionary){}}
+		{{ d.auditStatusictionary.dictName
+ 	}}
+	{{# } }}
+ </script>
+ 
+    <script>
+    var ids = $("#id").val();
+    var statusDictId="10311";
+    var statuId=window.parent.billStatusDictId;
+    if (ids!=null&&ids!=""){
+  	if(statuId=='10488'){
+  		$('#billStatusDictId').attr("disabled", false);
+  	}
+    }else{
+  	    ids="0";
+  		$('#billStatusDictId').val(10488);
+  		$('#auditStatusDictId').val(10585);
+    }
+    
+    
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+          $ = layui.jquery;
+          var form = layui.form,laydate = layui.laydate,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax,layuitable = layui.layuitable;
+          var ids = $("#id").val();
+          var url = $(window.parent.document).find("iframe").attr("src");
+      	  var result=url.indexOf("?");
+      	  var materialName=parent.materialName;
+          var productName=parent.productName;
+          var bomName=parent.bomName;
+      	if(result>0){
+      	$("#productName").val(productName); 
+      	$("#materialName").val(materialName); 
+      	$("#bomName").val(bomName); 
+      		
+      	}
+          
+       	$('#bomsearch').on('click',function(e){
+       		openWinSelect3('/product/productBom/productBomOpenBox',"bomId","bomName","productId","productName","materialId","materialName");
+       		e.preventDefault();//默认from表单提交时不刷新
+      	})
+          
+          
+          var historyBillStatusTable = layuitable.render({
+          	elem: '#historyBillStatus'
+          	,height:200
+          	,id:'listTable'
+          	,url:'/history/historyBillStatus/list/json?billId='+ids 
+          	,cols: [[
+              	      
+               	     {field:'id', width:120, title: 'ID',align:'center'}
+               	    ,{field:'billStatusDictId',  title: '状态',align:'center', minWidth: 120}
+               	    ,{field:'billStatusDictName',  title: '状态',align:'center', minWidth: 120,templet:'#billStatusDictName'} 
+  	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+  		           	,{field:'createTime',  title: '创建时间',align:'center', minWidth: 120}
+  	          	    ,{field:'modifyTime',  title: '更新时间',align:'center', minWidth: 120}
+  	          	    ,{field:'createUserId',  title: '创建人',align:'center', minWidth: 120}
+  	          	    ,{field:'createUserName',  title: '创建人',align:'center', minWidth: 120,templet:'#createUserName'}
+  	          	    ,{field:'modifyUserId',  title: '更新人',align:'center', minWidth: 120}
+  	          	    ,{field:'modifyUserId',  title: '更新人',align:'center', minWidth: 120,templet:'#modifyUserName'}
+          	]]
+  	    	,done: function () {
+  		        $("[data-field='billTypeDictId']").css('display','none');
+  		        $("[data-field='billStatusDictId']").css('display','none');
+  		        $("[data-field='createUserId']").css('display','none');
+  		        $("[data-field='modifyUserId']").css('display','none');
+  		    }
+        	});
+       	
+       	
+      //状态变更记录表
+    	var statusChangeTable = layuitable.render({
+        	elem: '#statusChange'
+        	,height:300
+        	,id:'historyBillStatus'
+        	,url:'/history/historyBillStatus/list/json?billId='+ids+'&&billTypeDictId=10201'
+        	,page:false
+        	,cols: [[
+            	      
+             	     {field:'id',hide:true, width:120, title: 'ID',align:'center'}
+             	    ,{field:'billStatusDictName',  title: '状态',align:'center', minWidth: 120,templet:'#billStatusDictNameTpl'} 
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+		           	,{field:'createTime',  title: '操作时间',align:'center', minWidth: 120}
+	          	    ,{field:'createUserName',  title: '操作人',align:'center', minWidth: 120,templet:'#createUserNameTpl'}
+        	]]
+      	});
+    	//审核记录表	
+    	var auditLoggingTable = layuitable.render({
+        	elem: '#auditLogging'
+        	,height:300
+        	,id:'listTable'
+        	,url:'/history/historyBillStatusAudit/list/json?billId='+ids+'&&billTypeDictId=10201'
+        	,page:false
+        	,cols: [[
+             	     {field:'id',hide:true, width:120, title: 'ID',align:'center'}
+             	    ,{field:'auditStatusDictName',  title: '审核状态',align:'center', minWidth: 120,templet:'#auditStatusDictNameTpl'} 
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+		           	,{field:'createTime',  title: '操作时间',align:'center', minWidth: 120}
+	          	    ,{field:'createUserName',  title: '操作人',align:'center', minWidth: 120,templet:'#createUserNameTpl2'}
+        	]]
+      	});
+
+          
+          var reg = /^[+]{0,1}(\d+)$/ ; //正则只能是正整数
+          var patrn = /^\d+(\.\d+)?$/ ; //正则只能是正整数和小数点
+          form.verify({
+        	    numberOrEmpty: function (value) {
+        	        if (value =='' ||value==null) {
+                         return '数量不能为空!';
+	                }else if(!reg.test(value)){
+	                    return '数量需为正整数!';
+	                }
+        	    }
+        	   ,ratioAllowover: function (over) {
+        	        if (over =='' ||over==null) {
+                         return '数量不能为空!';
+	                }else if(!patrn.test(over)){
+	                    return '数量需为正整数!';
+	                }
+        	    }
+          
+	            ,timePlanStart: function(valueTy){
+	         	 if(valueTy =='' ||valueTy==null){
+	                 return '计划开始时间不能为空!';
+	             }
+	           }
+	            ,timePlanEnd: function(valueTy){
+	         	 if(valueTy =='' ||valueTy==null){
+	                 return '计划结束时间不能为空!';
+	             }
+	           }
+	           ,timeActualStart: function(valueTy){
+		         	 if(valueTy =='' ||valueTy==null){
+		                 return '实际上线时间不能为空!';
+		             }
+		           } 
+	           ,timeActualEnd: function(valueTy){
+		         	 if(valueTy =='' ||valueTy==null){
+		                 return '实际结案时间不能为空!';
+		             }
+		           }  
+
+        	}); 
+          
+          //监听提交
+          form.on('submit(save)', function(data){       
+        	  console.log(data.field);
+        	  var url = '/bill/billWorkorder/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+          
+          
+          var nowTime = new Date().valueOf();
+          //日期
+           var start = laydate.render({
+       		     elem: '#timePlanStart' //指定元素  计划开始时间
+          		,type: 'datetime'
+          		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+                  ,min:nowTime,
+                  done:function(value,datetime){
+                      endMax = end.config.max;
+                      timePlanEnd.config.min = datetime;
+                      timePlanEnd.config.min.month = datetime.month -1;
+                  }
+              });
+           var timePlanEnd = laydate.render({
+       		     elem: '#timePlanEnd' //指定元素  计划结束时间
+          		,type: 'datetime'
+          		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+                  ,min:nowTime,
+                  done:function(value,datetime){
+                  }
+              });
+           var end = laydate.render({ // 实际上线时间
+                  elem: '#timeActualStart'
+         		  ,type: 'datetime'
+          	      ,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+                 ,min : nowTime,
+                 done:function(value,date){
+                	 timeActualEnd.config.min = date;
+                	 timeActualEnd.config.min.month = date.month -1;
+                 }
+              });
+           var timeActualEnd = laydate.render({ //实际结案时间
+               elem: '#timeActualEnd'
+      		  ,type: 'datetime'
+       	      ,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+              ,min : nowTime,
+              done:function(value,date){
+             
+              }
+           });
+          
+          
+
+          
+          
+        });
+    </script>
+    
+  </body>
+
+</html>

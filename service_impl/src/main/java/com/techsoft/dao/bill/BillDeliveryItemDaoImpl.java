@@ -1,0 +1,109 @@
+package com.techsoft.dao.bill;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumBillStatus;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+import com.techsoft.entity.bill.BillDeliveryItemParamVo;
+import com.techsoft.entity.bill.BillDeliveryItemVo;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.common.BillDelivery;
+import com.techsoft.entity.common.BillDeliveryItem;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.mapper.bill.BillDeliveryItemMapper;
+
+@Repository
+public class BillDeliveryItemDaoImpl extends BaseDaoImpl<BillDeliveryItem> implements BillDeliveryItemDao {
+	@Resource
+	protected BillDeliveryItemMapper billDeliveryItemMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<BillDeliveryItem> getEntityClass() {
+		return BillDeliveryItem.class;
+	}	
+	
+	@Override
+	public BaseMapper<BillDeliveryItem> getBaseMapper() {
+		return this.billDeliveryItemMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "BILL_DELIVERY_ITEM";
+	}
+	
+	@Override
+	public void insertSaveCheck(BillDeliveryItem value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(BillDeliveryItem value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(BillDeliveryItem value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void updateBillItemStatusMain(Long billId, Long billStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException {
+
+		//查询明细ID更新
+		List<BillDeliveryItem> list =new ArrayList<BillDeliveryItem>();
+		BillDeliveryItemParamVo paramVo =new BillDeliveryItemParamVo();
+		paramVo.setBillId(billId);
+		list=billDeliveryItemMapper.selectListByEntityParamVo(paramVo);
+		
+		List<Long> ids = new ArrayList<Long>();
+		for (BillDeliveryItem billItem : list) {
+			billItem.setBillStatusDictId(billStatusDictId);
+			if(billStatusDictId.equals(EnumBillStatus.FINISHED.getValue())){
+				billItem.setQuantityFinish(billItem.getQuantity());
+				billItem.setQuantityScan(billItem.getQuantity());
+			}
+			billItem.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			ids.add(billItem.getId());
+			}
+		List<DistributedLock> listlock = LockManager.getLongZKDistributedLock(BillWarehouseItem.class.getName(), ids);
+		LockManager.lockList(listlock);
+		try {
+			this.billDeliveryItemMapper.updateBatchBillItem(list);
+		} finally {
+			LockManager.unLockList(listlock);
+		}
+	}
+		
+	@Override
+	public List<BillDeliveryItemVo> selectSumQtyByBillId(BillDeliveryItemParamVo billDeliveryItemParamVo)throws BusinessException, SQLException {
+
+		//根据单据查询明细汇总
+		List<BillDeliveryItemVo> returnList =new ArrayList<BillDeliveryItemVo>();
+		returnList=billDeliveryItemMapper.selectSumQtyByBillId(billDeliveryItemParamVo);
+		
+		return returnList;
+	}
+	
+}

@@ -1,0 +1,751 @@
+package com.techsoft.client.service.track;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumBarcodeRule;
+import com.techsoft.common.enums.EnumBarcodeStatus;
+import com.techsoft.common.enums.EnumBillStatus;
+import com.techsoft.common.enums.EnumBillType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillDelivery;
+import com.techsoft.entity.common.BillInspect;
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.BillPurchase;
+import com.techsoft.entity.common.BillSaleorder;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.BillWorkorder;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipFixture;
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.entity.common.EquipWorkStack;
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructProcedureInstruct;
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.entity.common.StructProductionline;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.StructWorkshop;
+import com.techsoft.entity.common.StructWorkshopArea;
+import com.techsoft.entity.common.StructWorkstation;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.common.WarehousePallet;
+import com.techsoft.entity.common.WorkTaskProcedure;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.entity.track.TrackBarcodeVo;
+import com.techsoft.service.barcode.BarcodeMainService;
+import com.techsoft.service.bill.BillDeliveryService;
+import com.techsoft.service.bill.BillInspectService;
+import com.techsoft.service.bill.BillInventoryService;
+import com.techsoft.service.bill.BillPurchaseService;
+import com.techsoft.service.bill.BillSaleorderService;
+import com.techsoft.service.bill.BillWarehouseInService;
+import com.techsoft.service.bill.BillWarehouseItemService;
+import com.techsoft.service.bill.BillWarehouseService;
+import com.techsoft.service.bill.BillWorkorderService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.equip.EquipFixtureService;
+import com.techsoft.service.equip.EquipWorkService;
+import com.techsoft.service.equip.EquipWorkStackService;
+import com.techsoft.service.firm.FirmPartnerService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.struct.StructFactoryService;
+import com.techsoft.service.struct.StructProcedureInstructService;
+import com.techsoft.service.struct.StructProcessNodeService;
+import com.techsoft.service.struct.StructProductionlineService;
+import com.techsoft.service.struct.StructWarehouseService;
+import com.techsoft.service.struct.StructWorkshopAreaService;
+import com.techsoft.service.struct.StructWorkshopService;
+import com.techsoft.service.struct.StructWorkstationService;
+import com.techsoft.service.sys.UserPassportService;
+import com.techsoft.service.track.TrackBarcodeService;
+import com.techsoft.service.warehouse.WarehouseLocationService;
+import com.techsoft.service.warehouse.WarehousePalletService;
+import com.techsoft.service.work.WorkTaskProcedureService;
+
+@org.springframework.stereotype.Service
+public class ClientTrackBarcodeServiceImpl extends BaseClientServiceImpl<TrackBarcode>
+		implements ClientTrackBarcodeService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private TrackBarcodeService trackBarcodeService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BarcodeMainService barcodeMainService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseItemService billWarehouseItemService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseService billWarehouseService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseInService billWarehouseInService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService;
+	// 物品
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+	// 合作伙伴
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmPartnerService firmPartnerService;
+	// 货位
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WarehouseLocationService warehouseLocationService;
+	// 操作人
+	@com.alibaba.dubbo.config.annotation.Reference
+	private UserPassportService userPassportService;
+	// 工厂名称
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructFactoryService structFactoryService;
+	// 单据
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillDeliveryService billDeliveryService;// 发货单
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillSaleorderService billSaleorderService;// 销售单
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillPurchaseService billPurchaseService;// 采购单
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillInspectService billInspectService;// 检验单
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWorkorderService billWorkorderService;// 工单
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillInventoryService billInventoryService;// 盘点单
+	// 仓库
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWarehouseService structWarehouseService;
+	// 栈板
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WarehousePalletService warehousePalletService;
+	// 工作工序任务
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WorkTaskProcedureService workTaskProcedureService;
+	// 车间
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopService structWorkshopService;
+	// 车间区域
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopAreaService structWorkshopAreaService;
+	// 设备
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipWorkService equipWorkService;
+	// 设备栈位
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipWorkStackService equipWorkStackService;
+	// 工具
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipFixtureService equipFixtureService;
+	// 工序
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcessNodeService structProcessNodeService;
+	// 工序指令
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcedureInstructService structProcedureInstructService;
+	// 工位
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkstationService structWorkstationService;
+
+	@Override
+	public BaseService<TrackBarcode> getBaseService() {
+		return trackBarcodeService;
+	}
+
+	private TrackBarcodeVo getVo(TrackBarcode trackBarcode, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		TrackBarcodeVo vo = new TrackBarcodeVo(trackBarcode);
+		// 获取物料
+		if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+			ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(), commonParam);
+			if (productMaterial != null) {
+				if (productMaterial.getSkuValue() != null && productMaterial.getSkuValue() != "") {
+					ProductMaterialVo productMateriaVo = new ProductMaterialVo();
+					productMateriaVo.setSkuValue(productMaterial.getSkuValue());
+					vo.setProductMaterialVo(productMateriaVo);
+
+				}
+				vo.setProductMaterial(productMaterial);
+			}
+		}
+
+		// 获取物品
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productMain = productMainService.selectById(vo.getProductId(), commonParam);
+			if (productMain != null) {
+				vo.setProductMain(productMain);
+			}
+		}
+
+		// 条码规则类型
+		if (vo.getBarcodeRuleDictId() != null && vo.getBarcodeRuleDictId() > 0L) {
+			ConfigDictionary BarcodeRuleList = configDictionaryService.selectById(vo.getBarcodeRuleDictId(),
+					commonParam);
+			if (BarcodeRuleList != null) {
+				vo.setBarcodeRuleList(BarcodeRuleList);
+			}
+		}
+
+		// 条码状态
+		if (vo.getBarcodeStatusDictId() != null && vo.getBarcodeStatusDictId() > 0L) {
+			ConfigDictionary barcodeStatusList = configDictionaryService.selectById(vo.getBarcodeStatusDictId(),
+					commonParam);
+			if (barcodeStatusList != null) {
+				vo.setBarcodeStatusList(barcodeStatusList);
+			}
+		}
+
+		// 操作状态
+		if (vo.getOperationStatusDictId() != null && vo.getOperationStatusDictId() > 0L) {
+			ConfigDictionary operationStatusList = configDictionaryService.selectById(vo.getOperationStatusDictId(),
+					commonParam);
+			if (operationStatusList != null) {
+				vo.setOperationStatusList(operationStatusList);
+			}
+		}
+
+		// 单据类型
+		if (vo.getBillTypeDictId() != null && vo.getBillTypeDictId() > 0L) {
+			ConfigDictionary billTypeDicList = configDictionaryService.selectById(vo.getBillTypeDictId(), commonParam);
+			if (billTypeDicList != null) {
+				vo.setBillTypeDicList(billTypeDicList);
+				// 单据
+				if (vo.getBillTypeDictId().equals(EnumBillType.BILL_TYPE_DELIVERY.getValue())
+						|| vo.getBillTypeDictId().equals(EnumBillType.BILL_TYPE_DELIVERY_SUPPLIER.getValue())) {// 发货单和供应商发货单
+					BillDelivery billDelivery = billDeliveryService.selectById(vo.getBillId(), commonParam);
+					vo.setBillCode(billDelivery.getBillCode());
+				} else if (vo.getBillTypeDictId().equals(EnumBillType.BILL_TYPE_SALEORDER.getValue())) {// 销售单
+					BillSaleorder billSaleorder = billSaleorderService.selectById(vo.getBillId(), commonParam);
+					vo.setBillCode(billSaleorder.getBillCode());
+				} else if (vo.getBillTypeDictId().equals(EnumBillType.BILL_TYPE_PURCHASE.getValue())) {// 采购单
+					BillPurchase billPurchase = billPurchaseService.selectById(vo.getBillId(), commonParam);
+					if (billPurchase != null) {
+						vo.setBillCode(billPurchase.getBillCode());
+					}
+				} else if (vo.getBillTypeDictId().equals(EnumBillType.BILL_TYPE_EXAMINE.getValue())) {// 检验单
+					BillInspect billInspect = billInspectService.selectById(vo.getBillId(), commonParam);
+					vo.setBillCode(billInspect.getInspectCode());
+				} else if (vo.getBillTypeDictId().equals(EnumBillType.BILL_TYPE_WORKORDER.getValue())) {// 工单
+					BillWorkorder billWorkorder = billWorkorderService.selectById(vo.getBillId(), commonParam);
+					vo.setBillCode(billWorkorder.getWorkorderCode());
+				} else if (vo.getBillTypeDictId().equals(EnumBillType.BILL_TYPE_INVENTORY.getValue())) {// 盘点单
+					BillInventory billInventory = billInventoryService.selectById(vo.getBillId(), commonParam);
+					vo.setBillCode(billInventory.getBillCode());
+				} else {// 仓库库单
+					BillWarehouse billWarehouse = billWarehouseService.selectById(vo.getBillId(), commonParam);
+					if (billWarehouse != null) {
+						vo.setBillCode(billWarehouse.getBillCode());
+					}
+				}
+			}
+
+		}
+
+		// 单据状态
+		if (vo.getBillStatusDictId() != null && vo.getBillStatusDictId() > 0L) {
+			ConfigDictionary billStatusDicList = configDictionaryService.selectById(vo.getBillStatusDictId(),
+					commonParam);
+			if (billStatusDicList != null) {
+				vo.setBillStatusDicList(billStatusDicList);
+			}
+		}
+
+		// 合作伙伴
+		if (vo.getSupplierId() != null && vo.getSupplierId() > 0L) {
+			FirmPartner firmPartner = firmPartnerService.selectById(vo.getSupplierId(), commonParam);
+			if (firmPartner != null) {
+				vo.setFirmPartnerList(firmPartner);
+			}
+		}
+
+		// 仓库
+		if (vo.getWarehouseId() != null && vo.getWarehouseId() > 0L) {
+			StructWarehouse structWarehouse = structWarehouseService.selectById(vo.getWarehouseId(), commonParam);
+			if (structWarehouse != null) {
+				vo.setStructWarehouseList(structWarehouse);
+			}
+		}
+
+		// 仓位
+		if (vo.getLocationId() != null && vo.getLocationId() > 0L) {
+			WarehouseLocation warehouseLocation = warehouseLocationService.selectById(vo.getLocationId(), commonParam);
+			if (warehouseLocation != null) {
+				vo.setWarehouseLocationList(warehouseLocation);
+			}
+		}
+		// 工厂名称
+		if (vo.getFactoryId() != null && vo.getFactoryId() > 0L) {
+			StructFactory structFactory = structFactoryService.selectById(vo.getFactoryId(), commonParam);
+			if (structFactory != null) {
+				vo.setStructFactorylist(structFactory);
+			}
+		}
+		// 操作人
+		if (vo.getCreateUserId() != null && vo.getCreateUserId() > 0L) {
+			UserPassport userPassport = userPassportService.selectById(vo.getCreateUserId(), commonParam);
+			if (userPassport != null) {
+				vo.setUserPassportList(userPassport);
+			}
+		}
+		// 栈板
+		if (vo.getPalletId() != null && vo.getPalletId() > 0L) {
+			WarehousePallet warehousePallet = warehousePalletService.selectById(vo.getPalletId(), commonParam);
+			if (warehousePallet != null) {
+				vo.setWarehousePallet(warehousePallet);
+			}
+		}
+		// 工单
+		if (vo.getBillWorkorderId() != null && vo.getBillWorkorderId() > 0L) {
+			BillWorkorder billWorkorder = billWorkorderService.selectById(vo.getBillWorkorderId(), commonParam);
+			if (billWorkorder != null) {
+				vo.setBillWorkorder(billWorkorder);
+			}
+		}
+		// 工作工序任务
+		if (vo.getTaskProcedureId() != null && vo.getTaskProcedureId() > 0L) {
+			WorkTaskProcedure workTaskProcedure = workTaskProcedureService.selectById(vo.getTaskProcedureId(),
+					commonParam);
+			if (workTaskProcedure != null) {
+				vo.setWorkTaskProcedure(workTaskProcedure);
+			}
+		}
+		// 车间
+		if (vo.getWorkshopId() != null && vo.getWorkshopId() > 0L) {
+			StructWorkshop structWorkshop = structWorkshopService.selectById(vo.getWorkshopId(), commonParam);
+			if (structWorkshop != null) {
+				vo.setStructWorkshop(structWorkshop);
+			}
+		}
+		// 车间区域
+		if (vo.getWorkshopAreaId() != null && vo.getWorkshopAreaId() > 0L) {
+			StructWorkshopArea structWorkshopArea = structWorkshopAreaService.selectById(vo.getWorkshopAreaId(),
+					commonParam);
+			if (structWorkshopArea != null) {
+				vo.setStructWorkshopArea(structWorkshopArea);
+			}
+		}
+		// 设备
+		if (vo.getEquipWorkId() != null && vo.getEquipWorkId() > 0L) {
+			EquipWork equipWork = equipWorkService.selectById(vo.getEquipWorkId(), commonParam);
+			if (equipWork != null) {
+				vo.setEquipWork(equipWork);
+			}
+		}
+		// 设备栈位
+		if (vo.getEquipWorkStackId() != null && vo.getEquipWorkStackId() > 0L) {
+			EquipWorkStack equipWorkStack = equipWorkStackService.selectById(vo.getEquipWorkStackId(), commonParam);
+			if (equipWorkStack != null) {
+				vo.setEquipWorkStack(equipWorkStack);
+			}
+		}
+		// 工具
+		if (vo.getEquipFixtureId() != null && vo.getEquipFixtureId() > 0L) {
+			EquipFixture equipFixture = equipFixtureService.selectById(vo.getEquipFixtureId(), commonParam);
+			if (equipFixture != null) {
+				vo.setEquipFixture(equipFixture);
+			}
+		}
+		// 工序
+		if (vo.getProcessNodeId() != null && vo.getProcessNodeId() > 0L) {
+			StructProcessNode structProcessNode = structProcessNodeService.selectById(vo.getProcessNodeId(),
+					commonParam);
+			if (structProcessNode != null) {
+				vo.setStructProcessNode(structProcessNode);
+			}
+		}
+		// 工序指令
+		if (vo.getInstructId() != null && vo.getInstructId() > 0L) {
+			StructProcedureInstruct structProcedureInstruct = structProcedureInstructService
+					.selectById(vo.getInstructId(), commonParam);
+			if (structProcedureInstruct != null) {
+				vo.setStructProcedureInstruct(structProcedureInstruct);
+			}
+		}
+		// 车间
+		if (vo.getWorkshopId() != null && vo.getWorkshopId() > 0L) {
+			StructWorkshop structWorkshop = structWorkshopService.selectById(vo.getWorkshopId(), commonParam);
+			if (structWorkshop != null) {
+				vo.setStructWorkshop(structWorkshop);
+			}
+		}
+		// 工位
+		if (vo.getWorkstationId() != null && vo.getWorkstationId() > 0L) {
+			StructWorkstation structWorkstation = structWorkstationService.selectById(vo.getWorkstationId(), commonParam);
+			if (structWorkstation != null) {
+				vo.setStructWorkstation(structWorkstation);
+			}
+		}
+		// 物品类型
+		if (vo.getProductTypeDictId() != null && vo.getProductTypeDictId() > 0L) {
+			ConfigDictionary productType = configDictionaryService.selectById(vo.getProductTypeDictId(), commonParam);
+			if (productType != null) {
+				vo.setProductType(productType);
+			}
+		}
+
+		return vo;
+	}
+
+	private TrackBarcodeVo getExtendVo(TrackBarcode trackBarcode, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		TrackBarcodeVo vo = this.getVo(trackBarcode, commonParam);
+
+		return vo;
+	}
+
+	private List<TrackBarcodeVo> getVoList(List<TrackBarcode> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<TrackBarcodeVo> voList = new ArrayList<TrackBarcodeVo>();
+		for (TrackBarcode entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<TrackBarcodeVo> getExtendVoList(List<TrackBarcode> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<TrackBarcodeVo> voList = new ArrayList<TrackBarcodeVo>();
+		for (TrackBarcode entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public TrackBarcodeVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		TrackBarcode entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<TrackBarcodeVo> selectListVoByParamVo(TrackBarcodeParamVo trackBarcode, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (trackBarcode == null) {
+			trackBarcode = new TrackBarcodeParamVo();
+		}
+		trackBarcode.setTenantId(commonParam.getTenantId());
+
+		List<TrackBarcode> list = (List<TrackBarcode>) this.getBaseService().selectListByParamVo(trackBarcode,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<TrackBarcodeVo> selectPageVoByParamVo(TrackBarcodeParamVo trackBarcode, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (trackBarcode == null) {
+			trackBarcode = new TrackBarcodeParamVo();
+		}
+		trackBarcode.setTenantId(commonParam.getTenantId());
+
+		PageInfo<TrackBarcode> list = (PageInfo<TrackBarcode>) this.getBaseService().selectPageByParamVo(trackBarcode,
+				commonParam, pageNo, pageSize);
+		List<TrackBarcodeVo> volist = new ArrayList<TrackBarcodeVo>();
+
+		Iterator<TrackBarcode> iter = list.getList().iterator();
+		TrackBarcodeVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<TrackBarcodeVo> vpage = new Page<TrackBarcodeVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public TrackBarcodeVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		TrackBarcode entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<TrackBarcodeVo> selectListExtendVoByParamVo(TrackBarcodeParamVo trackBarcode, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (trackBarcode == null) {
+			trackBarcode = new TrackBarcodeParamVo();
+		}
+		trackBarcode.setTenantId(commonParam.getTenantId());
+
+		List<TrackBarcode> list = (List<TrackBarcode>) this.getBaseService().selectListByParamVo(trackBarcode,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<TrackBarcodeVo> selectPageExtendVoByParamVo(TrackBarcodeParamVo trackBarcode,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (trackBarcode == null) {
+			trackBarcode = new TrackBarcodeParamVo();
+		}
+		trackBarcode.setTenantId(commonParam.getTenantId());
+
+		PageInfo<TrackBarcode> list = (PageInfo<TrackBarcode>) this.getBaseService().selectPageByParamVo(trackBarcode,
+				commonParam, pageNo, pageSize);
+		List<TrackBarcodeVo> volist = new ArrayList<TrackBarcodeVo>();
+
+		Iterator<TrackBarcode> iter = list.getList().iterator();
+		TrackBarcodeVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<TrackBarcodeVo> vpage = new Page<TrackBarcodeVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(TrackBarcodeParamVo trackBarcodeParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		TrackBarcode trackBarcode = null;
+		try {
+			if (trackBarcodeParamVo.getId() == null) {// 新增
+				ConfigDictionary selectById = configDictionaryService.selectById(EnumBarcodeStatus.NEW.getValue(),
+						commonParam);
+				if (selectById.getId() != null) {
+					trackBarcodeParamVo.setBarcodeStatusDictId(selectById.getId());
+				}
+				trackBarcodeParamVo.setTenantId(commonParam.getTenantId());
+				trackBarcode = trackBarcodeService.saveOrUpdate(trackBarcodeParamVo, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				TrackBarcode trackBarcodeVoTemp = this.selectById(trackBarcodeParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(trackBarcodeVoTemp, trackBarcodeParamVo);
+
+				trackBarcode = trackBarcodeService.saveOrUpdate(trackBarcodeVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(trackBarcode);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage InsertbatchTrackBarcode(List<TrackBarcode> trackBarcodeVoVoList, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ResultMessage resultMessage = new ResultMessage();
+		TrackBarcodeParamVo trackBarcodeParamVo = new TrackBarcodeParamVo();
+		if (trackBarcodeVoVoList.size() > 0) {
+			for (TrackBarcode trackBarcode : trackBarcodeVoVoList) {
+				if (trackBarcode.getMaterialId() != null) {
+					ProductMaterial material = productMaterialService.selectById(trackBarcode.getMaterialId(),
+							commonParam);
+					if (material != null) {
+						trackBarcode.setProductTypeDictId(material.getProductTypeDictId());
+						if (trackBarcode.getProductId() == null) {
+							trackBarcode.setProductId(material.getProductId());
+						}
+					}
+				}
+			}
+			trackBarcodeParamVo.setListSn(trackBarcodeVoVoList);
+		}
+		TrackBarcode trackBarcode = trackBarcodeService.insertSnlist(trackBarcodeParamVo, commonParam);
+		if (trackBarcode != null) {
+			resultMessage.setIsSuccess(true);
+		} else {
+			resultMessage.setIsSuccess(false);
+		}
+		return resultMessage;
+	}
+
+	@Override
+	public BarcodeMain getMainVoByCode(String code, CommonParam commonParam) throws BusinessException, SQLException {
+		List<BarcodeMain> list = new ArrayList<BarcodeMain>();
+		BarcodeMainParamVo barcodeMain = new BarcodeMainParamVo();
+		barcodeMain.setBarcode(code);
+		list = barcodeMainService.selectListByParamVo(barcodeMain, commonParam);
+		if (list.size() > 0) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public TrackBarcode getVoByCode(String code, CommonParam commonParam) throws BusinessException, SQLException {
+		List<TrackBarcode> list = new ArrayList<TrackBarcode>();
+		TrackBarcodeParamVo trackBarcodeParamVo = new TrackBarcodeParamVo();
+		trackBarcodeParamVo.setBarcode(code);
+		trackBarcodeParamVo.setBillTypeDictId(EnumBillType.BILL_TYPE_WAREHOUSE_IN.getValue());
+		trackBarcodeParamVo.setBillStatusDictId(EnumBillStatus.NEW.getValue());
+		trackBarcodeParamVo.setBarcodeStatusDictId(EnumBarcodeStatus.NEW.getValue());
+		list = trackBarcodeService.selectListByParamVo(trackBarcodeParamVo, commonParam);
+		if (list.size() > 0) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	List<List<BarcodeMain>> listBarcode = new ArrayList<>();
+
+	public List<BarcodeMain> recursion(Long parentId, TrackBarcodeVo trackBarcodeVo, CommonParam commonParam) {
+		BarcodeMainParamVo paramVo = new BarcodeMainParamVo();
+		paramVo.setBarcodePackboxId(parentId);
+		List<BarcodeMain> sumList = new ArrayList<BarcodeMain>();
+		try {
+			List<BarcodeMain> packBoxlist = barcodeMainService.selectListByParamVo(paramVo, commonParam);
+			listBarcode.add(packBoxlist);
+
+			for (int i = 0; i < listBarcode.get(listBarcode.size() - 1).size(); i++) {
+				BarcodeMain packBoxBarcode = listBarcode.get(listBarcode.size() - 1).get(i);
+				packBoxBarcode.setBarcodeStatusDictId(EnumBarcodeStatus.INSTORE.getValue());
+				packBoxBarcode.setBillId(trackBarcodeVo.getBillId());
+				packBoxBarcode.setBillItemId(trackBarcodeVo.getBillItemId());
+				packBoxBarcode.setLocationId(trackBarcodeVo.getLocationId());
+				packBoxBarcode.setWarehouseId(trackBarcodeVo.getWarehouseId());
+				packBoxBarcode.setBillStatusDictId(EnumBillStatus.FINISHED.getValue());
+				sumList.add(packBoxBarcode);
+				if (packBoxBarcode.getBarcodeRuleDictId().equals(EnumBarcodeRule.PRODUCT_PACKBOX.getValue())) {
+					sumList.addAll(recursion(packBoxBarcode.getBarcodePackboxId(), trackBarcodeVo, commonParam));
+				}
+			}
+			listBarcode.remove(listBarcode.size() - 1);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return sumList;
+	}
+
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年5月4日下午10:47:51
+	 * @param: trackBarcodeVo
+	 *             标签对象Vo
+	 * @description pda扫描物料标签进行上架
+	 */
+	@Override
+	public ResultMessage onBarcode(TrackBarcodeVo trackBarcodeVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+
+			// 向入库Service调用onBarcode上架方法
+			TrackBarcode barcodelist = new TrackBarcode();
+			barcodelist = billWarehouseInService.onBarcode(trackBarcodeVo, commonParam);
+
+			if (barcodelist != null) {
+				// 返回最外箱条码给pda
+				TrackBarcodeVo bMainVo = this.getVo(barcodelist, commonParam);
+				List<TrackBarcodeVo> list = new ArrayList<>();
+
+				list.add(bMainVo);
+				resultMessage.put(list);
+				resultMessage.addErr("上架成功");
+				resultMessage.setIsSuccess(true);
+			} else {
+				resultMessage.addErr("业务异常");
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultMessage;
+	}
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年6月17日上午10:10:07
+	 * @param trackBarcode
+	 * @param commonParam
+	 * @return
+	 * @description
+	 */
+	@Override
+	public ResultMessage billReturnInput(TrackBarcode trackBarcode, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+
+			// 向入库Service调用billReturnInput退料上架方法
+			TrackBarcode barcodelist = new TrackBarcode();
+			barcodelist = billWarehouseInService.billReturnInput(trackBarcode, commonParam);
+
+			if (barcodelist != null) {
+				// 返回最外箱条码给pda
+				TrackBarcodeVo bMainVo = this.getVo(barcodelist, commonParam);
+				List<TrackBarcodeVo> list = new ArrayList<>();
+
+				list.add(bMainVo);
+				resultMessage.put(list);
+				resultMessage.addErr("退料上架成功");
+				resultMessage.setIsSuccess(true);
+			} else {
+				resultMessage.addErr("退料上架失败");
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage billSaleReturnInput(TrackBarcode trackBarcode, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+
+			// 向入库Service调用billReturnInput退料上架方法
+			TrackBarcode barcodelist = new TrackBarcode();
+			barcodelist = billWarehouseInService.billSaleReturnInput(trackBarcode, commonParam);
+
+			if (barcodelist != null) {
+				// 返回最外箱条码给pda
+				TrackBarcodeVo bMainVo = this.getVo(barcodelist, commonParam);
+				List<TrackBarcodeVo> list = new ArrayList<>();
+
+				list.add(bMainVo);
+				resultMessage.put(list);
+				resultMessage.addErr("退货上架成功");
+				resultMessage.setIsSuccess(true);
+			} else {
+				resultMessage.addErr("退货上架失败");
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultMessage;
+	}
+}

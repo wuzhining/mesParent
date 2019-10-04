@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+            <tr>
+
+               <td width="10%" class="tableleft">工厂名称</td>
+               <td> 
+               		<input type="hidden"  id="factoryId" name="factoryId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.factoryId??>${entity.factoryId?c}<#else></#if>">
+	              	<input type="text" id="factoryName" name="factoryName" disabled="disabled" class="layui-input input-choiceBox-intd">
+	          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="factorySearch">
+	          			<i class="layui-icon layui-icon-more"></i>
+	          		</button>
+			   </td>
+               <td width="10%" class="tableleft">所属仓库</td>
+               <td>  
+               		<input type="hidden"  id="warehouseId" name="warehouseId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.warehouseId??>${entity.warehouseId?c}<#else></#if>">
+	              	<input type="text" id="warehouseName" name="warehouseName" disabled="disabled" class="layui-input input-choiceBox-intd">
+	          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="warehouseSearch">
+	          			<i class="layui-icon layui-icon-more"></i>
+	          		</button>
+			   </select>
+			   </td>
+             
+             
+           </tr>
+           <tr>
+<!--                <td width="10%" class="tableleft">物品ID</td> -->
+<!--                <td> -->
+<!--                   <input type="text" name="productId" required required lay-verify="required" class="layui-input" maxlength="100" value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>"/> -->
+<!--                </td> -->
+               <td width="15%" class="tableleft">物品</td>
+               <td> 
+                 <input type="hidden"  id="productId" name="productId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>">
+              	<input type="text" id="productName" name="productName" disabled="disabled" class="layui-input input-choiceBox-intd">
+          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="productSearch">
+          			<i class="layui-icon layui-icon-more"></i>
+          		</button>
+               </td>
+               
+               <td width="10%" class="tableleft">栈板编码</td>
+               <td>
+                 <input type="text" name="palletCode"   class="layui-input" maxlength="20" value="${(entity.palletCode)!''}"/>
+               </td>
+           </tr>
+           
+           <tr>
+               <td width="15%" class="tableleft">栈板状态</td>
+               <td> 
+                 <select name="palletStatusDictId"> 
+                    <#if dictionaryList??>
+                     <#list dictionaryList as item>
+			            <option value="${item.id?c}" <#if (entity.palletStatusDictId??&&entity.palletStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td>
+               
+               <td width="10%" class="tableleft">箱数</td>
+               <td>
+                 <input type="text" name="quantityPackbox"   class="layui-input" maxlength="20" value="<#if entity??&&entity.quantityPackbox??>${entity.quantityPackbox?c}<#else></#if>"/>
+               </td>
+           </tr>
+           
+           <tr>
+               <td width="10%" class="tableleft">SN数</td>
+               <td>
+                  <input type="text" name="quantitySn"  class="layui-input" maxlength="100" value="<#if entity??&&entity.quantitySn??>${entity.quantitySn?c}<#else></#if>"/>
+               </td>
+               
+                <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           
+           
+           
+           <tr>
+               <td width="10%" class="tableleft">备注</td>
+               <td>
+                 <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax,layuitable = layui.layuitable;
+          var ids = $("#id").val();
+          var url = $(window.parent.document).find("iframe").attr("src");
+      	  var result=url.indexOf("?");
+      	  var productName= getParam("productName");
+      	  var factoryName= getParam("factoryName");
+      	  var warehouseName=getParam("warehouseName");
+      	  if(result>0){
+      			$("#productName").val(productName); 
+      			$("#factoryName").val(factoryName); 
+      			$("#warehouseName").val(warehouseName); 
+      	  }
+      	 
+      	$('#productSearch').on('click',function(e){
+     		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+     		e.preventDefault();//默认from表单提交时不刷新
+     	})   
+      	$('#factorySearch').on('click',function(e){
+     		openWinSelect('/struct/structFactory/structFactoryOpen',"factoryId","factoryName");
+     		e.preventDefault();//默认from表单提交时不刷新
+     	})
+     	$('#warehouseSearch').on('click',function(e){
+	   		openWinSelect('/struct/structWarehouse/structWarehouseOpen',"warehouseId","warehouseName");
+	   		e.preventDefault();//默认from表单提交时不刷新
+	   	}) 
+        
+          //自定义验证规则
+          
+          //选择工厂查仓库级联监听
+           form.on('select(factorySelect)', function(data){
+        	   var factoryId=0;
+         	  if(data.value != ''){
+         		  factoryId=data.value;
+         	  }
+         	  $("#warehouseId option[value!='']").remove();
+         	  linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName','','/struct/structWarehouse/linkWarehouseByFactory');
+         	  $("#warehouseId").get(0).selectedIndex=0;
+          });
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/warehouse/warehousePallet/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+    <script>
+    $(function () {
+    	var factoryId=0;
+	  	  if($("#factoryId").val() != ''){
+	  		  factoryId=$("#factoryId").val();
+	  	  }
+	  	//初始化
+	  	linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName',$("#initwarehouseCode").val(),'/struct/structWarehouse/linkWarehouseByFactory');
+    	
+    });
+    </script>
+  </body>
+
+</html>

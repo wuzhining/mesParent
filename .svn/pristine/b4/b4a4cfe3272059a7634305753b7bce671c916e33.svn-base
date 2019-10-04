@@ -1,0 +1,207 @@
+package com.techsoft.client.service.config;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigParameter;
+import com.techsoft.entity.config.ConfigParameterParamVo;
+import com.techsoft.entity.config.ConfigParameterVo;
+import com.techsoft.service.config.ConfigParameterService;
+
+@org.springframework.stereotype.Service
+public class ClientConfigParameterServiceImpl extends BaseClientServiceImpl<ConfigParameter>
+		implements ClientConfigParameterService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigParameterService configParameterService;
+
+	@Override
+	public BaseService<ConfigParameter> getBaseService() {
+		return configParameterService;
+	}
+
+	private ConfigParameterVo getVo(ConfigParameter configParameter, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ConfigParameterVo vo = new ConfigParameterVo(configParameter);
+
+		return vo;
+	}
+
+	private ConfigParameterVo getExtendVo(ConfigParameter configParameter, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ConfigParameterVo vo = this.getVo(configParameter, commonParam);
+
+		return vo;
+	}
+
+	private List<ConfigParameterVo> getVoList(List<ConfigParameter> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ConfigParameterVo> voList = new ArrayList<ConfigParameterVo>();
+		for (ConfigParameter entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<ConfigParameterVo> getExtendVoList(List<ConfigParameter> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ConfigParameterVo> voList = new ArrayList<ConfigParameterVo>();
+		for (ConfigParameter entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public ConfigParameterVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigParameter entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<ConfigParameterVo> selectListVoByParamVo(ConfigParameterParamVo configParameter,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (configParameter == null) {
+			configParameter = new ConfigParameterParamVo();
+		}
+		configParameter.setTenantId(commonParam.getTenantId());
+
+		List<ConfigParameter> list = (List<ConfigParameter>) this.getBaseService().selectListByParamVo(configParameter,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ConfigParameterVo> selectPageVoByParamVo(ConfigParameterParamVo configParameter,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (configParameter == null) {
+			configParameter = new ConfigParameterParamVo();
+		}
+		configParameter.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ConfigParameter> list = (PageInfo<ConfigParameter>) this.getBaseService()
+				.selectPageByParamVo(configParameter, commonParam, pageNo, pageSize);
+		List<ConfigParameterVo> volist = new ArrayList<ConfigParameterVo>();
+
+		Iterator<ConfigParameter> iter = list.getList().iterator();
+		ConfigParameterVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ConfigParameterVo> vpage = new Page<ConfigParameterVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ConfigParameterVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigParameter entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<ConfigParameterVo> selectListExtendVoByParamVo(ConfigParameterParamVo configParameter,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (configParameter == null) {
+			configParameter = new ConfigParameterParamVo();
+		}
+		configParameter.setTenantId(commonParam.getTenantId());
+
+		List<ConfigParameter> list = (List<ConfigParameter>) this.getBaseService().selectListByParamVo(configParameter,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ConfigParameterVo> selectPageExtendVoByParamVo(ConfigParameterParamVo configParameter,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (configParameter == null) {
+			configParameter = new ConfigParameterParamVo();
+		}
+		configParameter.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ConfigParameter> list = (PageInfo<ConfigParameter>) this.getBaseService()
+				.selectPageByParamVo(configParameter, commonParam, pageNo, pageSize);
+		List<ConfigParameterVo> volist = new ArrayList<ConfigParameterVo>();
+
+		Iterator<ConfigParameter> iter = list.getList().iterator();
+		ConfigParameterVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ConfigParameterVo> vpage = new Page<ConfigParameterVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(ConfigParameterParamVo configParameterParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		ConfigParameter configParameter = null;
+		try {
+
+			if (StringUtils.isBlank(configParameterParamVo.getParamCode())) {
+				resultMessage.addErr("参数编码不能为空");
+				return resultMessage;
+			}
+
+			if (StringUtils.isBlank(configParameterParamVo.getParamName())) {
+				resultMessage.addErr("参数名称不能为空");
+				return resultMessage;
+			}
+
+			if (StringUtils.isBlank(configParameterParamVo.getParamValue())) {
+				resultMessage.addErr("参数值不能为空");
+				return resultMessage;
+			}
+
+			if (configParameterParamVo.getId() == null) {// 新增
+				configParameterParamVo.setTenantId(commonParam.getTenantId());
+				configParameter = configParameterService.saveOrUpdate(configParameterParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				ConfigParameter configParameterVoTemp = this.selectById(configParameterParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(configParameterVoTemp, configParameterParamVo);
+
+				configParameter = configParameterService.saveOrUpdate(configParameterVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(configParameter);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

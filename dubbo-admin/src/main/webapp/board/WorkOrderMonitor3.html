@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>大屏幕监视</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="static/css/easyui2.css">
+	<link rel="stylesheet" type="text/css" href="static/css/icon.css">
+	<link rel="stylesheet" type="text/css" href="static/css/demo.css">
+	<script src="../static/js/jquery/jquery.min.js" type="text/javascript"></script>
+	<script src="static/js/jquery.easyui.min.js" type="text/javascript"></script>
+	<script src="static/js/DataRequest.js" type="text/javascript"></script>
+	<script src="static/js/CommonUtil.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="static/css/StationMonitor.css">
+    <script src="../static/plugins/highcharts/code/highcharts.js"></script>
+	<script src="../static/plugins/highcharts/code/highcharts-3d.js"></script>
+	<script src="../static/plugins/highcharts/code/modules/exporting.js"></script>
+    <script src="static/js/handlebars.js"></script>
+    <script src="static/js/WorkOrderMonitor3.js"></script>
+    <style>
+    .panel-body {
+  		border-color: #FFFFFF;
+	}
+  	.panel {
+  		text-align: center;
+	}
+	.panel-title {
+    	font-size: 8px;
+    	font-weight: bold;
+    	color: #2556a7;
+   	 	height: 10px;
+    	line-height: 10px;
+	}
+	.panel-header {
+    background-color: #FFFFFF;
+    background: -webkit-linear-gradient(top,#EFF5FF 0,#E0ECFF 100%);
+    background: -moz-linear-gradient(top,#EFF5FF 0,#E0ECFF 100%);
+    background: -o-linear-gradient(top,#EFF5FF 0,#E0ECFF 100%);
+    background: linear-gradient(to bottom,#FFFFFF 0,#FFFFEF 100%);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#F2F2F2,endColorstr=#F2F2F2,GradientType=0);
+	}
+  	</style>
+  </head>
+  <body class="easyui-layout">   
+  		<div data-options="region:'north',collapsible:false" style="height:80%">
+	  		<div id="workOrderFinished" style="width:99.50%;height:99.5%;text-align:center"></div>
+	  	</div>   
+	    <div data-options="region:'center'" style="height:50%">   
+	         <table id="cccd" style="width: 100%;height: 100%; ">              
+            </table>
+	    </div> 
+  </body>
+</html>

@@ -1,0 +1,63 @@
+package com.techsoft.entity.common;
+
+import java.util.Date;
+import com.techsoft.common.BaseEntity;
+
+public class BillEquipItem extends BaseEntity {
+	private static final long serialVersionUID = 8434883952748155321L;
+
+
+	public BillEquipItem(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private Long billEquipId;	
+	   
+	private Long equipWorkId;	
+	   
+	private Long dealResultDictId;	
+	   
+	private String remark;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public Long getBillEquipId() {
+		return billEquipId;
+	}
+
+	public void setBillEquipId(Long billEquipId) {
+		this.billEquipId = billEquipId;
+	}
+                		
+	public Long getEquipWorkId() {
+		return equipWorkId;
+	}
+
+	public void setEquipWorkId(Long equipWorkId) {
+		this.equipWorkId = equipWorkId;
+	}
+                		
+	public Long getDealResultDictId() {
+		return dealResultDictId;
+	}
+
+	public void setDealResultDictId(Long dealResultDictId) {
+		this.dealResultDictId = dealResultDictId;
+	}
+                		
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

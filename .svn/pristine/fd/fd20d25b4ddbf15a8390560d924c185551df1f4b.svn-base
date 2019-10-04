@@ -1,0 +1,278 @@
+package com.techsoft.controller.pda;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.techsoft.client.service.barcode.ClientBarcodeMainService;
+import com.techsoft.client.service.bill.ClientBillWarehouseItemService;
+import com.techsoft.client.service.bill.ClientBillWarehouseService;
+import com.techsoft.client.service.product.ClientProductBomItemRepalceService;
+import com.techsoft.client.service.product.ClientProductMaterialService;
+import com.techsoft.client.service.struct.ClientStructWarehouseService;
+import com.techsoft.client.service.sys.ClientAdminMenuService;
+import com.techsoft.client.service.track.ClientTrackBarcodeService;
+import com.techsoft.client.service.warehouse.ClientWarehouseLocationService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBarcodeStatus;
+import com.techsoft.common.enums.EnumDictBillStatus;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.enums.EnumDictSystemType;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.JsonUtils;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.barcode.BarcodeMainVo;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.bill.BillWarehouseItemVo;
+import com.techsoft.entity.bill.BillWarehouseParamVo;
+import com.techsoft.entity.bill.BillWarehouseVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.QualitySampleRuleItem;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.product.ProductMaterialParamVo;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.entity.struct.StructWarehouseParamVo;
+import com.techsoft.entity.struct.StructWarehouseVo;
+import com.techsoft.entity.sys.AdminMenuParamVo;
+import com.techsoft.entity.sys.AdminMenuVo;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.entity.track.TrackBarcodeVo;
+import com.techsoft.entity.warehouse.WarehouseLocationParamVo;
+import com.techsoft.entity.warehouse.WarehouseLocationVo;
+import com.techsoft.service.barcode.BarcodeMainService;
+
+import javassist.expr.NewArray;
+
+/**
+ * @auther:Chen
+ * @version:2019年4月30日上午10:33:10
+ * @param:
+ * @description pda更新离线信息controller层
+ */
+@Controller
+@RequestMapping("/pda/pdaStock")
+public class PdaStockOfWarehouseController extends BaseController {
+	@Autowired
+	private ClientBillWarehouseService clientBillWarehouseService;
+	@Autowired
+	private ClientBillWarehouseItemService clientBillWarehouseItemService;
+	@Autowired
+	private ClientBarcodeMainService clientBarcodeMainService;
+	@Autowired
+	private ClientStructWarehouseService clientStructWarehouseService;
+	@Autowired
+	private ClientTrackBarcodeService clientTrackBarcodeService;
+	@Autowired
+	private ClientWarehouseLocationService clientWarehouseLocationService;
+	@Autowired
+	private ClientProductMaterialService   clientProductMaterialService;
+	
+	/**
+	*@auther:Chen
+	*@version:2019年6月24日下午2:12:23
+	*@param request
+	*@param warehouseId   仓库ID
+	*@param locationId    货位ID
+	*@param materialId    物料ID
+	*@return
+	*@description         根据条件查询物料库存总数量
+	*/
+	@ResponseBody
+	@RequestMapping(value = "/warehouseStock", method = RequestMethod.POST)
+	public ResultMessage getwarehouseStock(HttpServletRequest request,Long warehouseId,Long locationId,Long materialId) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<BarcodeMainVo> sumList = new ArrayList<BarcodeMainVo>();
+		BarcodeMainParamVo paramVo = new BarcodeMainParamVo();
+		paramVo.setBarcodePackboxId((long) 0);
+		paramVo.setBarcodeStatusDictId(EnumDictBarcodeStatus.INSTORE.getValue());
+		if (warehouseId!=null) {
+			paramVo.setWarehouseId(warehouseId);
+		}
+		if (locationId!=null) {
+			paramVo.setLocationId(locationId);
+		}
+		if (materialId!=null) {
+			paramVo.setMaterialId(materialId);
+		}
+		try {
+			sumList = clientBarcodeMainService.selectSumQtyByCondition(paramVo);
+			if (sumList.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无库存信息");
+			} else {
+				resultMessage.put(sumList);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	/**
+	*@auther:Chen
+	*@version:2019年6月24日下午1:45:29
+	*@param request
+	*@param warehouseId  仓库ID
+	*@param locationId   货位ID
+	*@param materialId   物料ID
+	*@return
+	*@description        点击库存汇总信息得到详情条码信息
+	*/
+	@ResponseBody
+	@RequestMapping(value = "/warehouseStockDetail", method = RequestMethod.POST)
+	public ResultMessage getwarehouseStockDetail(HttpServletRequest request,Long warehouseId,Long locationId,Long materialId) {
+		
+		ResultMessage resultMessage = new ResultMessage();
+		List<BarcodeMainVo> sumListDetail = new ArrayList<BarcodeMainVo>();
+		BarcodeMainParamVo paramVo = new BarcodeMainParamVo();
+		paramVo.setBarcodePackboxId((long) 0);
+		paramVo.setBarcodeStatusDictId(EnumDictBarcodeStatus.INSTORE.getValue());
+		if (warehouseId!=null) {
+			paramVo.setWarehouseId(warehouseId);
+		}
+		if (locationId!=null) {
+			paramVo.setLocationId(locationId);
+		}
+		if (materialId!=null) {
+			paramVo.setMaterialId(materialId);
+		}
+		try {
+			sumListDetail = clientBarcodeMainService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if (sumListDetail.size() == 0) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无库存详细信息");
+			} else {
+				resultMessage.put(sumListDetail);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+		return resultMessage;
+	}
+
+	
+	/**
+	*@auther:Chen
+	*@version:2019年6月24日下午2:07:10
+	*@param request
+	*@param barcode  物料标签
+	*@return
+	*@description  扫描物料标签得到物料ID
+	*/
+	@ResponseBody
+	@RequestMapping(value = "/getMaterial", method = RequestMethod.POST)
+	public ResultMessage getMaterialId(HttpServletRequest request,String barcode) {
+		
+		ResultMessage resultMessage = new ResultMessage();
+		List<BarcodeMainVo> barcodeMain = new ArrayList<BarcodeMainVo>();
+		BarcodeMainParamVo paramVo = new BarcodeMainParamVo();
+		paramVo.setBarcode(barcode);
+		try {
+			barcodeMain = clientBarcodeMainService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if (barcodeMain.size() == 0) {
+				ProductMaterialParamVo  productMaterialParamVo =new ProductMaterialParamVo();
+				productMaterialParamVo.setMaterialCode(barcode);
+				List<ProductMaterial> material=clientProductMaterialService.selectListByParamVo(productMaterialParamVo, this.getCommonParam(request));
+				if (material.size()==0) {
+					resultMessage.setIsSuccess(false);
+					resultMessage.addErr("无标签或物料信息");
+				}else {
+					resultMessage.put(material);
+					resultMessage.setIsSuccess(true);
+				}
+				
+			} else {
+				resultMessage.put(barcodeMain);
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+		return resultMessage;
+	}
+	
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年4月30日上午10:48:29
+	 * @param:locationCode 货位标签
+	 * @description pda扫描货位标签返回数据
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/getLocation", method = RequestMethod.POST)
+	public ResultMessage getLocation(HttpServletRequest request, String locationCode) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<WarehouseLocationVo> warehouseLocationList = new ArrayList<WarehouseLocationVo>();
+		WarehouseLocationParamVo paramVo = new WarehouseLocationParamVo();
+		paramVo.setLocationCode(locationCode);
+		try {
+			warehouseLocationList = clientWarehouseLocationService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if(warehouseLocationList.size() ==0){
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无此货位信息");
+			}else{
+				resultMessage.put(warehouseLocationList);
+			    resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年4月30日上午10:48:29
+	 * @description pda查询仓库信息
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/getWarehouse", method = RequestMethod.POST)
+	public ResultMessage getWarehouse(HttpServletRequest request) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<StructWarehouseVo> warehouseList = new ArrayList<StructWarehouseVo>();
+		StructWarehouseParamVo paramVo = new StructWarehouseParamVo();
+		try {
+			warehouseList = clientStructWarehouseService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if(warehouseList.size() ==0){
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无仓库信息");
+			}else{
+				resultMessage.put(warehouseList);
+			    resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+}

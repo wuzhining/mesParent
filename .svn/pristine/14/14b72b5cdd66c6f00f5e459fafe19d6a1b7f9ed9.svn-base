@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.scada.ScadaAoiMapper">
+	<resultMap id="ScadaAoi" type="com.techsoft.entity.common.ScadaAoi" > 
+	    <id column="ID" property="id" />
+		<result column="PCBID" property="pcbid" />
+		<result column="DURATION" property="duration" />
+		<result column="PCBNAME" property="pcbname" />
+		<result column="PROGRAMFILE" property="programfile" />
+		<result column="IMAGEFILE" property="imagefile" />
+		<result column="INSPECTTIME" property="inspecttime" />
+		<result column="RESULT" property="result" />
+		<result column="TOTALENTITY" property="totalentity" />
+		<result column="INVALIDENTITY" property="invalidentity" />
+		<result column="NGENTITY" property="ngentity" />
+		<result column="MISREPORTENTITY" property="misreportentity" />
+		<result column="BARCODE" property="barcode" />
+		<result column="RESULTPATH" property="resultpath" />
+		<result column="LINENO" property="lineno" />
+		<result column="BLOCKCOUNT" property="blockcount" />
+		<result column="BLOCKNGCOUNT" property="blockngcount" />
+		<result column="BLOCKPASSCOUNT" property="blockpasscount" />
+		<result column="RESERVED1BYSHORT" property="reserved1byshort" />
+		<result column="RESERVED2BYSHORT" property="reserved2byshort" />
+		<result column="RESERVED3BYSHORT" property="reserved3byshort" />
+		<result column="RESERVED4BYSHORT" property="reserved4byshort" />
+		<result column="RESERVED1BYINT" property="reserved1byint" />
+		<result column="RESERVED2BYINT" property="reserved2byint" />
+		<result column="RESERVED3BYINT" property="reserved3byint" />
+		<result column="RESERVED4BYINT" property="reserved4byint" />
+		<result column="RESERVED1BYFLOAT" property="reserved1byfloat" />
+		<result column="RESERVED2BYFLOAT" property="reserved2byfloat" />
+		<result column="RESERVED3BYFLOAT" property="reserved3byfloat" />
+		<result column="RESERVED4BYFLOAT" property="reserved4byfloat" />
+		<result column="RESERVED5BYFLOAT" property="reserved5byfloat" />
+		<result column="RESERVED6BYFLOAT" property="reserved6byfloat" />
+		<result column="RESERVED1BYCHAR" property="reserved1bychar" />
+		<result column="RESERVED2BYCHAR" property="reserved2bychar" />
+		<result column="RESERVED3BYCHAR" property="reserved3bychar" />
+		<result column="RESERVED4BYCHAR" property="reserved4bychar" />
+		<result column="RESERVED5BYCHAR" property="reserved5bychar" />
+		<result column="RESERVED6BYCHAR" property="reserved6bychar" />
+		<result column="HASONLINEDEBUG" property="hasonlinedebug" />
+		<result column="RESERVED5BYSHORT" property="reserved5byshort" />
+		<result column="RESERVED6BYSHORT" property="reserved6byshort" />
+		<result column="RESERVED7BYSHORT" property="reserved7byshort" />
+		<result column="RESERVED8BYSHORT" property="reserved8byshort" />
+		<result column="RESERVED9BYSHORT" property="reserved9byshort" />
+		<result column="RESERVED5BYINT" property="reserved5byint" />
+		<result column="RESERVED6BYINT" property="reserved6byint" />
+		<result column="RESERVED7BYINT" property="reserved7byint" />
+		<result column="RESERVED8BYINT" property="reserved8byint" />
+		<result column="SN_NO" property="snNo" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="pcbid != null">
+			AND A.PCBID= #{pcbid}
+		</if>
+		<if test="duration != null">
+			AND A.DURATION= #{duration}
+		</if>
+		<if test="pcbname != null">
+			AND A.PCBNAME= #{pcbname}
+		</if>
+		<if test="programfile != null">
+			AND A.PROGRAMFILE= #{programfile}
+		</if>
+		<if test="imagefile != null">
+			AND A.IMAGEFILE= #{imagefile}
+		</if>
+		<if test="inspecttime != null">
+			AND A.INSPECTTIME= #{inspecttime}
+		</if>
+		<if test="result != null">
+			AND A.RESULT= #{result}
+		</if>
+		<if test="totalentity != null">
+			AND A.TOTALENTITY= #{totalentity}
+		</if>
+		<if test="invalidentity != null">
+			AND A.INVALIDENTITY= #{invalidentity}
+		</if>
+		<if test="ngentity != null">
+			AND A.NGENTITY= #{ngentity}
+		</if>
+		<if test="misreportentity != null">
+			AND A.MISREPORTENTITY= #{misreportentity}
+		</if>
+		<if test="barcode != null">
+			AND A.BARCODE= #{barcode}
+		</if>
+		<if test="resultpath != null">
+			AND A.RESULTPATH= #{resultpath}
+		</if>
+		<if test="lineno != null">
+			AND A.LINENO= #{lineno}
+		</if>
+		<if test="blockcount != null">
+			AND A.BLOCKCOUNT= #{blockcount}
+		</if>
+		<if test="blockngcount != null">
+			AND A.BLOCKNGCOUNT= #{blockngcount}
+		</if>
+		<if test="blockpasscount != null">
+			AND A.BLOCKPASSCOUNT= #{blockpasscount}
+		</if>
+		<if test="reserved1byshort != null">
+			AND A.RESERVED1BYSHORT= #{reserved1byshort}
+		</if>
+		<if test="reserved2byshort != null">
+			AND A.RESERVED2BYSHORT= #{reserved2byshort}
+		</if>
+		<if test="reserved3byshort != null">
+			AND A.RESERVED3BYSHORT= #{reserved3byshort}
+		</if>
+		<if test="reserved4byshort != null">
+			AND A.RESERVED4BYSHORT= #{reserved4byshort}
+		</if>
+		<if test="reserved1byint != null">
+			AND A.RESERVED1BYINT= #{reserved1byint}
+		</if>
+		<if test="reserved2byint != null">
+			AND A.RESERVED2BYINT= #{reserved2byint}
+		</if>
+		<if test="reserved3byint != null">
+			AND A.RESERVED3BYINT= #{reserved3byint}
+		</if>
+		<if test="reserved4byint != null">
+			AND A.RESERVED4BYINT= #{reserved4byint}
+		</if>
+		<if test="reserved1byfloat != null">
+			AND A.RESERVED1BYFLOAT= #{reserved1byfloat}
+		</if>
+		<if test="reserved2byfloat != null">
+			AND A.RESERVED2BYFLOAT= #{reserved2byfloat}
+		</if>
+		<if test="reserved3byfloat != null">
+			AND A.RESERVED3BYFLOAT= #{reserved3byfloat}
+		</if>
+		<if test="reserved4byfloat != null">
+			AND A.RESERVED4BYFLOAT= #{reserved4byfloat}
+		</if>
+		<if test="reserved5byfloat != null">
+			AND A.RESERVED5BYFLOAT= #{reserved5byfloat}
+		</if>
+		<if test="reserved6byfloat != null">
+			AND A.RESERVED6BYFLOAT= #{reserved6byfloat}
+		</if>
+		<if test="reserved1bychar != null">
+			AND A.RESERVED1BYCHAR= #{reserved1bychar}
+		</if>
+		<if test="reserved2bychar != null">
+			AND A.RESERVED2BYCHAR= #{reserved2bychar}
+		</if>
+		<if test="reserved3bychar != null">
+			AND A.RESERVED3BYCHAR= #{reserved3bychar}
+		</if>
+		<if test="reserved4bychar != null">
+			AND A.RESERVED4BYCHAR= #{reserved4bychar}
+		</if>
+		<if test="reserved5bychar != null">
+			AND A.RESERVED5BYCHAR= #{reserved5bychar}
+		</if>
+		<if test="reserved6bychar != null">
+			AND A.RESERVED6BYCHAR= #{reserved6bychar}
+		</if>
+		<if test="hasonlinedebug != null">
+			AND A.HASONLINEDEBUG= #{hasonlinedebug}
+		</if>
+		<if test="reserved5byshort != null">
+			AND A.RESERVED5BYSHORT= #{reserved5byshort}
+		</if>
+		<if test="reserved6byshort != null">
+			AND A.RESERVED6BYSHORT= #{reserved6byshort}
+		</if>
+		<if test="reserved7byshort != null">
+			AND A.RESERVED7BYSHORT= #{reserved7byshort}
+		</if>
+		<if test="reserved8byshort != null">
+			AND A.RESERVED8BYSHORT= #{reserved8byshort}
+		</if>
+		<if test="reserved9byshort != null">
+			AND A.RESERVED9BYSHORT= #{reserved9byshort}
+		</if>
+		<if test="reserved5byint != null">
+			AND A.RESERVED5BYINT= #{reserved5byint}
+		</if>
+		<if test="reserved6byint != null">
+			AND A.RESERVED6BYINT= #{reserved6byint}
+		</if>
+		<if test="reserved7byint != null">
+			AND A.RESERVED7BYINT= #{reserved7byint}
+		</if>
+		<if test="reserved8byint != null">
+			AND A.RESERVED8BYINT= #{reserved8byint}
+		</if>
+		<if test="snNo != null">
+			AND A.SN_NO= #{snNo}
+		</if>	
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 
+	</sql>		
+	<sql id="Base_Column_List">    
+	    A.ID,
+		A.PCBID,
+		A.DURATION,
+		A.PCBNAME,
+		A.PROGRAMFILE,
+		A.IMAGEFILE,
+		A.INSPECTTIME,
+		A.RESULT,
+		A.TOTALENTITY,
+		A.INVALIDENTITY,
+		A.NGENTITY,
+		A.MISREPORTENTITY,
+		A.BARCODE,
+		A.RESULTPATH,
+		A.LINENO,
+		A.BLOCKCOUNT,
+		A.BLOCKNGCOUNT,
+		A.BLOCKPASSCOUNT,
+		A.RESERVED1BYSHORT,
+		A.RESERVED2BYSHORT,
+		A.RESERVED3BYSHORT,
+		A.RESERVED4BYSHORT,
+		A.RESERVED1BYINT,
+		A.RESERVED2BYINT,
+		A.RESERVED3BYINT,
+		A.RESERVED4BYINT,
+		A.RESERVED1BYFLOAT,
+		A.RESERVED2BYFLOAT,
+		A.RESERVED3BYFLOAT,
+		A.RESERVED4BYFLOAT,
+		A.RESERVED5BYFLOAT,
+		A.RESERVED6BYFLOAT,
+		A.RESERVED1BYCHAR,
+		A.RESERVED2BYCHAR,
+		A.RESERVED3BYCHAR,
+		A.RESERVED4BYCHAR,
+		A.RESERVED5BYCHAR,
+		A.RESERVED6BYCHAR,
+		A.HASONLINEDEBUG,
+		A.RESERVED5BYSHORT,
+		A.RESERVED6BYSHORT,
+		A.RESERVED7BYSHORT,
+		A.RESERVED8BYSHORT,
+		A.RESERVED9BYSHORT,
+		A.RESERVED5BYINT,
+		A.RESERVED6BYINT,
+		A.RESERVED7BYINT,
+		A.RESERVED8BYINT,
+		A.SN_NO
+	</sql>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from SCADA_AOI
+	</select>
+		
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.scada.ScadaAoiParamVo"
+		      resultType="com.techsoft.entity.common.ScadaAoi" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SCADA_AOI A
+		WHERE (1 = 1)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

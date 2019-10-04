@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+    <script type="text/html" id="qcDictIdTpl">
+	{{#  if(d.typeQcList){}}
+		{{ d.typeQcList.dictName 
+ 	}}
+	{{# } }}
+  </script>
+  
+  
+   <script type="text/html" id="typeDictIdTpl">
+	{{#  if(d.itemTypeList){}}
+		{{ d.itemTypeList.dictName 
+ 	}}
+	{{# } }}
+  </script>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">品质管理</a> <a><cite>检验类型</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <!-- <input class="layui-input" placeholder="开始时间" name="startTime" id="startTime">
+          <input class="layui-input" placeholder="结束时间" name="endTime" id="endTime"> -->
+          <input type="text" name="inspectTypeName"  placeholder="请输入检验类型名称" autocomplete="off" class="layui-input">
+          <select name="inspectTypeQcDictId"  lay-search>    
+                <option value="">请选择QC类型</option> 
+                 <#if typeQCList??>
+                     <#list typeQCList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          </select>
+         <select name="inspectItemTypeDictId"  lay-search>    
+                <option value="">请选择检验项类型</option> 
+                 <#if itemTypeList??>
+                     <#list itemTypeList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          </select>        
+          <button type="reset" class="layui-btn layui-btn-sm  " style="background-color: #009688;color:#FFFFFF">重置</button>          
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加检验类型','/quality/qualityInspectType/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script>    
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/quality/qualityInspectType/list/json'
+    	,cols: [[
+    	     {field:'id', width:120, title: 'ID',align:'center',fixed: 'left'}
+    	    ,{field:'inspectTypeCode',  title: '检验类型编码',align:'center', minWidth: 120}
+    	    ,{field:'inspectTypeName',  title: '检验类型名称',align:'center', minWidth: 120}
+    	    ,{field:'inspectTypeQcDictId',  title: 'QC类型', align:'center',minWidth: 120,templet:'#qcDictIdTpl'}
+    	    ,{field:'inspectItemTypeDictId',  title: '检验项类型',align:'center', minWidth: 120,templet:'#typeDictIdTpl'}
+    	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑检验类型','/quality/qualityInspectType/edit?id=' + data.id); 
+		}
+	});
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

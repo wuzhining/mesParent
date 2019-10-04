@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+           <tr>
+            <td width="15%" class="tableleft">用户名</td>
+               <td>
+               <#if entity??&&entity.id??>
+                  ${(entity.userName)!''}
+               <#else>
+                  <input type="text" name="userName" class="layui-input" maxlength="20" value="${(entity.userName)!''}"/>
+               </#if>
+               
+                
+               </td> 
+               
+               <td width="15%" class="tableleft">手机号码</td>
+               <td><input type="text" name="mobileNumber" class="layui-input" maxlength="16" value="${(entity.mobileNumber)!''}"/></td>
+             
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">email</td>
+               <td><input type="text" name="email" class="layui-input" maxlength="100" value="${(entity.email)!''}"/></td>
+               <td width="10%" class="tableleft">真实姓名</td>
+               <td>
+                 <input type="text" name="realName"  class="layui-input" maxlength="20" value="${(entity.realName)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">状态</td>
+               <td>
+                <select name="status">
+				   <#if mapUserStatus??>
+					  <#list mapUserStatus?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.status??&&entity.status==testKey)>selected</#if> >${mapUserStatus[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="15%" class="tableleft">
+                  <#if entity??&&entity.id??>
+                  <#else>
+                                    密码
+                  </#if>
+                </td>
+               <td>  
+                  <#if entity??&&entity.id??>
+                  <#else>
+                  <input type="password" name="password"  class="layui-input" maxlength="20" value="${(entity.password)!''}"/>
+                  </#if>
+               </td>
+           </tr>
+       </table> 
+       <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div> 
+      </form>
+    </div>
+ <script type="text/html" id="roleName">
+	{{#  if(d.adminRole){}}
+		{{ d.adminRole.roleName 
+
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="userName">
+	{{#  if(d.userPassport){}}
+		{{ d.userPassport.userName 
+
+ 	}}
+	{{# } }}
+</script>
+    <script>
+    
+    var ids = $("#id").val();
+    if(ids!=''){
+       layui.config({
+          base: '/static/plugins/layui/base/',
+          v: new Date().getTime()
+      }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+      	var form = layui.form, 
+      	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+      	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+      	var layuiformajax = layui.layuiformajax;
+      	var curTable = layuitable.render({
+          	elem: '#listTable'
+          	,id:'listTable'
+          	,url:'/sys/adminRoleUser/list/json?userId='+ids
+          	,cols: [[
+               	    {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+               	    ,{field:'userId',  title: '用户id',align:'center', minWidth: 120}
+               	    ,{field:'userName',  title: '用户名称',align:'center', minWidth: 680,templet:'#userName'}
+               	    ,{field:'roleId',  title: '角色id',align:'center', minWidth: 120}
+               	    ,{field:'roleName',  title: '角色名称',align:'center', minWidth: 685,templet:'#roleName'}
+          	]]
+      	,done:function(){
+      		 $("[data-field='userId']").css('display','none');
+      		 $("[data-field='roleId']").css('display','none');
+          	}
+        	});
+      	
+      	form.on('submit(search)', function (data) {
+      		layuitable.reload(data.field);
+              return false;
+        	});
+
+      });
+      
+    };
+    
+    
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          form.verify({
+        	 userName: function(value){
+              if(value.length < 5){
+                return '用户名至少得5个字符啊';
+              }
+            }
+            ,mobileNumber: [/(.+){11,11}$/, '手机号码必须11位']
+            ,email: function(value){
+                if($('#email').val()!=$('#email').val()){
+                    return '不一致';
+                }
+            }
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/sys/userPassport/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

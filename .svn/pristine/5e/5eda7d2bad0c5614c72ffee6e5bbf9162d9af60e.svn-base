@@ -1,0 +1,239 @@
+package com.techsoft.client.service.firm;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.alibaba.dubbo.common.utils.StringUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.util.StringUtil;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.FirmDepartment;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.firm.FirmDepartmentParamVo;
+import com.techsoft.entity.firm.FirmDepartmentVo;
+import com.techsoft.service.config.ConfigCodeRuleService;
+import com.techsoft.service.firm.FirmDepartmentService;
+import com.techsoft.service.struct.StructFactoryService;
+
+@org.springframework.stereotype.Service
+public class ClientFirmDepartmentServiceImpl extends BaseClientServiceImpl<FirmDepartment>
+		implements ClientFirmDepartmentService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmDepartmentService firmDepartmentService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructFactoryService structFactoryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigCodeRuleService configCodeRuleService;
+
+	@Override
+	public BaseService<FirmDepartment> getBaseService() {
+		return firmDepartmentService;
+	}
+
+	private FirmDepartmentVo getVo(FirmDepartment firmDepartment, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		FirmDepartmentVo vo = new FirmDepartmentVo(firmDepartment);
+		if (vo.getFactoryId() != null && vo.getFactoryId() > 0L) {
+			StructFactory structFactory = structFactoryService.selectById(vo.getFactoryId(), commonParam);
+			if (structFactory != null) {
+				vo.setStructFactory(structFactory);
+			}
+		}
+		if (vo.getParentId() != null && vo.getParentId() >= 0L) {
+			FirmDepartment firmDepartment2 = firmDepartmentService.selectById(vo.getParentId(), commonParam);
+			if (firmDepartment2 != null) {
+				vo.setFirmDepartment(firmDepartment2);
+			}
+		}
+		return vo;
+	}
+
+	private FirmDepartmentVo getExtendVo(FirmDepartment firmDepartment, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		FirmDepartmentVo vo = this.getVo(firmDepartment, commonParam);
+
+		return vo;
+	}
+
+	private List<FirmDepartmentVo> getVoList(List<FirmDepartment> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<FirmDepartmentVo> voList = new ArrayList<FirmDepartmentVo>();
+		for (FirmDepartment entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<FirmDepartmentVo> getExtendVoList(List<FirmDepartment> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<FirmDepartmentVo> voList = new ArrayList<FirmDepartmentVo>();
+		for (FirmDepartment entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public FirmDepartmentVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		FirmDepartment entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<FirmDepartmentVo> selectListVoByParamVo(FirmDepartmentParamVo firmDepartment, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (firmDepartment == null) {
+			firmDepartment = new FirmDepartmentParamVo();
+		}
+		firmDepartment.setTenantId(commonParam.getTenantId());
+
+		List<FirmDepartment> list = (List<FirmDepartment>) this.getBaseService().selectListByParamVo(firmDepartment,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<FirmDepartmentVo> selectPageVoByParamVo(FirmDepartmentParamVo firmDepartment,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (firmDepartment == null) {
+			firmDepartment = new FirmDepartmentParamVo();
+		}
+		firmDepartment.setTenantId(commonParam.getTenantId());
+
+		PageInfo<FirmDepartment> list = (PageInfo<FirmDepartment>) this.getBaseService()
+				.selectPageByParamVo(firmDepartment, commonParam, pageNo, pageSize);
+		List<FirmDepartmentVo> volist = new ArrayList<FirmDepartmentVo>();
+
+		Iterator<FirmDepartment> iter = list.getList().iterator();
+		FirmDepartmentVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<FirmDepartmentVo> vpage = new Page<FirmDepartmentVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public FirmDepartmentVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		FirmDepartment entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<FirmDepartmentVo> selectListExtendVoByParamVo(FirmDepartmentParamVo firmDepartment,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (firmDepartment == null) {
+			firmDepartment = new FirmDepartmentParamVo();
+		}
+		firmDepartment.setTenantId(commonParam.getTenantId());
+
+		List<FirmDepartment> list = (List<FirmDepartment>) this.getBaseService().selectListByParamVo(firmDepartment,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<FirmDepartmentVo> selectPageExtendVoByParamVo(FirmDepartmentParamVo firmDepartment,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (firmDepartment == null) {
+			firmDepartment = new FirmDepartmentParamVo();
+		}
+		firmDepartment.setTenantId(commonParam.getTenantId());
+
+		PageInfo<FirmDepartment> list = (PageInfo<FirmDepartment>) this.getBaseService()
+				.selectPageByParamVo(firmDepartment, commonParam, pageNo, pageSize);
+		List<FirmDepartmentVo> volist = new ArrayList<FirmDepartmentVo>();
+
+		Iterator<FirmDepartment> iter = list.getList().iterator();
+		FirmDepartmentVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<FirmDepartmentVo> vpage = new Page<FirmDepartmentVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(FirmDepartmentParamVo firmDepartmentParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		FirmDepartment firmDepartment = null;
+		if (firmDepartmentParamVo.getFactoryId() == null) {
+			resultMessage.addErr("工厂名称不能为空");
+			return resultMessage;
+		}
+		if (firmDepartmentParamVo.getDepartmentName() == null) {
+			resultMessage.addErr("部门名称不能为空");
+			return resultMessage;
+		}
+		if (firmDepartmentParamVo.getIsValid() == null) {
+			resultMessage.addErr("是否有效不能为空");
+			return resultMessage;
+		}
+		try {
+			if (firmDepartmentParamVo.getId() == null) {// 新增
+				//生成编码
+				String code = firmDepartmentParamVo.getDepartmentCodeLike();
+				if(StringUtils.isBlank(code)){
+					 code = configCodeRuleService.createCode(FirmDepartment.class.getName(), null, null, commonParam);
+					 firmDepartmentParamVo.setDepartmentCode(code);
+				}
+				if(StringUtils.isBlank(code)){
+					resultMessage.addErr("部门编码不能为空");
+					return resultMessage;
+				}
+				//检验编码是否已存在
+				FirmDepartmentParamVo firmDepartmentSearch = new FirmDepartmentParamVo();
+				firmDepartmentSearch.setDepartmentCode(code);
+				List<FirmDepartment> list= firmDepartmentService.selectListByParamVo(firmDepartmentSearch, commonParam);
+			 if((list!=null)&&(!list.isEmpty())){
+				 resultMessage.addErr("部门编码已存在");
+					return resultMessage;	
+				}
+			    firmDepartmentParamVo.setTenantId(commonParam.getTenantId());
+				firmDepartment = firmDepartmentService.saveOrUpdate(firmDepartmentParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				FirmDepartment firmDepartmentVoTemp = this.selectById(firmDepartmentParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(firmDepartmentVoTemp, firmDepartmentParamVo);
+
+				firmDepartment = firmDepartmentService.saveOrUpdate(firmDepartmentVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(firmDepartment);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+	 
+  	<script type="text/html" id="billWorkorder">
+	{{#  if(d.billWorkorder){}}
+		{{ d.billWorkorder.workorderCode 
+ 	}}
+	{{# } }}
+   </script>
+   
+    <script type="text/html" id="productCode">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productCode 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="product">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   
+   <script type="text/html" id="bom">
+	{{#  if(d.productBom){}}
+		{{ d.productBom.bomName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="materialCode">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialCode 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="material">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <script type="text/html" id="quantityNeed">
+	{{#  if(d.quantity){}}
+		{{ d.quantity - d.quantityInput 
+ 	}}
+	{{# } }}
+	
+   </script>
+   <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script>
+   <script type="text/html" id="billCode">
+	{{#  if(d.billPurchase){}}
+		{{ d.billPurchase.billCode 
+
+ 	}}
+	{{# } }}
+	</script>
+	<!-- 物品分类 -->
+	<script type="text/html" id="productType">
+	{{#  if(d.productType){}}
+		{{ d.productType.dictName 
+
+ 	}}
+	{{# } }}
+	</script>
+<body>
+    <div class="x-body">
+    	<div class="layui-row">
+    		<!-- 表单检索行 -->
+        	<form class="layui-form layui-col-md12 x-so layui-form-pane">
+	        	<div class="layui-form-item layui-col-md12">
+		        	<div class="layui-inline">
+		          		<input type="text" name="billPurchaseId" id="billPurchaseId"  placeholder="请输入采购单ID" autocomplete="off" class="layui-input">
+		          		<input type="text" name="billPurchase" id="billPurchase"  placeholder="请输入采购单号" autocomplete="off" class="layui-input">
+		        	</div> 
+		        	<div class="layui-inline demoSearch">
+		          		<button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+		          		<button class="layui-btn layui-btn-sm" >
+		          		<i class="layui-icon layui-icon-refresh" style="font-size: 20px; color: #fff;"></i>
+		          		</button>
+		        	</div>
+	          	</div>
+        	</form>
+      	</div>
+     
+		<!-- 表格数据 -->
+  	 		<div class="layui-row grid-demo">
+            	<div class="layui-col-md12" style="text-align: center;">
+        			<table class="layui-table" id="listTable_choiceWork" lay-filter="tablefilter_choiceWork"></table>
+        			<table class="layui-table" id="newTable_choiceWork" lay-filter="newTable_choiceWork">
+        				<thead><b>采购送货单</b></thead>
+        				<tbody>
+        				</tbody>
+					</table>
+        		</div>
+        	</div>
+        
+        <!-- 保存数据 -->
+  	 		<div class="layui-row grid-demo">
+            	<div id="action" class="layui-col-md12" style="text-align: center;">
+        			<button class="layui-btn layui-btn-sm " type="submit" id="save" lay-submit="save" lay-filter="save" data-type="save" >保存
+        			</button>
+        			<button class="layui-btn layui-btn-sm " type="reset" id="reset">取消</button>
+        		</div>
+        		<div class="layui-col-md12" style="height:50px;">
+        		
+        		</div>
+        	</div>
+        
+
+    </div>
+    
+<script type="text/html" id="barDemo" lay-filter="demo">
+	<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
+		<i class="layui-icon layui-icon-delete" style="font-size: 20px; color: #fff;">删除</i>
+  	</a>
+</script>  
+<script type="text/html" id="toolbarDemo">	
+	<div class="layui-row">
+	<div class="layui-btn-container layui-col-md1" style="bottom:0px">
+    	<button class="layui-btn layui-btn-sm " lay-event="getCheckData">
+			<i class="layui-icon layui-icon-add-circle" style="font-size: 20px; color: #fff;"></i>新增
+		</button>
+  	</div>
+	</div>	
+</script>
+  
+<script type="text/javascript">
+
+	layui.config({
+	    base: '/static/plugins/layui/base/',
+	    v: new Date().getTime()
+	}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+		
+		var form = layui.form, 
+		$ = layui.jquery, 
+		table = layui.table, 
+		layer = layui.layer, 
+		layuitable = layui.layuitable, 
+		layuiconfig = layui.layuiconfig;
+		
+		var url = $(window.parent.document).find("iframe").attr("src");
+		var arr = url.split('=');
+		var ids = arr[1];
+		//var needQty=0;
+		
+		
+		//var layuiformajax = layui.layuiformajax;
+		//var newTable_choiceWork = "layTable";
+		
+        	
+        //总表
+        var curTable = layuitable.render({
+            elem: '#listTable_choiceWork'
+            ,id:'listTable_choiceWork'
+            ,url:'/bill/billWarehouseSupDelivery/getPurchase/json?notFinish='+10490
+            ,toolbar: '#toolbarDemo'
+            ,title: '采购明细表'
+            ,totalRow: true
+            ,cols: [[
+            	     {type:'checkbox', fixed: 'left'}
+            	     ,{field:'id',width:120 ,title: 'ID',align:'center'}
+            	     ,{field:'billPurchaseId', width:100, title: '采购主单ID',align:'center'}
+            	     ,{field:'billCode', width:140, title: '采购单编码',align:'center',templet:'#billCode'}
+            	     ,{field:'productType', width:120, title: '物品分类',align:'center',templet:'#productType'}
+            	     ,{field:'productCode', width:120, title: '物品编码',align:'center',templet:'#productCode'}
+            	     ,{field:'product',  title: '物品名称',align:'center', width: 80,templet:'#product'}
+            	     ,{field:'materialCode', width:120, title: '物品规格编码',align:'center',templet:'#materialCode'}
+            	     ,{field:'material',  title: '物品规格名称',align:'center', width: 80,templet:'#material'}
+            	     ,{field:'sku', title: '物品规格值', align:'center',templet: '#sku'}
+            	     ,{field:'quantity', width:120, title: '采购物品数量',align:'center'}
+            	     ,{field:'quantityFinish', width:120, title: '已完成数量',align:'center'}
+            	     ,{field:'quantityNeed', width:120, title: '剩余数量',align:'center'}
+        	]]
+        	,page: true
+        });
+        
+      //新增表格
+		var curNewTable = layuitable.render({
+			elem: '#newTable_choiceWork'
+	    	,id:'newTable_choiceWork'
+	    	,cols: [[
+	        			//{type:'checkbox', fixed: 'left'}
+	            		,{field:'id',width:120 ,title: 'ID',align:'center'}
+            	        ,{field:'billPurchaseId', width:120, title: '采购主单ID',align:'center'}
+            	        ,{field:'billCode', width:120, title: '采购单号',align:'center',templet:'#billCode'}
+            	        ,{field:'productType', width:120, title: '物品分类',align:'center',templet:'#productType'}
+            	        ,{field:'productCode', width:120, title: '物品编码',align:'center',templet:'#productCode'}
+               	        ,{field:'product',  title: '物品名称',align:'center', width: 80,templet:'#product'}
+               	        ,{field:'materialCode', width:120, title: '物品规格编码',align:'center',templet:'#materialCode'}
+               	        ,{field:'material',  title: '物品规格名称',align:'center', width: 80,templet:'#material'}
+               	    	,{field:'sku', title: '物品规格值', align:'center',templet: '#sku'}
+            	        ,{field:'quantityNeed', width:120, title: '送货数量',align:'center', edit: 'text', fixed: 'right'	}	
+	            		,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:120,align:'center'}
+	            		
+	        ]]
+	    });
+        
+      	//删除多余表头
+		$('#newTable_choiceWork').ready(function(){
+	    	$(".layui-table-init").remove();
+		});
+      
+      	//搜索
+		form.on('submit(search)', function (data) {
+			var billPurchaseId=data.field.billPurchaseId!=null?data.field.billPurchaseId:"";
+			var billPurchase=data.field.billPurchase!=null?data.field.billPurchase:"";
+			table.reload('listTable_choiceWork',{
+				url:'/bill/billWarehouseSupDelivery/getPurchase/json?notFinish='+10490,
+				where:{
+					"billPurchaseId":billPurchaseId,
+					"billPurchase":billPurchase,
+				}
+			});
+        	return false;
+  		});
+  		
+	 	//选择获取数据
+	   	//工具栏事件
+	   	table.on('toolbar(tablefilter_choiceWork)', function(obj){
+	    	var checkStatus = table.checkStatus(obj.config.id);
+	        var data = checkStatus.data;
+	        var a=1;
+	        
+	        if(data.length == 0){
+	        	layer.alert('请至少选择一行数据！', {icon: 2});
+	        	return;
+	        }
+		
+// 	  		for(i=0;i<data.length;i++){
+// 	    		console.log(data[i].partnerId);
+// 	        	if(data[i].partnerId!=data[0].partnerId){
+// 	        		layer.alert('请选择添加    '+'<b>同供应商</b>'+'  的退货单！', {icon: 2});
+// 	        		a=1;
+// 	        		break;
+// 	        		}else{
+// 	        				a=0;
+// 	        		}
+// 	        	}
+// 	        	if(a==0){
+	        		table.reload('newTable_choiceWork',{  
+	      	        	data : data
+	      	        });
+	        		/* table.reload('listTable_choiceWork',{
+	        			url:'/bill/billWarehousePick/getWorkOrderBom/json'
+	    			}); */
+	        //	}
+	        	
+	  	});
+	 
+	
+// 	   	//监听单元格编辑
+// 	  	table.on('edit(newTable_choiceWork)', function(obj){
+// 			//alert(JSON.stringify(obj.data.quantity));
+// 			if(obj.value > needQty ){
+// 				//layer.msg('超过数据限制！', {icon: 2});
+// 			}else{
+// 				var value = obj.value //得到修改后的值
+// 			    ,data = obj.data //得到所在行所有键值
+// 			    ,field = obj.field; //得到字段
+// 			    //layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
+// 				/* table.reload('newTable_choiceWork',function(obj){  
+// 					var newData = obj.data;
+// 					console.log(JSON.stringify(obj.data));
+// 					data : newData;
+
+// 	      	    }); */
+// 			} 
+// 	 	});
+	   	
+	  
+	  	//监听删除行
+	  	table.on('tool(newTable_choiceWork)', function(obj){
+	    	var data = obj.data;
+	    	if(obj.event === 'del'){
+	      		layer.confirm('真的删除行么', {icon: 7}, function(index){
+	        		obj.del();
+	        		layer.close(index);
+	      		});
+	    	}
+	  	});
+	  
+	  	//保存函数  
+	  	function myAjax(){
+	  		var item = table.cache.newTable_choiceWork;
+		  	//alert(JSON.stringify(item.quantityInput));
+		  	  	$.ajax({
+		  		 		type: "post",
+		  		 		dataType: "json",
+		  		 		url:'/bill/billWarehouseSupDelivery/batchSave',
+		  		 		traditional :true,  //注意这个参数是必须的
+		  		 		data:{"array":JSON.stringify(item)}, 
+		  		    	success: function(res){
+					  			if (res.isSuccess) {
+				          	    	   layer.alert("保存成功", {icon: 6},function () {
+				        	                // 获得frame索引
+				        	                var index = parent.layer.getFrameIndex(window.name);
+				        				  	parent.location.reload(); 
+				        	                parent.layer.close(index);
+				        	            });	
+				       			}else{
+				       				layer.alert(res.message, {
+				       					icon : 2
+				       				});
+				       			}
+		  			
+		  		    	}
+		      	});
+	  	}
+	  	
+	  	//取消函数-跳回父页面 
+	  	function myReset(){ 
+			// 获得frame索引
+		  	var index = parent.layer.getFrameIndex(window.name);
+		  	parent.location.reload(); 
+		  	parent.layer.close(index);
+	  	}
+	  
+	  	//点击调用函数
+	  	$(function(){ 
+			$('#save').click(myAjax);
+			$('#reset').click(myReset);
+			
+	  	}); 
+	  
+});	
+</script>
+ 
+  </body>
+
+</html>

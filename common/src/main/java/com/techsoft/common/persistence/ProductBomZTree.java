@@ -1,0 +1,123 @@
+package com.techsoft.common.persistence;
+
+import java.util.List;
+
+public class ProductBomZTree {
+	private Long id;//子级id
+	private Long parentId;//父级id
+	private Long productId;//物品id
+	private String bomName;//bom名称
+	private Double quantity;//数量
+	private List<ProductBomZTree> children;
+	private String sku;//物料sku值
+	private String productTypeName;	//物品类型名称
+	private Long productTypeDictId;	//物品类型ID
+	private String productClassesName;	//物品分类
+	
+	public ProductBomZTree() {
+		
+	}
+
+	@Override
+	public String toString() {
+		return "ProductBomZTree [id=" + id + ", parentId=" + parentId + ", bomName=" + bomName + ", quantity="
+				+ quantity + ", children=" + children + "]";
+	}
+
+	public ProductBomZTree(Long id, Long parentId,Long productId, String bomName, Double quantity, String productClassesName,  String productTypeName,List<ProductBomZTree> children) {
+		super();
+		this.id = id;
+		this.parentId = parentId;
+		this.productId=productId;
+		this.bomName = bomName;
+		this.quantity = quantity;
+		this.children = children;
+		this.productTypeName=productTypeName;
+		this.productClassesName=productClassesName;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Long parentId) {
+		this.parentId = parentId;
+	}
+
+	public String getBomName() {
+		return bomName;
+	}
+
+	public void setBomName(String bomName) {
+		this.bomName = bomName;
+	}
+
+	public Double getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Double quantity) {
+		this.quantity = quantity;
+	}
+
+	public List<ProductBomZTree> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<ProductBomZTree> children) {
+		this.children = children;
+	}
+
+	public Long getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Long productId) {
+		this.productId = productId;
+	}
+
+	public String getSku() {
+		return sku;
+	}
+
+	public void setSku(String sku) {
+		this.sku = sku;
+	}
+
+	public String getProductTypeName() {
+		return productTypeName;
+	}
+
+	public void setProductTypeName(String productTypeName) {
+		this.productTypeName = productTypeName;
+	}
+
+	public String getProductClassesName() {
+		return productClassesName;
+	}
+
+	public void setProductClassesName(String productClassesName) {
+		this.productClassesName = productClassesName;
+	}
+
+	public Long getProductTypeDictId() {
+		return productTypeDictId;
+	}
+
+	public void setProductTypeDictId(Long productTypeDictId) {
+		this.productTypeDictId = productTypeDictId;
+	}
+
+
+ 
+
+	
+}

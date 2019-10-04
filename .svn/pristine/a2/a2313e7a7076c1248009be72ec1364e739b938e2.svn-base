@@ -1,0 +1,8 @@
+package com.techsoft.mapper.work;
+
+import com.techsoft.common.BaseMapper;
+import com.techsoft.entity.common.WorkPlanEquip;
+
+public interface WorkPlanEquipMapper extends BaseMapper<WorkPlanEquip> {
+	
+}

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.quality.QualityInspectItemMapper">
+<cache type="org.mybatis.caches.redis.RedisCache"/>
+	<resultMap id="QualityInspectItem" type="com.techsoft.entity.common.QualityInspectItem" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="INSPECT_ITEM_NAME" property="inspectItemName" />
+		<result column="PARENT_ID" property="parentId" />
+		<result column="IS_MODULE" property="isModule" />
+		<result column="INSPECT_TYPE_ID" property="inspectTypeId" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+
+		<if test="parentId != null">
+			AND A.PARENT_ID= #{parentId}
+		</if>
+		<if test="isModule != null">
+			AND A.IS_MODULE= #{isModule}
+		</if>
+		<if test="inspectTypeId != null">
+			AND A.INSPECT_TYPE_ID= #{inspectTypeId}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<if test="notparent != null">
+			AND A.PARENT_ID != 0
+		</if>
+		<if test="parent != null">
+			AND A.PARENT_ID= #{parent}
+		</if>	
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+		<if test="inspectItemName != null">
+			AND A.INSPECT_ITEM_NAME like "%"#{inspectItemName}"%"
+		</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.INSPECT_ITEM_NAME,
+		A.PARENT_ID,
+		A.IS_MODULE,
+		A.INSPECT_TYPE_ID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_QUALITY_INSPECT_ITEM_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from QUALITY_INSPECT_ITEM
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.QualityInspectItem">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM QUALITY_INSPECT_ITEM A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.QualityInspectItem">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM QUALITY_INSPECT_ITEM A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE QUALITY_INSPECT_ITEM A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE QUALITY_INSPECT_ITEM  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.QualityInspectItem">
+		UPDATE QUALITY_INSPECT_ITEM A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.QualityInspectItem">
+		INSERT INTO QUALITY_INSPECT_ITEM (
+		TENANT_ID,
+		INSPECT_ITEM_NAME,
+		PARENT_ID,
+		IS_MODULE,
+		INSPECT_TYPE_ID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{inspectItemName},
+		#{parentId},
+		#{isModule},
+		#{inspectTypeId},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.QualityInspectItem">
+		UPDATE QUALITY_INSPECT_ITEM SET
+		TENANT_ID=#{tenantId},
+		INSPECT_ITEM_NAME=#{inspectItemName},
+		PARENT_ID=#{parentId},
+		IS_MODULE=#{isModule},
+		INSPECT_TYPE_ID=#{inspectTypeId},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.QualityInspectItem">
+		UPDATE QUALITY_INSPECT_ITEM SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="inspectItemName != null" >
+			INSPECT_ITEM_NAME=#{inspectItemName},
+		</if>
+		<if test="parentId != null" >
+			PARENT_ID=#{parentId},
+		</if>
+		<if test="isModule != null" >
+			IS_MODULE=#{isModule},
+		</if>
+		<if test="inspectTypeId != null" >
+			INSPECT_TYPE_ID=#{inspectTypeId},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.quality.QualityInspectItemParamVo"
+		      resultType="com.techsoft.entity.common.QualityInspectItem" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM QUALITY_INSPECT_ITEM A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

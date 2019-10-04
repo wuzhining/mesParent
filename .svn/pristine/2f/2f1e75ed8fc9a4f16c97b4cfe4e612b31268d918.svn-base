@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+            <tr>
+               <td width="15%" class="tableleft">生产线</td>
+               <td> 
+                 <select name="productionlineId"> 
+                    <#if productionlineList??>
+                     <#list productionlineList as item>
+			            <option value="${item.id?c}" <#if (entity.productionlineId??&&entity.productionlineId==item.id)>selected="selected"</#if>>${item.productionlineName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td>
+               
+               <td width="15%" class="tableleft">报警问题</td>
+               <td> 
+                  <select id="problemId"  name="problemId" lay-filter="problemSelect"> 
+                  <option value="">请选择</option> 
+                    <#if problemList??>
+                     <#list problemList as item>
+			            <option value="${item.id?c}" <#if (entity.problemId??&&entity.problemId==item.id)>selected="selected"</#if>>${item.problem}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td>
+           </tr>
+           
+           <tr>
+			    <td width="10%" class="tableleft">报警等级</td> 
+			    <td> 
+                 <select name="alarmLevelId"> 
+                 <option value="">请选择</option> 
+                    <#if alarmLevelList??>
+                     <#list alarmLevelList as item>
+			            <option value="${item.minuteRespond?c}" <#if (entity.alarmLevelId??&&entity.alarmLevelId==item.minuteRespond)>selected="selected"</#if>>${item.minuteRespond?c}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td>
+
+                  <!-- <input type="text" name="alarmLevelId" required required lay-verify="required" class="layui-input" maxlength="100" value="${(entity.alarmLevelId)!''}"/> -->
+             
+               
+              
+               <td width="15%" class="tableleft">报警类型</td>
+                <td>
+                    <input type="hidden"  id="alarmTypeDictId"  name="alarmTypeDictId" value="<#if entity??&&entity.alarmTypeDictId??>${entity.alarmTypeDictId?c}<#else></#if>" /> 
+	                <input type="text" id="alarmTypeDictName"  class="layui-input" maxlength="100" value="<#if entity??&&entity.alarmTypeDictId??>${entity.alarmTypeDictId?c}<#else></#if>" disabled='disabled'  />  
+               </td>
+             
+           </tr>
+           
+           <tr>
+               
+               <td width="15%" class="tableleft">状态</td>
+               <td> 
+                 <select name="statusDictId"> 
+                    <#if alarmstatusList??>
+                     <#list alarmstatusList as item>
+			            <option value="${item.id?c}" <#if (entity.statusDictId??&&entity.statusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td>
+              
+               <td width="10%" class="tableleft">备注</td>
+               <td>
+                 <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+               </td>
+           </tr>
+           
+           
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          
+          //选择工厂查楼层级联监听
+          form.on('select(problemSelect)', function(data){
+        	   var problemId=0;
+       		var resjosn=null;
+        	  if(data.value != ''){
+        		  problemId=data.value;
+        	  }
+         	  var url = '/alarm/alarmProblem/linkFloorByAlarml?id='+ problemId ;
+			 $.ajax({
+			         type: "post",
+					 dataType: "",
+					 contentType:'application/x-www-form-urlencoded',
+					 url:url,		
+			         success: function(res){
+				 	    resjosn=JSON.parse(res);
+			       		 console.log(resjosn.id);
+			       		$("#alarmTypeDictId").val(resjosn.id);
+			       		$("#alarmTypeDictName").val(resjosn.dictName);
+			       }
+			   }); 
+
+          });
+        
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/alarm/alarmInforFlow/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+   <script>
+
+    $(function () {
+    	var problemId=0;
+	  	  if($("#problemId").val() != ''){
+	  		  problemId=$("#problemId").val();
+	  	  }
+	  	  var url = '/alarm/alarmProblem/linkFloorByAlarml?id='+ problemId ;
+			 $.ajax({
+			         type: "post",
+					 dataType: "",
+					 contentType:'application/x-www-form-urlencoded',
+					 url:url,		
+			         success: function(res){
+				 	    resjosn=JSON.parse(res);
+			       		 console.log(resjosn.id);
+			       		$("#alarmTypeDictId").val(resjosn.id);
+			       		$("#alarmTypeDictName").val(resjosn.dictName);
+			       }
+			   }); 
+    	
+    });
+ </script> 
+  </body>
+
+</html>

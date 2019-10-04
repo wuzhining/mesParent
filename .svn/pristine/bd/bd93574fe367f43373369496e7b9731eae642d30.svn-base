@@ -1,0 +1,166 @@
+package com.techsoft.controller.equip;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.equip.ClientEquipClassesFixtureService;
+import com.techsoft.client.service.equip.ClientEquipSpecsFixtureService;
+import com.techsoft.client.service.firm.ClientFirmPartnerService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipClassesFixture;
+import com.techsoft.entity.common.EquipSpecsFixture;
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.equip.EquipClassesFixtureParamVo;
+import com.techsoft.entity.equip.EquipSpecsFixtureParamVo;
+import com.techsoft.entity.equip.EquipSpecsFixtureVo;
+import com.techsoft.entity.firm.FirmPartnerParamVo;
+
+@Controller
+@RequestMapping("/equip/equipSpecsFixture")
+public class EquipSpecsFixtureController extends BaseController {
+	@Autowired
+	private ClientEquipSpecsFixtureService clientEquipSpecsFixtureService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientFirmPartnerService clientFirmPartnerService;
+	@Autowired
+	private ClientEquipClassesFixtureService clientEquipClassesFixtureService;
+
+	/**
+	 * 页面关联数据初始化
+	 * 
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) {
+
+		try {
+			// 取工具状态集合
+			List<ConfigDictionary> fixtureStatus = clientConfigDictionaryService.selectListByParentId(EnumDictionary.FIXTURE_STATUS.getValue());
+			modelAndView.addObject("fixtureStatus", fixtureStatus);
+			
+			// 取工具类型集合
+			List<EquipClassesFixture> equipClassesFixture = clientEquipClassesFixtureService.selectListByParamVo(new EquipClassesFixtureParamVo(), this.getCommonParam(null));
+			//供应商 
+			FirmPartnerParamVo vo = new FirmPartnerParamVo();
+			vo.setPartnerTypeDictId(10313L);
+			List<FirmPartner> supplierList = clientFirmPartnerService.selectListByParamVo(vo, this.getCommonParam(null));
+			modelAndView.addObject("supplierList", supplierList);
+			
+			modelAndView.addObject("fixtureTypeDict", equipClassesFixture);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());
+	}
+
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("equip/equipSpecsFixture-list");
+		return modelAndView;
+	}
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		try {
+			// 取工具状态集合
+			List<ConfigDictionary> fixtureStatus = clientConfigDictionaryService.selectListByParentId(EnumDictionary.FIXTURE_STATUS.getValue());
+			modelAndView.addObject("fixtureStatus", fixtureStatus);
+
+			modelAndView.setViewName("equip/equipSpecsFixture-edit");
+			EquipSpecsFixtureVo entity = new EquipSpecsFixtureVo();
+			if (id != null) {
+				entity = clientEquipSpecsFixtureService.getVoByID(id, this.getCommonParam(request));
+				//供应商
+				if(entity.getSupplierId()!=null && entity.getSupplierId()> 0L){
+					FirmPartner firmPartner = clientFirmPartnerService.getVoByID(entity.getSupplierId(), this.getCommonParam(request));
+					modelAndView.addObject("firmPartner", firmPartner);
+				}
+				// 取工具类型集合
+				if(entity.getClassesId()!=null && entity.getClassesId()> 0L){
+					EquipClassesFixture equipClassesFixture = clientEquipClassesFixtureService.getVoByID(entity.getClassesId(), this.getCommonParam(request));
+					modelAndView.addObject("fixtureTypeDict", equipClassesFixture);
+				}
+				
+			}
+			modelAndView.addObject("entity", entity);
+		} catch (BusinessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		initData(modelAndView);
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")
+	public ReturnPageInfo listJson(HttpServletRequest request, EquipSpecsFixtureParamVo equipSpecsFixtureParamVo,
+			Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}
+		try {
+			if (equipSpecsFixtureParamVo == null) {
+				equipSpecsFixtureParamVo = new EquipSpecsFixtureParamVo();
+			}
+			pageInfo = clientEquipSpecsFixtureService.selectPageVoByParamVo(equipSpecsFixtureParamVo,
+					this.getCommonParam(request), pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request, EquipSpecsFixtureParamVo equipSpecsFixtureParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+
+		equipSpecsFixtureParamVo.setModifyUserId(getLoginUserId(request));
+		resultMessage = clientEquipSpecsFixtureService.saveOrUpdate(equipSpecsFixtureParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	@RequestMapping("/listEquipFixture")
+	public ModelAndView lineProcess(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("struct/structProcedureEquipFixture-fixture");
+		return modelAndView;
+	}
+	
+}

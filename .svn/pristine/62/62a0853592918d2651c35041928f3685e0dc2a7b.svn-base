@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.billEquipId??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+              <td width="10%" class="tableleft">设备单据</td>
+              <td>
+                <select name="billEquipId" disabled="disabled" > 
+			         <#if billEquipList??>
+                     <#list billEquipList as item>
+			          	<option id="bom" value="${item.id?c}" 
+			          	<#if (entity.billEquipId??&&entity.billEquipId==item.id)>selected="selected"</#if>
+			          	<#if (entity.id??&&entity.id==item.id)>selected="selected"</#if>
+			          	 >${item.billCode}</option>
+			         </#list>
+			         </#if>
+			    </select>   
+              </td> 
+              <td width="10%" class="tableleft">设备名称</td>
+              <td>
+	            <select name="equipWorkId"> 
+                 <#if equipWorkList??>
+                   <#list equipWorkList as item>
+		             <option value="${item.id?c}" <#if (entity.equipWorkId??&&entity.equipWorkId==item.id)>selected="selected"</#if>>${item.equipName}</option>
+		           </#list>
+		         </#if>
+		        </select>
+              </td>  
+              </tr>
+            <tr>
+              <td width="10%" class="tableleft">处理结果</td>
+              <td>
+	            <select name="dealResultDictId"> 
+                 <#if dealResultList??>
+                   <#list dealResultList as item>
+		             <option value="${item.id?c}" <#if (entity.dealResultDictId??&&entity.dealResultDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+		           </#list>
+		         </#if>
+		        </select>
+              </td>  
+              <td width="15%" class="tableleft">描述</td>
+              <td>
+               	<input type="text" name="remark" class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+              </td> 
+            </tr>
+            
+           <tr>
+            <td colspan="5"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+
+    </div>
+	<script type="text/html" id="barDemo">	
+        <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="del">删除</a>
+  	</script>
+
+    <script type="text/javascript">
+    var $, admin, table, layer, laydate, form;
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','layer','layuiconfig','layuiformajax','layuitable'], function(){
+    	$ = layui.$, 
+    	admin = layui.admin, 
+    	table = layui.table, 
+    	layer = layui.layer, 
+    	laydate = layui.laydate,
+    	layuitable = layui.layuitable,
+    	form = layui.form; 
+    	
+    	var layuiformajax = layui.layuiformajax;
+    	
+    	 //监听提交
+        form.on('submit(save)', function(data){
+        	console.log(data.field);
+      	    var url = '/equip/equipWorkRepairItem/save';
+      	    layuiformajax.postJson(url, data.field, function (result) {
+   	    	    layer.alert("保存成功", {icon: 6},function () {
+   	                // 获得frame索引
+   	                var index = parent.layer.getFrameIndex(window.name);
+   				  	parent.location.reload(); 
+   	                parent.layer.close(index);
+   	            });
+   		    });
+            return false;
+        }); 
+    });	
+  </script>
+  <script></script>
+  </body>
+
+</html>

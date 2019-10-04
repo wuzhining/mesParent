@@ -1,0 +1,77 @@
+package com.techsoft.dao.bill;
+
+import java.util.List;
+
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.common.BillWarehouseItem;
+
+public interface BillWarehouseItemDao extends BaseDao<BillWarehouseItem> {
+	/**
+	*@auther:Wang
+	*@version:2019年4月23日下午3:46:39
+	*@param:List<BillWarehouseItem> 出入库明细集合
+	*@description 用于出入库明细的批量新增
+	*/
+	public void insertBatch(List<BillWarehouseItem> items, CommonParam commonParam) throws BusinessException, SQLException;
+
+	public BillWarehouseItem selectById(Long billItemId, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	/**
+	*@auther:Wang
+	*@version:2019年5月6日下午4:10:00
+	*@param:id 明细ID
+	*@param:billStatusDictId 状态(此处为处理中 数据字典)
+	*@param:quality 扫描数量
+	*@description  物料下架时修改领料明细扫描数量与状态
+	*/
+	public void updateOffStore(Long id, Long billStatusDictId,Double quality,CommonParam commonParam) throws BusinessException, SQLException;
+
+	public void updateOutStoreBill(BillWarehouseItemParamVo paramVo, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	/**
+	*@auther:Wang
+	*@version:2019年5月6日下午4:10:00
+	*@param  id                 明细ID
+	*@param  billStatusDictId   状态(此处为完结 数据字典)
+	*@param  quality            完成数量(已下架数量)
+	*@description  领料出库时修改领料明细完成数量与状态
+	*/
+	public void updateOutStore(Long id, Long billStatusDictId,Double quality,CommonParam commonParam) throws BusinessException, SQLException;
+
+	/**
+	*@auther:Chen
+	*@version:2019年5月29日下午3:23:32
+	*@param billId  单据主表ID
+	*@description 根据单据主表ID返回该单据所有明细信息
+	*/
+	public List<BillWarehouseItem> getbillItemListBybillId(Long billId, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	/**
+	*@auther:Chenzj
+	*@version:2019年5月27日下午4:46:07
+	*@param billId             主表ID
+	*@param billStatusDictId   单据状态
+	*@description 根据明细ID的list修改状态
+	*/
+	public void updateBillItemStatus(Long billId, Long billStatusDictId, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	
+	/**
+	*@auther:Chenzj
+	*@version:2019年5月27日下午4:35:16
+	*@param id                  明细表ID
+	*@param billStatusDictId    单据状态
+	*@param quality             数量
+	*@description 根据单据明细ID修改状态及数量
+	*/
+	public void updateInstore(Long id, Long billStatusDictId, Double quality, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	
+}

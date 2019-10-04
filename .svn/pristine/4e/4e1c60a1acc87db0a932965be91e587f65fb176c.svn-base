@@ -1,0 +1,8 @@
+package com.techsoft.dao.warehouse;
+
+import com.techsoft.common.BaseDao;
+import com.techsoft.entity.common.WarehouseProductStock;
+
+public interface WarehouseProductStockDao extends BaseDao<WarehouseProductStock> {
+
+}

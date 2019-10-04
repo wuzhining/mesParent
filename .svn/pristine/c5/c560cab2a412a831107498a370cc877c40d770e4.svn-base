@@ -1,0 +1,21 @@
+package com.techsoft.common.enums;
+/**
+ * 
+ * 条码规则类型
+ *
+ */
+public enum EnumDictBarcodeRule {
+	PRODUCT_MATERIAL(10359L),//物料 
+	PRODUCT_PACKBOX(10360L),//包装箱 
+	WAREHOUSE_PALLET(10362L);//栈板
+	  
+	private Long value;
+
+	private EnumDictBarcodeRule(Long value) {
+		this.value = value;
+	}
+
+	public Long getValue() {
+		return value;
+	}
+}

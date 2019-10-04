@@ -1,0 +1,14 @@
+package com.techsoft.entity.quality;
+
+import com.techsoft.entity.common.QualityInspectItem;
+
+public class QualityInspectItemVo extends QualityInspectItem {
+	private static final long serialVersionUID = 8175038337750988305L;
+
+	public QualityInspectItemVo() {	
+	}
+	
+	public QualityInspectItemVo(QualityInspectItem value) {
+		value.cloneProperties(this);
+	}		
+}

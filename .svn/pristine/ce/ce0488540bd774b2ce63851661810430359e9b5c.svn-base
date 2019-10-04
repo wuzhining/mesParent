@@ -1,0 +1,307 @@
+package com.techsoft.entity.common;
+
+import java.util.Date;
+import com.techsoft.common.BaseEntity;
+
+public class BarcodeMain extends BaseEntity {
+	private static final long serialVersionUID = 3676119301261530505L;
+
+	public BarcodeMain() {
+	}
+
+	public BarcodeMain(BarcodeMain barcodeMain) {
+		this.rackId = barcodeMain.getRackId();
+		this.areaId = barcodeMain.getAreaId();
+		this.factoryId = barcodeMain.getFactoryId();
+		this.barcodeRuleDictId = barcodeMain.getBarcodeRuleDictId();
+		this.productId = barcodeMain.getProductId();
+		this.materialId = barcodeMain.getMaterialId();
+		this.barcodePackboxId = barcodeMain.getBarcodePackboxId();
+		this.barcodeStatusDictId = barcodeMain.getBarcodeStatusDictId();
+		this.palletId = barcodeMain.getPalletId();
+		this.billTypeDictId = barcodeMain.getBillTypeDictId();
+		this.billId = barcodeMain.getBillId();
+		this.billItemId = barcodeMain.getBillItemId();
+		this.billStatusDictId = barcodeMain.getBillStatusDictId();
+		this.batchNumber = barcodeMain.getBatchNumber();
+		this.supplierId = barcodeMain.getSupplierId();
+		this.warehouseId = barcodeMain.getWarehouseId();
+		this.locationId = barcodeMain.getLocationId();
+		this.partnerId = barcodeMain.getPartnerId();
+		this.productionlineId = barcodeMain.getProductionlineId();
+		this.quantity = barcodeMain.getQuantity();
+		this.outstoreTime = barcodeMain.getOutstoreTime();
+		this.instoreTime = barcodeMain.getInstoreTime();
+		this.tenantId = barcodeMain.getTenantId();
+	}
+
+	private Long tenantId;
+
+	private Long factoryId;
+
+	private String barcode;
+
+	private Long barcodeRuleDictId;
+
+	private Long productId;
+
+	private Long materialId;
+
+	private Long barcodePackboxId;
+
+	private Long barcodeStatusDictId;
+
+	private String batchNumber;
+
+	private Long palletId;
+
+	private Long billTypeDictId;
+
+	private Long billId;
+
+	private Long billItemId;
+
+	private Long billStatusDictId;
+
+	private Long supplierId;
+
+	private Long warehouseId;
+
+	private Long areaId;
+
+	private Long rackId;
+
+	private Long locationId;
+
+	private Long partnerId;
+
+	private Long productionlineId;
+
+	private Double quantity;
+
+	private Date instoreTime;
+
+	private Date outstoreTime;
+
+	private Date dateManufacture;
+
+	private Date dateInvalidation;
+
+	private String remark;
+
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+
+	public Long getFactoryId() {
+		return factoryId;
+	}
+
+	public void setFactoryId(Long factoryId) {
+		this.factoryId = factoryId;
+	}
+
+	public String getBarcode() {
+		return barcode;
+	}
+
+	public void setBarcode(String barcode) {
+		this.barcode = barcode;
+	}
+
+	public Long getBarcodeRuleDictId() {
+		return barcodeRuleDictId;
+	}
+
+	public void setBarcodeRuleDictId(Long barcodeRuleDictId) {
+		this.barcodeRuleDictId = barcodeRuleDictId;
+	}
+
+	public Long getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Long productId) {
+		this.productId = productId;
+	}
+
+	public Long getMaterialId() {
+		return materialId;
+	}
+
+	public void setMaterialId(Long materialId) {
+		this.materialId = materialId;
+	}
+
+	public Long getBarcodePackboxId() {
+		return barcodePackboxId;
+	}
+
+	public void setBarcodePackboxId(Long barcodePackboxId) {
+		this.barcodePackboxId = barcodePackboxId;
+	}
+
+	public Long getBarcodeStatusDictId() {
+		return barcodeStatusDictId;
+	}
+
+	public void setBarcodeStatusDictId(Long barcodeStatusDictId) {
+		this.barcodeStatusDictId = barcodeStatusDictId;
+	}
+
+	public String getBatchNumber() {
+		return batchNumber;
+	}
+
+	public void setBatchNumber(String batchNumber) {
+		this.batchNumber = batchNumber;
+	}
+
+	public Long getPalletId() {
+		return palletId;
+	}
+
+	public void setPalletId(Long palletId) {
+		this.palletId = palletId;
+	}
+
+	public Long getBillTypeDictId() {
+		return billTypeDictId;
+	}
+
+	public void setBillTypeDictId(Long billTypeDictId) {
+		this.billTypeDictId = billTypeDictId;
+	}
+
+	public Long getBillId() {
+		return billId;
+	}
+
+	public void setBillId(Long billId) {
+		this.billId = billId;
+	}
+
+	public Long getBillItemId() {
+		return billItemId;
+	}
+
+	public void setBillItemId(Long billItemId) {
+		this.billItemId = billItemId;
+	}
+
+	public Long getBillStatusDictId() {
+		return billStatusDictId;
+	}
+
+	public void setBillStatusDictId(Long billStatusDictId) {
+		this.billStatusDictId = billStatusDictId;
+	}
+
+	public Long getSupplierId() {
+		return supplierId;
+	}
+
+	public void setSupplierId(Long supplierId) {
+		this.supplierId = supplierId;
+	}
+
+	public Long getWarehouseId() {
+		return warehouseId;
+	}
+
+	public void setWarehouseId(Long warehouseId) {
+		this.warehouseId = warehouseId;
+	}
+
+	public Long getAreaId() {
+		return areaId;
+	}
+
+	public void setAreaId(Long areaId) {
+		this.areaId = areaId;
+	}
+
+	public Long getRackId() {
+		return rackId;
+	}
+
+	public void setRackId(Long rackId) {
+		this.rackId = rackId;
+	}
+
+	public Long getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(Long locationId) {
+		this.locationId = locationId;
+	}
+
+	public Long getPartnerId() {
+		return partnerId;
+	}
+
+	public void setPartnerId(Long partnerId) {
+		this.partnerId = partnerId;
+	}
+
+	public Long getProductionlineId() {
+		return productionlineId;
+	}
+
+	public void setProductionlineId(Long productionlineId) {
+		this.productionlineId = productionlineId;
+	}
+
+	public Double getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Double quantity) {
+		this.quantity = quantity;
+	}
+
+	public Date getInstoreTime() {
+		return instoreTime;
+	}
+
+	public void setInstoreTime(Date instoreTime) {
+		this.instoreTime = instoreTime;
+	}
+
+	public Date getOutstoreTime() {
+		return outstoreTime;
+	}
+
+	public void setOutstoreTime(Date outstoreTime) {
+		this.outstoreTime = outstoreTime;
+	}
+
+	public Date getDateManufacture() {
+		return dateManufacture;
+	}
+
+	public void setDateManufacture(Date dateManufacture) {
+		this.dateManufacture = dateManufacture;
+	}
+
+	public Date getDateInvalidation() {
+		return dateInvalidation;
+	}
+
+	public void setDateInvalidation(Date dateInvalidation) {
+		this.dateInvalidation = dateInvalidation;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

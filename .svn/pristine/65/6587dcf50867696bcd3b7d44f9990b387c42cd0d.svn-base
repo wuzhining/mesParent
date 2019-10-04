@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<#include "../common-header.html"/>
+		<style type="text/css">
+			.layui-hide tr:nth-child(even){
+				background-color:green;
+			}
+		</style>
+	</head>
+	
+	<body style='font-size: 62.5%; width: 100%; height: 100% ;background-color:white'>
+	    <div class="x-body">
+	      <div class="layui-row">
+	        <form class="layui-form layui-col-md12 x-so">
+	        	<input type="hidden" name="materialId" id="materialId" placeholder="请选择物料" autocomplete="off" class="layui-input">
+	        	<input type="text" name="materialName" id="materialName" placeholder="请选择物品规格" autocomplete="off" class="layui-input">
+	            <button class="layui-btn layui-btn-sm  " id="materialStats" style="background-color: #009688;color:#FFFFFF" >
+					<i class="layui-icon layui-icon-more" ></i>
+				</button>
+	           	<select name="factoryId" id="factoryId" class="factoryId2">    
+	                <option value="">请选择工厂名称</option> 
+	                 <#if factoryList??>
+	                     <#list factoryList as item>
+				            <option value="${item.id?c}" >${item.factoryName}</option>
+				         </#list>
+				    </#if> 
+	          	</select>
+	          	<select name="billTypeDictId" id="billTypeDictId2" lay-search>    
+		            <option value="">请选择单据类型</option> 
+		            <#if billTypeDicList??>
+			             <#list billTypeDicList as item>
+					       <option value="${item.id?c}" >${item.dictName}</option>
+					    </#list>
+				    </#if> 
+		        </select>
+			    <input type="number" name="year2" id="year2"  placeholder="请输入年" autocomplete="off" class="layui-input">
+			    <input type="number" name="month2" id="month2" placeholder="请输入月" autocomplete="off" class="layui-input">
+			    <input type="number" name="day2" id="day2"  placeholder="请输入日" autocomplete="off" class="layui-input">
+	            <button class="layui-btn layui-btn-sm  " id="stats2" style="background-color: #009688;color:#FFFFFF" >统计</button>
+	        </form>
+	      </div>
+	      <div id="container4" style="height: 660px;width:100%;position:absolute;" ></div>
+	    </div>
+	
+		<script type="text/javascript">
+		var obj ={};
+		var datas="";
+		$(function () {
+			var PieItemObj = function(name,y){
+				this.name = name;
+				this.y = y;
+			};
+
+			var pieColors = (function () {
+				var colors = [],
+					i;
+					for (i = 0; i < 20; i += 1) {
+						if(i===1){
+							continue;
+						}
+						colors.push(Highcharts.getOptions().colors[i]);
+					}
+				return colors;
+			}());  
+			
+			materialdata = selectItemById(obj,'/stats/statsProductMaterialPieChart/productDataStatus'); 
+			
+			//清空
+			$("#materialName").blur(function(){
+				if($('#materialName').val() == ""){
+					$('#materialId').val("");
+				}
+			});	
+			
+			//条件统计	
+			$("#stats2").on("click",function(e){
+				obj = {};
+				if($('.factoryId2').val() != ""){
+					obj.factoryId=$('.factoryId2').val();
+				} 
+				if($('#billTypeDictId2').val() != ""){
+					obj.billTypeDictId=$('#billTypeDictId2').val();
+				} 
+				if($('#year2').val() != ""){
+					obj.year=$('#year2').val();
+				}
+				if($('#month2').val() != ""){
+					obj.month=$('#month2').val();
+				}
+				if($('#day2').val() != ""){
+					obj.day=$('#day2').val();
+				}
+				if($('#materialId').val() != ""){
+					obj.materialId=$('#materialId').val();
+				}
+				materialdata = selectItemById(obj,'/stats/statsProductMaterialPieChart/productDataStatus'); 
+				result();
+				e.preventDefault();//默认from表单提交时不刷新
+			});	
+			
+			function result(){
+				var piematerialDatas = [];
+				if(materialdata.length === 0){
+					alert('暂无相关数据');
+				}
+				if( $('#year2').val() != "" && $('#month2').val() == ""){
+					materialdata.forEach(function(item,index){
+						piematerialDatas.push(new PieItemObj(item.year+"年"+item.month+"月",item.quantity));
+					});
+				}else if($('#month2').val() != "" || $('#day2').val() != ""){
+					materialdata.forEach(function(item,index){
+						piematerialDatas.push(new PieItemObj(item.year+"年"+item.month+"月"+item.day+"日",item.quantity));
+					});
+				}else{
+					materialdata.forEach(function(item,index){
+						piematerialDatas.push(new PieItemObj(item.year+"年",item.quantity));
+					});
+				}
+				
+				
+			    /* 按物品维度计算  */
+				Highcharts.chart('container4', {
+					chart: {
+						//backgroundColor: '#383A4C',
+						plotBackgroundColor: null,    //边框
+						plotBorderWidth: null,
+						plotShadow: false,
+						type: 'pie'
+					},
+					title: {
+						text: null
+						/* style:{    //标题样式
+							color:'#383A4C',
+							fontSize: "20px",   //字体大小
+				            fontWeight: 'bold'
+						} */
+					},
+					credits: {    //隐藏版权信息
+						enabled: false
+					},
+					legend: {
+						itemStyle: {
+							color: '#383A4C',
+							fontSize:'15px'
+						},
+						itemHiddenStyle: {
+							color: 'red'
+						},
+						labelFormat:'<b>{name}</b>'
+					},
+					tooltip: {
+						pointFormat: '{series.name}: {point.percentage:.1f}%<br/>数量:{point.y}'	
+						},
+					plotOptions: {     //饼状图
+						pie: {
+							borderColor: 'white',  
+							borderWidth:2,
+							showInLegend: true,   //显示图例
+							allowPointSelect: true,
+							colors: pieColors, 
+							cursor: 'pointer',
+							dataLabels: {
+								enabled: true,
+								format: '<b>{point.name}</b><br/>数量:{point.y}<br/><b>占比为: {point.percentage:.1f} %</b> ',
+								style: {		//数据字体颜色
+									color:'#383A4C',    
+									fontSize:'13px'
+								}
+							}
+						}
+					},
+					series: [{
+						name: '占比值为',
+						colorByPoint: true,
+						data: piematerialDatas
+					}] 
+				});
+			}
+		
+			//验证年月日
+			$('#month2').click(function(){
+			  if($('#year2').val() == ""){
+				  alert("请先输入年份");
+			  }
+			});	
+			$('#day2').click(function(){
+			  if($('#month2').val() == ""){
+				  alert("请先输入月份");
+			  }
+			});	    
+		   	//单个物料统计
+			 $('#materialStats').on('click',function(e){
+		   		openWinSelect('/product/productMaterial/productMaterialOpen',"materialId","materialName");
+		   		e.preventDefault();//默认from表单提交时不刷新
+		   	}) 
+			
+			result();
+		});
+		</script>
+		<script type="text/javascript">
+			
+		</script>
+	</body>
+</html>

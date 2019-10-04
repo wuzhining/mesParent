@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.struct.StructProcessProductMapper">
+	<resultMap id="StructProcessProduct" type="com.techsoft.entity.common.StructProcessProduct" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="PROCESS_ID" property="processId" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="IS_DEFAULT" property="isDefault" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="processId != null">
+			AND A.PROCESS_ID= #{processId}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="isDefault != null">
+			AND A.IS_DEFAULT= #{isDefault}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.PROCESS_ID,
+		A.PRODUCT_ID,
+		A.MATERIAL_ID,
+		A.IS_DEFAULT,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_STRUCT_PROCESS_PRODUCT_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STRUCT_PROCESS_PRODUCT
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StructProcessProduct">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCESS_PRODUCT A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StructProcessProduct">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCESS_PRODUCT A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE STRUCT_PROCESS_PRODUCT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE STRUCT_PROCESS_PRODUCT  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StructProcessProduct">
+		UPDATE STRUCT_PROCESS_PRODUCT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcessProduct">
+		INSERT INTO STRUCT_PROCESS_PRODUCT (
+		TENANT_ID,
+		FACTORY_ID,
+		PROCESS_ID,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		IS_DEFAULT,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{processId},
+		#{productId},
+		#{materialId},
+		#{isDefault},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcessProduct">
+		UPDATE STRUCT_PROCESS_PRODUCT SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		PROCESS_ID=#{processId},
+		PRODUCT_ID=#{productId},
+		MATERIAL_ID=#{materialId},
+		IS_DEFAULT=#{isDefault},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcessProduct">
+		UPDATE STRUCT_PROCESS_PRODUCT SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="processId != null" >
+			PROCESS_ID=#{processId},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="isDefault != null" >
+			IS_DEFAULT=#{isDefault},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.struct.StructProcessProductParamVo"
+		      resultType="com.techsoft.entity.common.StructProcessProduct" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCESS_PRODUCT A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

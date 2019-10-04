@@ -1,0 +1,80 @@
+package com.techsoft.client.service.track;
+
+import java.util.List;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.entity.track.TrackBarcodeVo;
+
+public interface ClientTrackBarcodeService extends BaseClientService<TrackBarcode> {
+
+	public TrackBarcodeVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+
+	public List<TrackBarcodeVo> selectListVoByParamVo(TrackBarcodeParamVo trackBarcode, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	public PageInfo<TrackBarcodeVo> selectPageVoByParamVo(TrackBarcodeParamVo trackBarcode, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException;
+
+	public TrackBarcodeVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+
+	public List<TrackBarcodeVo> selectListExtendVoByParamVo(TrackBarcodeParamVo trackBarcode, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	public PageInfo<TrackBarcodeVo> selectPageExtendVoByParamVo(TrackBarcodeParamVo trackBarcode,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException;
+
+	public ResultMessage saveOrUpdate(TrackBarcodeParamVo trackBarcodeParamVo, CommonParam commonParam);
+
+	/**
+	 * 打印条码时批量插入条码历史表
+	 * 
+	 * @param trackBarcodeVoVoList
+	 * @param commonParam
+	 * @return
+	 * @throws BusinessException
+	 * @throws SQLException
+	 */
+	public ResultMessage InsertbatchTrackBarcode(List<TrackBarcode> trackBarcodeVoVoList, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年5月4日下午10:47:51
+	 * @param: trackBarcodeVo
+	 *             标签对象Vo
+	 * @description pda扫描物料标签进行上架
+	 */
+	public ResultMessage onBarcode(TrackBarcodeVo trackBarcodeVo, CommonParam commonParam);
+
+	public TrackBarcode getVoByCode(String code, CommonParam commonParam) throws BusinessException, SQLException;
+
+	public BarcodeMain getMainVoByCode(String code, CommonParam commonParam) throws BusinessException, SQLException;
+
+	/**
+	*@auther:Chen
+	*@version:2019年6月17日上午10:06:48
+	*@param trackBarcode   扫描标签封装对象
+	*@param commonParam
+	*@return
+	*@description     扫描标签进行退料上架
+	*/
+	public ResultMessage billReturnInput(TrackBarcode trackBarcode, CommonParam commonParam);
+
+	/**
+	*@auther:Chen
+	*@version:2019年7月9日下午2:06:43
+	*@param trackBarcode
+	*@param commonParam
+	*@return
+	*@description
+	*/
+	public ResultMessage billSaleReturnInput(TrackBarcode trackBarcode, CommonParam commonParam);
+}

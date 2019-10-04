@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.scada.ScadaAoiCatalogMapper">
+	<resultMap id="ScadaAoiCatalog" type="com.techsoft.entity.common.ScadaAoiCatalog" > 
+	    <id column="ID" property="id" />
+		<result column="CATALOGID" property="catalogid" />
+		<result column="PCBID" property="pcbid" />
+		<result column="CATALOGNAME" property="catalogname" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="catalogid != null">
+			AND A.CATALOGID= #{catalogid}
+		</if>
+		<if test="pcbid != null">
+			AND A.PCBID= #{pcbid}
+		</if>
+		<if test="catalogname != null">
+			AND A.CATALOGNAME= #{catalogname}
+		</if>
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	</sql>	
+		
+	<sql id="Base_Column_List">    
+	    A.ID,
+		A.CATALOGID,
+		A.PCBID,
+		A.CATALOGNAME
+	</sql>
+
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from SCADA_AOI_CATALOG
+	</select>
+		
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.scada.ScadaAoiCatalogParamVo"
+		      resultType="com.techsoft.entity.common.ScadaAoiCatalog" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SCADA_AOI_CATALOG A
+		WHERE (1 = 1)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

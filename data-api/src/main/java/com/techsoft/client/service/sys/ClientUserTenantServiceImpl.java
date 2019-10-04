@@ -1,0 +1,192 @@
+package com.techsoft.client.service.sys;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.entity.common.UserTenant;
+import com.techsoft.entity.sys.UserTenantVo;
+import com.techsoft.entity.sys.UserTenantParamVo;
+import com.techsoft.service.sys.UserPassportService;
+import com.techsoft.service.sys.UserTenantService;
+
+@org.springframework.stereotype.Service
+public class ClientUserTenantServiceImpl extends BaseClientServiceImpl<UserTenant> implements ClientUserTenantService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private UserTenantService userTenantService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private UserPassportService userPassportService;
+	@Override
+	public BaseService<UserTenant> getBaseService() {
+		return userTenantService;
+	}	    	
+    
+	private UserTenantVo getVo(UserTenant userTenant, CommonParam commonParam) throws BusinessException, SQLException {
+		UserTenantVo vo = new UserTenantVo(userTenant);
+		if (vo.getUserId() != null && vo.getUserId() > 0L) {
+			UserPassport userPassport = userPassportService.selectById(vo.getUserId(), commonParam);
+			if (userPassport != null) {
+				vo.setUserPassport(userPassport);
+			}
+		}
+		return vo;
+	} 
+	
+	private UserTenantVo getExtendVo(UserTenant userTenant, CommonParam commonParam) throws BusinessException, SQLException {
+		UserTenantVo vo = this.getVo(userTenant, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<UserTenantVo> getVoList(List<UserTenant> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<UserTenantVo> voList = new ArrayList<UserTenantVo>();
+		for (UserTenant entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<UserTenantVo> getExtendVoList(List<UserTenant> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<UserTenantVo> voList = new ArrayList<UserTenantVo>();
+		for (UserTenant entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public UserTenantVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		UserTenant entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<UserTenantVo>  selectListVoByParamVo(UserTenantParamVo userTenant, CommonParam commonParam) throws BusinessException, SQLException {
+		if(userTenant==null){
+			userTenant = new UserTenantParamVo();
+		}
+		//userTenant.setTenantId(commonParam.getTenantId());	
+	
+		List<UserTenant> list = (List<UserTenant>) this.getBaseService().selectListByParamVo(userTenant, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<UserTenantVo> selectPageVoByParamVo(UserTenantParamVo userTenant, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(userTenant==null){
+			userTenant = new UserTenantParamVo();
+		}
+		//userTenant.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<UserTenant> list  = (PageInfo<UserTenant>) this.getBaseService().selectPageByParamVo(userTenant, commonParam, pageNo, pageSize);
+		List<UserTenantVo> volist = new ArrayList<UserTenantVo>();
+		
+		Iterator<UserTenant> iter = list.getList().iterator();
+		UserTenantVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<UserTenantVo> vpage = new Page<UserTenantVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public UserTenantVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		UserTenant entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<UserTenantVo>  selectListExtendVoByParamVo(UserTenantParamVo userTenant, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(userTenant==null){
+			userTenant = new UserTenantParamVo();
+		}
+		//userTenant.setTenantId(commonParam.getTenantId());	
+					
+		List<UserTenant> list = (List<UserTenant>) this.getBaseService().selectListByParamVo(userTenant, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<UserTenantVo> selectPageExtendVoByParamVo(UserTenantParamVo userTenant, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(userTenant==null){
+			userTenant = new UserTenantParamVo();
+		}
+		//userTenant.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<UserTenant> list  = (PageInfo<UserTenant>) this.getBaseService().selectPageByParamVo(userTenant, commonParam, pageNo, pageSize);
+		List<UserTenantVo> volist = new ArrayList<UserTenantVo>();
+		
+		Iterator<UserTenant> iter = list.getList().iterator();
+		UserTenantVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<UserTenantVo> vpage = new Page<UserTenantVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(UserTenantParamVo userTenantParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		UserTenant userTenant = null;
+		try {
+			if (userTenantParamVo.getId() == null) {//新增
+			 
+				//userTenantParamVo.setTenantId(commonParam.getTenantId());
+				userTenant = userTenantService.saveOrUpdate(userTenantParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				UserTenant userTenantVoTemp = this.selectById(userTenantParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(userTenantVoTemp,
+						userTenantParamVo);
+  
+				userTenant = userTenantService.saveOrUpdate(
+						userTenantVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(userTenant);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

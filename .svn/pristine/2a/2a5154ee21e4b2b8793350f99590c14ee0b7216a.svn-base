@@ -1,0 +1,8 @@
+package com.techsoft.service.struct;
+
+import com.techsoft.common.BaseService;
+import com.techsoft.entity.common.StructWorkstation;
+
+public interface StructWorkstationService extends BaseService<StructWorkstation> {
+
+}

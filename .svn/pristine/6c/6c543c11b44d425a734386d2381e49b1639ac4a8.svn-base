@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>智能工厂云平台-管理登录</title>  
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "common-header.html"/>
+
+</head>
+<body class="login-bg">
+    
+    <div class="login layui-anim layui-anim-up">
+        <div class="message">智能工厂云平台-管理登录</div>
+        <div id="darkbannerwrap"></div>
+        
+        <form method="post" class="layui-form" id="dataForm"  >
+            <input name="userName" placeholder="用户名"  type="text" lay-verify="required" class="layui-input" >
+            <hr class="hr15">
+            <input name="password" lay-verify="required" placeholder="密码"  type="password" class="layui-input">
+            <hr class="hr15">
+             <button class="layui-btn" lay-submit="" lay-filter="login">登录</button> 
+            <hr class="hr20" >
+        </form>
+    </div>
+
+<script>
+	if(top.location!=self.location){
+		top.location = "/passport/index";
+	}
+</script>
+ 
+    <script>  
+    
+        	 layui.config({
+        	        base: '/static/plugins/layui/base/',
+        	        v: new Date().getTime()
+        	 }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+        		 $ = layui.jquery;
+        	     var form = layui.form,layer = layui.layer;
+        	     var layuiformajax = layui.layuiformajax;
+    
+          
+            
+              //监听提交
+                //监听提交
+              form.on('submit(login)', function(data){
+            	     console.log(data.field);
+            	     var url = "/passport/login";
+            	      layuiformajax.postJson(url, data.field, function (result) {
+            	    	if(result.isSuccess) {
+                 			  location.href='/default/index';
+                 		} else { 
+                 		 	layer.alert(result.message); 
+                 		}
+            	    });
+      		  
+            	      return false;
+              });
+              
+           });
+ 
+
+        
+    </script>
+
+    
+    <!-- 底部结束 -->
+    <script></script>
+</body>
+</html>

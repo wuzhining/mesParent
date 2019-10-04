@@ -1,0 +1,8 @@
+package com.techsoft.service.equip;
+
+import com.techsoft.common.BaseService;
+import com.techsoft.entity.common.EquipFixture;
+
+public interface EquipFixtureService extends BaseService<EquipFixture> {
+
+}

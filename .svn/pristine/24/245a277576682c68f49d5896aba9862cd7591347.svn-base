@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">设备管理</a> <a><cite>工具</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <input type="text" name="fixtureNameLike"  placeholder="请输入工具名" autocomplete="off" class="layui-input">
+          <input type="hidden" name="warehouseId" id="warehouseId" placeholder="请选择仓库id" autocomplete="off" class="layui-input">
+	       	<input type="text" name="warehouseName" id="warehouseName" placeholder="请选择仓库名称" autocomplete="off" class="layui-input">
+	           <button class="layui-btn layui-btn-sm  " id="warehouseSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+			</button>
+          <select name="fixtureStatusDictId">    
+                <option value="">请选择工具状态</option> 
+                 <#if fixtureStatus??>
+                     <#list fixtureStatus as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          
+           <input type="hidden" name="supplierId" id="supplierId" placeholder="请选择供应商" autocomplete="off" class="layui-input">
+	       	<input type="text" name="companyName" id="companyName" placeholder="请选择供应商名称" autocomplete="off" class="layui-input">
+        		<button class="layui-btn layui-btn-sm  " id="supplierSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+			</button>
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button> 
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加工具维护页面','/equip/equipFixture/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script> 
+<!-- 供应商 -->
+<script type="text/html" id="fcompanyName">
+	{{#  if(d.firmPartner){ }}
+		{{ d.firmPartner.companyName
+
+ }}
+	{{#  } }}
+</script>
+<!-- 工站 -->
+<script type="text/html" id="workstationName">
+	{{#  if(d.structWorkstation){ }}
+		{{ d.structWorkstation.workstationName
+
+ }}
+	{{#  } }}
+</script>
+<!-- 工厂 -->
+<script type="text/html" id="factoryName">
+	{{#  if(d.structFactory){ }}
+		{{ d.structFactory.factoryName
+
+ }}
+	{{#  } }}
+</script>
+<script type="text/html" id="realName">
+	{{#  if(d.firmEmployee){ }}
+		{{ d.firmEmployee.realName 
+
+ }}
+{{#  } }}
+</script>
+
+<!-- 车间 -->
+<script type="text/html" id="workshopNameTpl">
+	{{#  if(d.structWorkshop){}}
+		{{ d.structWorkshop.workshopName 
+ 	}}
+	{{# } }}
+</script>
+<!-- 车间区域 -->
+<script type="text/html" id="areaNameTpl">
+	{{#  if(d.structWorkshopArea){}}
+		{{ d.structWorkshopArea.areaName 
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="warehouseName2">
+	{{#  if(d.structWarehouse){ }}
+		{{ d.structWarehouse.warehouseName 
+
+ }}
+{{#  } }}
+</script>
+<script type="text/html" id="locationName">
+	{{#  if(d.warehouseLocation){ }}
+		{{ d.warehouseLocation.locationName 
+
+ }}
+{{#  } }}
+</script>
+<script type="text/html" id="classesId">
+	{{#  if(d.equipClassesFixture){ }}
+		{{ d.equipClassesFixture.classesName 
+
+ }}
+{{#  } }}
+</script>  
+
+<script type="text/html" id="classesId">
+	{{#  if(d.equipClassesFixture){ }}
+		{{ d.equipClassesFixture.classesName 
+
+ }}
+{{#  } }}
+</script>   
+
+<script type="text/html" id="fixtureSpecsName">
+	{{#  if(d.equipSpecsFixture){ }}
+		{{ d.equipSpecsFixture.fixtureSpecsName 
+
+ }}
+{{#  } }}
+</script>  
+
+
+<script type="text/html" id="fixtureStatusDictName">
+	{{#  if(d.configDictionaryStatus){ }}
+		{{ d.configDictionaryStatus.dictName 
+
+ }}
+{{#  } }}
+</script> 
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/equip/equipFixture/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center'}
+    	    ,{field:'fixtureCode', width:150, title: '工具编码',align:'center'}
+    	    ,{field:'fixtureSpecsName', width:150, title: '工具品种规格', align:'center',templet: '#fixtureSpecsName'}
+    	    ,{field:'fixtureTtName',  title: '工具分类',align:'center',templet: '#classesId'}
+    	    ,{field:'fixtureStatusDictName',  title: '工具状态',align:'center',templet: '#fixtureStatusDictName'}
+    	    ,{field:'supplierId',  title: '供应商名称', align:'center',templet:'#fcompanyName'}
+    	    ,{field:'factoryId',  title: '工厂名称', align:'center',templet: '#factoryName'}
+    	    ,{field:'workshopId',  title: '车间', align:'center',templet:'#workshopNameTpl'}
+    	    ,{field:'workshopAreaId',  title: '车间区域', align:'center',templet:'#areaNameTpl'}
+    	    ,{field:'workstationId', width:150, title: '工位编码', align:'center',templet:'#workstationCode'}
+    	    ,{field:'workstationName', width:150, title: '工位名称', align:'center',templet:'#workstationName'}
+    	    ,{field:'warehouseName',  title: '仓库名称', align:'center',templet: '#warehouseName2'}
+    	    ,{field:'locationName',  title: '仓库库位', align:'center',templet: '#locationName'} 
+    	    ,{field:'standarlive', width:150, title: '标准寿命', align:'center'}
+    	    ,{field:'quantity',  title: '数量',align:'center'}
+    	    ,{field:'numberUsed',  title: '已使用次数',align:'center'}
+    	    ,{field:'dateConfirm',  title: '校验日期', align:'center'}
+    	    ,{field:'dateExpire',  title: '到期日期', align:'center'}
+    	    ,{field:'realName', width:120, title: '校验确认人',align:'center',templet: '#realName'}
+    	    ,{field:'confirmTime', width:150, title: '校验确认时间', align:'center'}
+    	    ,{field:'confirmResult',  title: '校验结果',align:'center'}
+    	    ,{field:'remark',  title: '描述',align:'center'}
+      		,{field:'', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+	,done: function () {
+        $("[data-field='id']").css('display','none');
+    }
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+	/* 	var warehouseName = data.structWarehouse.warehouseName;//仓库
+		var locationName = data.warehouseLocation.locationName;//仓库货位
+		var workshopName = data.structWorkshop.workshopName;//示范车间
+		var areaName = data.structWorkshopArea.areaName;//示范车间 */
+		if (obj.event === 'edit') { 
+			//layer_window_show('编辑工具维护页面','/equip/equipFixture/edit?id=' + data.id+"&&warehouseName="+warehouseName+"&&locationName="+locationName+"&&workshopName="+workshopName+"&&areaName="+areaName); 
+			layer_window_show('编辑工具维护页面','/equip/equipFixture/edit?id=' + data.id); 
+		}
+	});
+	
+	$('#warehouseSearch').on('click',function(e){
+   		openWinSelect('/struct/structWarehouse/structWarehouseOpen',"warehouseId","warehouseName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+   	$('#supplierSearch').on('click',function(e){
+		openWinSelect('/firm/firmPartner/firmPartnerOpen',"supplierId","companyName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+   	
+   	//清空
+	$("#warehouseName").blur(function(){
+		if($('#warehouseName').val() == ""){
+			$('#warehouseId').val("");
+		}
+	});
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	})
+});	
+</script>
+ 
+  </body>
+
+</html>

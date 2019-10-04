@@ -1,0 +1,6 @@
+﻿#生产者组名称
+producerGroupName=
+#消费者组名称
+consumerGroupName=
+#rocketmq的NameAddress
+rocketmq=192.168.1.208:9876

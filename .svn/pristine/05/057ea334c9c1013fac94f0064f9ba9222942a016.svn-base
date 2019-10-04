@@ -1,0 +1,54 @@
+package com.techsoft.context.shiro;
+
+import org.apache.shiro.config.Ini;
+import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.util.CollectionUtils;
+import org.apache.shiro.web.config.IniFilterChainResolverFactory;
+import org.apache.shiro.web.servlet.AbstractShiroFilter;
+
+import com.techsoft.client.service.sys.ClientUserPassportService;
+import com.techsoft.client.service.sys.ClientUserPassportServiceImpl;
+import com.techsoft.common.utils.SpringContextUtil;
+
+public class ShiroPermissionFactory extends ShiroFilterFactoryBean {
+
+	/** 记录配置中的过滤链 */
+	public static String definitions = "";
+
+	@Override
+	protected AbstractShiroFilter createInstance() throws Exception {
+
+		ClientUserPassportService clientUserPassportService = SpringContextUtil
+				.getBean(ClientUserPassportServiceImpl.class);
+//		System.out
+//				.println("ShiroPermissionFactory  clientUserPassportService=="
+//						+ clientUserPassportService);
+		return super.createInstance();
+	}
+
+	/**
+	 * 从数据库动态读取权限 增删改权限数据库时,setFilterChainDefinitions（）方法需要重新加载
+	 */
+	@Override
+	public void setFilterChainDefinitions(String definitions) {
+		ShiroPermissionFactory.definitions = definitions;
+		// 数据库动态权限
+		// List<PermissionsPo> permissions = permissionsService.findAll();
+		// for (PermissionsPo po : permissions) {
+		// 字符串拼接权限
+		definitions = definitions + " /sys/**  = " + "perms[list]";
+		// }
+		//System.out.println("definitions==" + definitions);
+		// 从配置文件加载权限配置
+		Ini ini = new Ini();
+		ini.load(definitions);
+		Ini.Section section = ini
+				.getSection(IniFilterChainResolverFactory.URLS);
+		if (CollectionUtils.isEmpty(section)) {
+			section = ini.getSection(Ini.DEFAULT_SECTION_NAME);
+		}
+
+		// 加入权限集合
+		setFilterChainDefinitionMap(section);
+	}
+}

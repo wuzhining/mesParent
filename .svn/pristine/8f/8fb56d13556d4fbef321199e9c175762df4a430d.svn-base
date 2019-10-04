@@ -1,0 +1,185 @@
+package com.techsoft.client.service.history;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+
+import com.techsoft.entity.common.HistoryBillStatusAudit;
+import com.techsoft.entity.history.HistoryBillStatusAuditVo;
+import com.techsoft.entity.history.HistoryBillStatusAuditParamVo;
+import com.techsoft.service.history.HistoryBillStatusAuditService;
+
+@org.springframework.stereotype.Service
+public class ClientHistoryBillStatusAuditServiceImpl extends BaseClientServiceImpl<HistoryBillStatusAudit> implements ClientHistoryBillStatusAuditService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private HistoryBillStatusAuditService historyBillStatusAuditService;
+    
+	@Override
+	public BaseService<HistoryBillStatusAudit> getBaseService() {
+		return historyBillStatusAuditService;
+	}	    	
+    
+	private HistoryBillStatusAuditVo getVo(HistoryBillStatusAudit historyBillStatusAudit, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryBillStatusAuditVo vo = new HistoryBillStatusAuditVo(historyBillStatusAudit);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+	
+	private HistoryBillStatusAuditVo getExtendVo(HistoryBillStatusAudit historyBillStatusAudit, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryBillStatusAuditVo vo = this.getVo(historyBillStatusAudit, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<HistoryBillStatusAuditVo> getVoList(List<HistoryBillStatusAudit> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<HistoryBillStatusAuditVo> voList = new ArrayList<HistoryBillStatusAuditVo>();
+		for (HistoryBillStatusAudit entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<HistoryBillStatusAuditVo> getExtendVoList(List<HistoryBillStatusAudit> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<HistoryBillStatusAuditVo> voList = new ArrayList<HistoryBillStatusAuditVo>();
+		for (HistoryBillStatusAudit entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public HistoryBillStatusAuditVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryBillStatusAudit entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<HistoryBillStatusAuditVo>  selectListVoByParamVo(HistoryBillStatusAuditParamVo historyBillStatusAudit, CommonParam commonParam) throws BusinessException, SQLException {
+		if(historyBillStatusAudit==null){
+			historyBillStatusAudit = new HistoryBillStatusAuditParamVo();
+		}
+		historyBillStatusAudit.setTenantId(commonParam.getTenantId());	
+	
+		List<HistoryBillStatusAudit> list = (List<HistoryBillStatusAudit>) this.getBaseService().selectListByParamVo(historyBillStatusAudit, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<HistoryBillStatusAuditVo> selectPageVoByParamVo(HistoryBillStatusAuditParamVo historyBillStatusAudit, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(historyBillStatusAudit==null){
+			historyBillStatusAudit = new HistoryBillStatusAuditParamVo();
+		}
+		historyBillStatusAudit.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<HistoryBillStatusAudit> list  = (PageInfo<HistoryBillStatusAudit>) this.getBaseService().selectPageByParamVo(historyBillStatusAudit, commonParam, pageNo, pageSize);
+		List<HistoryBillStatusAuditVo> volist = new ArrayList<HistoryBillStatusAuditVo>();
+		
+		Iterator<HistoryBillStatusAudit> iter = list.getList().iterator();
+		HistoryBillStatusAuditVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<HistoryBillStatusAuditVo> vpage = new Page<HistoryBillStatusAuditVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public HistoryBillStatusAuditVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryBillStatusAudit entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<HistoryBillStatusAuditVo>  selectListExtendVoByParamVo(HistoryBillStatusAuditParamVo historyBillStatusAudit, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(historyBillStatusAudit==null){
+			historyBillStatusAudit = new HistoryBillStatusAuditParamVo();
+		}
+		historyBillStatusAudit.setTenantId(commonParam.getTenantId());	
+					
+		List<HistoryBillStatusAudit> list = (List<HistoryBillStatusAudit>) this.getBaseService().selectListByParamVo(historyBillStatusAudit, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<HistoryBillStatusAuditVo> selectPageExtendVoByParamVo(HistoryBillStatusAuditParamVo historyBillStatusAudit, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(historyBillStatusAudit==null){
+			historyBillStatusAudit = new HistoryBillStatusAuditParamVo();
+		}
+		historyBillStatusAudit.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<HistoryBillStatusAudit> list  = (PageInfo<HistoryBillStatusAudit>) this.getBaseService().selectPageByParamVo(historyBillStatusAudit, commonParam, pageNo, pageSize);
+		List<HistoryBillStatusAuditVo> volist = new ArrayList<HistoryBillStatusAuditVo>();
+		
+		Iterator<HistoryBillStatusAudit> iter = list.getList().iterator();
+		HistoryBillStatusAuditVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<HistoryBillStatusAuditVo> vpage = new Page<HistoryBillStatusAuditVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(HistoryBillStatusAuditParamVo historyBillStatusAuditParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		HistoryBillStatusAudit historyBillStatusAudit = null;
+		try {
+			if (historyBillStatusAuditParamVo.getId() == null) {//新增
+			 
+				historyBillStatusAuditParamVo.setTenantId(commonParam.getTenantId());
+				historyBillStatusAudit = historyBillStatusAuditService.saveOrUpdate(historyBillStatusAuditParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				HistoryBillStatusAudit historyBillStatusAuditVoTemp = this.selectById(historyBillStatusAuditParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(historyBillStatusAuditVoTemp,
+						historyBillStatusAuditParamVo);
+  
+				historyBillStatusAudit = historyBillStatusAuditService.saveOrUpdate(
+						historyBillStatusAuditVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(historyBillStatusAudit);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

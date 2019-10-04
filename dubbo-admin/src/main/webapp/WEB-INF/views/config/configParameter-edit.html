@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="isOpen"  name="isOpen" value="1" />
+        <input type="hidden"  id="isSystemset"  name="isSystemset" value="1" />
+        <input type="hidden"  id="paramType"  name="paramType" value="String" />
+        <table class="layui-table ">
+           <tr>
+            <td width="15%" class="tableleft">参数编码</td>
+               <td>
+                <input type="text" name="paramCode" class="layui-input" maxlength="32" value="${(entity.paramCode)!''}"/>
+               </td> 
+               
+               <td width="15%" class="tableleft">参数名称</td>
+               <td><input type="text" name="paramName" class="layui-input" maxlength="32" value="${(entity.paramName)!''}"/></td>
+             
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">参数值</td>
+               <td><input type="text" name="paramValue" class="layui-input" maxlength="32" value="${(entity.paramValue)!''}"/></td>
+               <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          form.verify({
+        
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){ 
+        	  var url = '/config/configParameter/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

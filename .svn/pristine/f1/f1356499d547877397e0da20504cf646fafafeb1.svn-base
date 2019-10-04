@@ -1,0 +1,314 @@
+package com.techsoft.client.service.sys;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumUserStatus;
+import com.techsoft.common.enums.EnumUserSystemRoletype;
+import com.techsoft.common.maps.MapUserStatus;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.common.utils.Md5Token;
+import com.techsoft.common.utils.StringUtil;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.entity.sys.UserPassportParamVo;
+import com.techsoft.entity.sys.UserPassportVo;
+import com.techsoft.service.sys.UserPassportService;
+
+@org.springframework.stereotype.Service
+public class ClientUserPassportServiceImpl extends BaseClientServiceImpl<UserPassport>
+		implements ClientUserPassportService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private UserPassportService userPassportService;
+
+	@Override
+	public BaseService<UserPassport> getBaseService() {
+		return userPassportService;
+	}
+
+	private UserPassportVo getVo(UserPassport userPassport, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		UserPassportVo vo = new UserPassportVo(userPassport);
+		vo.setStatusName(MapUserStatus.getValue(userPassport.getStatus()));
+
+		return vo;
+	}
+
+	private UserPassportVo getExtendVo(UserPassport userPassport, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		UserPassportVo vo = this.getVo(userPassport, commonParam);
+
+		return vo;
+	}
+
+	private List<UserPassportVo> getVoList(List<UserPassport> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<UserPassportVo> voList = new ArrayList<UserPassportVo>();
+		for (UserPassport entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<UserPassportVo> getExtendVoList(List<UserPassport> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<UserPassportVo> voList = new ArrayList<UserPassportVo>();
+		for (UserPassport entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public UserPassportVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		UserPassport entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<UserPassportVo> selectListVoByParamVo(UserPassportParamVo userPassport, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (userPassport == null) {
+			userPassport = new UserPassportParamVo();
+		}
+		userPassport.setTenantId(commonParam.getTenantId());
+
+		List<UserPassport> list = (List<UserPassport>) this.getBaseService().selectListByParamVo(userPassport,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<UserPassportVo> selectPageVoByParamVo(UserPassportParamVo userPassport, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException {
+
+		if (userPassport == null) {
+			userPassport = new UserPassportParamVo();
+		}
+		userPassport.setTenantId(commonParam.getTenantId());
+
+		PageInfo<UserPassport> list = (PageInfo<UserPassport>) this.getBaseService().selectPageByParamVo(userPassport,
+				commonParam, pageNo, pageSize);
+		List<UserPassportVo> volist = new ArrayList<UserPassportVo>();
+
+		Iterator<UserPassport> iter = list.getList().iterator();
+		UserPassportVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<UserPassportVo> vpage = new Page<UserPassportVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public UserPassportVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		UserPassport entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<UserPassportVo> selectListExtendVoByParamVo(UserPassportParamVo userPassport, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (userPassport == null) {
+			userPassport = new UserPassportParamVo();
+		}
+		userPassport.setTenantId(commonParam.getTenantId());
+		List<UserPassport> list = (List<UserPassport>) this.getBaseService().selectListByParamVo(userPassport,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<UserPassportVo> selectPageExtendVoByParamVo(UserPassportParamVo userPassport,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (userPassport == null) {
+			userPassport = new UserPassportParamVo();
+		}
+		userPassport.setTenantId(commonParam.getTenantId());
+
+		PageInfo<UserPassport> list = (PageInfo<UserPassport>) this.getBaseService().selectPageByParamVo(userPassport,
+				commonParam, pageNo, pageSize);
+		List<UserPassportVo> volist = new ArrayList<UserPassportVo>();
+
+		Iterator<UserPassport> iter = list.getList().iterator();
+		UserPassportVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<UserPassportVo> vpage = new Page<UserPassportVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage loginByUserName(CommonParam commonParam, String userName, String password, String loginip) {
+
+		ResultMessage resultMessage = new ResultMessage();
+		if (StringUtils.isBlank(userName)) {
+			resultMessage.addErr("用户名不能为空");
+			return resultMessage;
+		}
+
+		if (StringUtils.isBlank(password)) {
+			resultMessage.addErr("密码不能为空");
+			return resultMessage;
+		}
+		UserPassport userPassport = null;
+		try {
+			userPassport = userPassportService.getByUserName(userName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if (userPassport != null) {
+			if (!userPassport.getPassword().equals(Md5Token.getInstance().getLongToken(password))) {
+				resultMessage.setMessage("密码不正确！");
+				return resultMessage;
+
+			}
+			if (EnumUserStatus.DISABLED.getValue().equals(userPassport.getStatus())) {
+				resultMessage.setMessage("该账号已停用！");
+				return resultMessage;
+			}
+			resultMessage.setBaseEntity(userPassport);
+			resultMessage.setIsSuccess(true);
+		} else {
+			resultMessage.addErr("该用户不存在");
+		}
+		return resultMessage;
+	}
+
+	public UserPassport getByUserName(String userName) {
+
+		try {
+			return userPassportService.getByUserName(userName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public ResultMessage saveOrUpdate(UserPassportParamVo userPassportParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		UserPassport userPassport = null;
+		try {
+			if (userPassportParamVo.getId() == null) {// 新增
+				if (StringUtils.isBlank(userPassportParamVo.getUserName())) {
+					resultMessage.addErr("用户名不能为空");
+					return resultMessage;
+				}
+
+				if (!StringUtil.verifyLoginName(userPassportParamVo.getUserName())) {
+					resultMessage.addErr("用户名格式不正确!6至11位字母和数字组成。");
+					return resultMessage;
+				}
+				if (StringUtils.isBlank(userPassportParamVo.getPassword())) {
+					resultMessage.addErr("密码不能为空");
+					return resultMessage;
+				}
+				if (userPassportParamVo.getPassword().length() < 6) {
+					resultMessage.addErr("密码长度不能小于6位");
+					return resultMessage;
+				}
+
+				UserPassport userPassportTemp = userPassportService.getByUserName(userPassportParamVo.getUserName());
+				if (userPassportTemp != null) {
+					resultMessage.addErr("该用户已经存在!");
+					return resultMessage;
+				}
+				if (StringUtils.isBlank(userPassportParamVo.getSystemRoletype())) {
+					userPassportParamVo.setSystemRoletype(EnumUserSystemRoletype.OPERATION.getValue());
+				}
+
+				userPassportParamVo.setPassword(Md5Token.getInstance().getLongToken(userPassportParamVo.getPassword()));
+				userPassportParamVo.setTenantId(commonParam.getTenantId());
+				userPassport = userPassportService.saveOrUpdate(userPassportParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				UserPassport userPassportVoTemp = this.selectById(userPassportParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(userPassportVoTemp, userPassportParamVo);
+
+				userPassport = userPassportService.saveOrUpdate(userPassportVoTemp, commonParam);
+
+				userPassport.setPassword("");
+				resultMessage.setIsSuccess(true);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		resultMessage.setBaseEntity(userPassport);
+		return resultMessage;
+	}
+
+	/*
+	 * 修改密码
+	 */
+	public ResultMessage modifiyUserPass(UserPassportVo userPassportVo, String oldPassword, String newPassword,
+			String password, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		UserPassport userPassport = null;
+		try {
+			if (oldPassword == null) {
+				resultMessage.addErr("旧密码不能为空!");
+			} else if (newPassword == null || password == null) {
+				resultMessage.addErr("新密码不能为空!");
+			} else if (newPassword.length() < 6) {
+				resultMessage.addErr("密码长度不能小于6位!");
+			} else if (oldPassword.equals(newPassword)) {
+				resultMessage.addErr("新密码不能和旧密码相同!");
+			} else if (!newPassword.equals(password)) {
+				resultMessage.addErr("新密码和确认密码输入不一致!");
+			} else {
+				// 查询用户
+				System.out.println("userPassportVo为------" + userPassportVo);
+				UserPassport userPassportTemp = userPassportService.getByUserName(userPassportVo.getUserName());
+				if (userPassportTemp != null) {
+					// 验证旧密码是否正确
+					if (!(Md5Token.getInstance().getLongToken(oldPassword)).equals(userPassportTemp.getPassword())) {
+						resultMessage.addErr("旧密码错误!");
+					} else {
+						// 将新密码进行加密
+						String md5Password = Md5Token.getInstance().getLongToken(password);
+						UserPassport userPassportVoTemp = this.selectById(userPassportVo.getId(), commonParam);
+						BeanUtil.copyNotNullProperties(userPassportVo, userPassportVoTemp);
+						userPassportVoTemp.setPassword(md5Password);
+						userPassportVoTemp.setTenantId(commonParam.getTenantId());
+						userPassport = userPassportService.saveOrUpdate(userPassportVoTemp, commonParam);
+						userPassport.setPassword("");
+						resultMessage.setMessage("密码修改成功");
+						resultMessage.setIsSuccess(true);
+
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		resultMessage.setBaseEntity(userPassport);
+		return resultMessage;
+	}
+}

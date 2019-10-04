@@ -1,0 +1,176 @@
+package com.techsoft.service.product;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.dao.product.ProductMainDao;
+import com.techsoft.dao.product.ProductMaterialDao;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+
+@Service
+public class ProductMainServiceImpl extends BaseServiceImpl<ProductMain> implements ProductMainService {
+	@Autowired
+	private ProductMainDao productMainDao;
+	@Autowired
+	private ProductMaterialDao productMaterialDao;
+
+	@Override
+	public BaseDao<ProductMain> getBaseDao() {
+		return productMainDao;
+	}
+
+	@Override
+	public Class<ProductMain> getEntityClass() {
+		return ProductMain.class;
+	}
+
+	@Override
+	protected ProductMain insertEntity(ProductMain entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected ProductMain updatePartEntity(ProductMain entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected ProductMain updateEntity(ProductMain entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}
+
+	@Override
+	public void insertGospellMat() {
+		// Oracle8/8i/9iO数据库(thin模式)
+		try {
+			Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
+			// Oracle8/8i/9i数据库(thin模式)
+			String url = "jdbc:oracle:thin:@192.168.1.71:1530:Gospell";
+			String user = "iplant1";
+			String password = "iplant1";
+			Connection conn = DriverManager.getConnection(url, user, password);
+			// 建立Statement对象
+			Statement stmt = conn.createStatement();
+			// 建立PreparedStatement对象
+			String sql = "select count(*) as a from C_IPLANT_M3_T";
+			ResultSet rs = stmt.executeQuery(sql);
+			int page_size = 50;
+			int list_count = 0;
+			while (rs.next()) {
+				System.err.println("高斯贝尔物料表总记录数为：" + rs.getString("a"));
+				 list_count = Integer.parseInt(rs.getString("a"));
+				//list_count = 1000;
+			}
+			int export_times = list_count % page_size > 0 ? list_count / page_size + 1 : list_count / page_size;
+
+			List<ProductMain> proList = new ArrayList<>();
+			List<ProductMaterial> matList = new ArrayList<>();
+
+			Integer index = 0;
+			String idString = "";
+			Long productMainId = 0L;
+			Long productMatId = 0L;
+			Long mainId = productMainDao.getIdValue();
+			Long matId = productMaterialDao.getIdValue();
+			DecimalFormat locationdf = new DecimalFormat("000000");
+
+			for (int a = 1; a <= export_times; a++) {
+				proList.clear();
+				matList.clear();
+				StringBuilder sb = new StringBuilder(300);
+				sb.append("SELECT PF.* FROM (SELECT ROWNUM AS RN,DF.* FROM(");
+				sb.append(
+						"select t.material_id,t.material_name, case when t.MATERIAL_KIND = 1 then '10321' when t.MATERIAL_KIND = 2 then '10320' ");
+				sb.append(
+						" when t.MATERIAL_KIND = 3 then '10319' else '10321' end as MATERIAL_KIND from C_IPLANT_M3_T t");
+				sb.append(") DF)PF WHERE PF.RN >  (" + a + "-1)*" + page_size + " AND PF.RN < = " + a + "*" + page_size
+						+ "");
+				rs = stmt.executeQuery(sb.toString());
+				System.err.println("第" + a + "次循环");
+				while (rs.next()) {
+					index++;
+					idString = locationdf.format(index);
+					productMainId = Long.valueOf(mainId.toString() + idString);
+					productMatId = Long.valueOf(matId.toString() + idString);
+
+					ProductMain pMain = new ProductMain();
+					pMain.setId(productMainId);
+					pMain.setProductCode(rs.getString("material_id"));
+					pMain.setProductName(rs.getString("material_name"));
+					pMain.setProductTypeDictId(Long.parseLong(rs.getString("MATERIAL_KIND")));
+					pMain.setTenantId(Long.parseLong("1"));
+					pMain.setProductStatusDictId(Long.parseLong("10378"));
+					pMain.setProductSourceDictId(Long.parseLong("10380"));
+					pMain.setSupplierId(Long.parseLong("1000023"));
+					pMain.setClassesId(Long.parseLong("1000025"));
+					pMain.setIsPeriodControl("1");
+					pMain.setStrategyUpshelfId(Long.parseLong("100005"));
+					pMain.setStrategyDownshelfId(Long.parseLong("100002"));
+					pMain.setIsUnpackBox("1");
+					pMain.setIsUnpackInnerbox("1");
+					pMain.setCreateUserId(Long.parseLong("1"));
+					pMain.setModifyUserId(Long.parseLong("1"));
+					proList.add(pMain);
+
+					ProductMaterial material = new ProductMaterial();
+					material.setId(productMatId);
+					material.setMaterialCode(rs.getString("material_id"));
+					material.setMaterialName(rs.getString("material_name"));
+					material.setCreateUserId(Long.parseLong("1"));
+					material.setModifyUserId(Long.parseLong("1"));
+					material.setTenantId(Long.parseLong("1"));
+					material.setProductId(productMainId);
+					material.setProductTypeDictId(Long.parseLong(rs.getString("MATERIAL_KIND")));
+					material.setSupplierId(Long.parseLong("1000023"));
+					material.setStrategyUpshelfId(Long.parseLong("100005"));
+					material.setStrategyDownshelfId(Long.parseLong("100002"));
+					material.setIsUnpackBox("1");
+					material.setIsUnpackInnerbox("1");
+					matList.add(material);
+				}
+				try {
+					productMainDao.insertBatchProductMain(proList);
+					productMaterialDao.insertBatchProductMat(matList);
+				} catch (BusinessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+			System.err.println("同步完成同步完成同步完成同步完成同步完成同步完成同步完成同步完成");
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (java.sql.SQLException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+	}
+}

@@ -1,0 +1,14 @@
+package com.techsoft.entity.struct;
+
+import com.techsoft.entity.common.StructProcedureMaterial;
+
+public class StructProcedureMaterialVo extends StructProcedureMaterial {
+	private static final long serialVersionUID = 7077313667883704074L;
+
+	public StructProcedureMaterialVo() {	
+	}
+	
+	public StructProcedureMaterialVo(StructProcedureMaterial value) {
+		value.cloneProperties(this);
+	}		
+}

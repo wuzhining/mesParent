@@ -1,0 +1,44 @@
+package com.techsoft.entity.equip;
+
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipSpecsFixture;
+import com.techsoft.entity.common.FirmPartner;
+
+public class EquipSpecsFixtureVo extends EquipSpecsFixture {
+	private static final long serialVersionUID = -341287360551703465L;
+	private ConfigDictionary configDictionary;//数据字典
+    private ConfigDictionary configDictionaryStatus;//数据字典
+    private FirmPartner firmPartner;//供应商
+    
+	public EquipSpecsFixtureVo() {	
+	}
+	
+	public EquipSpecsFixtureVo(EquipSpecsFixture value) {
+		value.cloneProperties(this);
+	}
+
+	public ConfigDictionary getConfigDictionary() {
+		return configDictionary;
+	}
+
+	public void setConfigDictionary(ConfigDictionary configDictionary) {
+		this.configDictionary = configDictionary;
+	}
+
+	public ConfigDictionary getConfigDictionaryStatus() {
+		return configDictionaryStatus;
+	}
+
+	public void setConfigDictionaryStatus(ConfigDictionary configDictionaryStatus) {
+		this.configDictionaryStatus = configDictionaryStatus;
+	}
+
+	public FirmPartner getFirmPartner() {
+		return firmPartner;
+	}
+
+	public void setFirmPartner(FirmPartner firmPartner) {
+		this.firmPartner = firmPartner;
+	}		
+	
+}

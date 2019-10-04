@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">系统权限</a> <a><cite>系统角色管理</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="text" name="roleName" lay-verify="roleName"  placeholder="请输入角色名称" autocomplete="off" class="layui-input">
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加系统角色','/sys/adminRole/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="add_function">关联功能</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="add_Menu">关联菜单</a>
+</script> 
+
+<script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+     
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/sys/adminRole/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+    	    ,{field:'roleName',  title: '角色名称',align:'center', minWidth: 280}
+    	    ,{field:'roleCode',  title: '角色编号', align:'center',minWidth: 270}
+    	    ,{field:'isValid',  title: '是否有效', align:'center',minWidth: 270,templet:'#isValidTpl'}
+    	    ,{field:'sortNo',  title: '排序号', align:'center',minWidth: 270}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 300}
+      		,{field:'', width:'25%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+	,done:function(){
+		 $("[data-field='roleCode']").css('display','none');
+	 }
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+	
+	//自定义验证规则
+    form.verify({
+    	roleCode: [/^[0-9a-zA-Z]*$/, '角色编码必须由数字和英文字母组成']
+    });
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑','/sys/adminRole/edit?id=' + data.id); 
+		}else if(obj.event === 'add_function'){
+			layer_window_show('编辑','/sys/adminRoleFunction/details?id=' + data.id); 
+		}else if(obj.event === 'add_Menu'){
+			layer_window_show('编辑','/sys/adminRoleMenu/details?id=' + data.id); 
+		}
+	});
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

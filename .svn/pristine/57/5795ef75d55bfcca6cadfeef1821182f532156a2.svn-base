@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+          <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+                <input type="text" name="labelFieldName"  placeholder="标签字段名称" autocomplete="off" class="layui-input">
+                <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+    
+  <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  
+ <script type="text/html" id="isBoldTpl">
+    {{#  if(d.isBold == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+    
+    
+    
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="choice">选择</a>
+</script>
+
+   
+<script type="text/javascript">
+
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	
+	var layuiformajax = layui.layuiformajax;
+        	var curTable = layuitable.render({
+            	elem: '#listTable'
+            	,id:'listTable'
+            	,url:'/config/configLabelField/list/json'
+               	,cols: [[
+                   	     {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+                   	    ,{field:'labelFieldName',  title: '标签属性名称',align:'center', minWidth: 120}
+                   	    ,{field:'font',  title: '字体', align:'center',minWidth: 120}
+                   	    ,{field:'isBold',  title: '是否粗体',align:'center', minWidth: 120,templet:'#isBoldTpl'}
+                   	    ,{field:'isValid',  title: '是否有效', align:'center',minWidth: 120,templet:'#isValidTpl'}
+                   	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+                     	,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+                     	]]
+        	,done:function(){
+       		 $("[data-field='id']").css('display','none');
+       	 }
+          	});
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+
+
+	table.on('tool(tablefilter)', function(obj) {
+		var labelFieldId = parent.$("#ids").val();
+		var data = obj.data;
+		if (obj.event === 'choice') {
+			console.log(data);
+	        //监听提交
+       	    var url = '/config/configLabelItem/saveDetail';
+       	    layuiformajax.postJson(url, {"labelId":labelFieldId,"labelFieldId":data.id,"remark":data.remark}, function (result) {
+       		    layer.msg('添加成功!', {icon: 1, time: 1000},function () {
+     	            // 获得frame索引
+     	            var index = parent.layer.getFrameIndex(window.name);
+     	            parent.location.reload(); 
+     	            parent.layer.close(index);
+    	        });
+       		  
+   		    }); 
+		}
+	});
+	
+});	
+</script>
+  </body>
+</html>

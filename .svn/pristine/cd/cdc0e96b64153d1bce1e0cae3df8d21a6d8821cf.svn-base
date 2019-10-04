@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+            <tr>
+               <td width="15%" class="tableleft">设备品种规格编码</td>
+               <td >
+               <#if entity??&&entity.id??>${(entity.equipSpecsCode)!''}
+               <#else>
+                <input type="text" name="equipSpecsCode" class="layui-input"   maxlength="32"  />
+               </#if>
+               </td> 
+               
+               <td width="15%" class="tableleft">设备品种规格名称</td>
+                <td>
+               		<input type="text" name="equipSpecsName" class="layui-input" maxlength="16" value="${(entity.equipSpecsName)!''}"/>
+                </td>
+            </tr>
+            <tr>
+                
+                <td width="15%" class="tableleft">设备品种规格型号</td>
+                <td>
+               		<input type="text" name="equipSpecsPattern" class="layui-input" maxlength="16" value="${(entity.equipSpecsPattern)!''}"/>
+                </td>
+                <td width="15%" class="tableleft">设备分类</td>
+               <td>
+                 <span class="div-choiceBox-intd " >  
+		               <input type="hidden" id="classesId" name="classesId" disabled="disabled" class="layui-input input-choiceBox-intd"  value="<#if entity??&&entity.classesId??>${entity.classesId?c}<#else></#if>"/>
+		               <input type="text" id="classesName" name="classesName" class="layui-input input-choiceBox-intd" value="${(entity.equipClassesWork.classesName)!''}"/>
+		               <button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="equipWorkClassesSearch" style="width:50px;height:32px">
+				           <i class="layui-icon layui-icon-more" ></i>
+				       </button>
+			       </span>
+               </td>
+            </tr>
+            <tr>
+                <td width="15%" class="tableleft">设备数量</td>
+                <td>
+	                <input type="text" name="quantity" lay-verify="number"  class="layui-input" maxlength="20" value="<#if entity??&&entity.quantity??>${entity.quantity?c}<#else></#if>"/>
+                </td>
+                <td width="15%" class="tableleft">生产速度-工时（毫秒）</td>
+                <td>
+	                <input type="text" name="speedWorktime" lay-verify="speedWorktime"  class="layui-input" maxlength="20" value="<#if entity??&&entity.speedWorktime??>${entity.speedWorktime?c}<#else></#if>"/>
+                </td>
+             </tr>   
+             <tr>   
+                <td width="15%" class="tableleft">生产速度-数量</td>
+                <td>
+                 	<input type="text" name="speedQuantity" lay-verify="speedQuantity" class="layui-input" maxlength="20" value="<#if entity??&&entity.speedQuantity??>${entity.speedQuantity?c}<#else></#if>"/>
+                </td>
+      
+                <td width="15%" class="tableleft">保养时长</td>
+                <td>
+	                <input type="text" name="hoursMaintain" lay-verify="number"  class="layui-input" maxlength="20" value="<#if entity??&&entity.hoursMaintain??>${entity.hoursMaintain?c}<#else></#if>"/>
+                </td>
+              </tr>  
+                
+              <tr> 
+                <td width="15%" class="tableleft">标准寿命</td>
+                <td>
+                 	<input type="text" name="standarlive" lay-verify="number"  class="layui-input" maxlength="20" value="<#if entity??&&entity.standarlive??>${entity.standarlive?c}<#else></#if>"/>
+                </td>
+		        <td  width="15%" class="tableleft">描述</td>
+                <td colspan="3">
+                 	<input type="text" name="remark" lay-verify="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+                </td>
+              </tr>
+           
+            <tr>
+	            <td colspan="4"  style="text-align:center">
+	               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+	            </td>
+            </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery, laydate = layui.laydate;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+          
+          //自定义验证规则
+          var reg = /^[+]{0,1}(\d+)$/ ; //正则只能是正整数
+          var regDecimca = /^\d+(\.\d+)?$/;// 必须输入正整数或小数点
+          form.verify({
+             speedWorktime: function (value) {
+			        if (value =='' ||value==null) {
+		                 return '生产速度-工时,不能为空!';
+		            }else if(!reg.test(value)){
+		                return '生产速度-工时,必须输入正整数!';
+		            }
+			    }
+        	  ,speedQuantity: function (value) {
+			        if (value =='' ||value==null) {
+		                 return '生产速度-数量,不能为空!';
+		            }else if(!regDecimca.test(value)){
+		                return '生产速度-数量,必须输入正整数或小数点!';
+		            }
+			    }
+          });
+          
+          $('#equipWorkClassesSearch').on('click',function(e){
+        	  openWinSelect('/equip/equipClassesWork/listEquipClassesWork',"classesId","classesName");
+  	   		e.preventDefault();//默认from表单提交时不刷新
+  	   	  });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/equip/equipSpecsWork/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          laydate.render({
+	      		elem: '#dateEnter' //指定元素
+	      		,type: 'date'
+	      		,format: 'yyyy-MM-dd' //可任意组合
+	      	});
+		      	
+	      	laydate.render({
+	      		elem: '#dateMake' //指定元素
+	      		,type: 'date'
+	      		,format: 'yyyy-MM-dd' //可任意组合
+	      	});
+          
+        });
+    </script>
+    <script>
+    </script>
+  </body>
+
+</html>

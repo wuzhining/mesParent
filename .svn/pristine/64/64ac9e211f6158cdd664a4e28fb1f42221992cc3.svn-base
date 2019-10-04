@@ -1,0 +1,31 @@
+package com.techsoft.client.service.equip;
+
+import java.util.List;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+
+import com.techsoft.entity.common.EquipWorkStackProduct;
+import com.techsoft.entity.equip.EquipWorkStackProductVo;
+import com.techsoft.entity.equip.EquipWorkStackProductParamVo;
+
+public interface ClientEquipWorkStackProductService extends BaseClientService<EquipWorkStackProduct> {
+	
+	public EquipWorkStackProductVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	public List<EquipWorkStackProductVo>  selectListVoByParamVo(EquipWorkStackProductParamVo equipWorkStackProduct, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	public PageInfo<EquipWorkStackProductVo>  selectPageVoByParamVo(EquipWorkStackProductParamVo equipWorkStackProduct, CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException;
+	
+	public EquipWorkStackProductVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	public List<EquipWorkStackProductVo>  selectListExtendVoByParamVo(EquipWorkStackProductParamVo equipWorkStackProduct, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	public PageInfo<EquipWorkStackProductVo>  selectPageExtendVoByParamVo(EquipWorkStackProductParamVo equipWorkStackProduct, CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException;
+	
+	public ResultMessage saveOrUpdate(EquipWorkStackProductParamVo equipWorkStackProductParamVo, CommonParam commonParam);		
+}

@@ -1,0 +1,215 @@
+package com.techsoft.client.service.struct;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.EquipFixture;
+import com.techsoft.entity.common.StructProcedureEquipFixture;
+import com.techsoft.entity.common.StructProcedureInstruct;
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.entity.struct.StructProcedureEquipFixtureVo;
+import com.techsoft.entity.struct.StructProcedureEquipFixtureParamVo;
+import com.techsoft.service.equip.EquipFixtureService;
+import com.techsoft.service.struct.StructProcedureEquipFixtureService;
+import com.techsoft.service.struct.StructProcedureInstructService;
+import com.techsoft.service.struct.StructProcessNodeService;
+
+@org.springframework.stereotype.Service
+public class ClientStructProcedureEquipFixtureServiceImpl extends BaseClientServiceImpl<StructProcedureEquipFixture> implements ClientStructProcedureEquipFixtureService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcedureEquipFixtureService structProcedureEquipFixtureService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcessNodeService structProcessNodeService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcedureInstructService structProcedureInstructService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipFixtureService equipFixtureService;
+	
+	
+	@Override
+	public BaseService<StructProcedureEquipFixture> getBaseService() {
+		return structProcedureEquipFixtureService;
+	}	    	
+    
+	private StructProcedureEquipFixtureVo getVo(StructProcedureEquipFixture structProcedureEquipFixture, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProcedureEquipFixtureVo vo = new StructProcedureEquipFixtureVo(structProcedureEquipFixture);
+		// TODO 此处填充其它关联字段的处理代码
+		if (vo.getProcessNodeId() != null && vo.getProcessNodeId() > 0L) {
+			StructProcessNode structProcessNode = structProcessNodeService.selectById(vo.getProcessNodeId(), commonParam);
+			if (structProcessNode != null) {
+				vo.setStructProcessNode(structProcessNode);
+			}
+		}
+		if (vo.getInstructId() != null && vo.getInstructId() > 0L) {
+			StructProcedureInstruct structProcedureInstruct = structProcedureInstructService.selectById(vo.getInstructId(), commonParam);
+			if (structProcedureInstruct != null) {
+				vo.setStructProcedureInstruct(structProcedureInstruct);
+			}
+		}
+		if (vo.getEquipFixtureId() != null && vo.getEquipFixtureId() > 0L) {
+			EquipFixture equipFixture = equipFixtureService.selectById(vo.getEquipFixtureId(), commonParam);
+			if (equipFixture != null) {
+				vo.setEquipFixture(equipFixture);
+			}
+		}
+		return vo;
+	} 
+	
+	private StructProcedureEquipFixtureVo getExtendVo(StructProcedureEquipFixture structProcedureEquipFixture, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProcedureEquipFixtureVo vo = this.getVo(structProcedureEquipFixture, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<StructProcedureEquipFixtureVo> getVoList(List<StructProcedureEquipFixture> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<StructProcedureEquipFixtureVo> voList = new ArrayList<StructProcedureEquipFixtureVo>();
+		for (StructProcedureEquipFixture entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<StructProcedureEquipFixtureVo> getExtendVoList(List<StructProcedureEquipFixture> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<StructProcedureEquipFixtureVo> voList = new ArrayList<StructProcedureEquipFixtureVo>();
+		for (StructProcedureEquipFixture entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public StructProcedureEquipFixtureVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProcedureEquipFixture entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<StructProcedureEquipFixtureVo>  selectListVoByParamVo(StructProcedureEquipFixtureParamVo structProcedureEquipFixture, CommonParam commonParam) throws BusinessException, SQLException {
+		if(structProcedureEquipFixture==null){
+			structProcedureEquipFixture = new StructProcedureEquipFixtureParamVo();
+		}
+		structProcedureEquipFixture.setTenantId(commonParam.getTenantId());	
+	
+		List<StructProcedureEquipFixture> list = (List<StructProcedureEquipFixture>) this.getBaseService().selectListByParamVo(structProcedureEquipFixture, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<StructProcedureEquipFixtureVo> selectPageVoByParamVo(StructProcedureEquipFixtureParamVo structProcedureEquipFixture, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(structProcedureEquipFixture==null){
+			structProcedureEquipFixture = new StructProcedureEquipFixtureParamVo();
+		}
+		structProcedureEquipFixture.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<StructProcedureEquipFixture> list  = (PageInfo<StructProcedureEquipFixture>) this.getBaseService().selectPageByParamVo(structProcedureEquipFixture, commonParam, pageNo, pageSize);
+		List<StructProcedureEquipFixtureVo> volist = new ArrayList<StructProcedureEquipFixtureVo>();
+		
+		Iterator<StructProcedureEquipFixture> iter = list.getList().iterator();
+		StructProcedureEquipFixtureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<StructProcedureEquipFixtureVo> vpage = new Page<StructProcedureEquipFixtureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public StructProcedureEquipFixtureVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProcedureEquipFixture entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<StructProcedureEquipFixtureVo>  selectListExtendVoByParamVo(StructProcedureEquipFixtureParamVo structProcedureEquipFixture, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(structProcedureEquipFixture==null){
+			structProcedureEquipFixture = new StructProcedureEquipFixtureParamVo();
+		}
+		structProcedureEquipFixture.setTenantId(commonParam.getTenantId());	
+					
+		List<StructProcedureEquipFixture> list = (List<StructProcedureEquipFixture>) this.getBaseService().selectListByParamVo(structProcedureEquipFixture, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<StructProcedureEquipFixtureVo> selectPageExtendVoByParamVo(StructProcedureEquipFixtureParamVo structProcedureEquipFixture, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(structProcedureEquipFixture==null){
+			structProcedureEquipFixture = new StructProcedureEquipFixtureParamVo();
+		}
+		structProcedureEquipFixture.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<StructProcedureEquipFixture> list  = (PageInfo<StructProcedureEquipFixture>) this.getBaseService().selectPageByParamVo(structProcedureEquipFixture, commonParam, pageNo, pageSize);
+		List<StructProcedureEquipFixtureVo> volist = new ArrayList<StructProcedureEquipFixtureVo>();
+		
+		Iterator<StructProcedureEquipFixture> iter = list.getList().iterator();
+		StructProcedureEquipFixtureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<StructProcedureEquipFixtureVo> vpage = new Page<StructProcedureEquipFixtureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(StructProcedureEquipFixtureParamVo structProcedureEquipFixtureParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		StructProcedureEquipFixture structProcedureEquipFixture = null;
+		try {
+			if (structProcedureEquipFixtureParamVo.getId() == null) {//新增
+			 
+				structProcedureEquipFixtureParamVo.setTenantId(commonParam.getTenantId());
+				structProcedureEquipFixture = structProcedureEquipFixtureService.saveOrUpdate(structProcedureEquipFixtureParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				StructProcedureEquipFixture structProcedureEquipFixtureVoTemp = this.selectById(structProcedureEquipFixtureParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(structProcedureEquipFixtureVoTemp,
+						structProcedureEquipFixtureParamVo);
+  
+				structProcedureEquipFixture = structProcedureEquipFixtureService.saveOrUpdate(
+						structProcedureEquipFixtureVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(structProcedureEquipFixture);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

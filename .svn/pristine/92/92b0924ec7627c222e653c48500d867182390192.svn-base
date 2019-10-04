@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />        
+        <table class="layui-table ">
+           <tr>
+
+               <td width="10%" class="tableleft">标签文档名称</td>
+               <td><input type="text" name="labelName" class="layui-input" lay-verify="labelName" maxlength="16" value="${(entity.labelName)!''}"/></td>
+               <td width="10%" class="tableleft">打印方式(Lable模板)</td>
+               <td>
+	                <select name="printModeDictId" lay-verify="printModeDictId"> 
+	                    <#if printModeDictList??>
+	                     <#list printModeDictList as item>
+				            <option value="${item.id?c}" <#if (entity.printModeDictId??&&entity.printModeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+				         </#list>
+				         </#if>
+				    </select>   
+               </td>
+
+           </tr>
+           <tr>
+
+               <td width="10%" class="tableleft">模板路径</td>
+               <td>
+                 <input type="text" name="templetPath"  class="layui-input" maxlength="20" value="${(entity.templetPath)!''}"/>
+               </td> 
+               <td width="10%" class="tableleft">模板内容</td>
+               <td>
+                <input type="text" name="templetContent" class="layui-input" maxlength="20" value="${(entity.templetContent)!''}"/>
+               </td> 
+
+           </tr>
+           <tr>
+             <td width="10%" class="tableleft">条码规则类型</td>
+               <td>
+	                <select name="barcodeRuleDictId" lay-verify="barcodeRuleDictId"> 
+	                    <#if barcodeRuleDictList??>
+	                     <#list barcodeRuleDictList as item>
+				            <option value="${item.id?c}" <#if (entity.barcodeRuleDictId??&&entity.barcodeRuleDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+				         </#list>
+				         </#if>
+				    </select>   
+               </td>
+
+               <td width="10%" class="tableleft">打印机名</td>
+               <td>
+                <input type="text" name="printerName" class="layui-input" maxlength="20" value="${(entity.printerName)!''}"/>
+               </td>  
+           </tr>
+           
+           <tr>
+              <td width="10%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid" lay-verify="isValid" >
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+          
+               <td width="10%" class="tableleft">备注</td>
+               <td ><input type="text" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+           </tr>
+       </table>
+        <div class="layui-col-md12">
+	     <div class="layui-row grid-demo">
+      		<div class="layui-col-md12" style="text-align: center;">
+  					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+  			</div>
+  		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+    </div>
+    
+    
+	<script type="text/html" id="labelFieldIdTpl">
+	{{#  if(d.configLabelField){ }}
+		{{ d.configLabelField.labelFieldName 
+
+    }}
+   {{#  } }}
+	</script>
+	
+	
+	<script type="text/html" id="labelIdTpl">
+	{{#  if(d.configLabel){ }}
+		{{ d.configLabel.labelName 
+
+    }}
+    {{#  } }}
+	</script>
+    
+    <script>   
+    var ids = $("#id").val();
+    if(ids!=''){
+       layui.config({
+          base: '/static/plugins/layui/base/',
+          v: new Date().getTime()
+      }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+      	var form = layui.form, 
+      	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+      	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+      	var layuiformajax = layui.layuiformajax;
+      	var curTable = layuitable.render({
+          	elem: '#listTable'
+          	,id:'listTable'
+            ,url:'/config/configLabelItem/list/json?labelId='+ids
+          	,cols: [[
+       	          {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+     	         ,{field:'labelId',  title: '标签名称',align:'center', minWidth: 120,templet:'#labelIdTpl'}
+         	    ,{field:'labelFieldId',  title: '标签属性名称',align:'center', minWidth: 120,templet:'#labelFieldIdTpl'}
+         	    ,{field:'sortNo',  title: '排序号',align:'center', minWidth: 120}
+          	]]
+      	,done:function(){
+   		 $("[data-field='id']").css('display','none');
+   	 }
+        	});
+      	
+      	form.on('submit(search)', function (data) {
+      		layuitable.reload(data.field);
+              return false;
+        	});
+
+      });
+      
+    };
+    
+
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+           form.verify({
+        	labelName: function(value){
+              if(value ==""){
+                return '标签文档名称不能为空';
+              }
+            }
+            ,printModeDictId: function(value){
+                if(value ==""){
+                    return '打印方式(Lable模板)不能为空';
+                }
+            }
+          }); 
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/config/configLabel/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

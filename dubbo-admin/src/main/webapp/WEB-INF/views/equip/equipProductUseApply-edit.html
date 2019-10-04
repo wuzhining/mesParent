@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+            <tr>
+           	  <td id="td1" width="15%" class="tableleft">设备单据编码</td>
+              <td id="td2">
+               	<input type="text" name="billCode" class="layui-input" disabled="true" maxlength="20" value="${(entity.billCode)!''}"/>
+              </td> 
+              <td width="15%" class="tableleft">单据类型</td>
+              <td>
+               	<select name="billTypeFixtureDictId"> 
+                   <#if billTypeFixtureDict??>
+		            <option value="${billTypeFixtureDict.id?c}" <#if (entity.billTypeFixtureDictId??&&entity.billTypeFixtureDictId==billTypeFixtureDict.id)>selected="selected"</#if>>${billTypeFixtureDict.dictName}</option>
+		           </#if>
+		        </select>
+              </td>
+            </tr>
+            <tr>
+           	  <td width="15%" class="tableleft">单据状态</td>
+              <td>
+               	<select name="billStatusFixtureDictId"> 
+                 <#if billStatusFixtureDict??>
+		            <option value="${billStatusFixtureDict.id?c}" <#if (entity.billStatusFixtureDictId??&&entity.billStatusFixtureDictId==billStatusFixtureDict.id)>selected="selected"</#if>>${billStatusFixtureDict.dictName}</option>
+		         </#if>
+		        </select>
+              </td> 
+              <td width="15%" class="tableleft">部门</td>
+              <td>
+               	<select name="departmentId"> 
+                   <#if DepartmentList??>
+                    <#list DepartmentList as item>
+		            <option value="${item.id?c}" <#if (entity.departmentId??&&entity.departmentId==item.id)>selected="selected"</#if>>${item.departmentName}</option>
+		         </#list>
+		         </#if>
+		        </select>
+              </td>              
+            </tr> 
+            <tr>
+           	  <td width="15%" class="tableleft">车间</td>
+              <td>
+               	<select name="workshopId"> 
+                   <#if structWorkshopList??>
+                    <#list structWorkshopList as item>
+		            <option value="${item.id?c}" <#if (entity.workshopId??&&entity.workshopId==item.id)>selected="selected"</#if>>${item.workshopName}</option>
+		         </#list>
+		         </#if>
+		        </select>
+              </td> 
+              <td width="15%" class="tableleft">工厂名称</td>
+                <td>
+                    <input tuype ="text"  id="factoryName" name="factoryName" value="${(entity.structFactory.factoryName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd" />  
+                    <input type="hidden"  id="factoryId" name="factoryId"  disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.factoryId??>${entity.factoryId?c}<#else></#if>">
+                	<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="factorySearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+                </td>            
+            </tr>
+            <tr>
+            	<td width="15%" class="tableleft">描述</td>
+              <td colspan="3" >
+               	<input type="text" name="remark" class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+              </td> 
+            </tr>   
+        </table> 
+         <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div> 
+      </form>
+    </div>
+ <script type="text/html" id="billCode">
+	{{#  if(d.billEquip){}}
+		{{ d.billEquip.billCode 
+
+ 	}}
+	{{# } }}
+</script>  
+ <script type="text/html" id="equipCode">
+	{{#  if(d.equipWork){}}
+		{{ d.equipWork.equipCode 
+
+ 	}}
+	{{# } }}
+</script>
+ <script type="text/html" id="equipName">
+	{{#  if(d.equipWork){}}
+		{{ d.equipWork.equipName 
+
+ 	}}
+	{{# } }}
+</script>
+ <script type="text/html" id="dealResult">
+	{{#  if(d.dealResult){}}
+		{{ d.dealResult.dictName 
+
+ 	}}
+	{{# } }}
+</script>
+    <script>
+    var ids = $('#id').val();
+    if(ids!=''){
+       layui.config({
+          base: '/static/plugins/layui/base/',
+          v: new Date().getTime()
+      }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+      	var form = layui.form, 
+      	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+      	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+      	var layuiformajax = layui.layuiformajax;
+      	var curTable = layuitable.render({
+          	elem: '#listTable'
+          	,id:'listTable'
+          	,url:'/bill/billEquipItem/list/json?billEquipId='+ids
+          	,cols: [[
+              	{field:'billEquipId',  title: '设备单据ID',align:'center'}
+              	,{field:'billCode',  title: '设备单据编码',align:'center',templet: '#billCode'}
+	    	    ,{field:'equipWorkId',  title: '设备ID', align:'center'}
+	    	    ,{field:'equipCode',  title: '设备编码', align:'center',templet: '#equipCode'}
+	    	    ,{field:'equipName',  title: '设备名称', align:'center',templet: '#equipName'}
+	    	    ,{field:'dealResultDictId',  title: '处理结果ID', align:'center'} 
+	    	    ,{field:'dealResult',  title: '处理结果', align:'center',templet: '#dealResult'} 
+	    	    ,{field:'remark',  title: '描述',align:'center'}
+	    	    ,{field:'createTime',  title: '创建时间', align:'center'}
+          	]],done:function(){
+        		// 隐藏列
+        		$(".layui-table-box").find("[data-field='equipWorkId']").css("display","none");   
+        		$(".layui-table-box").find("[data-field='dealResultDictId']").css("display","none");  
+        	}
+        	});
+
+      });
+      
+    }else{
+  	  	$("#td1").hide();
+  	  	$("#td2").hide();
+    };
+    
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          form.verify({
+     
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/equip/equipWorkRepair/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+              return false;
+          });
+          
+          
+          $('#factorySearch').on('click',function(e){
+      	    openWinSelectCurrency('/struct/structFactory/structFactoryOpen',"factoryId","factoryName","","","","","","");
+       		e.preventDefault();//默认from表单提交时不刷新
+        })
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

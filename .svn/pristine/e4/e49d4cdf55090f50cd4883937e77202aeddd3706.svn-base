@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+               <td width="15%" class="tableleft">岗位名称</td>
+               <td><input type="text" name="postName" class="layui-input" maxlength="16" value="${(entity.postName)!''}"/></td>
+               
+               <td width="15%" class="tableleft">岗位编码</td>
+               <td>
+                   <input type="text" name="postCode"  class="layui-input" maxlength="20" value="${(entity.postCode)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">所属部门</td>
+                <td>
+                	<div class="div-choiceBox-intd ">  
+                		<input type="hidden"  id="departmenId" name="departmenId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.departmenId??>${entity.departmenId?c}<#else></#if>">
+                		<input type="text" id="departmentName" name="departmentName" value="${(department.departmentName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd"/> 
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="firmDepartmentSearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div> 
+                </td>
+               <td width="15%" class="tableleft">上一级岗位</td>
+               <td>
+                 <select name="parentId" lay-search> 
+                    <option value="0" >请选择</option>
+                    <#if firmPost??>
+                     <#list firmPost as item>
+			            <option value="${item.id?c}" <#if (entity.parentId??&&entity.parentId==item.id)>selected="selected"</#if>>${item.postName}</option>
+			         </#list>
+			         </#if>
+			       </select>
+               </td>       
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="15%" class="tableleft">描述</td>
+               <td>
+                 <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+          
+          
+          //打开车间信息列表
+          $('#firmDepartmentSearch').on('click',function(e){
+       	  openWinSelectWorkshopArea('/firm/firmDepartment/firmDepartmentOpen',"departmenId","departmentName","","","","");
+        		e.preventDefault();//默认from表单提交时不刷新
+         })
+          
+        
+          //自定义验证规则
+          form.verify({
+        	 factoryName: function(value){
+              if(value.length < 5){
+                return '用户名至少得5个字符啊';
+              }
+            }
+            ,mobileNumber: [/(.+){11,11}$/, '手机号码必须11位']
+            ,email: function(value){
+                if($('#email').val()!=$('#email').val()){
+                    return '不一致';
+                }
+            }
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/firm/firmPost/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function (index) {
+      	    		 	layer.close(index);
+      				  	parent.location.reload(); 
+      	            });
+      		  });
+              return false;
+          });
+          var addType = getParam('add');
+  	  	  if(addType === '1'){		//新增
+	  	  		$(':input','#dataForm') 
+	    	  		.not(':button, :submit, :reset, :hidden') 
+	    	  		.val('') 
+	    	  		.removeAttr('checked') 
+	    	  		.removeAttr('selected');
+	  	  		$("#id").val('');	
+	  	  		$("#version").val('');
+	  	  	
+	  	  		var prtID = getParam('id');
+	    	  	if(prtID){						//新增二级菜单
+	    	  		$("select[name='parentId']").val(prtID);
+	    	  		layui.form.render('select');		//垃圾layui！！select设置选中后必须render才能刷新出选中效果，cao
+	    	  	};
+  	  	  };
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

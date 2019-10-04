@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.stats.StatsProductMaterialMapper">
+	<resultMap id="StatsProductMaterial" type="com.techsoft.entity.common.StatsProductMaterial" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="BILL_TYPE_DICT_ID" property="billTypeDictId" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="QUANTITY_OTHER" property="quantityOther" />
+		<result column="YEAR" property="year" />
+		<result column="MONTH" property="month" />
+		<result column="DAY" property="day" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="billTypeDictId != null">
+			AND A.BILL_TYPE_DICT_ID= #{billTypeDictId}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="quantityOther != null">
+			AND A.QUANTITY_OTHER= #{quantityOther}
+		</if>
+		<if test="year != null">
+			AND A.YEAR= #{year}
+		</if>
+		<if test="month != null">
+			AND A.MONTH= #{month}
+		</if>
+		<if test="day != null">
+			AND A.DAY= #{day}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.PRODUCT_ID,
+		A.MATERIAL_ID,
+		A.BILL_TYPE_DICT_ID,
+		A.QUANTITY,
+		A.QUANTITY_OTHER,
+		A.YEAR,
+		A.MONTH,
+		A.DAY
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for STATS_PRODUCT_MATERIAL_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STATS_PRODUCT_MATERIAL
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StatsProductMaterial">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STATS_PRODUCT_MATERIAL A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StatsProductMaterial">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STATS_PRODUCT_MATERIAL A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STATS_PRODUCT_MATERIAL A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE   A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STATS_PRODUCT_MATERIAL A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StatsProductMaterial">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STATS_PRODUCT_MATERIAL A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StatsProductMaterial">
+		INSERT INTO STATS_PRODUCT_MATERIAL (
+		TENANT_ID,
+		FACTORY_ID,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		BILL_TYPE_DICT_ID,
+		QUANTITY,
+		QUANTITY_OTHER,
+		YEAR,
+		MONTH,
+		DAY
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{productId},
+		#{materialId},
+		#{billTypeDictId},
+		#{quantity},
+		#{quantityOther},
+		#{year},
+		#{month},
+		#{day}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StatsProductMaterial">
+		UPDATE STATS_PRODUCT_MATERIAL SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		PRODUCT_ID=#{productId},
+		MATERIAL_ID=#{materialId},
+		BILL_TYPE_DICT_ID=#{billTypeDictId},
+		QUANTITY=#{quantity},
+		QUANTITY_OTHER=#{quantityOther},
+		YEAR=#{year},
+		MONTH=#{month},
+		DAY=#{day},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StatsProductMaterial">
+		UPDATE STATS_PRODUCT_MATERIAL SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="billTypeDictId != null" >
+			BILL_TYPE_DICT_ID=#{billTypeDictId},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="quantityOther != null" >
+			QUANTITY_OTHER=#{quantityOther},
+		</if>
+		<if test="year != null" >
+			YEAR=#{year},
+		</if>
+		<if test="month != null" >
+			MONTH=#{month},
+		</if>
+		<if test="day != null" >
+			DAY=#{day},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.stats.StatsProductMaterialParamVo"
+		      resultType="com.techsoft.entity.common.StatsProductMaterial" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STATS_PRODUCT_MATERIAL A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	<select id="selectListByProductSumStats" parameterType="com.techsoft.entity.stats.StatsProductMaterialParamVo"
+		      resultType="com.techsoft.entity.common.StatsProductMaterial" useCache="false">
+		SELECT 
+		A.PRODUCT_ID,
+		SUM(A.QUANTITY) as QUANTITY
+		FROM STATS_PRODUCT_MATERIAL A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		GROUP BY A.PRODUCT_ID
+	</select>
+	
+	<select id="selectListByMaterialSumStats" parameterType="com.techsoft.entity.stats.StatsProductMaterialParamVo"
+		      resultType="com.techsoft.entity.common.StatsProductMaterial" useCache="false">
+		SELECT 
+		A.MATERIAL_ID,
+		SUM(A.QUANTITY) as QUANTITY
+		FROM STATS_PRODUCT_MATERIAL A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		GROUP BY A.MATERIAL_ID
+	</select>
+	
+	<select id="selectListByDataSumStats" parameterType="com.techsoft.entity.stats.StatsProductMaterialParamVo"
+		      resultType="com.techsoft.entity.common.StatsProductMaterial" useCache="false">
+		SELECT 
+			A.YEAR,
+			A.MONTH,
+			A.DAY,
+		SUM(A.QUANTITY) as QUANTITY
+		FROM STATS_PRODUCT_MATERIAL A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		GROUP BY A.YEAR
+		<if test="year != null" >
+			,MONTH
+		</if>
+		<if test="month != null" >
+			,DAY
+		</if>
+	</select>
+	
+</mapper>

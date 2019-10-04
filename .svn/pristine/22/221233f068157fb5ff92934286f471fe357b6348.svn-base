@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.firm.FirmEmployeeMapper">
+	<resultMap id="FirmEmployee" type="com.techsoft.entity.common.FirmEmployee" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="USER_ID" property="userId" />
+		<result column="EMPLOYEE_CODE" property="employeeCode" />
+		<result column="REAL_NAME" property="realName" />
+		<result column="EMPLOYEE_STATUS_DICT_ID" property="employeeStatusDictId" />
+		<result column="WORKPOST_ID" property="workpostId" />
+		<result column="IDENTITY_CODE" property="identityCode" />
+		<result column="NATIVEPLACE" property="nativeplace" />
+		<result column="MOBILE_NUMBER" property="mobileNumber" />
+		<result column="ICCARD_CODE" property="iccardCode" />
+		<result column="DATE_ENTRY" property="dateEntry" />
+		<result column="DATE_QUIT" property="dateQuit" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.USER_ID,
+		A.EMPLOYEE_CODE,
+		A.REAL_NAME,
+		A.EMPLOYEE_STATUS_DICT_ID,
+		A.WORKPOST_ID,
+		A.IDENTITY_CODE,
+		A.NATIVEPLACE,
+		A.MOBILE_NUMBER,
+		A.ICCARD_CODE,
+		A.DATE_ENTRY,
+		A.DATE_QUIT
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_FIRM_EMPLOYEE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from FIRM_EMPLOYEE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.FirmEmployee">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM FIRM_EMPLOYEE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.FirmEmployee">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM FIRM_EMPLOYEE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE FIRM_EMPLOYEE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE FIRM_EMPLOYEE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.FirmEmployee">
+		UPDATE FIRM_EMPLOYEE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.FirmEmployee">
+		INSERT INTO FIRM_EMPLOYEE (
+		TENANT_ID,
+		USER_ID,
+		EMPLOYEE_CODE,
+		REAL_NAME,
+		EMPLOYEE_STATUS_DICT_ID,
+		WORKPOST_ID,
+		IDENTITY_CODE,
+		NATIVEPLACE,
+		MOBILE_NUMBER,
+		ICCARD_CODE,
+		DATE_ENTRY,
+		DATE_QUIT
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{userId},
+		#{employeeCode},
+		#{realName},
+		#{employeeStatusDictId},
+		#{workpostId},
+		#{identityCode},
+		#{nativeplace},
+		#{mobileNumber},
+		#{iccardCode},
+		#{dateEntry},
+		#{dateQuit}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.FirmEmployee">
+		UPDATE FIRM_EMPLOYEE SET
+		TENANT_ID=#{tenantId},
+		USER_ID=#{userId},
+		EMPLOYEE_CODE=#{employeeCode},
+		REAL_NAME=#{realName},
+		EMPLOYEE_STATUS_DICT_ID=#{employeeStatusDictId},
+		WORKPOST_ID=#{workpostId},
+		IDENTITY_CODE=#{identityCode},
+		NATIVEPLACE=#{nativeplace},
+		MOBILE_NUMBER=#{mobileNumber},
+		ICCARD_CODE=#{iccardCode},
+		DATE_ENTRY=#{dateEntry},
+		DATE_QUIT=#{dateQuit},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.FirmEmployee">
+		UPDATE FIRM_EMPLOYEE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="userId != null" >
+			USER_ID=#{userId},
+		</if>
+		<if test="employeeCode != null" >
+			EMPLOYEE_CODE=#{employeeCode},
+		</if>
+		<if test="realName != null" >
+			REAL_NAME=#{realName},
+		</if>
+		<if test="employeeStatusDictId != null" >
+			EMPLOYEE_STATUS_DICT_ID=#{employeeStatusDictId},
+		</if>
+		<if test="workpostId != null" >
+			WORKPOST_ID=#{workpostId},
+		</if>
+		<if test="identityCode != null" >
+			IDENTITY_CODE=#{identityCode},
+		</if>
+		<if test="nativeplace != null" >
+			NATIVEPLACE=#{nativeplace},
+		</if>
+		<if test="mobileNumber != null" >
+			MOBILE_NUMBER=#{mobileNumber},
+		</if>
+		<if test="iccardCode != null" >
+			ICCARD_CODE=#{iccardCode},
+		</if>
+		<if test="dateEntry != null" >
+			DATE_ENTRY=#{dateEntry},
+		</if>
+		<if test="dateQuit != null" >
+			DATE_QUIT=#{dateQuit},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.firm.FirmEmployeeParamVo"
+		      resultType="com.techsoft.entity.common.FirmEmployee" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM FIRM_EMPLOYEE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="userId != null">
+			AND A.USER_ID= #{userId}
+		</if>
+		<if test="employeeCode != null">
+			AND A.EMPLOYEE_CODE= #{employeeCode}
+		</if>
+		<if test="realName != null">
+			AND A.REAL_NAME= #{realName}
+		</if>
+		<if test="employeeStatusDictId != null">
+			AND A.EMPLOYEE_STATUS_DICT_ID= #{employeeStatusDictId}
+		</if>
+		<if test="workpostId != null">
+			AND A.WORKPOST_ID= #{workpostId}
+		</if>
+		<if test="identityCode != null">
+			AND A.IDENTITY_CODE= #{identityCode}
+		</if>
+		<if test="nativeplace != null">
+			AND A.NATIVEPLACE= #{nativeplace}
+		</if>
+		<if test="mobileNumber != null">
+			AND A.MOBILE_NUMBER= #{mobileNumber}
+		</if>
+		<if test="iccardCode != null">
+			AND A.ICCARD_CODE= #{iccardCode}
+		</if>
+		<if test="dateEntry != null">
+			AND A.DATE_ENTRY= #{dateEntry}
+		</if>
+		<if test="dateQuit != null">
+			AND A.DATE_QUIT= #{dateQuit}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	  <if test="employeeCodeLike != null">
+	    <bind name="codeLike" value="'%' + _parameter.employeeCodeLike + '%'" />
+	       AND A.EMPLOYEE_CODE LIKE #{codeLike}
+	  </if>
+	  <if test="realNameLike != null">
+	    <bind name="nameLike" value="'%' + _parameter.realNameLike + '%'" />
+	       AND A.REAL_NAME LIKE #{nameLike}
+	  </if>
+	  <if test="nativeplaceLike != null">
+	     <bind name="placeLike" value="'%' + _parameter.nativeplaceLike + '%'" />
+	       AND A.NATIVEPLACE LIKE #{placeLike}
+	  </if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>	
+</mapper>

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.bill.BillEquipMapper">
+	<resultMap id="BillEquip" type="com.techsoft.entity.common.BillEquip" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="WORKSHOP_ID" property="workshopId" />
+		<result column="BILL_CODE" property="billCode" />
+		<result column="BILL_TYPE_FIXTURE_DICT_ID" property="billTypeFixtureDictId" />
+		<result column="BILL_STATUS_FIXTURE_DICT_ID" property="billStatusFixtureDictId" />
+		<result column="AUDIT_STATUS_DICT_ID" property="auditStatusDictId" />
+		<result column="DEPARTMENT_ID" property="departmentId" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="workshopId != null">
+			AND A.WORKSHOP_ID= #{workshopId}
+		</if>
+		<if test="billCode != null">
+			AND A.BILL_CODE= #{billCode}
+		</if>
+		<if test="billTypeFixtureDictId != null">
+			AND A.BILL_TYPE_FIXTURE_DICT_ID= #{billTypeFixtureDictId}
+		</if>
+		<if test="billStatusFixtureDictId != null">
+			AND A.BILL_STATUS_FIXTURE_DICT_ID= #{billStatusFixtureDictId}
+		</if>
+		<if test="auditStatusDictId != null">
+			AND A.AUDIT_STATUS_DICT_ID= #{auditStatusDictId}
+		</if>
+		<if test="departmentId != null">
+			AND A.DEPARTMENT_ID= #{departmentId}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.WORKSHOP_ID,
+		A.BILL_CODE,
+		A.BILL_TYPE_FIXTURE_DICT_ID,
+		A.BILL_STATUS_FIXTURE_DICT_ID,
+		A.AUDIT_STATUS_DICT_ID,
+		A.DEPARTMENT_ID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_BILL_EQUIP_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from BILL_EQUIP
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.BillEquip">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_EQUIP A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.BillEquip">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_EQUIP A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE BILL_EQUIP A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE BILL_EQUIP  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.BillEquip">
+		UPDATE BILL_EQUIP A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillEquip">
+		INSERT INTO BILL_EQUIP (
+		TENANT_ID,
+		FACTORY_ID,
+		WORKSHOP_ID,
+		BILL_CODE,
+		BILL_TYPE_FIXTURE_DICT_ID,
+		BILL_STATUS_FIXTURE_DICT_ID,
+		AUDIT_STATUS_DICT_ID,
+		DEPARTMENT_ID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{workshopId},
+		#{billCode},
+		#{billTypeFixtureDictId},
+		#{billStatusFixtureDictId},
+		#{auditStatusDictId},
+		#{departmentId},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillEquip">
+		UPDATE BILL_EQUIP SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		WORKSHOP_ID=#{workshopId},
+		BILL_CODE=#{billCode},
+		BILL_TYPE_FIXTURE_DICT_ID=#{billTypeFixtureDictId},
+		BILL_STATUS_FIXTURE_DICT_ID=#{billStatusFixtureDictId},
+		AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		DEPARTMENT_ID=#{departmentId},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillEquip">
+		UPDATE BILL_EQUIP SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="workshopId != null" >
+			WORKSHOP_ID=#{workshopId},
+		</if>
+		<if test="billCode != null" >
+			BILL_CODE=#{billCode},
+		</if>
+		<if test="billTypeFixtureDictId != null" >
+			BILL_TYPE_FIXTURE_DICT_ID=#{billTypeFixtureDictId},
+		</if>
+		<if test="billStatusFixtureDictId != null" >
+			BILL_STATUS_FIXTURE_DICT_ID=#{billStatusFixtureDictId},
+		</if>
+		<if test="auditStatusDictId != null" >
+			AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		</if>
+		<if test="departmentId != null" >
+			DEPARTMENT_ID=#{departmentId},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.bill.BillEquipParamVo"
+		      resultType="com.techsoft.entity.common.BillEquip" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_EQUIP A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

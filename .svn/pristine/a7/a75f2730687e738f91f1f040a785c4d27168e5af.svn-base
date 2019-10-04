@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.struct.StructProcessLineMapper">
+	<resultMap id="StructProcessLine" type="com.techsoft.entity.common.StructProcessLine" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="PROCESS_ID" property="processId" />
+		<result column="PROCESS_VERSION" property="processVersion" />
+		<result column="PREV_NODE_ID" property="prevNodeId" />
+		<result column="NEXT_NODE_ID" property="nextNodeId" />
+		<result column="LINE_TYPE_DICT_ID" property="lineTypeDictId" />
+		<result column="PREV_NODE_COORDINATE_X" property="prevNodeCoordinateX" />
+		<result column="PREV_NODE_COORDINATE_Y" property="prevNodeCoordinateY" />
+		<result column="NEXT_NODE_COORDINATE_X" property="nextNodeCoordinateX" />
+		<result column="NEXT_NODE_COORDINATE_Y" property="nextNodeCoordinateY" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="processId != null">
+			AND A.PROCESS_ID= #{processId}
+		</if>
+		<if test="processVersion != null">
+			AND A.PROCESS_VERSION= #{processVersion}
+		</if>
+		<if test="prevNodeId != null">
+			AND A.PREV_NODE_ID= #{prevNodeId}
+		</if>
+		<if test="nextNodeId != null">
+			AND A.NEXT_NODE_ID= #{nextNodeId}
+		</if>
+		<if test="lineTypeDictId != null">
+			AND A.LINE_TYPE_DICT_ID= #{lineTypeDictId}
+		</if>
+		<if test="prevNodeCoordinateX != null">
+			AND A.PREV_NODE_COORDINATE_X= #{prevNodeCoordinateX}
+		</if>
+		<if test="prevNodeCoordinateY != null">
+			AND A.PREV_NODE_COORDINATE_Y= #{prevNodeCoordinateY}
+		</if>
+		<if test="nextNodeCoordinateX != null">
+			AND A.NEXT_NODE_COORDINATE_X= #{nextNodeCoordinateX}
+		</if>
+		<if test="nextNodeCoordinateY != null">
+			AND A.NEXT_NODE_COORDINATE_Y= #{nextNodeCoordinateY}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.PROCESS_ID,
+		A.PROCESS_VERSION,
+		A.PREV_NODE_ID,
+		A.NEXT_NODE_ID,
+		A.LINE_TYPE_DICT_ID,
+		A.PREV_NODE_COORDINATE_X,
+		A.PREV_NODE_COORDINATE_Y,
+		A.NEXT_NODE_COORDINATE_X,
+		A.NEXT_NODE_COORDINATE_Y
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_STRUCT_PROCESS_LINE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STRUCT_PROCESS_LINE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StructProcessLine">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCESS_LINE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StructProcessLine">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCESS_LINE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE STRUCT_PROCESS_LINE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE STRUCT_PROCESS_LINE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StructProcessLine">
+		UPDATE STRUCT_PROCESS_LINE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcessLine">
+		INSERT INTO STRUCT_PROCESS_LINE (
+		TENANT_ID,
+		FACTORY_ID,
+		PROCESS_ID,
+		PROCESS_VERSION,
+		PREV_NODE_ID,
+		NEXT_NODE_ID,
+		LINE_TYPE_DICT_ID,
+		PREV_NODE_COORDINATE_X,
+		PREV_NODE_COORDINATE_Y,
+		NEXT_NODE_COORDINATE_X,
+		NEXT_NODE_COORDINATE_Y
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{processId},
+		#{processVersion},
+		#{prevNodeId},
+		#{nextNodeId},
+		#{lineTypeDictId},
+		#{prevNodeCoordinateX},
+		#{prevNodeCoordinateY},
+		#{nextNodeCoordinateX},
+		#{nextNodeCoordinateY}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcessLine">
+		UPDATE STRUCT_PROCESS_LINE SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		PROCESS_ID=#{processId},
+		PROCESS_VERSION=#{processVersion},
+		PREV_NODE_ID=#{prevNodeId},
+		NEXT_NODE_ID=#{nextNodeId},
+		LINE_TYPE_DICT_ID=#{lineTypeDictId},
+		PREV_NODE_COORDINATE_X=#{prevNodeCoordinateX},
+		PREV_NODE_COORDINATE_Y=#{prevNodeCoordinateY},
+		NEXT_NODE_COORDINATE_X=#{nextNodeCoordinateX},
+		NEXT_NODE_COORDINATE_Y=#{nextNodeCoordinateY},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcessLine">
+		UPDATE STRUCT_PROCESS_LINE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="processId != null" >
+			PROCESS_ID=#{processId},
+		</if>
+		<if test="processVersion != null" >
+			PROCESS_VERSION=#{processVersion},
+		</if>
+		<if test="prevNodeId != null" >
+			PREV_NODE_ID=#{prevNodeId},
+		</if>
+		<if test="nextNodeId != null" >
+			NEXT_NODE_ID=#{nextNodeId},
+		</if>
+		<if test="lineTypeDictId != null" >
+			LINE_TYPE_DICT_ID=#{lineTypeDictId},
+		</if>
+		<if test="prevNodeCoordinateX != null" >
+			PREV_NODE_COORDINATE_X=#{prevNodeCoordinateX},
+		</if>
+		<if test="prevNodeCoordinateY != null" >
+			PREV_NODE_COORDINATE_Y=#{prevNodeCoordinateY},
+		</if>
+		<if test="nextNodeCoordinateX != null" >
+			NEXT_NODE_COORDINATE_X=#{nextNodeCoordinateX},
+		</if>
+		<if test="nextNodeCoordinateY != null" >
+			NEXT_NODE_COORDINATE_Y=#{nextNodeCoordinateY},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.struct.StructProcessLineParamVo"
+		      resultType="com.techsoft.entity.common.StructProcessLine" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCESS_LINE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	
+	<insert id="insertBatch" flushCache="true" parameterType="java.util.List">
+		INSERT INTO STRUCT_PROCESS_LINE (
+		ID,
+		TENANT_ID,
+		FACTORY_ID,
+		PROCESS_ID,
+		PROCESS_VERSION,
+		PREV_NODE_ID,
+		NEXT_NODE_ID,
+		LINE_TYPE_DICT_ID,
+		CREATE_TIME,
+		MODIFY_TIME,
+		VERSION,
+		DEL_FLAG,
+		CREATE_USER_ID,
+		MODIFY_USER_ID,
+		PREV_NODE_COORDINATE_X,
+		PREV_NODE_COORDINATE_Y,
+		NEXT_NODE_COORDINATE_X,
+		NEXT_NODE_COORDINATE_Y
+		)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+		(
+		#{item.id},	
+		#{item.tenantId},
+		#{item.factoryId},
+		#{item.processId},
+		#{item.processVersion},
+		#{item.prevNodeId},
+		#{item.nextNodeId},
+		#{item.lineTypeDictId},
+		now(),
+		now(),
+		1,0,#{item.createUserId},#{item.modifyUserId},
+		#{item.prevNodeCoordinateX},
+		#{item.prevNodeCoordinateY},
+		#{item.nextNodeCoordinateX},
+		#{item.nextNodeCoordinateY}
+		)
+		</foreach>
+	</insert>
+	
+	<!-- 修改原工艺路线流程为已删除 -->
+	<update id="updateBatch" parameterType="java.util.List">
+	<foreach collection="list" item="item" index="index" separator=";">
+		UPDATE STRUCT_PROCESS_LINE 
+	    <set>
+			MODIFY_TIME=now(),
+			MODIFY_USER_ID = #{item.modifyUserId},
+			DEL_FLAG = 1
+		</set>
+		WHERE ID = #{item.id}
+		</foreach>
+	</update>
+	
+</mapper>

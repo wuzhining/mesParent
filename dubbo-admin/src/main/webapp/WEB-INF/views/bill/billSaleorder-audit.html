@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+    <div >
+    	
+    
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+            <tr>
+               <td width="10%" class="tableleft" >审核状态</td>
+               <td>
+			      <input type="checkbox" id="yes" name="auditStatusDictId" lay-filter="audit" value="10587" checked="checked" title="审核通过">
+			   </td>
+			   <td>
+			      <input type="checkbox" id="no" name="auditStatusDictId" lay-filter="audit" value="10586"  title="审核不通过">
+			   </td>
+		 
+			 </tr>
+			 <tr>   
+                <td width="15%" class="tableleft">备注</td>
+                <td colspan="3">
+                 <p><textarea rows="10" id="remark"  name="remark"  cols="102"  value="${(entity.remark)!''}"> </textarea>
+                    <!-- <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/> -->
+                </td> 
+            </tr>
+            
+       </table>  
+        <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="historyBillStatus" lay-filter="historyBillStatus"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+       
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+     
+
+    </div>
+  
+
+     
+  <script>
+
+  var ids = parent.id;
+  var auditStatusDictId=parent.auditStatusDictId;
+  var remark=parent.remark;
+	
+     layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+    	var form = layui.form, 
+    	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+    	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+    	var layuiformajax = layui.layuiformajax;
+
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	 
+        	  var url =parent.url;
+        	  data=data.field;
+        	  data.id=ids;
+        	  layuiformajax.postJson(url, data, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+  		$("#remark").val(remark);	
+          if(auditStatusDictId==10587){
+        	  $('#yes').prop("checked", true);
+        	  form.render('checkbox');
+          }else if(auditStatusDictId==10586){
+        	  $('#no').prop("checked", true);
+        	  $('#yes').prop("checked", false);
+        	  form.render('checkbox');
+          }
+    		//监听复选框事件
+          form.on('checkbox(audit)', function (data) {
+              var reslut=data.elem.checked;//得到选中状态
+              var value = data.value;//得到选中值
+              if(value==10587&&reslut){
+            	  $('#no').prop("checked", false);
+              }else{
+            	  $('#yes').prop("checked", false);
+              }
+              form.render('checkbox');//改变选择状态之后必须重新刷新复选框
+       
+          });
+ 
+          //自定义验证规则
+           form.verify({
+        	   planTime: function(valueTy){
+	         	 if(valueTy =='' ||valueTy==null){
+	                 return '计划生产时间不能为空!';
+	             }
+	           }
+	            ,deliveryTime: function(valueTy){
+	         	 if(valueTy =='' ||valueTy==null){
+	                 return '预估发货时间不能为空!';
+	             }
+	           }
+	            
+
+        	}); 
+          
+          
+      
+          
+          var nowTime = new Date().valueOf();
+          //日期
+           var start = laydate.render({
+       		     elem: '#planTime' //指定元素  计划开始时间
+          		,type: 'datetime'
+          		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+                ,min:nowTime,
+                done:function(value,datetime){
+                      endMax = timePlanEnd.config.max;
+                      timePlanEnd.config.min = datetime;
+                      timePlanEnd.config.min.month = datetime.month -1;
+                  }
+              });
+           var timePlanEnd = laydate.render({
+       		     elem: '#deliveryTime' //指定元素  计划结束时间
+          		,type: 'datetime'
+          		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+                ,min:nowTime,
+                  done:function(value,datetime){
+                  }
+              });
+ 	
+  });
+  
+
+    </script>
+    <script></script>
+  </body>
+
+</html>

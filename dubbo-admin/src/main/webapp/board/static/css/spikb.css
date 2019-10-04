@@ -1,0 +1,63 @@
+
+.panel-body {
+ 		border-color:rgb(1, 20, 27,0);
+ 		background-image:url(../image/dabeijin12.jpg);
+ 		background-size:100% 100%;
+ 		background-repeat: no-repeat;
+ 		background-size: cover;
+  		-webkit-background-size: cover;
+  		-o-background-size: cover;
+	}
+	#backgroundIsImage{
+		border-color:rgb(1, 20, 27);
+	}
+	#wonoTable{
+		margin:auto;
+		border-right: 1px solid #3fdedd; 
+		border-bottom: 1px solid #3fdedd;
+		border-left: 1px solid #3fdedd;
+		border-top: 1px solid #3fdedd;
+		border-collapse:collapse;
+		width: 98%;
+		height: 50%; 
+	}
+	#wonoTable tr{
+		text-align: center;
+		height:25px;
+		vertical-align: middle;
+	}
+	#wonoTable tr td{
+		width:16.66%;
+		text-align: center;
+		border-left: 1px solid #3fdedd;
+		border-top: 1px solid #3fdedd;
+		vertical-align: middle;
+		color:#d0d0d0;
+	}
+	#wonoTable tr td span{
+		font-size:10px;
+		font-family:宋体;
+		font-weight: bold;
+	}
+	.equipmentInfo tr td span{
+		font-size:10px;
+		font-family:宋体;
+		font-weight: bold;
+		color:#2B908F;
+	}
+
+
+.table-info{
+}
+.table-info thead{
+	font-size:14px;
+	height:5%;
+	
+}
+.table-title{
+	height:5%;
+	background: rgba(0,0,0,0.5);	
+}
+.table-container{
+	background: rgba(51,98,109,0.3);
+}

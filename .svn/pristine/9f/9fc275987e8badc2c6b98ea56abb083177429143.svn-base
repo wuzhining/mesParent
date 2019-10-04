@@ -1,0 +1,39 @@
+package com.techsoft.entity.quality;
+
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.QualityInspectDocument;
+
+public class QualityInspectDocumentVo extends QualityInspectDocument {
+	private static final long serialVersionUID = -6846244272206835583L;
+	
+	//供应商
+	private FirmPartner supplier;	
+	//产品
+	private ProductMain productMain;
+
+	public QualityInspectDocumentVo() {	
+	}
+	
+	public QualityInspectDocumentVo(QualityInspectDocument value) {
+		value.cloneProperties(this);
+	}
+
+	public FirmPartner getSupplier() {
+		return supplier;
+	}
+
+	public void setSupplier(FirmPartner supplier) {
+		this.supplier = supplier;
+	}
+
+	public ProductMain getProductMain() {
+		return productMain;
+	}
+
+	public void setProductMain(ProductMain productMain) {
+		this.productMain = productMain;
+	}
+	
+	
+}

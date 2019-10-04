@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />        
+        <table class="layui-table ">
+           <tr>
+
+               <td id="td1" width="10%" class="tableleft">检验类型编码</td>
+               <td id="td2"><input type="text" name="inspectTypeCode" lay-verify="inspectTypeCode" disabled="true"  class="layui-input" maxlength="16" value="${(entity.inspectTypeCode)!''}"/></td>
+               <td width="10%" class="tableleft">检验类型名称</td>
+               <td><input type="text" name="inspectTypeName" lay-verify="inspectTypeName"  class="layui-input" maxlength="100" value="${(entity.inspectTypeName)!''}"/></td>
+           </tr>
+           <tr>
+
+           <td width="10%" class="tableleft">QC类型</td>
+               <td>
+                 <select name="inspectTypeQcDictId"> 
+                    <#if typeQCList??>
+                     <#list typeQCList as item>
+			            <option value="${item.id?c}" <#if (entity.inspectTypeQcDictId??&&entity.inspectTypeQcDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+             </td> 
+               <td width="10%" class="tableleft">检验项类型</td>
+               <td>
+                 <select name="inspectItemTypeDictId"> 
+                    <#if itemTypeList??>
+                     <#list itemTypeList as item>
+			            <option value="${item.id?c}" <#if (entity.inspectItemTypeDictId??&&entity.inspectItemTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td> 
+           </tr>
+           <tr>
+               
+               <td width="10%" class="tableleft">备注</td>
+               <td colspan="4"><input type="text" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+             
+           </tr>
+
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    var ids = $('#id').val();
+    if(ids ==null || ids ==""){
+  	  	$("#td1").hide();
+  	  	$("#td2").hide();
+    }
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+           form.verify({
+        	 inspectTypeCode: function(value){
+              if(value==null || value ==''){
+                return '检验类型编码不能为空！';
+              }
+            }
+            ,inspectTypeName: function(value){
+                if(value==null || value ==''){
+                    return '检验类型名称不能为空！';
+                }
+            }
+          }); 
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/quality/qualityInspectType/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

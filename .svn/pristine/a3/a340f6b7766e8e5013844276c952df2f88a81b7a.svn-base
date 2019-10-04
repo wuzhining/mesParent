@@ -1,0 +1,745 @@
+package com.techsoft.service.bill;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBarcodeRule;
+import com.techsoft.common.enums.EnumDictBarcodeStatus;
+import com.techsoft.common.enums.EnumDictBillStatus;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.dao.barcode.BarcodeMainDao;
+import com.techsoft.dao.bill.BillWarehouseDao;
+import com.techsoft.dao.bill.BillWarehouseItemDao;
+import com.techsoft.dao.history.HistoryBillStatusDao;
+import com.techsoft.dao.product.ProductMainDao;
+import com.techsoft.dao.product.ProductMaterialDao;
+import com.techsoft.dao.track.TrackBarcodeDao;
+import com.techsoft.dao.warehouse.WarehouseLocationDao;
+import com.techsoft.dao.warehouse.WarehouseLocationStockDao;
+import com.techsoft.dao.warehouse.WarehouseProductStockDao;
+import com.techsoft.dao.warehouse.WarehouseStrategyUpshelfDao;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillPurchase;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.common.WarehouseLocationStock;
+import com.techsoft.entity.common.WarehouseStrategyDownshelfItem;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.entity.track.TrackBarcodeVo;
+import com.techsoft.entity.warehouse.WarehouseLocationStockParamVo;
+import com.techsoft.entity.warehouse.WarehouseProductStockParamVo;
+import com.techsoft.entity.warehouse.WarehouseStrategyDownshelfItemParamVo;
+import com.techsoft.entity.warehouse.WarehouseStrategyUpshelfParamVo;
+import com.techsoft.service.bill.Strategy.in.UpShelfStrategyServiceImpl;
+import com.techsoft.service.bill.Strategy.out.LocationOutStrategy;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+
+/**
+*@auther:Chenzj
+*@version:2019年5月27日下午2:52:24
+*@param:
+*@description
+*/
+@Service
+public class BillWarehouseInServiceImpl extends BaseServiceImpl<BillWarehouse> implements BillWarehouseInService {
+	@Autowired
+	private BillWarehouseDao billWarehouseDao;
+	@Autowired
+	private BarcodeMainDao barcodeMainDao;
+	@Autowired
+	private TrackBarcodeDao trackBarcodeDao;
+	@Autowired
+	private BillWarehouseItemDao billWarehouseItemDao;
+	@Autowired
+	private ProductMaterialDao productMaterialDao;
+	@Autowired
+	private ProductMainDao productMainDao;
+	@Autowired
+	private WarehouseLocationDao warehouseLocationDao;
+	@Autowired
+	private WarehouseStrategyUpshelfDao warehouseStrategyUpshelfDao;
+	@Autowired
+	private HistoryBillStatusDao historyBillStatusDao;
+	@Autowired
+	private WarehouseLocationStockDao warehouseLocationStockDao;
+	@Autowired
+	private WarehouseProductStockDao warehouseProductStockDao;
+	
+	@Override
+	public BaseDao<BillWarehouse> getBaseDao() {
+		return billWarehouseDao;
+	}
+
+	@Override
+	public Class<BillWarehouse> getEntityClass() {
+		return BillWarehouse.class;
+	}
+
+	
+	/**
+	*@auther:Chenzj
+	*@version:2019年5月27日下午4:18:35
+	*@param code     标签号
+	*@description    根据标签查找信息，返回标签信息
+	*/
+	private BarcodeMain getMainVoByCode(String code, CommonParam commonParam) throws BusinessException, SQLException {
+		List<BarcodeMain> list=new ArrayList<BarcodeMain>();
+		BarcodeMainParamVo barcodeMain=new BarcodeMainParamVo();
+		barcodeMain.setBarcode(code);
+		list=barcodeMainDao.selectListByParamVo(barcodeMain);
+		if (list.size() >0) {
+			return list.get(0);
+		}
+		else{
+			return null;
+			}
+	}	
+	
+	
+	/**
+	*@auther:Chenzj
+	*@version:2019年5月27日下午4:20:20
+	*@param code    标签号
+	*@description   根据标签信息查找条码追踪表数据
+	*/
+	private TrackBarcode getVoByCode(String code,CommonParam commonParam) throws BusinessException, SQLException {
+		List<TrackBarcode> list=new ArrayList<TrackBarcode>();
+		TrackBarcodeParamVo trackBarcodeParamVo=new TrackBarcodeParamVo();
+		trackBarcodeParamVo.setBarcode(code);
+		trackBarcodeParamVo.setBillTypeDictId(EnumDictBillType.BILL_TYPE_WAREHOUSE_IN.getValue());
+		trackBarcodeParamVo.setBillStatusDictId(EnumDictBillStatus.NEW.getValue());
+		trackBarcodeParamVo.setBarcodeStatusDictId(EnumDictBarcodeStatus.NEW.getValue());
+		list=trackBarcodeDao.selectListByParamVo(trackBarcodeParamVo);
+		if (list.size() >0) {
+			return list.get(0);
+		}
+		else{
+			return null;
+			}
+	}	
+	
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年5月27日下午4:11:56
+	*@param parentId   父箱ID
+	*@param billId     单据主表号ID
+	*@param billItemId 单据明细表ID
+	*@param locationId 货位ID
+	*@param warehoseId 仓库ID
+	*@description  根据父箱ID查找内箱所有标签及赋值
+	*/
+	private void recursion(Long parentId, Long billId, Long billItemId,Long locationId,Long warehouseId, CommonParam commonParam, List<BarcodeMain> listBarcode) {
+		BarcodeMainParamVo paramVo = new BarcodeMainParamVo();
+		paramVo.setBarcodePackboxId(parentId);
+		try {
+			List<BarcodeMain> packBoxlist = barcodeMainDao.selectListByParamVo(paramVo);
+			for (BarcodeMain barcodeMain : packBoxlist) {
+				barcodeMain.setBillId(billId);
+				//查询单据号
+				BillWarehouse billWarehouse=billWarehouseDao.selectById(billId);
+				barcodeMain.setBillCode(billWarehouse.getBillCode());
+				barcodeMain.setBillItemId(billItemId);
+				WarehouseLocation location=warehouseLocationDao.selectById(locationId);
+				barcodeMain.setFactoryId(location.getFactoryId());
+				barcodeMain.setAreaId(location.getAreaId());
+				barcodeMain.setRackId(location.getRackId());
+				barcodeMain.setLocationId(locationId);
+				barcodeMain.setWarehouseId(warehouseId);
+				barcodeMain.setBarcodeStatusDictId(EnumDictBarcodeStatus.INSTORE.getValue());
+				barcodeMain.setBillStatusDictId(EnumDictBillStatus.FINISHED.getValue());
+				listBarcode.add(barcodeMain);
+				if (barcodeMain.getBarcodeRuleDictId().equals(EnumDictBarcodeRule.PRODUCT_PACKBOX.getValue())) {
+					recursion(barcodeMain.getId(), billId, billItemId,locationId, warehouseId,commonParam, listBarcode);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return;
+	}
+	
+	
+	/**
+	*@auther:Chenzj
+	*@version:2019年5月27日下午4:23:09
+	*@param barcodeMain   条码表数据
+	*@param billId        单据主表ID
+	*@param billItemId    单据明细表ID
+	*@param barcodeStatus 标签状态
+	*@param billType      单据类型
+	*@param locationId    货位ID
+	*@param warehoseId    仓库ID
+	*@description
+	*/
+	private List<BarcodeMain> getInsideBarcode(BarcodeMain barcodeMain, Long billId, Long billItemId,Long barcodeStatus,Long billStatus, Long locationId, Long warehoseId,  CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BarcodeMain> barCodeList = new ArrayList<BarcodeMain>();
+		// 将当前扫描条码记录
+		barcodeMain.setBarcodeStatusDictId(barcodeStatus);
+		barcodeMain.setBillTypeDictId(EnumDictBillType.BILL_TYPE_WAREHOUSE_IN.getValue());
+		barcodeMain.setBillId(billId);
+		//查询单据号
+		BillWarehouse billWarehouse=billWarehouseDao.selectById(billId);
+		barcodeMain.setBillCode(billWarehouse.getBillCode());
+		barcodeMain.setBillItemId(billItemId);
+		WarehouseLocation location=warehouseLocationDao.selectById(locationId);
+		barcodeMain.setFactoryId(location.getFactoryId());
+		barcodeMain.setAreaId(location.getAreaId());
+		barcodeMain.setRackId(location.getRackId());
+	    barcodeMain.setLocationId(locationId);
+		barcodeMain.setWarehouseId(warehoseId);
+		barcodeMain.setBillStatusDictId(billStatus);
+		barCodeList.add(barcodeMain);
+		// 如果扫描为包装箱 遍历取得内置所有条码
+		if (barcodeMain.getBarcodeRuleDictId().equals(EnumDictBarcodeRule.PRODUCT_PACKBOX.getValue())) {
+			// 遍历方法
+			recursion(barcodeMain.getId(), billId, billItemId,locationId, warehoseId,commonParam,barCodeList);
+		}
+		return barCodeList;
+	}
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年5月28日上午9:31:31
+	*@param: trackBarcodeVo 追踪条码对象
+	*@description 扫描标签进行入库上架操作
+	*/
+	@Override
+	public TrackBarcode onBarcode(TrackBarcodeVo trackBarcodeVo, CommonParam commonParam) throws BusinessException, SQLException  {
+		
+		//定义全局
+		TrackBarcode trackBarcode = new TrackBarcode();
+		BarcodeMain barcodeMainTemp = new BarcodeMain();
+		TrackBarcode returnBarcode = new TrackBarcode();
+		
+			//查找标签信息
+			barcodeMainTemp=this.getMainVoByCode(trackBarcodeVo.getBarcode(), commonParam);
+			
+			//判断是否有数据返回，无数据返回则抛出标签未生成异常
+			if (barcodeMainTemp !=null) {
+				
+				//判断标签状态是否为新建状态，只有新建的标签才能上架，如果不是则返回相应状态
+				if (barcodeMainTemp.getBarcodeStatusDictId().equals(EnumDictBarcodeStatus.NEW.getValue()) ) {
+					
+					//查找标签入库单信息
+					trackBarcode=this.getVoByCode(trackBarcodeVo.getBarcode(), commonParam);
+					
+					//判断标签是否生成入库单
+					if (trackBarcode != null) {
+						
+						//查询策略
+						// 从物料主表找出该物料维护的产品id
+						ProductMaterial material = productMaterialDao.selectById(barcodeMainTemp.getMaterialId());
+						if (material.getProductId() == null || material.getProductId().equals("")) {
+							throw new BusinessException("该物料没有维护产品！");
+						}
+						// 找出该产品选择的上架策略
+						ProductMain productMain = productMainDao.selectById(material.getProductId());
+						if (productMain.getStrategyUpshelfId() == null || productMain.getStrategyUpshelfId().equals("")) {
+							throw new BusinessException("该物料对应的产品没有分配上架策略！");
+						}
+						// 调用上架策略接口实现类
+						UpShelfStrategyServiceImpl upShelfStrategy = new UpShelfStrategyServiceImpl();
+						upShelfStrategy.setWarehouseStrategyUpshelfDao(warehouseStrategyUpshelfDao);
+						upShelfStrategy.setWarehouseLocationDao(warehouseLocationDao);
+						upShelfStrategy.setBarcodeMainDao(barcodeMainDao);
+						upShelfStrategy.setLocationId(trackBarcodeVo.getLocationId());
+						upShelfStrategy.setBarcode(trackBarcodeVo.getBarcode());
+						upShelfStrategy.setWarehouseId(trackBarcodeVo.getWarehouseId());
+						upShelfStrategy.setStrategyCode(productMain.getStrategyUpshelfId());
+						int code=(int) upShelfStrategy.Startegy();
+						
+						if (code==0){
+						
+						
+					
+						List<BarcodeMain> barCodeList = new ArrayList<BarcodeMain>();
+						
+						// 获得内外箱处理后的所有条码信息
+						barCodeList = this.getInsideBarcode(barcodeMainTemp, trackBarcode.getBillId(),
+						trackBarcode.getBillItemId(),EnumDictBarcodeStatus.INSTORE.getValue(),
+						EnumDictBillStatus.FINISHED.getValue(),trackBarcodeVo.getLocationId(),trackBarcodeVo.getWarehouseId(), commonParam);
+						
+						// 批量更改状态为上架
+						barcodeMainDao.updateBatch(barCodeList, commonParam);
+						
+						// 批量更新条码追溯记录
+						List<TrackBarcode> trackList = new ArrayList<TrackBarcode>();
+						trackList = trackBarcodeDao.exchangeBarcode(barCodeList, "update",commonParam);
+						trackBarcodeDao.updateBatchTrack(trackList, commonParam);
+						
+						//更改当前入库上架单明细表为处理中状态
+						billWarehouseItemDao.updateInstore(trackBarcode.getBillItemId(), EnumDictBillStatus.DOING.getValue(), trackBarcode.getQuantity(), commonParam);
+							
+						//更改当前入库上架单主表为处理中状态
+						billWarehouseDao.updateBillStatusMain(trackBarcode.getBillId(), EnumDictBillStatus.DOING.getValue(), commonParam);
+						
+						//新增入库单处理中状态的历史表
+						//查询单据号
+						BillWarehouse bill=billWarehouseDao.selectById(trackBarcode.getBillId());
+						historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WAREHOUSE_IN.getValue(), EnumDictBillStatus.DOING.getValue(), trackBarcode.getBillId(), bill.getBillCode(),commonParam);
+						
+						
+						
+					    //判断扫描标签的入库上架单是否已扫完所有标签，全部上架完毕后，更新为完结状态
+						List<TrackBarcode> isofList =new ArrayList<TrackBarcode>();
+						TrackBarcodeParamVo trackisofparamVo = new TrackBarcodeParamVo();
+						trackisofparamVo.setBillId(trackBarcode.getBillId());
+						trackisofparamVo.setBillStatusDictId(EnumDictBillStatus.NEW.getValue());
+						isofList = trackBarcodeDao.selectListByParamVo(trackisofparamVo);
+						if (isofList.size() == 0){
+							  //更新主表状态信息为完结
+								billWarehouseDao.updateBillStatusMain(trackBarcode.getBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新明细单据状态
+								billWarehouseItemDao.updateBillItemStatus(trackBarcode.getBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新追踪条码表的单据状态
+								trackBarcodeDao.updateTrackStatus(trackBarcode.getBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //新增入库单处理中状态的历史表
+								historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WAREHOUSE_IN.getValue(), EnumDictBillStatus.FINISHED.getValue(), trackBarcode.getBillId(), bill.getBillCode(),commonParam);
+						}
+					
+						//增加库位库存数量
+						WarehouseLocationStockParamVo paramVo=new WarehouseLocationStockParamVo();
+						WarehouseLocation location=warehouseLocationDao.selectById(trackBarcodeVo.getLocationId());
+						paramVo.setFactoryId(location.getFactoryId());
+						paramVo.setWarehouseId(location.getWarehouseId());
+						paramVo.setAreaId(location.getAreaId());
+						paramVo.setRackId(location.getRackId());
+						paramVo.setLocationId(location.getId());
+						paramVo.setProductId(barcodeMainTemp.getProductId());
+						paramVo.setMaterialId(barcodeMainTemp.getMaterialId());
+						warehouseLocationStockDao.StockChange(paramVo, barcodeMainTemp.getQuantity(), "IN", commonParam);
+						
+						//增加物料规格库存数量
+						WarehouseProductStockParamVo productParamVo=new WarehouseProductStockParamVo();
+						WarehouseLocation loc=warehouseLocationDao.selectById(trackBarcodeVo.getLocationId());
+						productParamVo.setFactoryId(loc.getFactoryId());
+						productParamVo.setProductId(barcodeMainTemp.getProductId());
+						productParamVo.setMaterialId(barcodeMainTemp.getMaterialId());
+						warehouseProductStockDao.productStockChange(productParamVo, barcodeMainTemp.getQuantity(), "IN", commonParam);
+						
+						//返回PDA标签上架成功信息
+						List<TrackBarcode> ListVo= new ArrayList<TrackBarcode>();
+						TrackBarcodeParamVo trackparamVo = new TrackBarcodeParamVo();
+						trackparamVo.setBarcode(trackBarcode.getBarcode());
+						trackparamVo.setBillId(trackBarcode.getBillId());
+						trackparamVo.setBillItemId(trackBarcode.getBillItemId());
+						ListVo=trackBarcodeDao.selectListByParamVo(trackparamVo);
+						returnBarcode=ListVo.get(0);
+					
+						}else if(code==1){
+					    	 throw new BusinessException("该产品上架策略所属工厂与扫描位置工厂不匹配！");
+					     }else if(code==2){
+					    	 throw new BusinessException("该产品上架策略所属仓库与扫描位置仓库不匹配！");
+					     }else if(code==3){
+					    	 throw new BusinessException("该产品上架策略所属区域与扫描位置区域不匹配！");
+					     }else if(code==4){
+					    	 throw new BusinessException("该产品上架策略所属货架与扫描位置货架不匹配！");
+					     }else if(code==5){
+					    	 throw new BusinessException("该产品上架策略所属货位与扫描位置货位不匹配！");
+					     }else if(code==6){
+					    	 throw new BusinessException("该产品上架策略库位必须是空！");
+					     }else if(code==7){
+					    	 throw new BusinessException("该产品上架策略库位不允许混放批次！");
+					     }else if(code==8){
+					    	 throw new BusinessException("该产品上架策略库位不允许混放产品！");
+					     }else if(code==9){
+					    	 throw new BusinessException("该产品上架策略库位必须有相同批次！");
+					     }else if(code==10){
+					    	 throw new BusinessException("该产品上架策略库位必须有相同产品！");
+					     }
+				 }  else {
+				             throw new BusinessException("扫描标签未生成入库单");
+			             }
+			   } else {
+					     throw new BusinessException("扫描标签已上架");
+				      }
+		    } else {
+				      throw new BusinessException("扫描标签不存在");
+				   }
+	
+			
+		return returnBarcode;
+		}
+
+	
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年6月17日上午10:20:52
+	*@param track
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description
+	*/
+	@Override
+	public TrackBarcode billReturnInput(TrackBarcode track, CommonParam commonParam) throws BusinessException, SQLException  {
+		
+		//定义全局
+		TrackBarcode trackBarcode = new TrackBarcode();
+		BarcodeMain barcodeMainTemp = new BarcodeMain();
+		TrackBarcode returnBarcode = new TrackBarcode();
+		
+			//查找标签信息
+			barcodeMainTemp=this.getMainVoByCode(track.getBarcode(), commonParam);
+			
+			//判断是否有数据返回，无数据返回则抛出标签未生成异常
+			if (barcodeMainTemp !=null) {
+				
+				//判断标签状态是否为新建状态，只有新建的标签才能上架，如果不是则返回相应状态
+				if (barcodeMainTemp.getBarcodeStatusDictId().equals(EnumDictBarcodeStatus.OUTSTORE.getValue()) ) {
+					
+					//查找标签入库单信息
+					trackBarcode=this.getVoByCode(track.getBarcode(), commonParam);
+					
+					//判断标签是否生成入库单
+					if (trackBarcode != null) {
+						
+						//查询策略
+						// 从物料主表找出该物料维护的产品id
+						ProductMaterial material = productMaterialDao.selectById(barcodeMainTemp.getMaterialId());
+						if (material.getProductId() == null || material.getProductId().equals("")) {
+							throw new BusinessException("该物料没有维护产品！");
+						}
+						// 找出该产品选择的上架策略
+						ProductMain productMain = productMainDao.selectById(material.getProductId());
+						if (productMain.getStrategyUpshelfId() == null || productMain.getStrategyUpshelfId().equals("")) {
+							throw new BusinessException("该物料对应的产品没有分配上架策略！");
+						}
+						// 调用上架策略接口实现类
+						UpShelfStrategyServiceImpl upShelfStrategy = new UpShelfStrategyServiceImpl();
+						upShelfStrategy.setWarehouseStrategyUpshelfDao(warehouseStrategyUpshelfDao);
+						upShelfStrategy.setWarehouseLocationDao(warehouseLocationDao);
+						upShelfStrategy.setBarcodeMainDao(barcodeMainDao);
+						upShelfStrategy.setLocationId(track.getLocationId());
+						upShelfStrategy.setBarcode(track.getBarcode());
+						upShelfStrategy.setWarehouseId(track.getWarehouseId());
+						upShelfStrategy.setStrategyCode(productMain.getStrategyUpshelfId());
+						int code=(int) upShelfStrategy.Startegy();
+						
+						if (code==0){
+						
+						
+					
+						List<BarcodeMain> barCodeList = new ArrayList<BarcodeMain>();
+						
+						// 获得内外箱处理后的所有条码信息
+						barCodeList = this.getInsideBarcode(barcodeMainTemp, track.getBillId(),
+								track.getBillItemId(),EnumDictBarcodeStatus.INSTORE.getValue(),
+						EnumDictBillStatus.FINISHED.getValue(),track.getLocationId(),track.getWarehouseId(), commonParam);
+						
+						// 批量更改状态为上架
+						barcodeMainDao.updateBatch(barCodeList, commonParam);
+						
+						// 批量更新条码追溯记录
+						List<TrackBarcode> trackList = new ArrayList<TrackBarcode>();
+						trackList = trackBarcodeDao.exchangeBarcode(barCodeList, "update",commonParam);
+						trackBarcodeDao.updateBatchTrack(trackList, commonParam);
+						
+						//更改当前入库上架单明细表为处理中状态
+						billWarehouseItemDao.updateInstore(track.getBillItemId(), EnumDictBillStatus.DOING.getValue(), trackBarcode.getQuantity(), commonParam);
+							
+						//更改当前入库上架单主表为处理中状态
+						billWarehouseDao.updateBillStatusMain(track.getBillId(), EnumDictBillStatus.DOING.getValue(), commonParam);
+						
+						//新增退料入库单处理中状态的历史表
+						BillWarehouse billWarehouse=billWarehouseDao.selectById(track.getBillId());
+						historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WAREHOUSE_IN.getValue(), EnumDictBillStatus.DOING.getValue(), track.getBillId(),billWarehouse.getBillCode(), commonParam);
+						
+						
+					    //判断扫描标签的入库上架单是否已扫完所有标签，全部上架完毕后，更新为完结状态
+						List<TrackBarcode> isofList =new ArrayList<TrackBarcode>();
+						TrackBarcodeParamVo trackisofparamVo = new TrackBarcodeParamVo();
+						trackisofparamVo.setBillId(track.getBillId());
+						trackisofparamVo.setBillStatusDictId(EnumDictBillStatus.NEW.getValue());
+						isofList = trackBarcodeDao.selectListByParamVo(trackisofparamVo);
+						if (isofList.size() == 0){
+							  //更新退料上架单主表状态信息为完结
+								billWarehouseDao.updateBillStatusMain(track.getBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新退料上架单明细单据状态
+								billWarehouseItemDao.updateBillItemStatus(track.getBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新退料上架单追踪条码表的单据状态
+								trackBarcodeDao.updateTrackStatus(track.getBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+								
+							  //新增退料入库单完结状态的历史表
+								historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WAREHOUSE_IN.getValue(), EnumDictBillStatus.FINISHED.getValue(), track.getBillId(),billWarehouse.getBillCode(), commonParam);
+								
+							  //查询退料单主单
+								BillWarehouse bill = billWarehouseDao.selectById(track.getBillId());
+							  //更新退料单主表状态信息为完结
+								billWarehouseDao.updateBillStatusMain(bill.getFromBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新退料单明细单据状态
+								billWarehouseItemDao.updateBillItemStatus(bill.getFromBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新退料单追踪条码表的单据状态
+								trackBarcodeDao.updateTrackStatus(bill.getFromBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //新增退料单完结状态的历史表
+								BillWarehouse billReturn = billWarehouseDao.selectById(bill.getFromBillId());
+								historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WAREHOUSE_MATER_RETURN.getValue(), EnumDictBillStatus.FINISHED.getValue(), bill.getFromBillId(), billReturn.getBillCode(),commonParam);
+						}
+					
+						//增加库位库存数量
+						WarehouseLocationStockParamVo paramVo=new WarehouseLocationStockParamVo();
+						WarehouseLocation location=warehouseLocationDao.selectById(track.getLocationId());
+						paramVo.setFactoryId(location.getFactoryId());
+						paramVo.setWarehouseId(location.getWarehouseId());
+						paramVo.setAreaId(location.getAreaId());
+						paramVo.setRackId(location.getRackId());
+						paramVo.setLocationId(location.getId());
+						paramVo.setProductId(barcodeMainTemp.getProductId());
+						paramVo.setMaterialId(barcodeMainTemp.getMaterialId());
+						warehouseLocationStockDao.StockChange(paramVo, barcodeMainTemp.getQuantity(), "IN", commonParam);
+						
+						//增加物料规格库存数量
+						WarehouseProductStockParamVo productParamVo=new WarehouseProductStockParamVo();
+						WarehouseLocation loc=warehouseLocationDao.selectById(track.getLocationId());
+						productParamVo.setFactoryId(loc.getFactoryId());
+						productParamVo.setProductId(barcodeMainTemp.getProductId());
+						productParamVo.setMaterialId(barcodeMainTemp.getMaterialId());
+						warehouseProductStockDao.productStockChange(productParamVo, barcodeMainTemp.getQuantity(), "IN", commonParam);
+						
+						//返回PDA标签上架成功信息
+						List<TrackBarcode> ListVo= new ArrayList<TrackBarcode>();
+						TrackBarcodeParamVo trackparamVo = new TrackBarcodeParamVo();
+						trackparamVo.setBarcode(track.getBarcode());
+						trackparamVo.setBillId(track.getBillId());
+						trackparamVo.setBillItemId(track.getBillItemId());
+						ListVo=trackBarcodeDao.selectListByParamVo(trackparamVo);
+						returnBarcode=ListVo.get(0);
+					
+						}else if(code==1){
+					    	 throw new BusinessException("该产品上架策略所属工厂与扫描位置工厂不匹配！");
+					     }else if(code==2){
+					    	 throw new BusinessException("该产品上架策略所属仓库与扫描位置仓库不匹配！");
+					     }else if(code==3){
+					    	 throw new BusinessException("该产品上架策略所属区域与扫描位置区域不匹配！");
+					     }else if(code==4){
+					    	 throw new BusinessException("该产品上架策略所属货架与扫描位置货架不匹配！");
+					     }else if(code==5){
+					    	 throw new BusinessException("该产品上架策略所属货位与扫描位置货位不匹配！");
+					     }else if(code==6){
+					    	 throw new BusinessException("该产品上架策略库位必须是空！");
+					     }else if(code==7){
+					    	 throw new BusinessException("该产品上架策略库位不允许混放批次！");
+					     }else if(code==8){
+					    	 throw new BusinessException("该产品上架策略库位不允许混放产品！");
+					     }else if(code==9){
+					    	 throw new BusinessException("该产品上架策略库位必须有相同批次！");
+					     }else if(code==10){
+					    	 throw new BusinessException("该产品上架策略库位必须有相同产品！");
+					     }
+				 }  else {
+				             throw new BusinessException("扫描标签未生成退料入库单");
+			             }
+			   } else {
+					     throw new BusinessException("扫描标签已上架");
+				      }
+		    } else {
+				      throw new BusinessException("扫描标签不存在");
+				   }
+	
+			
+		return returnBarcode;
+		}
+	
+	/**
+	*@auther:Chen
+	*@version:2019年6月17日上午10:20:52
+	*@param track
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description
+	*/
+	@Override
+	public TrackBarcode billSaleReturnInput(TrackBarcode track, CommonParam commonParam) throws BusinessException, SQLException  {
+		
+		//定义全局
+		TrackBarcode trackBarcode = new TrackBarcode();
+		BarcodeMain barcodeMainTemp = new BarcodeMain();
+		TrackBarcode returnBarcode = new TrackBarcode();
+		
+			//查找标签信息
+			barcodeMainTemp=this.getMainVoByCode(track.getBarcode(), commonParam);
+			
+			//判断是否有数据返回，无数据返回则抛出标签未生成异常
+			if (barcodeMainTemp !=null) {
+				
+				//判断标签状态是否为新建状态，只有新建的标签才能上架，如果不是则返回相应状态
+				if (barcodeMainTemp.getBarcodeStatusDictId().equals(EnumDictBarcodeStatus.OUTSTORE.getValue()) ) {
+					
+					//查找标签入库单信息
+					trackBarcode=this.getVoByCode(track.getBarcode(), commonParam);
+					
+					//判断标签是否生成入库单
+					if (trackBarcode != null) {
+						
+						//查询策略
+						// 从物料主表找出该物料维护的产品id
+						ProductMaterial material = productMaterialDao.selectById(barcodeMainTemp.getMaterialId());
+						if (material.getProductId() == null || material.getProductId().equals("")) {
+							throw new BusinessException("该物料没有维护产品！");
+						}
+						// 找出该产品选择的上架策略
+						ProductMain productMain = productMainDao.selectById(material.getProductId());
+						if (productMain.getStrategyUpshelfId() == null || productMain.getStrategyUpshelfId().equals("")) {
+							throw new BusinessException("该物料对应的产品没有分配上架策略！");
+						}
+						// 调用上架策略接口实现类
+						UpShelfStrategyServiceImpl upShelfStrategy = new UpShelfStrategyServiceImpl();
+						upShelfStrategy.setWarehouseStrategyUpshelfDao(warehouseStrategyUpshelfDao);
+						upShelfStrategy.setWarehouseLocationDao(warehouseLocationDao);
+						upShelfStrategy.setBarcodeMainDao(barcodeMainDao);
+						upShelfStrategy.setLocationId(track.getLocationId());
+						upShelfStrategy.setBarcode(track.getBarcode());
+						upShelfStrategy.setWarehouseId(track.getWarehouseId());
+						upShelfStrategy.setStrategyCode(productMain.getStrategyUpshelfId());
+						int code=(int) upShelfStrategy.Startegy();
+						
+						if (code==0){
+						
+						
+					
+						List<BarcodeMain> barCodeList = new ArrayList<BarcodeMain>();
+						
+						// 获得内外箱处理后的所有条码信息
+						barCodeList = this.getInsideBarcode(barcodeMainTemp, track.getBillId(),
+								track.getBillItemId(),EnumDictBarcodeStatus.INSTORE.getValue(),
+						EnumDictBillStatus.FINISHED.getValue(),track.getLocationId(),track.getWarehouseId(), commonParam);
+						
+						// 批量更改状态为上架
+						barcodeMainDao.updateBatch(barCodeList, commonParam);
+						
+						// 批量更新条码追溯记录
+						List<TrackBarcode> trackList = new ArrayList<TrackBarcode>();
+						trackList = trackBarcodeDao.exchangeBarcode(barCodeList, "update",commonParam);
+						trackBarcodeDao.updateBatchTrack(trackList, commonParam);
+						
+						//更改当前入库上架单明细表为处理中状态
+						billWarehouseItemDao.updateInstore(track.getBillItemId(), EnumDictBillStatus.DOING.getValue(), trackBarcode.getQuantity(), commonParam);
+							
+						//更改当前入库上架单主表为处理中状态
+						billWarehouseDao.updateBillStatusMain(track.getBillId(), EnumDictBillStatus.DOING.getValue(), commonParam);
+						
+						//新增退料入库单处理中状态的历史表
+						BillWarehouse billWarehouse=billWarehouseDao.selectById(track.getBillId());
+						historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WAREHOUSE_IN.getValue(), EnumDictBillStatus.DOING.getValue(), track.getBillId(), billWarehouse.getBillCode(),commonParam);
+						
+						
+					    //判断扫描标签的入库上架单是否已扫完所有标签，全部上架完毕后，更新为完结状态
+						List<TrackBarcode> isofList =new ArrayList<TrackBarcode>();
+						TrackBarcodeParamVo trackisofparamVo = new TrackBarcodeParamVo();
+						trackisofparamVo.setBillId(track.getBillId());
+						trackisofparamVo.setBillStatusDictId(EnumDictBillStatus.NEW.getValue());
+						isofList = trackBarcodeDao.selectListByParamVo(trackisofparamVo);
+						if (isofList.size() == 0){
+							  //更新退料上架单主表状态信息为完结
+								billWarehouseDao.updateBillStatusMain(track.getBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新退料上架单明细单据状态
+								billWarehouseItemDao.updateBillItemStatus(track.getBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新退料上架单追踪条码表的单据状态
+								trackBarcodeDao.updateTrackStatus(track.getBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+								
+							  //新增退料入库单完结状态的历史表
+								historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WAREHOUSE_IN.getValue(), EnumDictBillStatus.FINISHED.getValue(), track.getBillId(),billWarehouse.getBillCode(), commonParam);
+								
+							  //查询退料单主单
+								BillWarehouse bill = billWarehouseDao.selectById(track.getBillId());
+							  //更新退料单主表状态信息为完结
+								billWarehouseDao.updateBillStatusMain(bill.getFromBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新退料单明细单据状态
+								billWarehouseItemDao.updateBillItemStatus(bill.getFromBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //更新退料单追踪条码表的单据状态
+								trackBarcodeDao.updateTrackStatus(bill.getFromBillId(), EnumDictBillStatus.FINISHED.getValue(), commonParam);
+							  //新增退料单完结状态的历史表
+								BillWarehouse billReject=billWarehouseDao.selectById(bill.getFromBillId());
+								historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WAREHOUSE_REJECT_CUSTOMER.getValue(), EnumDictBillStatus.FINISHED.getValue(), bill.getFromBillId(),billReject.getBillCode(), commonParam);
+						}
+					
+						//增加库存数量
+						WarehouseLocationStockParamVo paramVo=new WarehouseLocationStockParamVo();
+						WarehouseLocation location=warehouseLocationDao.selectById(track.getLocationId());
+						paramVo.setFactoryId(location.getFactoryId());
+						paramVo.setWarehouseId(location.getWarehouseId());
+						paramVo.setAreaId(location.getAreaId());
+						paramVo.setRackId(location.getRackId());
+						paramVo.setLocationId(location.getId());
+						paramVo.setProductId(barcodeMainTemp.getProductId());
+						paramVo.setMaterialId(barcodeMainTemp.getMaterialId());
+						warehouseLocationStockDao.StockChange(paramVo, barcodeMainTemp.getQuantity(), "IN", commonParam);
+						
+						//增加物料规格库存数量
+						WarehouseProductStockParamVo productParamVo=new WarehouseProductStockParamVo();
+						WarehouseLocation loc=warehouseLocationDao.selectById(track.getLocationId());
+						productParamVo.setFactoryId(loc.getFactoryId());
+						productParamVo.setProductId(barcodeMainTemp.getProductId());
+						productParamVo.setMaterialId(barcodeMainTemp.getMaterialId());
+						warehouseProductStockDao.productStockChange(productParamVo, barcodeMainTemp.getQuantity(), "IN", commonParam);
+						
+						//返回PDA标签上架成功信息
+						List<TrackBarcode> ListVo= new ArrayList<TrackBarcode>();
+						TrackBarcodeParamVo trackparamVo = new TrackBarcodeParamVo();
+						trackparamVo.setBarcode(track.getBarcode());
+						trackparamVo.setBillId(track.getBillId());
+						trackparamVo.setBillItemId(track.getBillItemId());
+						ListVo=trackBarcodeDao.selectListByParamVo(trackparamVo);
+						returnBarcode=ListVo.get(0);
+					
+						}else if(code==1){
+					    	 throw new BusinessException("该产品上架策略所属工厂与扫描位置工厂不匹配！");
+					     }else if(code==2){
+					    	 throw new BusinessException("该产品上架策略所属仓库与扫描位置仓库不匹配！");
+					     }else if(code==3){
+					    	 throw new BusinessException("该产品上架策略所属区域与扫描位置区域不匹配！");
+					     }else if(code==4){
+					    	 throw new BusinessException("该产品上架策略所属货架与扫描位置货架不匹配！");
+					     }else if(code==5){
+					    	 throw new BusinessException("该产品上架策略所属货位与扫描位置货位不匹配！");
+					     }else if(code==6){
+					    	 throw new BusinessException("该产品上架策略库位必须是空！");
+					     }else if(code==7){
+					    	 throw new BusinessException("该产品上架策略库位不允许混放批次！");
+					     }else if(code==8){
+					    	 throw new BusinessException("该产品上架策略库位不允许混放产品！");
+					     }else if(code==9){
+					    	 throw new BusinessException("该产品上架策略库位必须有相同批次！");
+					     }else if(code==10){
+					    	 throw new BusinessException("该产品上架策略库位必须有相同产品！");
+					     }
+				 }  else {
+				             throw new BusinessException("扫描标签未生成退料入库单");
+			             }
+			   } else {
+					     throw new BusinessException("扫描标签已上架");
+				      }
+		    } else {
+				      throw new BusinessException("扫描标签不存在");
+				   }
+	
+			
+		return returnBarcode;
+		}
+}

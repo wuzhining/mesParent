@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head> 
+  <title>修改密码</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+    body{padding:10px;
+    	 font-size:14px; 
+    	 background:#fff; 
+    	 width:95%; 
+    	 margin:0 auto; 
+    	 font-size:14px; 
+    	 line-height:20px;
+    	  overflow:hidden;}
+    p{margin-bottom:10px;}
+    input{border:1px solid #999;
+     padding:5px 10px; 
+     margin:0 10px 10px 0;}
+     
+     #user-pass{
+     	width: 20%;
+     	position: absolute;
+  		left: 35%;
+  		top: 24%;
+     }
+     
+  </style>
+  </head>
+<body>
+
+<div class="layui-form layui-form-pane" id="user-pass" lay-filter="form-user-pass">
+   <div class="layui-form-item">
+    <label class="layui-form-label">旧密码</label>
+    <div class="layui-input-block">
+    	<input type="password" id="oldPassword" name="oldPassword"  placeholder="请输入旧密码" autocomplete="off" class="layui-input" lay-verify="pass">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">新密码</label>
+    <div class="layui-input-block">
+    	<input type="password" id="newPassword" name="newPassword"  placeholder="请输入新密码" autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">确认密码</label>
+    <div class="layui-input-block">
+      <input type="password" name="password" id="password" placeholder="请再输入一次新密码" autocomplete="off" class="layui-input"  lay-verify="password">
+    </div>
+  </div>
+	<div class="layui-btn-container" style="text-align:center">
+	  <button id="btnUserPass" class="layui-btn layui-btn-primary" lay-submit="" lay-filter="save">确认修改</button>
+	</div>
+</div>
+
+ <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+           //自定义验证规则
+          form.verify({
+        	  pass:function(value){
+        		  if(value == null){
+        			  return '原密码不可为空！';
+        		  }
+        	  }
+        	  ,required:function(value){
+        		  if(value == null){
+        			  return '新密码不可为空！';
+        		  }
+        	  }
+        	  ,password:function(value){
+        		  if(value == null){
+        			  return '确认密码不可为空！';
+        		  }
+        	  }
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var datas = data.field;
+        	  newPassword = data.field.newPassword;
+        	  password =  data.field.password;
+        	  var ide = ${user.id?c};
+        	  var userName = "${user.userName}";
+        	  //alert(ide+"-"+userName);
+        	  
+        	  if(newPassword != password){
+        		  layer.alert('两次密码不一致!',{
+	    			  icon:2
+	    		  });
+  		    	return false;
+        	  }
+        	  var url = '/sys/userPassport/usersave';
+        	  layuiformajax.postJson(url,{"id":ide,"userName":userName,"oldPassword":datas.oldPassword,"newPassword":datas.newPassword,"password":datas.password}, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6});
+      	    	   //调用退出得url
+      	    	 location.href="javascript:logout()";
+      	    	
+      	    });
+      		  
+            return false;
+          }); 
+        });
+    </script>
+    <script>
+     function logout(){
+    	  $.postForm('../../passport/logout', '', function (result) { 
+    			if(result.isSuccess) {
+    				window.parent.frames.location.href="../../passport/index";
+    			} else { 
+    				$('#alertContent').text(result.message);
+    			}
+    		});
+     }
+    
+    </script>
+   
+  </body>
+
+</html>

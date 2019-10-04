@@ -1,0 +1,28 @@
+package com.techsoft.dao.warehouse;
+
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.entity.common.WarehouseProductStock;
+import com.techsoft.entity.warehouse.WarehouseProductStockParamVo;
+
+public interface WarehouseProductStockDao extends BaseDao<WarehouseProductStock> {
+
+	/**
+	*@auther:Chen
+	*@version:2019年8月19日上午9:29:49
+	*@param paramVo  
+	*@param qty
+	*@param Type
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description 增减产品库存数量
+	*/
+	public ResultMessage productStockChange(WarehouseProductStockParamVo paramVo, Double qty, String Type,
+			CommonParam commonParam) throws BusinessException, SQLException;
+
+}

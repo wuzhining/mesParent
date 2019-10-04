@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+ <script type="text/html" id="factoryName">
+	{{#  if(d.structFactory){}}
+		{{ d.structFactory.factoryName 
+ 	}}
+	{{# } }}
+</script>
+   <script type="text/html" id="processName">
+	{{#  if(d.structProcess){}}
+		{{ d.structProcess.processName
+ 	}}
+	{{# } }}
+</script>
+   <script type="text/html" id="lineTypeDictIdName">
+	{{#  if(d.processDictionary){}}
+		{{ d.processDictionary.dictName
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="prevNodeName">
+	{{#  if(d.structProcessNodePrev){}}
+		{{ d.structProcessNodePrev.nodeNames
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="nextNodeName">
+	{{#  if(d.structProcessNodeNext){}}
+		{{ d.structProcessNodeNext.nodeNames
+ 	}}
+	{{# } }}
+</script>
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">生产工艺</a> <a><cite>工艺流程路线</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <select name="processId">
+             <option value="">请选择工艺路线</option> 
+               <#if processList??>
+                   <#list processList as item>
+		           <option value="${item.id?c}" >${item.processName}</option>
+		        </#list>
+		     </#if> 
+          </select>
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <!-- <button class="layui-btn" onclick="layer_window_show('添加工艺流程','/struct/structProcess/edit')"><i class="layui-icon"></i>添加</button> -->
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+
+    </div>
+    
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/struct/structProcessLine/list/json'
+    	,cols: [[
+    	    {field:'id', width:140, title: 'ID',align:'center'}
+    	    ,{field:'factoryName',  title: '工厂名称',align:'center', minWidth: 120,templet:'#factoryName'}
+    	    ,{field:'processName',  title: '工艺流程名称', align:'center',minWidth: 120,templet:'#processName'}
+    	    ,{field:'processVersion',  title: '当前版本', align:'center',minWidth: 120}
+    	    ,{field:'prevNodeName',  title: '上一个工序名称', align:'center',minWidth: 120,templet:'#prevNodeName'}
+    	    ,{field:'nextNodeName',  title: '下一个工序名称', align:'center',minWidth: 120,templet:'#nextNodeName'}
+    	    ,{field:'lineTypeDictIdName',  title: '流转线类型', align:'center',minWidth: 120,templet:'#lineTypeDictIdName'}
+    	    ,{field:'remark',  title: '备注', align:'center',minWidth: 120}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+    	]]
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

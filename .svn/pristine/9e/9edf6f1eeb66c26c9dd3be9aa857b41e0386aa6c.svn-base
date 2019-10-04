@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+            <tr>
+               <td width="15%" class="tableleft">领料单号</td>
+                <td>
+                    <input type="text" name="billCode"  class="layui-input" maxlength="20" value="${(entity.billCode)!''}"/>
+                </td> 
+               <td width="10%" class="tableleft" >领料单状态</td>
+               <td>
+                 <select id="billStatusDictId" name="billStatusDictId" disabled="true" > 
+                    <#if billStatusDictIdList??>
+                     <#list billStatusDictIdList as item>
+			            <option value="${item.id?c}" <#if (entity.billStatusDictId??&&entity.billStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+            </tr>
+           
+            <tr>
+                <td width="15%" class="tableleft">描述</td>
+                <td colspan="3">
+                    <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+                </td> 
+            </tr>
+       </table>  
+        <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+					    <div class="layui-col-md12" style='text-align:center;'>
+			    	      <span class="layui-breadcrumb"> 
+					         <cite>领料单明细</cite>
+					      </span>
+					    </div>
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   			
+		   				<div class="layui-col-md12" style='text-align:center;'>
+			    	      <span class="layui-breadcrumb"> 
+					         <cite>操作历史记录</cite>
+					      </span>
+					    </div>
+		   			<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="historyBillStatus" lay-filter="historyBillStatus"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+      </form>
+    </div>
+  
+ <script type="text/html" id="billStatus">
+	{{#  if(d.billStatus){}}
+		{{ d.billStatus.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="productMaterial">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script>
+<script type="text/html" id="statusDictNameTpl">
+	{{#  if(d.configDictionary){}}
+		{{ d.configDictionary.dictName 
+ 	}}
+	{{# } }}
+ </script>
+  <script type="text/html" id="billStatusDictNameTpl">
+	{{#  if(d.billStatusDictionary){}}
+		{{ d.billStatusDictionary.dictName
+ 	}}
+	{{# } }}
+ </script>  
+  <script type="text/html" id="createUserNameTpl">
+	{{#  if(d.caretUserPassport){}}
+		{{ d.caretUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="modifyUserNameTpl">
+	{{#  if(d.modifyUserPassport){}}
+		{{ d.modifyUserPassport.userName 
+ 	}}
+	{{# } }}
+ </script>
+   
+  <script>
+  var statusDictId="10313";
+  var ids = $("#id").val();
+  var statuId=window.parent.billStatusDictId;
+  if (ids!=null&&ids!=""){
+	if(statuId=='10488'){
+		$('#billStatusDictId').attr("disabled", false);
+	}
+  }else{
+	    ids="0";
+		$('#billStatusDictId').val(10488);
+		$('#auditStatusDictId').val(10585);
+  }
+
+     layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+    	var form = layui.form, 
+    	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+    	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+    	var layuiformajax = layui.layuiformajax;
+    	var curTable = layuitable.render({
+        	elem: '#listTable'
+        	,height:200
+        	,id:'listTable'
+        	,url:'/bill/billWarehouseItem/list/json?billId='+ids
+        	,cols: [[
+        	         {field:'materialId', width:120, title: '物料编码',align:'center'}
+     	    	    ,{field:'materialName', width:120, title: '物料名称',align:'center',templet:'#productMaterial'}
+     	    	    ,{field:'sku', title: '物料规格值', align:'center',minWidth: 220,templet: '#sku'}
+     	    	    ,{field:'billStatus',  title: '领料状态',align:'center', minWidth: 120,templet:'#billStatus'}
+     	    	    ,{field:'quantity',  title: '单据数量',align:'center', minWidth: 120}
+     	    	    ,{field:'quantityFinish',  title: '完成数量',align:'center', minWidth: 120}
+     	    	    ,{field:'quantityScan',  title: '扫描数量',align:'center', minWidth: 120}
+        	]]
+	    	/* ,done: function () {
+		        $("[data-field='billPurchaseId']").css('display','none');
+		        $("[data-field='productId']").css('display','none');
+		        $("[data-field='materialId']").css('display','none');
+		        $("[data-field='billStatusDictId']").css('display','none');
+		    } */
+      	});
+		    //查看
+			$("form :input").prop('disabled',true)//整个form表单不可编辑
+			layui.form.render('select');//layui禁用下拉框必须加，否则无效
+    	
+    	
+    	var historyBillStatusTable = layuitable.render({
+        	elem: '#historyBillStatus'
+        	,height:200
+        	,id:'listTable'
+        	,url:'/history/historyBillStatus/list/json?billId='+ids+'&&billTypeDictId=10271'
+        	,cols: [[
+            	      
+             	     {field:'id', width:120, title: 'ID',align:'center'}
+             	    /* ,{field:'billStatusDictId',  title: '状态',align:'center', minWidth: 120} */
+             	    ,{field:'billStatusDictName',  title: '状态',align:'center', minWidth: 120,templet:'#billStatusDictNameTpl'} 
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+		           	/* ,{field:'createTime',  title: '创建时间',align:'center', minWidth: 120} */
+	          	    ,{field:'modifyTime',  title: '操作时间',align:'center', minWidth: 120}
+	          	   /*  ,{field:'createUserId',  title: '创建人',align:'center', minWidth: 120} */
+	          	   /*  ,{field:'createUserName',  title: '操作人',align:'center', minWidth: 120,templet:'#createUserNameTpl'} */
+	          	    /* ,{field:'modifyUserId',  title: '更新人',align:'center', minWidth: 120} */
+	          	    ,{field:'modifyUserId',  title: '操作人',align:'center', minWidth: 120,templet:'#modifyUserNameTpl'}
+        	]]
+	    	/* ,done: function () {
+		        $("[data-field='billTypeDictId']").css('display','none');
+		        $("[data-field='billStatusDictId']").css('display','none');
+		        $("[data-field='createUserId']").css('display','none');
+		        $("[data-field='modifyUserId']").css('display','none');
+		    } */
+      	});
+
+    });
+     
+    </script>
+  </body>
+
+</html>

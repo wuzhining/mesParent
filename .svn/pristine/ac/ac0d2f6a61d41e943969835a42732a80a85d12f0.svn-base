@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd  
+                        http://www.springframework.org/schema/context  
+                        http://www.springframework.org/schema/context/spring-context-4.3.xsd  
+                        http://www.springframework.org/schema/mvc  
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+                        http://www.springframework.org/schema/aop
+                        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+                        http://code.alibabatech.com/schema/dubbo
+                        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	<!-- 扫描注解包路径，多个包用逗号分隔，不填pacakge表示扫描当前ApplicationContext中所有的类 -->
+	<dubbo:annotation package="com.techsoft.service" />
+	<!-- spring自动扫描 Dao和controller -->
+	<context:component-scan base-package="com.techsoft.dao" />
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	
+	<!-- 引入配置文件 -->
+	<bean id="propertyConfigurer" class="com.spring.extend.CustomizedPropertyConfigurer">
+		<property name="locations">
+			<list>
+				<!--要是有多个配置文件，只需在这里继续添加即可 -->
+				<value>classpath*:parameter.properties</value>
+				<value>classpath*:zklock.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 提供方应用信息，用于计算依赖关系 -->
+	<dubbo:application name="dubbo-service" />
+
+	<!-- 使用multicast广播注册中心暴露服务地址 -->
+	<dubbo:registry address="${dubbo.zkaddress}" timeout="${dubbo.timeout}"
+		check="false" />
+
+	<!-- 用dubbo协议在20880端口暴露服务 -->
+	<dubbo:protocol host="${dubbo.protocol.host}" name="dubbo"
+		port="${dubbo.port}" />
+
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<!-- 基本属性 url、user、password -->
+		<property name="driverClassName" value="${druid.driver}" />
+		<property name="url" value="${druid.url}" />
+		<property name="username" value="${druid.username}" />
+		<property name="password" value="${druid.password}" />
+		 <!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="${druid.initialSize}"></property>
+		<property name="maxActive" value="${druid.maxActive}"></property>
+		<property name="minIdle" value="${druid.minIdle}"></property>
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="${druid.maxWait}" />
+		
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="${druid.timeBetweenEvictionRunsMillis}" />				
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+  		<property name="minEvictableIdleTimeMillis" value="${druid.minEvictableIdleTimeMillis}" />		
+		<property name="validationQuery" value="${druid.validationQuery}" />
+		<property name="testWhileIdle" value="${druid.testWhileIdle}" />
+		<property name="testOnBorrow" value="${druid.testOnBorrow}" />
+		<property name="testOnReturn" value="${druid.testOnReturn}" />		
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="${druid.filters}" />
+	</bean>
+
+	<!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<!-- 自动扫描mapping.xml文件 -->
+		<property name="mapperLocations"
+			value="classpath*:**/mapper/mysql/**/**//*Mapper.xml"></property>
+		<property name="typeAliasesPackage" value="com.techsoft.test.entity"></property>
+	</bean>
+
+	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.techsoft.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<!-- (事务管理)transaction manager for global tx -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager" >
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+	   
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="select*" propagation="REQUIRED" read-only="true" />
+            <tx:method name="count*" propagation="REQUIRED" read-only="true" />
+            <tx:method name="page*" propagation="REQUIRED" />
+            <tx:method name="update*" propagation="REQUIRED" isolation="READ_COMMITTED" rollback-for="java.lang.Exception"/>
+            <tx:method name="insert*" propagation="REQUIRED" isolation="READ_COMMITTED" rollback-for="java.lang.Exception"/>
+            <tx:method name="delete*" propagation="REQUIRED" isolation="READ_COMMITTED" rollback-for="java.lang.Exception"/>
+            <tx:method name="save*" propagation="REQUIRED" isolation="READ_COMMITTED" rollback-for="java.lang.Exception"/>
+            <tx:method name="create*" propagation="REQUIRED" isolation="READ_COMMITTED" rollback-for="java.lang.Exception"/>
+            <tx:method name="edit*" propagation="REQUIRED" isolation="READ_COMMITTED" rollback-for="java.lang.Exception"/>
+            <tx:method name="requiresNew*" propagation="REQUIRES_NEW" isolation="READ_COMMITTED" rollback-for="java.lang.Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    
+    <!-- 只对业务逻辑(service)层实施事务--> 
+    <aop:config>
+        <aop:pointcut id="txPointcut" 
+            expression="execution(* com.kuping.service..*.*(..))" />
+        <aop:advisor  advice-ref="txAdvice" pointcut-ref="txPointcut" />
+    </aop:config>
+    
+</beans>

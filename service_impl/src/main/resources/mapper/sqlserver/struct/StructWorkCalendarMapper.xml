@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.struct.StructWorkCalendarMapper">
+	<resultMap id="StructWorkCalendar" type="com.techsoft.entity.common.StructWorkCalendar" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="DATES" property="dates" />
+		<result column="DATE_YEAR" property="dateYear" />
+		<result column="DATE_MONTH" property="dateMonth" />
+		<result column="DATE_DAY" property="dateDay" />
+		<result column="WEEKDAY" property="weekday" />
+		<result column="PERIODTIME" property="periodtime" />
+		<result column="IS_VACATION" property="isVacation" />
+		<result column="IS_WORK" property="isWork" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="dates != null">
+			AND A.DATES= #{dates}
+		</if>
+		<if test="dateYear != null">
+			AND A.DATE_YEAR= #{dateYear}
+		</if>
+		<if test="dateMonth != null">
+			AND A.DATE_MONTH= #{dateMonth}
+		</if>
+		<if test="dateDay != null">
+			AND A.DATE_DAY= #{dateDay}
+		</if>
+		<if test="weekday != null">
+			AND A.WEEKDAY= #{weekday}
+		</if>
+		<if test="periodtime != null">
+			AND A.PERIODTIME= #{periodtime}
+		</if>
+		<if test="isVacation != null">
+			AND A.IS_VACATION= #{isVacation}
+		</if>
+		<if test="isWork != null">
+			AND A.IS_WORK= #{isWork}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.DATES,
+		A.DATE_YEAR,
+		A.DATE_MONTH,
+		A.DATE_DAY,
+		A.WEEKDAY,
+		A.PERIODTIME,
+		A.IS_VACATION,
+		A.IS_WORK,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for STRUCT_WORK_CALENDAR_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STRUCT_WORK_CALENDAR
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StructWorkCalendar">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_WORK_CALENDAR A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StructWorkCalendar">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_WORK_CALENDAR A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_WORK_CALENDAR A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE   A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_WORK_CALENDAR A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StructWorkCalendar">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_WORK_CALENDAR A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructWorkCalendar">
+		INSERT INTO STRUCT_WORK_CALENDAR (
+		TENANT_ID,
+		FACTORY_ID,
+		DATES,
+		DATE_YEAR,
+		DATE_MONTH,
+		DATE_DAY,
+		WEEKDAY,
+		PERIODTIME,
+		IS_VACATION,
+		IS_WORK,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{dates},
+		#{dateYear},
+		#{dateMonth},
+		#{dateDay},
+		#{weekday},
+		#{periodtime},
+		#{isVacation},
+		#{isWork},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructWorkCalendar">
+		UPDATE STRUCT_WORK_CALENDAR SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		DATES=#{dates},
+		DATE_YEAR=#{dateYear},
+		DATE_MONTH=#{dateMonth},
+		DATE_DAY=#{dateDay},
+		WEEKDAY=#{weekday},
+		PERIODTIME=#{periodtime},
+		IS_VACATION=#{isVacation},
+		IS_WORK=#{isWork},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructWorkCalendar">
+		UPDATE STRUCT_WORK_CALENDAR SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="dates != null" >
+			DATES=#{dates},
+		</if>
+		<if test="dateYear != null" >
+			DATE_YEAR=#{dateYear},
+		</if>
+		<if test="dateMonth != null" >
+			DATE_MONTH=#{dateMonth},
+		</if>
+		<if test="dateDay != null" >
+			DATE_DAY=#{dateDay},
+		</if>
+		<if test="weekday != null" >
+			WEEKDAY=#{weekday},
+		</if>
+		<if test="periodtime != null" >
+			PERIODTIME=#{periodtime},
+		</if>
+		<if test="isVacation != null" >
+			IS_VACATION=#{isVacation},
+		</if>
+		<if test="isWork != null" >
+			IS_WORK=#{isWork},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.struct.StructWorkCalendarParamVo"
+		      resultType="com.techsoft.entity.common.StructWorkCalendar" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_WORK_CALENDAR A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

@@ -1,0 +1,164 @@
+package com.techsoft.dao.quality;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.QualitySampleLevel;
+import com.techsoft.entity.common.QualitySampleRuleItem;
+import com.techsoft.entity.quality.QualitySampleLevelParamVo;
+import com.techsoft.entity.quality.QualitySampleLevelVo;
+import com.techsoft.mapper.quality.QualitySampleLevelMapper;
+
+@Repository
+public class QualitySampleLevelDaoImpl extends BaseDaoImpl<QualitySampleLevel> implements QualitySampleLevelDao {
+	@Resource
+	protected QualitySampleLevelMapper qualitySampleLevelMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<QualitySampleLevel> getEntityClass() {
+		return QualitySampleLevel.class;
+	}	
+	
+	@Override
+	public BaseMapper<QualitySampleLevel> getBaseMapper() {
+		return this.qualitySampleLevelMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "QUALITY_SAMPLE_LEVEL";
+	}
+	
+	@Override
+	public void insertSaveCheck(QualitySampleLevel value) throws BusinessException, SQLException {
+
+		if (value.getSampleLetter() == null || value.getSampleLetter().equals(0L)) {
+			throw new BusinessException("索引字母不能为空");
+		}
+		if (value.getSampleLevelDictId() == null || value.getSampleLevelDictId().equals(0L)) {
+			throw new BusinessException("检验水平不能为空");
+		}
+		if (value.getSampleLevelRankDictId() == null || value.getSampleLevelRankDictId().equals(0L)) {
+			throw new BusinessException("检验水平等级不能为空");
+		}
+
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("创建人不能为空");
+		}
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(QualitySampleLevel value) throws BusinessException, SQLException {
+		if (value.getSampleLetter() == null || value.getSampleLetter().equals(0L)) {
+			throw new BusinessException("索引字母不能为空");
+		}
+		if (value.getSampleLevelDictId() == null || value.getSampleLevelDictId().equals(0L)) {
+			throw new BusinessException("检验水平不能为空");
+		}
+		if (value.getSampleLevelRankDictId() == null || value.getSampleLevelRankDictId().equals(0L)) {
+			throw new BusinessException("检验水平等级不能为空");
+		}
+		if (value.getModifyUserId() == null || value.getModifyUserId().equals(0L)) {
+			throw new BusinessException("修改人不能为空");
+		}
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(QualitySampleLevel value) throws BusinessException, SQLException {
+	
+	}
+	/**
+	 *@auther :Yang
+	 *@version :2019年7月11日
+	 *@param
+	 *@return
+	 *@description
+	 */
+	@Override
+	public void insertBatch(QualitySampleLevelParamVo qualitySampleLevel,
+			List<QualitySampleLevel> qualitySampleLevelList, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		try {
+			List<QualitySampleLevel> list = new ArrayList<QualitySampleLevel>();
+			DecimalFormat df=new DecimalFormat("0000");
+			Integer index = 0;
+			String idString = "";
+			Long idLong = 0L;
+			Long id = this.qualitySampleLevelMapper.getIDValue();
+			for (QualitySampleLevel item : qualitySampleLevelList) {	
+				QualitySampleLevel qSampleLevel = new QualitySampleLevel();
+				qSampleLevel.setSampleLetter(item.getSampleLetter());	
+				qSampleLevel.setSampleLevelDictId(item.getSampleLevelDictId());
+				qSampleLevel.setSampleLevelRankDictId(item.getSampleLevelRankDictId());
+				qSampleLevel.setMinimum(item.getMinimum());
+				qSampleLevel.setMaximum(item.getMaximum());
+				qSampleLevel.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+				qSampleLevel.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				qSampleLevel.setTenantId(commonParam.getTenantId());
+				insertSaveCheck(qSampleLevel);
+				index++;
+				idString=df.format(index);
+				idLong = Long.valueOf(id.toString() + idString);
+				qSampleLevel.setId(idLong);
+				list.add(qSampleLevel);
+			}
+			int result = qualitySampleLevelMapper.insertBatch(list);
+			if (result != qualitySampleLevelList.size()) {
+				throw new BusinessException("批量增加的批量检验水平数据与传入的批量检验水平数量不一致， 请检查!");
+			}
+
+		} catch (RuntimeException e) {
+			throw new SQLException(e.getMessage());
+		}
+
+	}
+	/**
+	 *@auther :Yang
+	 *@version :2019年7月12日
+	 *@param
+	 *@return
+	 *@description：通过id删除表里的数据
+	 */
+	@Override
+	public void deleteQualitySampleLevel() throws BusinessException, SQLException {
+		this.qualitySampleLevelMapper.deleteQualitySampleLevel();
+	}
+	/**
+	 *@auther :Yang
+	 *@version :2019年7月15日
+	 *@param
+	 *@return
+	 *@description
+	 */
+	@Override
+	public List<QualitySampleLevelVo> selectSampleLetter() throws BusinessException, SQLException {
+		return this.qualitySampleLevelMapper.selectSampleLetter();
+	}
+			
+			
+}

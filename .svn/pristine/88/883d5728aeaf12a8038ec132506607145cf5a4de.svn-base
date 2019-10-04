@@ -1,0 +1,74 @@
+package com.techsoft.client.service.work;
+
+import java.util.List;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.entity.common.WorkTaskProcedure;
+import com.techsoft.entity.equip.EquipWorkStackProductVo;
+import com.techsoft.entity.work.WorkTaskProcedureParamVo;
+import com.techsoft.entity.work.WorkTaskProcedureVo;
+
+public interface ClientWorkTaskProcedureService extends BaseClientService<WorkTaskProcedure> {
+
+	public WorkTaskProcedureVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+
+	public List<WorkTaskProcedureVo> selectListVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure,
+			CommonParam commonParam) throws BusinessException, SQLException;
+
+	public PageInfo<WorkTaskProcedureVo> selectPageVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException;
+
+	public WorkTaskProcedureVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+
+	public List<WorkTaskProcedureVo> selectListExtendVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure,
+			CommonParam commonParam) throws BusinessException, SQLException;
+
+	public PageInfo<WorkTaskProcedureVo> selectPageExtendVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException;
+
+	public ResultMessage saveOrUpdate(WorkTaskProcedureParamVo workTaskProcedureParamVo, CommonParam commonParam);
+
+
+	// 贴标
+	public ResultMessage labeling(CommonParam commonParam, Long factoryId, String workstationCode, String barcodeRaw,
+			String barcodeNewList); 
+	// 上料
+	public ResultMessage feeding(CommonParam commonParam, Long factoryId, String workstationCode, String equipStackCode,
+			String fixtureStackCode, String barcode);
+	
+	// 接料
+	public ResultMessage connectRawMaterial(CommonParam commonParam, Long factoryId, String barcodeOld,
+				String barcodeNew);
+
+	// 过栈扫描
+	public ResultMessage scanpass(CommonParam commonParam, Long factoryId, String macaddress, String code);
+
+	// 组装
+	public ResultMessage assemble(CommonParam commonParam, Long factoryId, String workstationCode, String macaddress,
+			String barcodeList);
+	
+
+	// 查找工序任务
+	public WorkTaskProcedureVo getVoByWorkstation(CommonParam commonParam, Long factoryId, Long billWorkorderId,
+			Long workstationId, String workstationCode) throws BusinessException, SQLException;
+	
+	// 绑定载料器
+	public ResultMessage bindFixture(CommonParam commonParam, Long factoryId, String workstationCode, String equipCode,
+			String equipFixtureCode, String barcode);
+
+	// 解绑载料器
+	public ResultMessage unbindFixture(CommonParam commonParam, Long factoryId, String workstationCode,
+			String equipFixtureCode);
+		
+	// 解绑设备栈位
+	public ResultMessage unbindEquipStack(CommonParam commonParam, Long factoryId, String equipStackCode);
+
+	
+
+
+}

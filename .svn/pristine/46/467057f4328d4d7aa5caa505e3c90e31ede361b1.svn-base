@@ -1,0 +1,257 @@
+package com.techsoft.client.service.config;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ConfigLabelField;
+import com.techsoft.entity.common.ConfigLabelFunction;
+import com.techsoft.entity.common.ConfigSerialNumber;
+import com.techsoft.entity.common.ConfigTableField;
+import com.techsoft.entity.common.ConfigTableObject;
+import com.techsoft.entity.config.ConfigLabelFunctionParamVo;
+import com.techsoft.entity.config.ConfigLabelFunctionVo;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.config.ConfigLabelFieldService;
+import com.techsoft.service.config.ConfigLabelFunctionService;
+import com.techsoft.service.config.ConfigSerialNumberService;
+import com.techsoft.service.config.ConfigTableFieldService;
+import com.techsoft.service.config.ConfigTableObjectService;
+
+@org.springframework.stereotype.Service
+public class ClientConfigLabelFunctionServiceImpl extends BaseClientServiceImpl<ConfigLabelFunction>
+		implements ClientConfigLabelFunctionService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigLabelFunctionService configLabelFunctionService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigLabelFieldService configLabelFieldService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigTableObjectService configTableObjectService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigTableFieldService configTableFieldService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigSerialNumberService configSerialNumberService;
+
+	@Override
+	public BaseService<ConfigLabelFunction> getBaseService() {
+		return configLabelFunctionService;
+	}
+
+	private ConfigLabelFunctionVo getVo(ConfigLabelFunction configLabelFunction, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ConfigLabelFunctionVo vo = new ConfigLabelFunctionVo(configLabelFunction);
+		if (vo.getLabelFieldId() != null && vo.getLabelFieldId() > 0L) {
+			ConfigLabelField configLabelField = configLabelFieldService.selectById(vo.getLabelFieldId(), commonParam);
+			if (configLabelField != null) {
+				vo.setConfigLabelField(configLabelField);
+			}
+		}
+		if (vo.getLabelFunctionTypeDictId() != null && vo.getLabelFunctionTypeDictId() > 0L) {
+			ConfigDictionary configDictionary = configDictionaryService.selectById(vo.getLabelFunctionTypeDictId(),
+					commonParam);
+			if (configDictionary != null) {
+				vo.setConfigDictionaryType(configDictionary);
+			}
+		}
+		if (vo.getTableObjectId() != null && vo.getTableObjectId() > 0L) {
+			ConfigTableObject configTableObject = configTableObjectService.selectById(vo.getTableObjectId(),
+					commonParam);
+			if (configTableObject != null) {
+				vo.setConfigTableObject(configTableObject);
+			}
+		}
+		if (vo.getTableFieldId() != null && vo.getTableFieldId() > 0L) {
+			ConfigTableField configTableField = configTableFieldService.selectById(vo.getTableFieldId(), commonParam);
+			if (configTableField != null) {
+				vo.setConfigTableField(configTableField);
+			}
+		}
+		if (vo.getSerialId() != null && vo.getSerialId() > 0L) {
+			ConfigSerialNumber configSerialNumber = configSerialNumberService.selectById(vo.getSerialId(), commonParam);
+			if (configSerialNumber != null) {
+				vo.setConfigSerialNumber(configSerialNumber);
+			}
+		}
+		return vo;
+	}
+
+	private ConfigLabelFunctionVo getExtendVo(ConfigLabelFunction configLabelFunction, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ConfigLabelFunctionVo vo = this.getVo(configLabelFunction, commonParam);
+
+		return vo;
+	}
+
+	private List<ConfigLabelFunctionVo> getVoList(List<ConfigLabelFunction> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ConfigLabelFunctionVo> voList = new ArrayList<ConfigLabelFunctionVo>();
+		for (ConfigLabelFunction entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<ConfigLabelFunctionVo> getExtendVoList(List<ConfigLabelFunction> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ConfigLabelFunctionVo> voList = new ArrayList<ConfigLabelFunctionVo>();
+		for (ConfigLabelFunction entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public ConfigLabelFunctionVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigLabelFunction entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<ConfigLabelFunctionVo> selectListVoByParamVo(ConfigLabelFunctionParamVo configLabelFunction,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (configLabelFunction == null) {
+			configLabelFunction = new ConfigLabelFunctionParamVo();
+		}
+		configLabelFunction.setTenantId(commonParam.getTenantId());
+
+		List<ConfigLabelFunction> list = (List<ConfigLabelFunction>) this.getBaseService()
+				.selectListByParamVo(configLabelFunction, commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ConfigLabelFunctionVo> selectPageVoByParamVo(ConfigLabelFunctionParamVo configLabelFunction,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (configLabelFunction == null) {
+			configLabelFunction = new ConfigLabelFunctionParamVo();
+		}
+		configLabelFunction.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ConfigLabelFunction> list = (PageInfo<ConfigLabelFunction>) this.getBaseService()
+				.selectPageByParamVo(configLabelFunction, commonParam, pageNo, pageSize);
+		List<ConfigLabelFunctionVo> volist = new ArrayList<ConfigLabelFunctionVo>();
+
+		Iterator<ConfigLabelFunction> iter = list.getList().iterator();
+		ConfigLabelFunctionVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ConfigLabelFunctionVo> vpage = new Page<ConfigLabelFunctionVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ConfigLabelFunctionVo getExtendVoByID(Long id, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ConfigLabelFunction entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<ConfigLabelFunctionVo> selectListExtendVoByParamVo(ConfigLabelFunctionParamVo configLabelFunction,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (configLabelFunction == null) {
+			configLabelFunction = new ConfigLabelFunctionParamVo();
+		}
+		configLabelFunction.setTenantId(commonParam.getTenantId());
+
+		List<ConfigLabelFunction> list = (List<ConfigLabelFunction>) this.getBaseService()
+				.selectListByParamVo(configLabelFunction, commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ConfigLabelFunctionVo> selectPageExtendVoByParamVo(ConfigLabelFunctionParamVo configLabelFunction,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (configLabelFunction == null) {
+			configLabelFunction = new ConfigLabelFunctionParamVo();
+		}
+		configLabelFunction.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ConfigLabelFunction> list = (PageInfo<ConfigLabelFunction>) this.getBaseService()
+				.selectPageByParamVo(configLabelFunction, commonParam, pageNo, pageSize);
+		List<ConfigLabelFunctionVo> volist = new ArrayList<ConfigLabelFunctionVo>();
+
+		Iterator<ConfigLabelFunction> iter = list.getList().iterator();
+		ConfigLabelFunctionVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ConfigLabelFunctionVo> vpage = new Page<ConfigLabelFunctionVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(ConfigLabelFunctionParamVo configLabelFunctionParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		ConfigLabelFunction configLabelFunction = null;
+		if(configLabelFunctionParamVo.getLabelFunctionTypeDictId() == 0){
+			resultMessage.addErr("功能定义类型不能为空");
+			return resultMessage;
+		}
+		try {
+			if (configLabelFunctionParamVo.getId() == null) {// 新增
+
+				configLabelFunctionParamVo.setTenantId(commonParam.getTenantId());
+				configLabelFunction = configLabelFunctionService.saveOrUpdate(configLabelFunctionParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				ConfigLabelFunction configLabelFunctionVoTemp = this.selectById(configLabelFunctionParamVo.getId(),
+						commonParam);
+
+				BeanUtil.copyNotNullProperties(configLabelFunctionVoTemp, configLabelFunctionParamVo);
+				if (configLabelFunctionParamVo.getValue() == null) {
+					configLabelFunctionVoTemp.setValue(null);
+				}
+				if (configLabelFunctionParamVo.getTableObjectId() == null) {
+					configLabelFunctionVoTemp.setTableObjectId(null);
+					configLabelFunctionVoTemp.setTableFieldId(null);
+				}
+				if (configLabelFunctionParamVo.getSerialId() == null) {
+					configLabelFunctionVoTemp.setSerialId(null);
+				}
+				configLabelFunction = configLabelFunctionService.saveOrUpdateFull(configLabelFunctionVoTemp,
+						commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(configLabelFunction);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

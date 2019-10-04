@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.viewBody{
+			margin:0 auto;
+			background-color:#f2f2f2;
+			height:85%;
+			width:99%;
+			position:relative;
+		}
+		#viewContain{
+			height:98%;
+			width:100%;
+			position:absolute;
+			margin-top:40px;
+		}
+		.viewContain{
+			padding-top:40px; 
+		}
+		.viewContain > div{
+			text-align:center;
+			position:relative;
+		}
+		.colItem{
+			position:absolute;
+			bottom:0;
+		}
+		.item{
+			margin:0 auto;
+			transition:All 0.2s ease;
+			-webkit-transition:All 0.2s ease;
+			-moz-transition:All 0.2s ease;
+			-o-transition:All 0.2s ease;
+			display:block;
+			color:#ffffff;
+			font-size:14px;
+			line-height: 60px;
+			width:200px;
+			height:60px;
+			cursor:pointer;
+		}
+		.area{
+			background-color:#1E9FFF;
+		}
+		.floor{
+			background-color:#009688;
+		}
+		.station{
+			width:120px;
+			height:120px;
+			border-radius:50%;
+			-webkit-box-shadow:0 5px 15px -5px rgba(0,0,0,0.1);
+			box-shadow:0 5px 15px -5px rgba(0,0,0,0.1);
+			background-color:#FFB800;
+			line-height:110px;
+		}
+		.item:hover{
+			transform:scale(1.1);
+			opacity:0.6;
+			-webkit-transform:scale(1.1);
+			-moz-transform:scale(1.1);
+			-o-transform:scale(1.1);
+			-ms-transform:scale(1.1);
+		}
+		.backtrack{
+			position:absolute;
+			top:15px;
+			left:15px;
+		}
+	</style>
+  </head>
+  <script type="text/html" id="factoryName">
+	{{#  if(d.structFactory){}}
+		{{ d.structFactory.factoryName 
+
+ 	}}
+	{{# } }}
+  </script>
+  
+  <body style='height:100%'>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">视图管理</a> <a><cite>工厂视图</cite></a>
+      </span>
+    </div>
+    
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <select name="factoryId">    
+                <option value="">工厂名称</option> 
+                 <#if factoryList??>
+                     <#list factoryList as item>
+			            <option value="${item.id?c}" >${item.factoryName}</option>
+			         </#list>
+			         </#if> 
+          </select>
+           <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>  
+           <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+    </div>
+    
+    <div class='viewBody'>
+    	<button class="layui-btn layui-btn-sm backtrack layui-btn-primary" id='backtrack'><i class="layui-icon">&#xe65c;</i></button>
+    	<div class="layui-container" id='viewContain'></div>
+    </div>
+	
+	<script id="demo" type="text/html">
+		{{#  layui.each(d, function(index, item){ }}
+		<div class="layui-row viewContain">
+			{{#  layui.each(item.colDatas, function(indexInner, itemInner){ }}
+	  		<div class="layui-col-md2" style="text-align:center;height:{{item.rowHeight}}">
+				<div class='colItem'>
+					{{#  layui.each(itemInner.innerArr, function(indexItem, floItem){ }}
+					<div class="item {{floItem.className}}" innerCode="{{floItem.innerCode}}" outerCode="{{itemInner.id}}">
+						{{floItem.innerName}}
+					</div>
+					{{#  }); }}
+					<span>{{ itemInner.name }}</span>
+				</div>
+	  		</div>
+			{{#  }); }}
+		</div>
+		{{#  }); }}
+  		{{#  if(d.length === 0){ }}
+   			 无数据
+  		{{#  } }}
+	</script>
+	
+	<script id="station" type="text/html">
+		{{#  layui.each(d, function(index, item){ }}
+		<div class="layui-row viewContain">
+			{{#  layui.each(item, function(indexStation, itemStation){ }}
+	  		<div class="layui-col-md2" style="text-align:center;">
+					<div class="item station" stationCd="{{itemStation.workstationCode}}" workshopId="{{itemStation.workshopId}}" 
+							workshopAreaId="{{itemStation.workshopAreaId}}" factoryid = "{{itemStation.structFactory.id}}" 
+							floorid = "{{itemStation.structFloor.id}}"	>
+						{{itemStation.workstationName}}
+					</div>
+	  		</div>
+			{{#  }); }}
+		</div>
+		{{#  }); }}
+  		{{#  if(d.length === 0){ }}
+   			 无数据
+  		{{#  } }}
+	</script>
+	  
+	<script type="text/javascript">
+		layui.config({
+		    base: '/static/plugins/layui/base/',
+		    v: new Date().getTime() 
+		}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable','laytpl'], function(){
+			var form = layui.form, 
+			$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+			layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+			var layuiformajax = layui.layuiformajax;
+			
+			var laytpl = layui.laytpl;
+			var getTpl = demo.innerHTML
+				,view = document.getElementById('viewContain')
+				,stationTpl = station.innerHTML;
+			
+			form.on('submit(search)', function (data) {
+				layuitable.reload(data.field);
+		        return false;
+		  	});
+			
+			/* 
+				处理查询到的工厂/楼层、车间/区域数据，返回一个模板引擎接收的数据对象 
+				*Params:outerData代表工厂/车间查询到的数据，innerData代表楼层/区域查询到的数据
+			*/
+			function setTempData(outerData,innerData,innerOfOuter,outerName,innerName,className){
+				var resDataArr = [];
+				/* 最后得到结果集的数据格式：[	{
+									"rowHeight":	,
+									"colDatas":	[
+									           	 {
+									           		 "id":100062,
+									           		 "name":"12312",
+									           		 "innerArr":[{}]
+									           	 }
+									           	 ]
+								}
+				                        ] */ 
+				outerData.forEach(function(outerItem,outerIndex){				//循环外层数据
+					var outerObj = {},innerArr = [];
+					innerData.forEach(function(innerItem,innerIndex){			//循环内层数据
+						if(outerItem.id === innerItem[innerOfOuter]){			//如果当前循环内层数据列属于当前循环的外层数据列
+							var innerObj = {};
+							innerObj.innerCode = innerItem.id;
+							innerObj.innerName = innerItem[innerName];
+							innerObj.className = className;
+							innerArr.push(innerObj);
+						}
+					}); 
+					if(innerArr.length === 0){
+						innerArr = [{"innerCode":"nothing","innerName":"无数据","className":className}];
+					};
+					outerObj.innerArr = innerArr;
+					outerObj.name = outerItem[outerName];
+					outerObj.id = outerItem.id;
+					resDataArr.push(outerObj);
+				});
+				var tempDatas = [];
+				if(resDataArr.length>0){
+					for(var i=0;i<resDataArr.length;i+=6){
+						var listObj = {};
+						listObj.colDatas = resDataArr.slice(i,i+6);
+						tempDatas.push(listObj);
+					};
+				}else{
+					tempDatas = [];
+				};
+				
+				
+				tempDatas.forEach(function(row,rowIndex){
+					var floLen = [];
+					row.colDatas.forEach(function(col,colIndex){
+						floLen.push(parseInt(col.innerArr.length));
+					});
+					var max = Math.max.apply(null, floLen);
+					row.rowHeight = max * 60 +'px';
+				});
+				return tempDatas;
+			}
+			
+			/* 
+			 	查询车间数据方法 
+			*/
+			function loadWorkShopData(floorId,factoryId){
+				var url = "/struct/structWorkshop/list/json?pageIndex=1";
+				if(factoryId && floorId){
+					url = url + '&factoryId=' + factoryId + '&floorId=' + floorId;
+					//开启ajax请求加载弹出层
+					var loadingLay = layer.open({
+						type:3,
+	        			anim: 0
+	    			});
+					getJSON(url,{factoryId,floorId},function(resp){
+						//关闭ajax请求加载弹出层
+						layer.close(loadingLay);
+					}).then(function(result){
+						//获取车间区域数据
+						getJSON("/struct/structWorkshopArea/list/json?pageIndex=1&factoryId="+factoryId,null,function(resp){
+							if(result.resultlist.length > 0){
+								//执行setTempData方法，将获取到的数据处理成模板引擎可渲染的数据格式
+								var tempDatas = setTempData(result.resultlist,resp.resultlist,'workshopId','workshopName','areaName','area');
+							}else{
+								layer.open({
+		                			title:'提示',
+		                			anim: 0,
+	                			  	content: '车间数据为空' 
+	                			});
+								return;
+							};
+							
+							//渲染模板
+							laytpl(getTpl).render(tempDatas, function(html){
+							  	view.innerHTML = html;
+							}); 
+							var msg = '此车间区域未维护工站信息';
+							bindClickToDiv(loadStationData,msg);
+							$(".viewContain").attr('viewType','workshop');	//绑定当前视图类型为workshop
+							$('#backtrack').removeClass('layui-btn-disabled');
+						})
+					});
+				}else{
+					layer.open({
+            			title:'提示',
+            			anim: 0,
+        			  	content: '工厂编码或楼层编码为空。' 
+        			});
+				};
+			}
+			
+			/* 
+		 		查询工站数据方法 
+			*/
+			function loadStationData(workshopAreaId,workshopId){
+				var url = "/struct/structWorkstation/list/json?pageIndex=1";
+				if(workshopAreaId && workshopId){
+					url = url + '&workshopId=' + workshopId + '&workshopAreaId=' + workshopAreaId;
+					//开启ajax请求加载弹出层
+					var loadingLay = layer.open({
+						type:3,
+	        			anim: 0
+	    			});
+					getJSON(url,{workshopAreaId,workshopId},
+						function(resp){
+							//关闭ajax请求加载弹出层
+							layer.close(loadingLay);
+							var callBackList = resp.resultlist;
+							var tempDatas = [];
+							if(callBackList.length > 0){
+								for(var i=0;i<callBackList.length;i+=6){
+									tempDatas.push(callBackList.slice(i,i+6));
+								};
+								//渲染模板
+								laytpl(stationTpl).render(tempDatas, function(html){
+								  	view.innerHTML = html;
+								});
+								$(".viewContain").attr('viewType','station');	//绑定当前视图类型为station
+								$('#backtrack').removeClass('layui-btn-disabled');
+							}else{
+								layer.open({
+				        			title:'提示',
+				        			anim: 0,
+				    			  	content: '工站数据为空。' 
+				    			});
+							}
+						}
+					);
+				}else{
+					layer.open({
+	        			title:'提示',
+	        			anim: 0,
+	    			  	content: '查询条件为空。' 
+	    			});
+				};
+			}
+			
+			//ajax请求
+			function getJSON (url, data, callback) {
+			    return new Promise( function(resolve, reject){
+		    		$.ajax({
+		                url: url,
+		                type: data == null ? 'GET' : 'POST',
+		                dataType: "json",
+		                data: data == null ? '' : JSON.stringify(data),
+		                async: true,
+		                contentType: "application/json",
+		                success: function (resp) {
+		                    callback(resp);
+		                    resolve(resp);
+		                },
+		                error: function (XMLHttpRequest, textStatus, errorThrown) {
+		                    if (XMLHttpRequest.status == "401") {
+		                        window.parent.location = '/enterprise/enterprise_login.html';
+		                        self.location = '/enterprise/enterprise_login.html';
+		                    } else {
+		                        alert(XMLHttpRequest.responseText);
+		                    }
+		                    reject();
+		                }
+		            });
+			    })
+			};
+			
+			/* 
+				视图块绑定点击事件方法 
+				
+			*/
+			function bindClickToDiv(loadTypeFun,msg){
+				//给所有的楼层DIV绑定点击事件
+				$(".viewContain").on("click",".item",function(event){
+	                var target = $(event.target);
+	                if(target[0].className.indexOf('item') !== '-1'){
+	                	//当楼层div的floor属性值为nothing时，表示该工厂没有维护楼层信息，不能继续查询车间数据
+	                	var queryCondition1 = $(target[0]).attr('innerCode')
+	                		,queryCondition2 = $(target[0]).attr('outerCode');
+	                	if(queryCondition2 === 'nothing'){
+	                		layer.open({
+	                			title:'提示',
+	                			anim: 0,
+                			  	content: msg 
+                			});
+	                	}else{
+	                		//请求车间数据方法
+	                		loadTypeFun(queryCondition1,queryCondition2);
+	                	}
+	                };
+	            });
+			}
+			
+			/* 请求工厂、楼层数据 */
+			function loadFactoryData(){
+				//开启ajax请求加载弹出层
+				var loadingLay = layer.open({
+					type:3,
+        			anim: 0
+    			});
+				/* 请求工厂、楼层数据 */
+				getJSON("/struct/structFactory/list/json?pageIndex=1",null,function(resp){
+					//关闭ajax请求加载弹出层
+					layer.close(loadingLay);
+				}).then(function(result){
+					//获取楼层数据
+					getJSON("/struct/structFloor/list/json?pageIndex=1",null,function(resp){
+						if(result.resultlist.length > 0){
+							//执行setTempData方法，将获取到的数据处理成模板引擎可渲染的数据格式
+							var tempDatas = setTempData(result.resultlist,resp.resultlist,'factoryId','factoryName','floorName','floor');
+						}else{
+							layer.open({
+	                			title:'提示',
+	                			anim: 0,
+                			  	content: '工厂数据为空' 
+                			});
+							return;
+						};
+						
+						//渲染模板
+						laytpl(getTpl).render(tempDatas, function(html){
+						  	view.innerHTML = html;
+						}); 
+						var msg = '此工厂未维护楼层信息。';
+						bindClickToDiv(loadWorkShopData,msg);
+						$(".viewContain").attr('viewtype','factory');	//绑定当前视图类型为factory
+						$('#backtrack').addClass('layui-btn-disabled');
+					})
+				});
+			}
+			
+			//DOM树渲染完成后执行
+			$(function(){
+				loadFactoryData();
+				//给回退按钮绑定回退事件
+				$('#backtrack').on("click",function(){
+					//获取当前展示的视图类型
+					var type = $("#viewContain div:first-child").attr('viewtype');
+					if(type === 'workshop'){
+						loadFactoryData();
+					}else if(type === 'station'){
+						var floor = $("#viewContain div[class='item station']").attr('floorid');
+						var factoryId = $("#viewContain div[class='item station']").attr('factoryid');
+						loadWorkShopData(floor,factoryId);
+					};
+				});
+			})
+		});	
+	</script>
+  </body>
+
+</html>

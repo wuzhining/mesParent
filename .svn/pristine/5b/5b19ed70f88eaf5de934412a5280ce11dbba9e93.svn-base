@@ -1,0 +1,24 @@
+package com.techsoft.common.enums;
+
+public enum EnumDictAlarmStatus {
+	NEWSPAPER_POLICE(10448L),//报警
+	ALARM(10449L),//接警
+	IN_PROCESS(10450L),//处理中
+	FINISHED_PROCESSING(10451L),//处理完成
+	END(10452L),//结束
+	; 
+
+
+
+
+	
+	private Long value;
+
+	private EnumDictAlarmStatus(Long value) {
+		this.value = value;
+	}
+
+	public Long getValue() {
+		return value;
+	}
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-unselect{
+			height:1px;
+		}
+	</style>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+  		
+  			<div class="layui-col-md12">
+    			<div class="layui-form-query">
+    				<form class="layui-form m20">
+    					<div class="layui-form-item">
+    					
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						        <input type="text" name="materialCode"  placeholder="物品规格编码" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						          <input type="text" name="materialName"  placeholder="物品规格名称" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    
+						    <div class="layui-inline">
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+						      </div>
+						    </div>
+						    
+			  			</div>
+            		</form>
+            	</div>
+            </div>
+            
+            <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12">
+        				<table  class="layui-hide" id="tableProduct" lay-filter="tableProductFilter"></table>
+        			</div>
+        		</div>
+        	</div>
+        
+        </div>
+    </div>
+</body>
+ 
+<style type="text/css">
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+            vertical-align:middle;
+        }
+</style>
+
+ <script type="text/html" id="barTools">	
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="choose">选择</a>
+</script>
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use(['form','table','layuitable','laydate','layuiconfig','layuiformajax'], function(){
+	var form = layui.form;
+	var $ = layui.jquery;
+	var table = layui.table;
+	var layuitable = layui.layuitable;
+	var layer = layui.layer;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#tableProduct'
+    	,id:'tableProduct'
+    	,url:'/product/productMaterial/list/json'
+    	,height:600
+    	,cellMinWidth:180
+   		,cols: [[
+   				{type:'radio'}
+   				,{field:'id',  title: 'ID',align:'center'}
+		    	,{field:'productId',  title: '物品ID',align:'center'}
+   	    	    ,{field:'materialCode',  title: '物品规格编码',align:'center'}
+   	    	    ,{field:'materialName',  title: '物品规格名称',align:'center'}
+   	    	    ,{field:'sku',  title: '物品规格值',minWidth:280,align:'center'}
+     	    	]],done:function(){
+     	    		// 隐藏列
+     	    		$(".layui-table-box").find("[data-field='id']").css("display","none");
+     	    		$(".layui-table-box").find("[data-field='productId']").css("display","none");
+     	    	}
+  	});
+	
+	form.on('submit(search)', function (formData) {
+		curTable.reload(formData.field);
+        return false;
+  	});
+	
+	table.on('radio(tableProductFilter)', function(obj){
+		  //var checkStatus = table.checkStatus('tableProduct');
+	      var selectData =  table.checkStatus('tableProduct').data;
+	      parent.$("#materialId").val(selectData[0].id)
+	      parent.$("#materialName").val(selectData[0].materialName)
+	      parent.$("#materialCode").val(selectData[0].materialCode)
+	      parent.$("#productId").val(selectData[0].productId)
+		});
+
+});	
+
+</script>
+</html>

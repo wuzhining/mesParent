@@ -1,0 +1,43 @@
+package com.techsoft.service.product;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.dao.product.ProductMainDao;
+
+@Service
+public class ProductMainServiceImpl extends BaseServiceImpl<ProductMain> implements ProductMainService {
+	@Autowired
+	private ProductMainDao productMainDao;
+	
+	@Override
+	public BaseDao<ProductMain> getBaseDao() {
+		return productMainDao;
+	}	
+	
+	@Override
+	public Class<ProductMain> getEntityClass() {
+		return ProductMain.class;
+	}
+	
+	@Override
+	protected ProductMain insertEntity(ProductMain entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected ProductMain updatePartEntity(ProductMain entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected ProductMain updateEntity(ProductMain entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}					
+}

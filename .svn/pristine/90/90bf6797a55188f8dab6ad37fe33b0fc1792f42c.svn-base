@@ -1,0 +1,185 @@
+package com.techsoft.client.service.work;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+
+import com.techsoft.entity.common.WorkPlanWorkstation;
+import com.techsoft.entity.work.WorkPlanWorkstationVo;
+import com.techsoft.entity.work.WorkPlanWorkstationParamVo;
+import com.techsoft.service.work.WorkPlanWorkstationService;
+
+@org.springframework.stereotype.Service
+public class ClientWorkPlanWorkstationServiceImpl extends BaseClientServiceImpl<WorkPlanWorkstation> implements ClientWorkPlanWorkstationService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WorkPlanWorkstationService workPlanWorkstationService;
+    
+	@Override
+	public BaseService<WorkPlanWorkstation> getBaseService() {
+		return workPlanWorkstationService;
+	}	    	
+    
+	private WorkPlanWorkstationVo getVo(WorkPlanWorkstation workPlanWorkstation, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkPlanWorkstationVo vo = new WorkPlanWorkstationVo(workPlanWorkstation);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+	
+	private WorkPlanWorkstationVo getExtendVo(WorkPlanWorkstation workPlanWorkstation, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkPlanWorkstationVo vo = this.getVo(workPlanWorkstation, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<WorkPlanWorkstationVo> getVoList(List<WorkPlanWorkstation> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<WorkPlanWorkstationVo> voList = new ArrayList<WorkPlanWorkstationVo>();
+		for (WorkPlanWorkstation entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<WorkPlanWorkstationVo> getExtendVoList(List<WorkPlanWorkstation> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<WorkPlanWorkstationVo> voList = new ArrayList<WorkPlanWorkstationVo>();
+		for (WorkPlanWorkstation entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public WorkPlanWorkstationVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkPlanWorkstation entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<WorkPlanWorkstationVo>  selectListVoByParamVo(WorkPlanWorkstationParamVo workPlanWorkstation, CommonParam commonParam) throws BusinessException, SQLException {
+		if(workPlanWorkstation==null){
+			workPlanWorkstation = new WorkPlanWorkstationParamVo();
+		}
+		workPlanWorkstation.setTenantId(commonParam.getTenantId());	
+	
+		List<WorkPlanWorkstation> list = (List<WorkPlanWorkstation>) this.getBaseService().selectListByParamVo(workPlanWorkstation, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<WorkPlanWorkstationVo> selectPageVoByParamVo(WorkPlanWorkstationParamVo workPlanWorkstation, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(workPlanWorkstation==null){
+			workPlanWorkstation = new WorkPlanWorkstationParamVo();
+		}
+		workPlanWorkstation.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<WorkPlanWorkstation> list  = (PageInfo<WorkPlanWorkstation>) this.getBaseService().selectPageByParamVo(workPlanWorkstation, commonParam, pageNo, pageSize);
+		List<WorkPlanWorkstationVo> volist = new ArrayList<WorkPlanWorkstationVo>();
+		
+		Iterator<WorkPlanWorkstation> iter = list.getList().iterator();
+		WorkPlanWorkstationVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<WorkPlanWorkstationVo> vpage = new Page<WorkPlanWorkstationVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public WorkPlanWorkstationVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkPlanWorkstation entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<WorkPlanWorkstationVo>  selectListExtendVoByParamVo(WorkPlanWorkstationParamVo workPlanWorkstation, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(workPlanWorkstation==null){
+			workPlanWorkstation = new WorkPlanWorkstationParamVo();
+		}
+		workPlanWorkstation.setTenantId(commonParam.getTenantId());	
+					
+		List<WorkPlanWorkstation> list = (List<WorkPlanWorkstation>) this.getBaseService().selectListByParamVo(workPlanWorkstation, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<WorkPlanWorkstationVo> selectPageExtendVoByParamVo(WorkPlanWorkstationParamVo workPlanWorkstation, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(workPlanWorkstation==null){
+			workPlanWorkstation = new WorkPlanWorkstationParamVo();
+		}
+		workPlanWorkstation.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<WorkPlanWorkstation> list  = (PageInfo<WorkPlanWorkstation>) this.getBaseService().selectPageByParamVo(workPlanWorkstation, commonParam, pageNo, pageSize);
+		List<WorkPlanWorkstationVo> volist = new ArrayList<WorkPlanWorkstationVo>();
+		
+		Iterator<WorkPlanWorkstation> iter = list.getList().iterator();
+		WorkPlanWorkstationVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<WorkPlanWorkstationVo> vpage = new Page<WorkPlanWorkstationVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(WorkPlanWorkstationParamVo workPlanWorkstationParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		WorkPlanWorkstation workPlanWorkstation = null;
+		try {
+			if (workPlanWorkstationParamVo.getId() == null) {//新增
+			 
+				workPlanWorkstationParamVo.setTenantId(commonParam.getTenantId());
+				workPlanWorkstation = workPlanWorkstationService.saveOrUpdate(workPlanWorkstationParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				WorkPlanWorkstation workPlanWorkstationVoTemp = this.selectById(workPlanWorkstationParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(workPlanWorkstationVoTemp,
+						workPlanWorkstationParamVo);
+  
+				workPlanWorkstation = workPlanWorkstationService.saveOrUpdate(
+						workPlanWorkstationVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(workPlanWorkstation);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

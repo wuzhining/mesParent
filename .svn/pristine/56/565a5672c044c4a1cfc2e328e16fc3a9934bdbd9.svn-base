@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script>
+  
+   <script type="text/html" id="modeMatchingDict">
+	{{#  if(d.modeMatchingDict){ }}
+		{{ d.modeMatchingDict.dictName 
+ 	}}
+	{{#  } }}
+  </script>
+
+ <script type="text/html" id="attributeDict">
+	{{#  if(d.attributeDict){ }}
+		{{ d.attributeDict.dictName 
+ 	}}
+	{{#  } }}
+  </script>
+  
+ <script type="text/html" id="adcdesOrderDict">
+	{{#  if(d.adcdesOrderDict){ }}
+		{{ d.adcdesOrderDict.dictName 
+ 	}}
+	{{#  } }}
+  </script>
+    
+ <script type="text/html" id="warehouseArea">
+	{{#  if(d.warehouseArea){ }}
+		{{ d.warehouseArea.areaName 
+ 	}}
+	{{#  } }}
+  </script>
+  
+ <script type="text/html" id="warehouseRack">
+	{{#  if(d.warehouseRack){ }}
+		{{ d.warehouseRack.rackName 
+ 	}}
+	{{#  } }}
+  </script>
+  
+ <script type="text/html" id="warehouseLocation">
+	{{#  if(d.warehouseLocation){ }}
+		{{ d.warehouseLocation.locationName 
+ 	}}
+	{{#  } }}
+  </script>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+           <tr>
+            <td width="15%" class="tableleft">策略编码</td>
+               <td>
+               <input type="text" name="strategyCode" class="layui-input" maxlength="16" value="${(entity.strategyCode)!''}"/>
+               </td>
+            <td width="15%" class="tableleft">策略名称</td>
+               <td>
+                <input type="text" name="strategyName" class="layui-input" maxlength="20" value="${(entity.strategyName)!''}"/>
+               </td> 
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">所属工厂</td>
+               <td> 
+               <select id="factoryId"  name="factoryId" lay-filter="factorySelect"> 
+                        <option value="">请选择</option>
+	                    <#if factoryList??>
+	                     <#list factoryList as item>
+				            <option value="${item.id?c}" <#if (entity.factoryId??&&entity.factoryId==item.id)>selected="selected"</#if>>${item.factoryName}</option>
+				         </#list>
+				         </#if>
+			   </select>
+			   </td>
+                <td width="15%" class="tableleft">所属仓库</td>
+               <td>
+			   <select id="warehouseId" name="warehouseId" lay-filter="warehouseSelect"> 
+                    <#if warehouseList??>
+                     <#list warehouseList as item>
+			            <option value="${item.id?c}" <#if (entity.warehouseId??&&entity.warehouseId==item.id)>selected="selected"</#if>>${item.warehouseName}</option>
+			         </#list>
+			         </#if>
+			   </select>
+			   </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select  name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="15%" class="tableleft">备注</td>
+               <td><input type="text" name="remark" class="layui-input" maxlength="16" value="${(entity.remark)!''}"/></td>
+           </tr>
+       </table>  
+       <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+    </div>
+    <script>
+    var ids = $("#id").val();
+    if(ids!=''){
+       layui.config({
+          base: '/static/plugins/layui/base/',
+          v: new Date().getTime()
+      }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+      	var form = layui.form, 
+      	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+      	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+      	var layuiformajax = layui.layuiformajax;
+      	var curTable = layuitable.render({
+          	elem: '#listTable'
+          	,id:'listTable'
+          	,url:'/warehouse/warehouseStrategyDownshelfItem/list/json?strategyUpshelfId='+ids
+          	,cols: [[
+              	     /* {type: 'checkbox', fixed: 'left'}, */
+               	    {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+               	    ,{field:'strategyUpshelfId',  title: '下架策略ID',align:'center', minWidth: 120}
+               	    ,{field:'sortNo',  title: '排序号',align:'center', minWidth: 120}
+               	    ,{field:'modeMatchingDict',  title: '下架匹配方式',align:'center', minWidth: 120,templet:'#modeMatchingDict'}
+               	 	,{field:'attributeDict',  title: '下架策略属性',align:'center', minWidth: 120,templet:'#attributeDict'}
+               		,{field:'adcdesOrderDict',  title: '属性升序降序',align:'center', minWidth: 120,templet:'#adcdesOrderDict'}
+               	    ,{field:'value',  title: '值',align:'center', minWidth: 120}
+               	 	,{field:'warehouseArea', width:120, title: '区域',align:'center',templet: '#warehouseArea'}
+               	 	,{field:'warehouseRack', width:120, title: '货架',align:'center',templet: '#warehouseRack'}
+               		,{field:'warehouseLocation', width:120, title: '货位',align:'center',templet: '#warehouseLocation'}
+          	      ]]
+      	,done: function () {
+  	    }
+        	});
+      	
+      	form.on('submit(search)', function (data) {
+      		layuitable.reload(data.field);
+              return false;
+        	});
+
+      });
+      
+    };
+    
+    
+    
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+         
+          //自定义验证规则
+          
+          //选择工厂查仓库级联监听
+          form.on('select(factorySelect)', function(data){
+        	  var factoryId=0;
+        	  if(data.value != ''){
+        		  factoryId=data.value;
+        	  }
+        	  $("#warehouseId option[value!='']").remove();
+        	  linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName','','/struct/structWarehouse/linkWarehouseByFactory');
+        	  $("#warehouseId").get(0).selectedIndex=0;
+          });
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/warehouse/warehouseStrategyDownshelf/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+        			if (result.isSuccess) {
+           	    	   layer.alert("保存成功", {icon: 6},function () {
+         	                // 获得frame索引
+         	                var index = parent.layer.getFrameIndex(window.name);
+         				  	parent.location.reload(); 
+         	                parent.layer.close(index);
+         	            });	
+        			}else{
+        				layer.alert(result.message, {
+        					icon : 2
+        				});
+        			}
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+    <script>
+    $(function () {
+    	var factoryId=0;
+	  	  if($("#factoryId").val() != ''){
+	  		  factoryId=$("#factoryId").val();
+	  	  }
+    	//初始化
+    	linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName',$("#initWarehouseId").val(),'/struct/structWarehouse/linkWarehouseByFactory');
+    	
+    });
+    </script>
+  </body>
+
+</html>

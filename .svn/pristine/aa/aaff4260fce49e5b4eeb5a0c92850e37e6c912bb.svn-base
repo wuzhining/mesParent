@@ -1,0 +1,23 @@
+﻿﻿#数据连接相关属性， mysql
+druid.driver=com.mysql.jdbc.Driver
+druid.url=jdbc:mysql://192.168.1.208:8066/DB?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true
+druid.username=root
+druid.password=HeE8snI928x8066
+
+druid.initialSize=50
+druid.maxActive=100
+druid.minIdle=10
+druid.maxWait=60000
+druid.timeBetweenEvictionRunsMillis=60000
+druid.minEvictableIdleTimeMillis=300000
+druid.validationQuery=SELECT 'x'
+druid.testWhileIdle=true
+druid.testOnBorrow=false
+druid.testOnReturn=false
+druid.filters=stat
+
+#dubbo相关属性
+dubbo.address=127.0.0.1:2181
+dubbo.timeout=100000
+dubbo.port=30887
+dubbo.protocol.host=127.0.0.1

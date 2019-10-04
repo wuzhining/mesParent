@@ -1,0 +1,21 @@
+package com.techsoft.common.enums;
+
+/**
+ * 
+ * @author 治具单据类型
+ */ 
+public enum EnumEquipBillType {
+	SCRAP(10426L),//报废单
+	CHECK(10425L),//校验单
+	REPAIR(10424L),//维修单
+	COLLARUSE(10423L);//领用单
+	private Long value;
+
+	private EnumEquipBillType(Long value) {
+		this.value = value;
+	}
+
+	public Long getValue() {
+		return value;
+	}
+}

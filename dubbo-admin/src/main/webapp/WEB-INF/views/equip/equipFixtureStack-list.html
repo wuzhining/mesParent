@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">设备管理</a> <a><cite>工具设备栈位</cite></a>
+      </span>
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <select name="fixtureId">    
+                <option value="">请选择工具标签</option> 
+                 <#if equipFixtureList??>
+                     <#list equipFixtureList as item>
+			            <option value="${item.id?c}" >${item.fixtureLabel}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <input type="text" name="fixtureStackCode"  placeholder="请输入工具栈位编码" autocomplete="off" class="layui-input">
+          <input type="text" name="fixtureStackName"  placeholder="请输入工具栈位名称" autocomplete="off" class="layui-input">
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>  
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-col-md-offset10 layui-btn layui-btn-sm" onclick="layer_window_show('添加工具设备栈位','/equip/equipFixtureStack/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:30px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="linkProduct">关联物料</a>
+</script> 
+
+<script type="text/html" id="fixtureCode">
+	{{#  if(d.equipFixture){}}
+		{{ d.equipFixture.fixtureCode 
+
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="fixtureName">
+	{{#  if(d.equipFixture){}}
+		{{ d.equipSpecsFixture.fixtureSpecsName
+
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="areaName">
+	{{#  if(d.equipSpecsFixtureArea){}}
+		{{ d.equipSpecsFixtureArea.areaName
+
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/equip/equipFixtureStack/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center'}
+    	    ,{field:'fixtureId',  title: '工具ID', align:'center'}
+    	    ,{field:'fixtureCode',  title: '工具编码', align:'center',templet: '#fixtureCode'}
+    	    ,{field:'fixtureName',  title: '工具名称', align:'center',templet: '#fixtureName'} 
+    	    ,{field:'areaNme',  title: '工具区位',align:'center',templet:'#areaName'} 
+    	    ,{field:'fixtureStackCode',  title: '工具栈位编码', align:'center'}
+    	    ,{field:'fixtureStackName',  title: '工具栈位名称',align:'center'}
+    	    ,{field:'numberUsed',  title: '使用次数',align:'center'}
+    	    ,{field:'numberStandard',  title: '标准次数',align:'center'}
+    	    ,{field:'numberPrint',  title: '打印次数',align:'center'}
+    	    ,{field:'remark',  title: '描述', align:'center'}
+    	    ,{field:'createTime',  title: '创建时间', align:'center'}
+    	    ,{field:'modifyTime',  title: '修改时间', align:'center'}
+      		,{field:'',  width: 200, title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+		, done: function (res, curr, count) {
+			$("[data-field='id']").css('display','none');
+			$("[data-field='fixtureId']").css('display','none');
+			$("[data-field='specsFixtureAreaId']").css('display','none');
+			//merge(res, curr, count);
+			layuiRowspan(['fixtureCode','fixtureName','areaNme'],1);
+		}
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+    $('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	})
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		var fixtureId = data.fixtureId;
+		console.log(fixtureId);
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑工具设备栈位','/equip/equipFixtureStack/edit?id=' + data.id); 
+		}
+		
+		if (obj.event=='linkProduct') {
+			layer_window_show('关联物料','/equip/equipFixtureStackProduct/list?id=' + data.id + '&&fixtureId=' + fixtureId); 
+		}
+	});
+	
+});	
+
+	//合并数据表格行
+	function layuiRowspan(fieldNameTmp,index,flag){
+		   let fieldName = [];
+		   if(typeof fieldNameTmp == "string"){
+		     fieldName.push(fieldNameTmp);
+		   }else{
+		     fieldName = fieldName.concat(fieldNameTmp);
+		   }
+		   for(let i = 0;i<fieldName.length;i++){
+		     execRowspan(fieldName[i],index,flag);
+		   }
+	}
+
+   function execRowspan(fieldName,index,flag){
+   // 1为不冻结的情况，左侧列为冻结的情况
+   let fixedNode = index=="1"?$(".layui-table-body")[index - 1]:(index=="3"?$(".layui-table-fixed-r"):$(".layui-table-fixed-l"));
+   // 左侧导航栏不冻结的情况
+   let child = $(fixedNode).find("td");
+   let childFilterArr = [];
+   // 获取data-field属性为fieldName的td
+   for(let i = 0; i < child.length; i++){
+     if(child[i].getAttribute("data-field") == fieldName){
+       childFilterArr.push(child[i]);
+     }
+   }
+   // 获取td的个数和种类
+   let childFilterTextObj = {};
+   for(let i = 0; i < childFilterArr.length; i++){
+     let childText = flag?childFilterArr[i].innerHTML:childFilterArr[i].textContent;
+     if(childFilterTextObj[childText] == undefined){
+       childFilterTextObj[childText] = 1;
+     }else{
+       let num = childFilterTextObj[childText];
+       childFilterTextObj[childText] = num*1 + 1;
+     }
+   }
+   let canRowspan = true;
+   let maxNum;//以前列单元格为基础获取的最大合并数
+   let finalNextIndex;//获取其下第一个不合并单元格的index
+   let finalNextKey;//获取其下第一个不合并单元格的值
+   for(let i = 0; i < childFilterArr.length; i++){
+     (maxNum>9000||!maxNum)&&(maxNum = $(childFilterArr[i]).prev().attr("rowspan")&&fieldName!="8"?$(childFilterArr[i]).prev().attr("rowspan"):9999);
+     let key = flag?childFilterArr[i].innerHTML:childFilterArr[i].textContent;//获取下一个单元格的值
+     let nextIndex = i+1;
+     let tdNum = childFilterTextObj[key];
+     let curNum = maxNum<tdNum?maxNum:tdNum;
+     if(canRowspan){
+       for(let j =1;j<=curNum&&(i+j<childFilterArr.length);){//循环获取最终合并数及finalNext的index和key
+         finalNextKey = flag?childFilterArr[i+j].innerHTML:childFilterArr[i+j].textContent;
+         finalNextIndex = i+j;
+         if((key!=finalNextKey&&curNum>1)||maxNum == j){
+           canRowspan = true;
+           curNum = j;
+           break;
+         }
+         j++;
+         if((i+j)==childFilterArr.length){
+           finalNextKey=undefined;
+           finalNextIndex=i+j;
+           break;
+         }
+       }
+       childFilterArr[i].setAttribute("rowspan",curNum);
+       if($(childFilterArr[i]).find("div.rowspan").length>0){//设置td内的div.rowspan高度适应合并后的高度
+         $(childFilterArr[i]).find("div.rowspan").parent("div.layui-table-cell").addClass("rowspanParent");
+         $(childFilterArr[i]).find("div.layui-table-cell")[0].style.height= curNum*38-10 +"px";
+       }
+       canRowspan = false;
+     }else{
+       childFilterArr[i].style.display = "none";
+     }
+     if(--childFilterTextObj[key]==0|--maxNum==0|--curNum==0|(finalNextKey!=undefined&&nextIndex==finalNextIndex)){//||(finalNextKey!=undefined&&key!=finalNextKey)
+       canRowspan = true;
+     }
+   }
+ }
+</script>
+ 
+  </body>
+
+</html>      

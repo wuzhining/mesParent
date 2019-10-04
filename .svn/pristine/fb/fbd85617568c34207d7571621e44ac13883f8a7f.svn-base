@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.struct.StructProcedureInstructMapper">
+ 
+	<resultMap id="StructProcedureInstruct" type="com.techsoft.entity.common.StructProcedureInstruct" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="PROCESS_NODE_ID" property="processNodeId" />
+		<result column="INSTRUCT_NAME" property="instructName" />
+		<result column="INSTRUCT_CODE" property="instructCode" />
+		<result column="INSTRUCT_TYPE_DICT_ID" property="instructTypeDictId" />
+		<result column="EQUIP_SPECS_WORK_ID" property="equipSpecsWorkId" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="SORT_NO" property="sortNo" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.PROCESS_NODE_ID,
+		A.INSTRUCT_NAME,
+		A.INSTRUCT_CODE,
+		A.INSTRUCT_TYPE_DICT_ID,
+		A.EQUIP_SPECS_WORK_ID,
+		A.PRODUCT_ID,
+		A.MATERIAL_ID,
+		A.SORT_NO,
+		A.IS_VALID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_STRUCT_PROCEDURE_INSTRUCT_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STRUCT_PROCEDURE_INSTRUCT
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StructProcedureInstruct">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCEDURE_INSTRUCT A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StructProcedureInstruct">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCEDURE_INSTRUCT A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE STRUCT_PROCEDURE_INSTRUCT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE STRUCT_PROCEDURE_INSTRUCT  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StructProcedureInstruct">
+		UPDATE STRUCT_PROCEDURE_INSTRUCT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcedureInstruct">
+		INSERT INTO STRUCT_PROCEDURE_INSTRUCT (
+		TENANT_ID,
+		PROCESS_NODE_ID,
+		INSTRUCT_NAME,
+		INSTRUCT_CODE,
+		INSTRUCT_TYPE_DICT_ID,
+		EQUIP_SPECS_WORK_ID,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		SORT_NO,
+		IS_VALID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{processNodeId},
+		#{instructName},
+		#{instructCode},
+		#{instructTypeDictId},
+		#{equipSpecsWorkId},
+		#{productId},
+		#{materialId},
+		#{sortNo},
+		#{isValid},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcedureInstruct">
+		UPDATE STRUCT_PROCEDURE_INSTRUCT SET
+		TENANT_ID=#{tenantId},
+		PROCESS_NODE_ID=#{processNodeId},
+		INSTRUCT_NAME=#{instructName},
+		INSTRUCT_CODE=#{instructCode},
+		INSTRUCT_TYPE_DICT_ID=#{instructTypeDictId},
+		EQUIP_SPECS_WORK_ID=#{equipSpecsWorkId},
+		PRODUCT_ID=#{productId},
+		MATERIAL_ID=#{materialId},
+		SORT_NO=#{sortNo},
+		IS_VALID=#{isValid},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructProcedureInstruct">
+		UPDATE STRUCT_PROCEDURE_INSTRUCT SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="processNodeId != null" >
+			PROCESS_NODE_ID=#{processNodeId},
+		</if>
+		<if test="instructName != null" >
+			INSTRUCT_NAME=#{instructName},
+		</if>
+		<if test="instructCode != null" >
+			INSTRUCT_CODE=#{instructCode},
+		</if>
+		<if test="instructTypeDictId != null" >
+			INSTRUCT_TYPE_DICT_ID=#{instructTypeDictId},
+		</if>
+		<if test="equipSpecsWorkId != null" >
+			EQUIP_SPECS_WORK_ID=#{equipSpecsWorkId},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="sortNo != null" >
+			SORT_NO=#{sortNo},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.struct.StructProcedureInstructParamVo"
+		      resultType="com.techsoft.entity.common.StructProcedureInstruct" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_PROCEDURE_INSTRUCT A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="processNodeId != null">
+			AND A.PROCESS_NODE_ID= #{processNodeId}
+		</if>
+		<if test="instructName != null">
+			AND A.INSTRUCT_NAME= #{instructName}
+		</if>
+		<if test="instructCode != null">
+			AND A.INSTRUCT_CODE= #{instructCode}
+		</if>
+		<if test="instructTypeDictId != null">
+			AND A.INSTRUCT_TYPE_DICT_ID= #{instructTypeDictId}
+		</if>
+		<if test="equipSpecsWorkId != null">
+			AND A.EQUIP_SPECS_WORK_ID= #{equipSpecsWorkId}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="sortNo != null">
+			AND A.SORT_NO= #{sortNo}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+		
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	   <if test="instructNameLike != null">
+	    <bind name="nameLike" value="'%' + _parameter.instructNameLike + '%'" />
+	       AND A.INSTRUCT_NAME LIKE #{nameLike}
+	  </if>
+	  <if test="instructCodeLike != null">
+	    <bind name="codeLike" value="'%' + _parameter.instructCodeLike + '%'" />
+	       AND A.INSTRUCT_CODE LIKE #{codeLike}
+	  </if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+</mapper>

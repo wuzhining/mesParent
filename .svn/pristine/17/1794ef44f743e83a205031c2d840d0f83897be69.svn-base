@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+    <div >   
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+            <tr>
+               <td width="10%" class="tableleft" >审核状态</td>
+               <td>
+			      <input type="checkbox" id="yes" name="productStatusDictId" lay-filter="audit" value="10377" checked="checked" title="持有">
+			   </td>
+			   <td>
+			      <input type="checkbox" id="no" name="productStatusDictId" lay-filter="audit" value="10376"  title="过时">
+			   </td>
+		 
+			 </tr>
+			 <tr>   
+                <td width="15%" class="tableleft">备注</td>
+                <td colspan="2">
+                 <p><textarea rows="5" id="remark"  name="remark"  cols="70"  value="${(entity.remark)!''}"> </textarea>
+                    <!-- <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/> -->
+                </td> 
+            </tr>
+            
+       </table>  
+       
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+     
+
+    </div>
+  
+
+     
+  <script>
+     layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+    	var form = layui.form, 
+    	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+    	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+    	var layuiformajax = layui.layuiformajax;
+    	
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  data=data.field;
+        	  
+        	  layuiformajax.postJson('/product/productMain/saveAuditStatus', data, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+            return false;
+          });
+          
+    		//监听复选框事件
+          form.on('checkbox(audit)', function (data) {
+              var reslut=data.elem.checked;//得到选中状态
+              var value = data.value;//得到选中值
+              if(value==10377&&reslut){
+            	  $('#no').prop("checked", false);
+              }else{
+            	  $('#yes').prop("checked", false);
+              }
+              form.render('checkbox');//改变选择状态之后必须重新刷新复选框
+          });
+  });
+  
+
+    </script>
+    <script></script>
+  </body>
+
+</html>

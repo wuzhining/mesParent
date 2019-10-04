@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">物品</a> <a><cite>物品标签关联</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="text" name="labelId"  placeholder="标签文档ID" autocomplete="off" class="layui-input">
+     	  <input type="hidden" name="productId" id="productId" placeholder="请选择物品" autocomplete="off" class="layui-input">
+        	<input type="text" name="productName" id="productName" disabled="disabled"  placeholder="请选择物品" autocomplete="off" class="layui-input">
+            <button class="layui-btn layui-btn-sm  " id="productSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+			</button> 
+     	  <select name="barcodeRuleDictId" lay-search>    
+                <option value="">请选择条码规则类型</option> 
+                 <#if barcodeRuleDictList??>
+                     <#list barcodeRuleDictList as item>
+			            <option value="${item.id?c}">${item.dictName}</option>
+			         </#list>
+			      </#if>
+          </select>
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>
+          <button class="layui-btn  layui-btn-sm "  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn" onclick="layer_window_show('添加物品标签关联','/product/productLabel/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script>  
+
+ <script type="text/html" id="productName2">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+</script>  
+ <script type="text/html" id="labelName">
+	{{#  if(d.configLabel){}}
+		{{ d.configLabel.labelName 
+ 	}}
+	{{# } }}
+</script>  
+ <script type="text/html" id="barcodeRuleDictName">
+	{{#  if(d.barcodeRuleDict){}}
+		{{ d.barcodeRuleDict.dictName 
+ 	}}
+	{{# } }}
+</script>  
+<script type="text/html" id="isValid">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+</script> 
+
+
+ 
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/product/productLabel/list/json'
+    	,cols: [[
+    	     {field:'barcodeRuleDictId',  title: '条码规则类型',align:'center'}
+    	    ,{field:'barcodeRuleDictName',  title: '条码规则类型',align:'center',templet: '#barcodeRuleDictName'}
+    	    ,{field:'labelId', title: '标签文档ID',align:'center'}
+    	    ,{field:'labelName', title: '标签文档名称',align:'center',templet: '#labelName'}
+    	    ,{field:'productId',title: '物品ID', align:'center',}
+    	    ,{field:'productName',  title: '物品名称', align:'center',templet: '#productName2'}
+    	    ,{field:'isValid',  title: '是否有效', align:'center',templet:'#isValid'}
+    	    ,{field:'remark',  title: '备注',align:'center'}
+    	    ,{field:'createTime',  title: '创建时间', align:'center'}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]],done:function(){
+    		// 隐藏列
+    		$(".layui-table-box").find("[data-field='barcodeRuleDictId']").css("display","none");   
+    		/* $(".layui-table-box").find("[data-field='labelId']").css("display","none");    */
+    		$(".layui-table-box").find("[data-field='productId']").css("display","none");   
+    	}
+  	});
+
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		console.log(data);
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑物品标签关联','/product/productLabel/edit?id=' + data.id+"&&productName="+data.productMain.productName+"&&labelName="+data.configLabel.labelName); 
+		}
+	});
+	
+	$('#productSearch').on('click',function(e){
+   		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	}) 
+   	
+   	//重置
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	}) 
+
+});	
+</script>
+ 
+  </body>
+
+</html>

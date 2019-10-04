@@ -1,0 +1,93 @@
+package com.techsoft.dao.bill;
+
+import java.util.List;
+
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.entity.bill.BillDeliveryItemVo;
+import com.techsoft.entity.bill.BillPurchaseItemVo;
+import com.techsoft.entity.common.BillDeliveryItem;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.BillWarehouseItem;
+
+public interface BillWarehouseDao extends BaseDao<BillWarehouse> {
+	/**
+	*@auther:Wang
+	*@version:2019年4月23日下午3:46:39
+	*@param:List<BillWarehouse> 入库主表集合
+	*@description 用于入库主表的批量新增
+	*/
+	public void insertBatch(List<BillWarehouse> list, CommonParam commonParam) throws BusinessException, SQLException;
+	
+	
+	/**
+	*@auther:Chen
+	*@version:2019年5月29日下午2:42:43
+	*@param id                  明细表ID
+	*@param billStatusDictId    单据状态
+	*@description 用于更新主表单据状态
+	*/
+	public void updateBillStatusMain(Long id, Long billStatusDictId,CommonParam commonParam) throws BusinessException, SQLException;
+
+	public BillWarehouse selectById(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+
+	/**
+	*@auther:Chenzj
+	*@version:2019年5月27日下午4:35:16
+	*@param id                  明细表ID
+	*@param billStatusDictId    单据状态
+	*@param quality             数量
+	*@description 根据调拨单明细ID修改状态及数量
+	*/
+	public void updateAllocationOutstore(Long id, Long billStatusDictId, Double quality, CommonParam commonParam) throws BusinessException, SQLException;
+
+	/**
+	*@auther:Chenzj
+	*@version:2019年5月27日下午4:35:16
+	*@param billId           来源单ID
+	*@param creatCode        生成的出/入库单号
+	*@param parentId         供应商
+	*@param billType         生成的单据类别
+	*@param fromBillType     来源单据类别
+	*@param billStatus       单据状态
+	*@param fromWarehouseId  源仓库ID
+	*@param toWarehouseId    目标仓库ID
+	*@param type             入库单出入库类别（IN入库，OUT出库，CHECK质检）
+	*@param factoryId		  工厂ID 
+	*@description 根据来源单生成相应单据的主表信息和明细表信息
+	*/
+	public BillWarehouse insertAllocationMainAndDetail(Long billId, String creatCode,Long parentId, Long billType, Long fromBillType,
+			Long billStatus, Long fromWarehouseId, Long toWarehouseId, String type,Long factoryId, CommonParam commonParam)
+			throws BusinessException, SQLException;
+	
+	/**
+	*@auther:Chenzj
+	*@version:2019年5月27日下午4:35:16
+	*@param id                  明细表ID
+	*@param billStatusDictId    单据状态
+	*@param quality             数量
+	*@description 根据单据明细ID修改状态及数量
+	*/
+	public void updateAllocationInstore(Long id, Long billStatusDictId, Double quality, CommonParam commonParam) throws BusinessException, SQLException;
+
+
+	List<BillWarehouse> selectPrepareMaterialsScreen() throws BusinessException, SQLException;
+
+
+	/**
+	*@auther:Chen
+	*@version:2019年6月5日上午10:47:41
+	*@param list
+	*@param billCode
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description
+	*/
+	public List<BillWarehouseItem> insertArrivalMainAndDetail(List<BillDeliveryItemVo> list, String billCode,Long factoryId,
+			CommonParam commonParam) throws BusinessException, SQLException;
+
+}

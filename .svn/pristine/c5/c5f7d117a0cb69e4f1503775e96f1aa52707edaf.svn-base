@@ -1,0 +1,244 @@
+package com.techsoft.controller.quality;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.firm.ClientFirmPartnerService;
+import com.techsoft.client.service.product.ClientProductMainService;
+import com.techsoft.client.service.quality.ClientQualityInspectDocumentService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.QualityInspectDocument;
+import com.techsoft.entity.equip.EquipWorkParamVo;
+import com.techsoft.entity.firm.FirmPartnerParamVo;
+import com.techsoft.entity.product.ProductMainParamVo;
+import com.techsoft.entity.quality.QualityInspectDocumentParamVo;
+import com.techsoft.entity.quality.QualityInspectDocumentVo;
+
+@Controller
+@RequestMapping("/quality/qualityInspectDocument")
+public class QualityInspectDocumentController extends BaseController {
+	@Autowired
+	private ClientQualityInspectDocumentService clientQualityInspectDocumentService;
+	@Autowired
+	private ClientFirmPartnerService clientFirmPartnerService;
+	@Autowired
+	private ClientProductMainService clientProductMainService;
+	
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		try {
+			//物品
+			List<ProductMain> productMainList = clientProductMainService.selectListByParamVo(new ProductMainParamVo(), this.getCommonParam(null));
+			modelAndView.addObject("productMainList", productMainList);
+			//供应商
+			FirmPartnerParamVo vo = new FirmPartnerParamVo();
+			//vo.setPartnerTypeDictId(10313L);
+			List<FirmPartner> supplierList = clientFirmPartnerService.selectListByParamVo(vo, this.getCommonParam(null));
+			modelAndView.addObject("supplierList", supplierList);
+		}catch (SQLException e) {  
+			e.printStackTrace();
+		} 
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("quality/qualityInspectDocument-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("quality/qualityInspectDocument-edit");
+		QualityInspectDocumentVo entity = new QualityInspectDocumentVo();
+		try {
+			//供应商 
+			FirmPartnerParamVo vo = new FirmPartnerParamVo();
+			vo.setPartnerTypeDictId(10313L);
+			List<FirmPartner> supplierList = clientFirmPartnerService.selectListByParamVo(vo, this.getCommonParam(request));
+			modelAndView.addObject("supplierList", supplierList);
+
+			if (id != null) {
+				entity = clientQualityInspectDocumentService.getVoByID(id, this.getCommonParam(request));
+			}
+			
+			//获取物品集合
+			if(entity.getProductId()!=null){
+				long pdid = entity.getProductId();
+				ProductMain productMain = clientProductMainService.getVoByID(pdid, this.getCommonParam(request));
+				modelAndView.addObject("productMain", productMain);
+			}
+			if(entity.getSupplierId()!= null){
+				FirmPartner	firmPartner = clientFirmPartnerService.getVoByID(entity.getSupplierId(), this.getCommonParam(request));
+				modelAndView.addObject("firmPartner", firmPartner);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("entity", entity);
+		initData(modelAndView);
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			QualityInspectDocumentParamVo qualityInspectDocumentParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}		
+		try {
+            if(qualityInspectDocumentParamVo==null){
+            	qualityInspectDocumentParamVo = new QualityInspectDocumentParamVo();
+            }
+			pageInfo = clientQualityInspectDocumentService.selectPageVoByParamVo(
+					qualityInspectDocumentParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+	
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			QualityInspectDocumentParamVo qualityInspectDocumentParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+		qualityInspectDocumentParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientQualityInspectDocumentService.saveOrUpdate(qualityInspectDocumentParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+	
+
+	@RequestMapping(value = "/saveFile")
+	@ResponseBody
+	public ResultMessage saveFile(HttpServletRequest request,@RequestParam(value = "pathDocument", required = false) MultipartFile multipartFile) {
+		ResultMessage resultMessage = new ResultMessage();
+		QualityInspectDocumentParamVo qualityInspectDocumentParamVo = new QualityInspectDocumentParamVo();
+		String documentName = request.getParameter("documentName");
+		String supplierId = request.getParameter("supplierId");
+		String productId = request.getParameter("productId");
+		String remark = request.getParameter("remark");
+		
+		String id = request.getParameter("id");
+		String version = request.getParameter("version");
+		if(id!=null && !"".equals(id)){
+			qualityInspectDocumentParamVo.setId(Long.parseLong(id));
+		}
+		if(version!=null && !"".equals(version)){
+			qualityInspectDocumentParamVo.setVersion(Long.parseLong(version));
+		}
+
+		qualityInspectDocumentParamVo.setDocumentName(documentName);
+		qualityInspectDocumentParamVo.setSupplierId(Long.parseLong(supplierId));
+		qualityInspectDocumentParamVo.setProductId(Long.parseLong(productId));
+		qualityInspectDocumentParamVo.setRemark(remark);
+		
+		//获取当前日期作为文件名前8位
+		Date date = new Date();
+		//格式化时间
+		SimpleDateFormat dFormat = new SimpleDateFormat("yyyyMMdd"); 
+		String dataFile= dFormat.format(date);
+		System.out.println(dataFile);
+		
+		//获取一个不重复的文件名
+		//String fileName = UUID.randomUUID().toString().replace("-", "");
+		String fileName = UUID.randomUUID().toString().substring(0,6).replace("-", "");
+		System.out.println(fileName);
+		//获取前段传过来的真实文件名
+		String realName = multipartFile.getOriginalFilename();
+		//获取文件名的后缀名
+		String typeName= realName.substring(realName.lastIndexOf(".")); 
+		String saveFileName = dataFile + "-" +  fileName + typeName;
+		//获取当前站点中上传文件的位置物理路径
+		//String savePath = request.getSession().getServletContext().getRealPath("/upload/inspect");
+		
+		//获取项目路径
+		File systemFile = new File(this.getClass().getResource("/../../").getPath());
+		//获取工作空间路径
+		String path0 = systemFile.toString().substring(0, systemFile.toString().indexOf(".metadata"));
+		String savePath = path0+"mesParent\\dubbo-admin\\src\\main\\webapp\\upload\\files";
+		System.out.println("文件保存路径为:"+savePath);
+		
+        File createFile = new File(savePath);
+
+        if  (!createFile.exists() && !createFile.isDirectory()) {   
+        	  createFile.mkdirs();
+        	  System.out.println("创建文件夹路径为："+ createFile.getPath());	
+           }
+
+    		
+		try {
+			File file = new File(savePath+"/"+ saveFileName);
+			String pathName = file.toString().substring(file.toString().lastIndexOf("upload"));
+			
+			long startTime=System.currentTimeMillis();   //获取开始时间
+			multipartFile.transferTo(file);
+			long endTime=System.currentTimeMillis(); //获取结束时间 
+			
+			System.out.println("程序startTime时间： "+(startTime)+"ms");
+			System.out.println("程序endTime时间： "+(endTime)+"ms");
+			System.out.println("程序运行时间： "+(endTime-startTime)+"ms");
+			
+			qualityInspectDocumentParamVo.setPathDocument("\\"+pathName);
+		    qualityInspectDocumentParamVo.setModifyUserId(getLoginUserId(request));
+			resultMessage = clientQualityInspectDocumentService.saveOrUpdate(qualityInspectDocumentParamVo,this.getCommonParam(request));
+
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+		
+
+
+}

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+         <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+           <tr>
+               <td width="15%" class="tableleft">地区名称</td>
+                  <td  colspan="2">
+              		<input type="text" name=areaName lay-verify="decimal" class="layui-input" maxlength="30" value="${(entity.areaName)!''}"/>
+                </td>	
+                <td width="15%" class="tableleft">地区简称</td>
+                  <td>
+              		<input type="text" name=simpleName lay-verify="decimal" class="layui-input" maxlength="30" value="${(entity.simpleName)!''}"/>
+                </td>
+           </tr>
+            <tr>
+               <td width="15%" class="tableleft">所属国家</td>
+                <td colspan='2'>		
+               		  <div class="div-choiceBox-intd ">   
+               		  <input   type="hidden"  name="countryId" id="countryId" class="layui-input" maxlength="20" value="${(entity.countryId?c)!''}"/>  
+		          		<input type="text" id="countryName" name="countryName" disabled="disabled" class="layui-input input-choiceBox-intd" value="${(entity.configCountry.countryName)!''}">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="search">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	          		  </div>   
+               </td> 
+              <td width="15%" class="tableleft">省</td>
+                <td>
+               	   <input type="hidden"  name="provinceId" id="initprovinceId" class="layui-input" maxlength="20" value="<#if entity??&&entity.provinceId??>${entity.provinceId?c}<#else></#if>" />
+                   <select name="provinceId" id="provinceId" lay-search="" lay-filter="PId"> 
+			       </select>
+               </td>
+               
+           </tr>
+           <tr>
+           	 <td width="15%" class="tableleft">市</td>
+                <td colspan='2'>
+                 <input   type="hidden"  name="cityId" id="initcityId" class="layui-input" maxlength="20" value="<#if entity??&&entity.cityId??>${entity.cityId?c}<#else></#if>" />
+                 <select name="cityId" id="cityId" lay-search="" lay-filter="CTId"> 
+			     </select>
+               </td>
+               <td width="15%" class="tableleft">地区类型</td>
+                  <td>
+               		<select name="areaType"> 
+                    <option value="1"<#if  (entity.areaType??&&entity.areaType=='1')>selected="selected"</#if>>一级行政单位</option>
+                    <option value="2" <#if (entity.areaType??&&entity.areaType=='2')>selected="selected"</#if>>二级行政单位</option>
+                    <option value="3" <#if (entity.areaType??&&entity.areaType=='3')>selected="selected"</#if>>三级行政单位</option>
+			        </select>
+                  </td>	
+           </tr>
+           <tr>
+            <td colspan="5"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+      
+	  <div id="hidden2" lay-filter="hidden2" style="display: none">
+          <table id="material_result2" lay-filter="material_result2"></table>
+	  </div>
+    </div>
+    
+      <!-- 添加 弹出国家表格的 tool（里面的按钮）-->
+	<script type="text/html" id="materialSelect">
+    		 <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+	</script>
+    
+ 
+    <script type="text/javascript">
+    var $, admin, table, layer, laydate, form;
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','layuitable','table','layer','layuiconfig','layuiformajax'], function(){
+        $ = layui.$, 
+    	admin = layui.admin, 
+    	table = layui.table, 
+    	layer = layui.layer, 
+    	laydate = layui.laydate,
+    	layuitable = layui.layuitable,
+    	form = layui.form; 
+    	
+    	var layuiformajax = layui.layuiformajax;
+    	
+    	layuitable.render(country_result_table_options); //渲染数据给弹窗框表格， 
+    	table.on('tool(material_result2)', country_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+    	
+    	$('#search').focus( country_input_focus_handler);//点击触发弹窗按钮
+    	
+          //自定义验证规则
+          form.verify({
+          });
+
+          //省—市级联监听
+          form.on('select(PId)', function(data){
+        	  $("#cityId option[value!='']").remove();
+        	  $("#areaId option[value!='']").remove();
+        	  linkByCountry(data.value,'cityId','areaName','','/firm/firmPartner/linkByCountry');
+        	  $("#cityId").get(0).selectedIndex=0;
+          });
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/config/configArea/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	  if (result.isSuccess){
+      	    		layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            }); 
+      	    	  }else{
+      	    		  layer.alert(result.message,{
+      	    			  icon:2
+      	    		  });
+      	    	  }
+        		  
+      		  });
+        	 
+            return false;
+            
+          });
+          
+          
+        });
+  //页面上隐藏的用于弹层的所有国家的列表的相关设置
+    var country_result_table_options = {
+    		elem: '#material_result2'
+   	    	,id:'material_result2'
+   	    	,url:'/config/configCountry/list/json'
+   	    	,cols: [[
+   	    	     {field:'countryCode',  title: '国家英文名称',align:'center', width: 220}
+   	    	    ,{field:'countryName',  title: '国家名称',align:'center', width: 170}
+   	    	    ,{field:'continent',  title: '国家类型', align:'center',width: 120}
+   	      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#materialSelect', fixed: 'right'}
+   	    	]]
+    };
+  //点击查询国家弹窗触发该函数
+	function country_input_focus_handler(){
+		layer.open({
+			type : 1
+			, area : [ '650px', '500px' ]
+			, content : $('#hidden2')
+			, success : function () {
+				// 重新加载表格中的数据
+				table.reload('material_result2', country_result_table_options);
+				$('#hidden2').css('display', 'block');
+			}
+		});
+
+	}
+	//点击弹出的“国家信息”弹层上的表格中“选中”按钮的触发函数，回填input框
+	function country_tool_event_handler(obj) {
+		var data = obj.data;
+		switch (obj.event) {
+			case 'select':
+				$('#countryId').val(data.id);
+				$('#countryName').val(data.countryName);
+				layer.close(layer.index);
+				 $("#cityId option[value!='']").remove();
+	        	  $("#areaId option[value!='']").remove();
+				linkByCountry(data.id,'provinceId','areaName','','/firm/firmPartner/linkByCountry');
+					break;
+		}
+	}
+
+    function linkByCountry(parentId,selectId,selectName,linkId,url){
+    	//alert(parentId);
+    	layui.use([ 'form'], function(){
+    		var form = layui.form;
+    		var resjosn=null;
+    		$.ajax({
+    			type: "post",
+    			dataType: "",
+    			contentType:'application/x-www-form-urlencoded',
+    			url:url,
+    			data:{parentId:parentId},	
+    	        success: function(res){
+    				resjosn=JSON.parse(res);
+    				console.log(resjosn);
+    				resjosn.forEach(function(val,key){
+    					var option1 = $("<option></option>");
+    					option1.attr("value",val.id).text(val[selectName]);
+    					if (val.id == linkId){
+    						option1.attr("selected","selected");
+    					};
+    					$("#"+selectId).append(option1);
+    				});
+    				form.render('select');
+    			}
+			});
+    	});
+    } 
+    </script>
+    <script>
+    $(function () {
+    	//初始化
+    	//linkByCountry($("#countryId").val(),'provinceId','areaName',$("#initprovinceId").val(),'/firm/firmPartner/linkByCountry');
+    	if ($("#initprovinceId").val()==null || $("#initprovinceId").val()=="") {	
+    	} else {
+    		linkByCountry($("#initcountryId").val(),'provinceId','areaName',$("#initprovinceId").val(),'/firm/firmPartner/linkByCountry');
+    	}
+    	if ($("#initcityId").val()==null || $("#initcityId").val()=="") {	
+    	} else {
+    		linkByCountry($("#initprovinceId").val(),'cityId','areaName',$("#initcityId").val(),'/firm/firmPartner/linkByCountry');
+    	} 
+    });
+    </script>
+  </body>
+
+</html>

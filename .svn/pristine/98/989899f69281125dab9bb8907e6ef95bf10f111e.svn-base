@@ -1,0 +1,89 @@
+package com.techsoft.dao.history;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.HistoryBillStatus;
+import com.techsoft.entity.history.HistoryBillStatusParamVo;
+import com.techsoft.mapper.history.HistoryBillStatusMapper;
+
+@Repository
+public class HistoryBillStatusDaoImpl extends BaseDaoImpl<HistoryBillStatus> implements HistoryBillStatusDao {
+	@Resource
+	protected HistoryBillStatusMapper historyBillStatusMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<HistoryBillStatus> getEntityClass() {
+		return HistoryBillStatus.class;
+	}	
+	
+	@Override
+	public BaseMapper<HistoryBillStatus> getBaseMapper() {
+		return this.historyBillStatusMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "HISTORY_BILL_STATUS";
+	}
+	
+	@Override
+	public void insertSaveCheck(HistoryBillStatus value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(HistoryBillStatus value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(HistoryBillStatus value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public  ResultMessage billHistoryInsert(Long billType,Long billStatus,Long billId, CommonParam commonParam) throws BusinessException, SQLException  {
+		ResultMessage resultMessage = new ResultMessage();
+		
+		List<HistoryBillStatus> list=new ArrayList<HistoryBillStatus>();
+		HistoryBillStatusParamVo paramVo=new HistoryBillStatusParamVo();
+		paramVo.setBillId(billId);
+		paramVo.setBillStatusDictId(billStatus);
+		paramVo.setBillTypeDictId(billType);
+		list=historyBillStatusMapper.selectListByEntityParamVo(paramVo);
+		if (list.size()==0) {
+			HistoryBillStatus temp =new HistoryBillStatus();
+			temp.setId(historyBillStatusMapper.getIDValue());
+			temp.setBillId(billId);
+			temp.setBillStatusDictId(billStatus);
+			temp.setBillTypeDictId(billType);
+			temp.setTenantId(commonParam.getTenantId());
+			temp.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			temp.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			historyBillStatusMapper.insertEntity(temp);
+		}
+		
+		resultMessage.setIsSuccess(true);
+		return resultMessage;
+	}
+}

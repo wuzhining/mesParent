@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.sys.AdminRoleMapper">
+	<resultMap id="AdminRole" type="com.techsoft.entity.common.AdminRole" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="ROLE_NAME" property="roleName" />
+		<result column="ROLE_CODE" property="roleCode" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="SORT_NO" property="sortNo" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="roleName != null">
+			AND A.ROLE_NAME= #{roleName}
+		</if>
+		<if test="roleCode != null">
+			AND A.ROLE_CODE= #{roleCode}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="sortNo != null">
+			AND A.SORT_NO= #{sortNo}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	<if test="likeRoleName != null">
+		<bind name="likeRoleName" value="'%' + _parameter.likeRoleName + '%'"/>
+		AND A.ROLE_NAME LIKE #{likeRoleName}
+	</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.ROLE_NAME,
+		A.ROLE_CODE,
+		A.IS_VALID,
+		A.SORT_NO
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_ADMIN_ROLE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from ADMIN_ROLE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.AdminRole">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ADMIN_ROLE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.AdminRole">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ADMIN_ROLE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE ADMIN_ROLE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE ADMIN_ROLE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.AdminRole">
+		UPDATE ADMIN_ROLE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.AdminRole">
+		INSERT INTO ADMIN_ROLE (
+		TENANT_ID,
+		ROLE_NAME,
+		ROLE_CODE,
+		IS_VALID,
+		SORT_NO
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{roleName},
+		#{roleCode},
+		#{isValid},
+		#{sortNo}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.AdminRole">
+		UPDATE ADMIN_ROLE SET
+		TENANT_ID=#{tenantId},
+		ROLE_NAME=#{roleName},
+		ROLE_CODE=#{roleCode},
+		IS_VALID=#{isValid},
+		SORT_NO=#{sortNo},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.AdminRole">
+		UPDATE ADMIN_ROLE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="roleName != null" >
+			ROLE_NAME=#{roleName},
+		</if>
+		<if test="roleCode != null" >
+			ROLE_CODE=#{roleCode},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="sortNo != null" >
+			SORT_NO=#{sortNo},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.sys.AdminRoleParamVo"
+		      resultType="com.techsoft.entity.common.AdminRole" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ADMIN_ROLE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

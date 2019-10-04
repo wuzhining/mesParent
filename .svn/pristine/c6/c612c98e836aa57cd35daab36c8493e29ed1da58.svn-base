@@ -1,0 +1,8 @@
+package com.techsoft.dao.work;
+
+import com.techsoft.common.BaseDao;
+import com.techsoft.entity.common.WorkPlanEquipFixture;
+
+public interface WorkPlanEquipFixtureDao extends BaseDao<WorkPlanEquipFixture> {
+
+}

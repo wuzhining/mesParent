@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-unselect{
+			height:1px;
+		}
+		.layui-table-cell {            
+		overflow: visible !important;        
+		} 
+		td .layui-form-select{
+			margin-top: -10px;
+			margin-left: -15px;
+			margin-right: -15px;
+		}   
+
+	</style>
+  </head>
+   
+   <script type="text/html" id="structProcessDpl">
+	{{#  if(d.structProcess){}}
+		{{ d.structProcess.processName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   
+<script type="text/html" id="selectGxmc" >
+	 <select name='productionlines' lay-verify='' lay-search=''>
+		<option value="">请选择产线</option> 
+                 <#if productionlines??>
+                     <#list productionlines as item>
+			            <option value="${item.id?c}" >${item.productionlineName}</option>
+			         </#list>
+			         </#if> 
+    </select> 
+	
+</script>
+ <!-- <select name='productLineId' lay-verify='' lay-search=''>
+        <option value=""></option>
+        <option value="父子">父子</option>
+        <option value="母子">母子</option>
+        <option value="姐弟">姐弟</option>
+        <option value="弟弟">弟弟</option>
+    </select> -->
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+  			<div class="layui-col-md12">
+    			<div class="layui-form-query">
+    				<form class="layui-form m20">
+    					<div class="layui-form-item">
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+<!-- 						        <input type="text" name="billWorkorderId"  placeholder="工单编码" autocomplete="off" class="layui-input">
+ -->						      </div>
+						    </div>
+						    <!-- <div class="layui-inline">
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+						      </div>
+						    </div> -->
+			  			</div>
+			  			<div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12">
+        				<table  class="layui-hide" id="shelf_result" lay-filter="shelf_result"></table>
+        			</div>
+        		</div>
+        	</div>
+			  			
+			  	<div class="layui-col-md12" style='text-align:center;'>
+	    	<button id="saves" class="layui-btn"  lay-submit="" lay-filter="saves" >保存</button>	
+	    	<button class="layui-btn"  lay-submit="" lay-filter="print">生成条码</button>	
+	    		</div> 
+            		</form>
+            	</div>
+            </div>
+            
+        
+        </div>
+    </div>
+</div>   
+</body>
+
+ 
+<style type="text/css">
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+            vertical-align:middle;
+        }
+      
+</style>
+ 
+<script type="text/javascript">
+var returnData = [];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arr = url.split('=');
+	var arrs = url.split("&")[0];
+	var arrss = "";
+	arrss=arrs;
+	var ass =  arrss.split('=');
+	var workorderId = ass[1];
+	var workorderStatus = arr[2];
+	$("#ids").val(workorderId);
+	
+	//如果工单状态为开立  保存按钮显示 反之隐藏
+	if(workorderStatus == '10459'){
+		$("#saves").attr("style","display:block;");
+	}else{
+		$("#saves").attr("style","display:none;");
+	}
+	
+	
+	
+	var curTable = layuitable.render({
+    	elem: '#shelf_result'
+    	,id:'shelf_result'
+    	,url:'/bill/billWorkorder/viewProductionLineCheck/list/json?id=' +workorderId
+    	,height:640
+   		,cols: [[
+		    	,{field:'id',  title: 'ID',align:'center', width: 10}
+   	    	    ,{field:'bomCode',  title: 'bom编码',align:'center', width: 220}
+   	    	 	,{field:'bomName',  title: 'bom名称',align:'center', width: 220}
+   	    	 	,{field:'quantity',  title: '数量',align:'center', width: 120}
+   	    	 	,{field:'structProcessDpl',  title: '工艺路线',align:'center', width: 220, templet:'#structProcessDpl'}
+   	    	 	,{field:'productionlineId', title: '选择产线',templet: '#selectGxmc',sort:false,width: 200} 
+   	    	]],done:function(){
+   	    		// 隐藏列
+   	    		$(".layui-table-box").find("[data-field='id']").css("display","none");
+	   	    	//重新选中下拉
+	   	     	var divForm = $("#shelf_result").next();
+	   	     	var tableCache = table.cache.shelf_result; 
+	   	     	var trJqs = divForm.find(".layui-table-body tr");
+	   	     	trJqs.each(function(){
+	   	     		var trJq = $(this);
+	   	     		var dataIndex = trJq.attr("data-index");
+	   	     		trJq.find("td").each(function(){
+	   	     			var tdJq = $(this);
+	   	     			var fieldName = tdJq.attr("data-field");
+	   	     			//var fieldName = selectJq.eq(0).attr("name");
+	   	     			//更新select数据
+	   	     			var selectJq = tdJq.find("select");
+	   	     			if(selectJq.length == 1){
+	   	     					selectJq.eq(0).val(tableCache[dataIndex][fieldName])
+	   	     			}
+	   	     		});
+	   	     	});
+	   	     	
+	   	     form.render();
+    	    }
+  	});
+	
+	
+	 
+	
+	form.on('submit(search)', function (data) {
+		curTable.reload(data.field);
+        return false;
+  	});
+	
+	 //监听提交
+    form.on('submit(saves)', function(data){
+    	
+    	//重新获取表格数据 
+    	var op = op || "cache";
+    	var divForm = $("#shelf_result").next();
+    	var tableCache = table.cache.shelf_result; 
+    	var trJqs = divForm.find(".layui-table-body tr");
+    	trJqs.each(function(){
+    		var trJq = $(this);
+    		var dataIndex = trJq.attr("data-index");
+    		trJq.find("td").each(function(){
+    			var tdJq = $(this);
+    			var fieldName = tdJq.attr("data-field");
+    			//var fieldName = selectJq.eq(0).attr("name");
+    			//更新select数据
+    			var selectJq = tdJq.find("select");
+    			if(selectJq.length == 1){
+    				if(op == "cache"){
+    					tableCache[dataIndex][fieldName] = selectJq.eq(0).val();
+    				}else if(op == "form"){
+    					selectJq.eq(0).val(tableCache[dataIndex][fieldName])
+    				}
+    			}
+    		});
+    	});
+    	
+  	    console.log(tableCache);
+  	    
+  	 
+		 for(var i=0; i<tableCache.length;i++){
+			 tableCache[i].workorderId=workorderId;
+		 }
+		 
+  	    
+  		 $.ajax({
+	  		 		type: "post",
+	  		 		dataType: "json",
+	  		 		url:'/bill/billWorkorder/viewProductionLineCheck/updatStart',
+	  		 		traditional :true,  //注意这个参数是必须的
+	  		 		data:{"array":JSON.stringify(tableCache)}, 
+	  		    	success: function(res){
+				  			if (res.isSuccess) {
+			          	    	   layer.alert("保存成功", {icon: 6},function () {
+			        	                // 获得frame索引
+			        	                var index = parent.layer.getFrameIndex(window.name);
+			        				  	parent.location.reload(); 
+			        	                parent.layer.close(index);
+			        	            });	
+			       			}else{
+			       				layer.alert(res.message, {
+			       					icon : 2
+			       				});
+			       			}
+	  			
+	  		    	}
+	      	});  
+   
+      return false;
+    });
+	 
+    //监听提交
+    form.on('submit(print)', function(data){
+  		 
+  		var url = '/bill/billWorkorder/viewProductionLineCheck/printBarcode';
+        layuiformajax.postJson(url, {"id":workorderId}, function (result) {
+   	    	if (result.isSuccess) {
+   	    	    layer.alert("保存成功", {icon: 6},function () {
+   	                // 获得frame索引
+   	                var index = layer.getFrameIndex(window.name);
+   				  	location.reload(); 
+   	                layer.close(index);
+   	            });	
+   			}else{
+   				layer.alert(result.message, {
+   					icon : 2
+   				});
+   			}
+		});
+  		
+  	 
+   
+      return false;
+    });
+
+ 
+});	
+function selected() {
+	return returnData;
+}
+
+/***
+ * op="cache",则更新表格数据，将表格编辑控件数据更新到缓存table.cache[tableCacheId]; 
+ * op="form"，则从缓存table.cache[tableCacheId]获取数据更新表格对应的下拉框，日期等控件。
+ * op: 取值cache或者form。默认form
+ */
+function updateCacheOrForm(tableId, tableCacheId, op){
+	op = op || "form";
+	var divForm = $("#" + tableId).next();
+	var tableCache = table.cache.shelf_result; 
+	var trJqs = divForm.find(".layui-table-body tr");
+	trJqs.each(function(){
+		var trJq = $(this);
+		var dataIndex = trJq.attr("data-index");
+		trJq.find("td").each(function(){
+			var tdJq = $(this);
+			var fieldName = tdJq.attr("data-field");
+			//var fieldName = selectJq.eq(0).attr("name");
+			//更新select数据
+			var selectJq = tdJq.find("select");
+			if(selectJq.length == 1){
+				if(op == "cache"){
+					tableCache[dataIndex][fieldName] = selectJq.eq(0).val();
+				}else if(op == "form"){
+					selectJq.eq(0).val(tableCache[dataIndex][fieldName])
+				}
+			}
+		});
+	});
+	return tableCache;
+
+ }
+</script>
+ <script type="text/javascript">
+ 
+ </script>
+
+</html>

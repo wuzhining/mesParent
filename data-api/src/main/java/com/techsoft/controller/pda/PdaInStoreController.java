@@ -1,0 +1,114 @@
+package com.techsoft.controller.pda;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.techsoft.client.service.barcode.ClientBarcodeMainService;
+import com.techsoft.client.service.bill.ClientBillWarehouseItemService;
+import com.techsoft.client.service.bill.ClientBillWarehouseService;
+import com.techsoft.client.service.track.ClientTrackBarcodeService;
+import com.techsoft.client.service.warehouse.ClientWarehouseLocationService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.barcode.BarcodeMainVo;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.bill.BillWarehouseItemVo;
+import com.techsoft.entity.bill.BillWarehouseParamVo;
+import com.techsoft.entity.bill.BillWarehouseVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.entity.track.TrackBarcodeVo;
+import com.techsoft.entity.warehouse.WarehouseLocationParamVo;
+import com.techsoft.entity.warehouse.WarehouseLocationVo;
+import com.techsoft.service.barcode.BarcodeMainService;
+
+/**
+ * @auther:Chen
+ * @version:2019年4月30日上午10:33:10
+ * @param:
+ * @description pda入库请求controller层
+ */
+@Controller
+@RequestMapping("/pda/pdaInStore")
+public class PdaInStoreController extends BaseController {
+	@Autowired
+	private ClientBillWarehouseService clientBillWarehouseService;
+	@Autowired
+	private ClientBillWarehouseItemService clientBillWarehouseItemService;
+	@Autowired
+	private ClientBarcodeMainService clientBarcodeMainService;
+	@Autowired
+	private ClientWarehouseLocationService clientWarehouseLocationService;
+	@Autowired
+	private ClientTrackBarcodeService clientTrackBarcodeService;
+	
+	
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年4月30日上午10:48:29
+	 * @param:locationCode 货位标签
+	 * @description pda扫描货位标签返回数据
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/locationList", method = RequestMethod.POST)
+	public ResultMessage getLocationList(HttpServletRequest request, String locationCode, String factoryId) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<WarehouseLocationVo> warehouseLocationList = new ArrayList<WarehouseLocationVo>();
+		WarehouseLocationParamVo paramVo = new WarehouseLocationParamVo();
+		paramVo.setLocationCode(locationCode);
+		try {
+			warehouseLocationList = clientWarehouseLocationService.selectListVoByParamVo(paramVo, this.getCommonParam(request));
+			if(warehouseLocationList.size() ==0){
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无此货位信息");
+			}else{
+				resultMessage.put(warehouseLocationList);
+			    resultMessage.setIsSuccess(true);
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+
+	/**
+	 * @auther:Chenzj
+	 * @version:2019年5月04日下午8:50:04
+	 * @param:barcode:标签
+	 * @param:locationId:货位Id
+	 * @param:warehouseId:仓库Id
+	 * @description 根据扫描标签上架
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/barcodeInput", method = RequestMethod.POST)
+	public ResultMessage onBarcode(HttpServletRequest request,String barcode,String locationId,String warehouseId,String factoryId) {
+		ResultMessage resultMessage = new ResultMessage();
+		
+		TrackBarcodeVo trackBarcodeVo=new TrackBarcodeVo();
+		trackBarcodeVo.setBarcode(barcode);
+		trackBarcodeVo.setLocationId(Long.valueOf(locationId));
+		trackBarcodeVo.setWarehouseId(Long.valueOf(warehouseId));
+		
+		resultMessage=clientTrackBarcodeService.onBarcode(trackBarcodeVo, this.getCommonParam(request));
+		return resultMessage;
+	}
+}

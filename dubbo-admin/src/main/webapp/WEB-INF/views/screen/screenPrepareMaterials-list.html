@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<#include "../default-screen.html"/>
+	<style type="text/css">
+		.layui-hide tr:nth-child(even){
+			background-color:green;
+		}
+	</style>
+</head>
+
+<body style='font-size: 62.5%; width: 100%; height: 100%'>
+	<!-- 看板导航栏 -->
+	<nav class="navbar navbar-default" style='margin-bottom: 0px'>
+		<div class="container-fluid">
+			<div class='container title'>
+				<p class="navbar-text title-p">备料看板</p>
+			</div>
+		</div>
+	</nav>
+
+	<!-- 看板主体 -->
+	<div class="layui-col-md12" id='topTab'>
+		<div class="layui-row grid-demo" >
+			<div class="layui-col-md12"
+				style="text-align: center; line-height: 30px; font-size: 14px;">
+				<table class="layui-hide" id="listTable" lay-filter="tablefilter" ></table>
+			</div>
+		</div>
+	</div>
+
+                            
+     <!-- 库单明细 -->      
+	<script type="text/html" id="createTime">
+		{{#  if(d.billWarehouseItem){}}
+			{{ d.billWarehouseItem.createTime 
+		}}
+		{{# } }}
+	</script>
+	<script type="text/html" id="quantity">
+		{{#  if(d.billWarehouseItem){}}
+			{{ d.billWarehouseItem.quantity 
+		}}
+		{{# } }}
+	</script>
+	<script type="text/html" id="materialId">
+		{{#  if(d.billWarehouseItem){}}
+			{{ d.billWarehouseItem.materialId 
+		}}
+		{{# } }}
+	</script>
+	<script type="text/html" id="productId">
+		{{#  if(d.billWarehouseItem){}}
+			{{ d.billWarehouseItem.productId 
+		}}
+		{{# } }}
+	</script>
+     <!-- 物料 -->      
+	<script type="text/html" id="materialName">
+		{{#  if(d.productMaterial){}}
+			{{ d.productMaterial.materialName 
+		}}
+		{{# } }}
+	</script>
+	<!-- 物品 -->
+	<script type="text/html" id="productName">
+		{{#  if(d.productMain){}}
+			{{ d.productMain.productName 
+		}}
+		{{# } }}
+	</script> 
+	<!-- 单据状态 -->
+	<script type="text/html" id="billStatusName">
+		{{#  if(d.billStatusDic){}}
+			{{ d.billStatusDic.dictName 
+		}}
+		{{# } }}
+	</script> 
+	<!-- 工单 -->
+	<script type="text/html" id="workorderCode">
+		{{#  if(d.billWorkorder){}}
+			{{ d.billWorkorder.workorderCode 
+		}}
+		{{# } }}
+	</script> 
+	<!-- 工单 -->
+	<script type="text/html" id="quantityNeed">
+		{{#  if(d.billWorkorder){}}
+			{{ d.billWorkorder.quantity
+		}}
+		{{# } }}
+	</script> 
+	<!-- 线别 -->
+	<script type="text/html" id="productionlineName">
+		{{#  if(d.toProductionline){}}
+			{{ d.toProductionline.productionlineName 
+		}}
+		{{# } }}
+	</script> 
+	<!-- 线别 -->
+	<script type="text/html" id="quantityMaterial">
+		{{#  if(d.billWorkorderBom){}}
+			{{ d.billWorkorderBom.quantity 
+		}}
+		{{# } }}
+	</script> 
+
+	<script type="text/javascript">
+	layui.config({
+    	base: '/static/plugins/layui/base/',
+    	v: new Date().getTime()
+		}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+			var form = layui.form, $ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+			layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+			var layuiformajax = layui.layuiformajax;
+			
+			var curTable = layuitable.render({
+    		elem: '#listTable'
+    		,id:'listTable'
+    		,url:'/screen/screenPrepareMaterials/list/json' 
+    		,cols: [[
+    	     	 {field:'id', title: '领料单',align:'center', width:'7%',style:'color:red;font-size:14px;' }
+    	    	,{field:'productionlineName',  title: '线别',align:'center', width: '7%',style:'color:red;font-size:14px;',templet: '#productionlineName'}
+    	    	,{field:'workorderCode',  title: '工单',align:'center', width: '8%',style:'color:red;font-size:14px;',templet: '#workorderCode'}    	    
+    	    	,{field:'productName',  title: '物品', align:'center',width: '8%',style:'color:red;font-size:14px;',templet: '#productName'}
+    	    	,{field:'productId',  title: '物品ID', align:'center',width: 130,style:'color:red;font-size:14px;',templet: '#productId'}
+    	    	,{field:'materialId',  title: '物料编码', align:'center',width: '8%',style:'color:red;font-size:14px;',templet: '#materialId'}    	    
+    	    	,{field:'materialName',  title: '物料名称', align:'center',width: '10%',style:'color:red;font-size:14px;',templet: '#materialName'}
+    	    	,{field:'quantityNeed',  title: '生产数', align:'center',width: '8%',style:'color:red;font-size:14px;',templet: '#quantityNeed'}   	    	
+    	    	,{field:'quantityMaterial',  title: '物料需求数', align:'center',width: '8%',style:'color:red;font-size:14px;',templet: '#quantityMaterial'}   	    	
+    	    	,{field:'quantity',  title: '本次发料数', align:'center',width: '8%',style:'color:red;font-size:14px;',templet: '#quantity'}
+    	    	,{field:'null',  title: '叫料类型',align:'center', width: '8%',style:'color:red;font-size:14px;'}
+    	    	,{field:'billStatusName',  title: '备料状态',align:'center', width: '8%',style:'color:red;font-size:14px;',templet: '#billStatusName'}    	    
+    	    	,{field:'createTime',  title: '创建时间',align:'center', width: '12%' ,style:'color:red;font-size:14px;',templet: '#createTime' }
+    		]] ,done:function(){
+        		// 隐藏列
+        		$(".layui-table-box").find("[data-field='productId']").css("display","none");   
+        		/* $(".layui-table-box").find("[data-field='materialId']").css("display","none"); */     
+        	} 
+        	,page:false
+  		});
+
+		
+		
+ 	
+});	
+</script>
+</body>
+</html>

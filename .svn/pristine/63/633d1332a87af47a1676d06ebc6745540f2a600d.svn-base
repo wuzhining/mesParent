@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.bill.BillSaleorderMapper">
+	<resultMap id="BillSaleorder" type="com.techsoft.entity.common.BillSaleorder" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="BILL_CODE" property="billCode" />
+		<result column="BILL_STATUS_DICT_ID" property="billStatusDictId" />
+		<result column="AUDIT_STATUS_DICT_ID" property="auditStatusDictId" />
+		<result column="CUSTOMER_ID" property="customerId" />
+		<result column="PLAN_TIME" property="planTime" />
+		<result column="DELIVERY_TIME" property="deliveryTime" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="billCode != null">
+			AND A.BILL_CODE= #{billCode}
+		</if>
+		<if test="billStatusDictId != null">
+			AND A.BILL_STATUS_DICT_ID= #{billStatusDictId}
+		</if>
+		<if test="auditStatusDictId != null">
+			AND A.AUDIT_STATUS_DICT_ID= #{auditStatusDictId}
+		</if>
+		<if test="customerId != null">
+			AND A.CUSTOMER_ID= #{customerId}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+		<if test="planTimeBegin != null">
+		<![CDATA[
+		   AND A.PLAN_TIME >=  #{planTimeBegin}
+		]]>
+		</if>
+		<if test="planTimeEnd != null">
+		<![CDATA[
+		   AND A.PLAN_TIME <= #{planTimeEnd}
+		]]>
+		</if>		
+		<if test="deliveryTimeBegin != null">
+		<![CDATA[
+		   AND A.DELIVERY_TIME >=  #{deliveryTimeBegin}
+		]]>
+		</if>
+		<if test="deliveryTimeEnd != null">
+		<![CDATA[
+		   AND A.DELIVERY_TIME <= #{deliveryTimeEnd}
+		]]>
+		</if>		
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.BILL_CODE,
+		A.BILL_STATUS_DICT_ID,
+		A.AUDIT_STATUS_DICT_ID,
+		A.CUSTOMER_ID,
+		A.PLAN_TIME,
+		A.DELIVERY_TIME,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_BILL_SALEORDER_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from BILL_SALEORDER
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.BillSaleorder">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_SALEORDER A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.BillSaleorder">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_SALEORDER A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE BILL_SALEORDER A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE BILL_SALEORDER  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.BillSaleorder">
+		UPDATE BILL_SALEORDER A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillSaleorder">
+		INSERT INTO BILL_SALEORDER (
+		TENANT_ID,
+		BILL_CODE,
+		BILL_STATUS_DICT_ID,
+		AUDIT_STATUS_DICT_ID,
+		CUSTOMER_ID,
+		PLAN_TIME,
+		DELIVERY_TIME,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{billCode},
+		#{billStatusDictId},
+		#{auditStatusDictId},
+		#{customerId},
+		#{planTime},
+		#{deliveryTime},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillSaleorder">
+		UPDATE BILL_SALEORDER SET
+		TENANT_ID=#{tenantId},
+		BILL_CODE=#{billCode},
+		BILL_STATUS_DICT_ID=#{billStatusDictId},
+		AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		CUSTOMER_ID=#{customerId},
+		PLAN_TIME=#{planTime},
+		DELIVERY_TIME=#{deliveryTime},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillSaleorder">
+		UPDATE BILL_SALEORDER SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="billCode != null" >
+			BILL_CODE=#{billCode},
+		</if>
+		<if test="billStatusDictId != null" >
+			BILL_STATUS_DICT_ID=#{billStatusDictId},
+		</if>
+		<if test="auditStatusDictId != null" >
+			AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		</if>
+		<if test="customerId != null" >
+			CUSTOMER_ID=#{customerId},
+		</if>
+		<if test="planTime != null" >
+			PLAN_TIME=#{planTime},
+		</if>
+		<if test="deliveryTime != null" >
+			DELIVERY_TIME=#{deliveryTime},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.bill.BillSaleorderParamVo"
+		      resultType="com.techsoft.entity.common.BillSaleorder" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_SALEORDER A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

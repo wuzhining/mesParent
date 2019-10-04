@@ -1,0 +1,227 @@
+package com.techsoft.client.service.struct;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipClassesFixture;
+import com.techsoft.entity.common.EquipFixture;
+import com.techsoft.entity.common.EquipSpecsFixture;
+import com.techsoft.entity.common.StructProdlineEquipFixture;
+import com.techsoft.entity.struct.StructProdlineEquipFixtureVo;
+import com.techsoft.entity.struct.StructProdlineEquipFixtureParamVo;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.equip.EquipClassesFixtureService;
+import com.techsoft.service.equip.EquipFixtureService;
+import com.techsoft.service.equip.EquipSpecsFixtureService;
+import com.techsoft.service.struct.StructProdlineEquipFixtureService;
+
+@org.springframework.stereotype.Service
+public class ClientStructProdlineEquipFixtureServiceImpl extends BaseClientServiceImpl<StructProdlineEquipFixture> implements ClientStructProdlineEquipFixtureService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProdlineEquipFixtureService structProdlineEquipFixtureService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipFixtureService equipFixtureService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipSpecsFixtureService equipSpecsFixtureService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipClassesFixtureService equipClassesFixtureService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+    
+	@Override
+	public BaseService<StructProdlineEquipFixture> getBaseService() {
+		return structProdlineEquipFixtureService;
+	}	    	
+    
+	private StructProdlineEquipFixtureVo getVo(StructProdlineEquipFixture structProdlineEquipFixture, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProdlineEquipFixtureVo vo = new StructProdlineEquipFixtureVo(structProdlineEquipFixture);
+		// TODO 此处填充其它关联字段的处理代码
+		//工具设备
+		if(vo.getEquipFixtureId() != null && vo.getEquipFixtureId() > 0L){
+			EquipFixture equipFixture = equipFixtureService.selectById(vo.getEquipFixtureId(), commonParam);
+			//工具品种规格
+			if(equipFixture.getSpecsFixtureId() != null && equipFixture.getSpecsFixtureId() > 0L){
+				EquipSpecsFixture equipSpecsFixture = equipSpecsFixtureService.selectById(equipFixture.getSpecsFixtureId(), commonParam);
+				if(equipSpecsFixture != null){
+					vo.setEquipSpecsFixture(equipSpecsFixture);
+				}
+			}
+			//工具分类
+			if(equipFixture.getClassesId() != null && equipFixture.getClassesId() > 0L){
+				EquipClassesFixture equipClassesFixture = equipClassesFixtureService.selectById(equipFixture.getClassesId(), commonParam);
+				if(equipClassesFixture != null){
+					vo.setEquipClassesFixture(equipClassesFixture);
+				}
+			}
+			//工具状态
+			if(equipFixture.getFixtureStatusDictId() != null && equipFixture.getFixtureStatusDictId() > 0L){
+				ConfigDictionary fixtureStatus = configDictionaryService.selectById(equipFixture.getFixtureStatusDictId(), commonParam);
+				if(fixtureStatus != null){
+					vo.setFixturestatus(fixtureStatus);
+				}
+			}
+			vo.setEquipFixture(equipFixture);
+		}
+		
+		return vo;
+	} 
+	
+	private StructProdlineEquipFixtureVo getExtendVo(StructProdlineEquipFixture structProdlineEquipFixture, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProdlineEquipFixtureVo vo = this.getVo(structProdlineEquipFixture, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<StructProdlineEquipFixtureVo> getVoList(List<StructProdlineEquipFixture> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<StructProdlineEquipFixtureVo> voList = new ArrayList<StructProdlineEquipFixtureVo>();
+		for (StructProdlineEquipFixture entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<StructProdlineEquipFixtureVo> getExtendVoList(List<StructProdlineEquipFixture> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<StructProdlineEquipFixtureVo> voList = new ArrayList<StructProdlineEquipFixtureVo>();
+		for (StructProdlineEquipFixture entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public StructProdlineEquipFixtureVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProdlineEquipFixture entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<StructProdlineEquipFixtureVo>  selectListVoByParamVo(StructProdlineEquipFixtureParamVo structProdlineEquipFixture, CommonParam commonParam) throws BusinessException, SQLException {
+		if(structProdlineEquipFixture==null){
+			structProdlineEquipFixture = new StructProdlineEquipFixtureParamVo();
+		}
+		structProdlineEquipFixture.setTenantId(commonParam.getTenantId());	
+	
+		List<StructProdlineEquipFixture> list = (List<StructProdlineEquipFixture>) this.getBaseService().selectListByParamVo(structProdlineEquipFixture, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<StructProdlineEquipFixtureVo> selectPageVoByParamVo(StructProdlineEquipFixtureParamVo structProdlineEquipFixture, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(structProdlineEquipFixture==null){
+			structProdlineEquipFixture = new StructProdlineEquipFixtureParamVo();
+		}
+		structProdlineEquipFixture.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<StructProdlineEquipFixture> list  = (PageInfo<StructProdlineEquipFixture>) this.getBaseService().selectPageByParamVo(structProdlineEquipFixture, commonParam, pageNo, pageSize);
+		List<StructProdlineEquipFixtureVo> volist = new ArrayList<StructProdlineEquipFixtureVo>();
+		
+		Iterator<StructProdlineEquipFixture> iter = list.getList().iterator();
+		StructProdlineEquipFixtureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<StructProdlineEquipFixtureVo> vpage = new Page<StructProdlineEquipFixtureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public StructProdlineEquipFixtureVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProdlineEquipFixture entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<StructProdlineEquipFixtureVo>  selectListExtendVoByParamVo(StructProdlineEquipFixtureParamVo structProdlineEquipFixture, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(structProdlineEquipFixture==null){
+			structProdlineEquipFixture = new StructProdlineEquipFixtureParamVo();
+		}
+		structProdlineEquipFixture.setTenantId(commonParam.getTenantId());	
+					
+		List<StructProdlineEquipFixture> list = (List<StructProdlineEquipFixture>) this.getBaseService().selectListByParamVo(structProdlineEquipFixture, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<StructProdlineEquipFixtureVo> selectPageExtendVoByParamVo(StructProdlineEquipFixtureParamVo structProdlineEquipFixture, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(structProdlineEquipFixture==null){
+			structProdlineEquipFixture = new StructProdlineEquipFixtureParamVo();
+		}
+		structProdlineEquipFixture.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<StructProdlineEquipFixture> list  = (PageInfo<StructProdlineEquipFixture>) this.getBaseService().selectPageByParamVo(structProdlineEquipFixture, commonParam, pageNo, pageSize);
+		List<StructProdlineEquipFixtureVo> volist = new ArrayList<StructProdlineEquipFixtureVo>();
+		
+		Iterator<StructProdlineEquipFixture> iter = list.getList().iterator();
+		StructProdlineEquipFixtureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<StructProdlineEquipFixtureVo> vpage = new Page<StructProdlineEquipFixtureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(StructProdlineEquipFixtureParamVo structProdlineEquipFixtureParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		StructProdlineEquipFixture structProdlineEquipFixture = null;
+		try {
+			if (structProdlineEquipFixtureParamVo.getId() == null) {//新增
+			 
+				structProdlineEquipFixtureParamVo.setTenantId(commonParam.getTenantId());
+				structProdlineEquipFixture = structProdlineEquipFixtureService.saveOrUpdate(structProdlineEquipFixtureParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				StructProdlineEquipFixture structProdlineEquipFixtureVoTemp = this.selectById(structProdlineEquipFixtureParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(structProdlineEquipFixtureVoTemp,
+						structProdlineEquipFixtureParamVo);
+  
+				structProdlineEquipFixture = structProdlineEquipFixtureService.saveOrUpdate(
+						structProdlineEquipFixtureVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(structProdlineEquipFixture);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

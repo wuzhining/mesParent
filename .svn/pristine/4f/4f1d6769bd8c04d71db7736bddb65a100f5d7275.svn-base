@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+  		 <div  style="text-align:center">
+	   <div id="hidden1" lay-filter="hidden1" >
+	   <textarea hidden="true" rows="12" id="S1" cols="107" ></textarea>
+	   <div style="text-align:left">
+	    <button class="layui-btn" onclick="myReadFile('S1')"><i class="layui-icon"></i>导入标签模板</button>
+	   </div>
+	   	  <form  id="dataForm"  class="layui-form layui-col-md12 x-so">
+	           <table class="layui-table ">
+          			 <tr>
+          			 	<td>
+	     	  		   		 <input type="text" name="labelId" id="labelId"  lay-verify="required"     disabled="disabled"  placeholder="请选择标签模板id" class="layui-input input-choiceBox-intd">
+          			 	</td>
+	          			<td>
+			          		<div class="div-choiceBox-intd ">   
+			        		    <input type="text" name="labelName" id="labelName"  lay-verify="required"  disabled="disabled"  placeholder="请选择标签模板名称"  class="layui-input input-choiceBox-intd">
+				          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="labelIdsearch">
+				          			<i class="layui-icon layui-icon-more"></i>
+				          		</button>
+	          			 	</div>
+	          			</td>
+	         	 	</div>
+          			 	
+	         		</tr>
+	          		<tr>
+	          			<td>物品规格数量</td>
+          			 	<td>
+	     	  		   		 <input  type="text" name="materialQuantity" id="quantity" lay-verify="required|number"   placeholder="请输入物品规格数量"   class="layui-input">
+          			 	</td>
+	          		</tr>
+	          		<tr>
+	          			<td>标签数量</td>
+          			 	<td>
+          			 	     <input type="hidden"  id="materialId" name="materialId" disabled="disabled" class="layui-input input-choiceBox-intd" >
+	     	  		   		 <input  type="text" name="quantity" id="quantity" lay-verify="required|number"   placeholder="请输入打印标签数量"   class="layui-input">
+          			 	</td>
+	          		</tr>
+		        	<tr class="layui-table " lay-even lay-skin="nob">
+		        		<td >
+				          <button class="layui-btn" style="float:right" lay-submit="" lay-filter="save" id="save" >确认</button>
+		        		</td>
+		        		<td>
+				          <button class="layui-btn" style="float:left" id="callback" >取消</button>
+		        		</td>
+		       		</tr>
+	            </table>
+		          <div class="layui-col-md12" id='bottomTab'>
+		  	 			<div class="layui-row grid-demo">
+		            		<div class="layui-col-md12" style="text-align: center;">
+						        <table id="label_filed" lay-filter="label_filed"></table>
+		        			</div>
+		        		</div>
+		      	  </div>
+          </form>
+		     
+	 </div>
+       <div id="hidden2" lay-filter="hidden2" style="display: none">
+        <table id="printType" lay-filter="printType"></table>
+	  </div>  
+	  </div>
+    </div>
+</div>   
+</body>
+<!-- 添加 弹出标签文档表格的 tool（里面的按钮）-->
+<script type="text/html" id="lableSelect">
+     <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+</script>
+
+<script type="text/html" id="configLabel">
+	{{#  if(d.configLabel){}}
+		{{ d.configLabel.labelName 
+
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="labelFieldName">
+	{{#  if(d.configLabelField){}}
+		{{ d.configLabelField.labelFieldName 
+
+ 	}}
+	{{# } }}
+</script>
+<script type="text/javascript">
+     var data="";//标签模板的字段与序号
+    var barcodeResultData=[];
+    var trackBarcodeResultData=[];
+     var datas=[];//标签数据源
+var returnData = [];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','laydate','table','layuiconfig','layuiformajax','layuitable'], function(){
+    $ = layui.jquery;
+    var form = layui.form,layuitable = layui.layuitable,table = layui.table ;
+    var layuiformajax = layui.layuiformajax;
+    var labelStr="",cartable="";
+    var datas="",
+ 	lableCode="",	 //标签条码
+  	materialCode="", //物品规格编码
+    quantity=0,//标签个数
+    materialQuantity=0,//物品规格数量
+    materialId="",//物品规格id
+    companyName="",//供应商
+    materialName="",//物品规格名称
+ 	quantityStock=0; //物品规格数量
+	
+    
+    
+    
+	//layuitable.render(lable_result_table_options); //渲染数据给弹窗框表格， 
+	$('#labelIdsearch').focus(lable_filed_focus_handler);
+	table.on('tool(printType)', lable_tool_event_handler);  // 为页面上的table上的tool绑定事件处理函数  
+	
+	
+	
+	
+		var curTable = layuitable.render({
+				elem: '#printType'
+	   	    	,id:'printType'
+	   	    	,title:"标签文档选择"
+	   	    	,url:'/config/configLabel/list/json'
+	   	    	,cols: [[
+	   	    	     {field:'id', title: 'ID',align:'center', width:200}
+	   	    	    ,{field:'labelName',  title: '标签文档名称',align:'center', width:196}
+	   	      		,{field:'', width:'14%', title: '操作', align:'center', toolbar: '#lableSelect', fixed: 'right',width:200}
+	   	    	]]
+	  	});
+	
+	  var renderTable = function (data) {
+ 		cartable=layuitable.render({
+     	elem: '#label_filed'
+     	,id:'label_filed'
+     	,data:data
+     	,cols: [[
+	        	 {field:'labelId',  title: '标签ID',align:'center',width:"15%"}
+	    	    ,{field:'labelName',  title: '标签名称',align:'center',width:"25%",templet: '#configLabel'}
+	    	    ,{field:'labelFieldId',  title: '标签字段ID',align:'center',width:"15%"}
+	    	    ,{field:'labelFieldName',  title: '标签字段名称',align:'center',width:"25%",templet: '#labelFieldName'}
+	    	    ,{field:'sortNo',  title: '字段排序号', align:'center',width:"10%",width:"15%"}
+     	]],
+     	done: function(res, curr, count){
+     		 //如果是异步请求数据方式，res即为你接口返回的信息。
+     		 //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+     		 labelStr=res.resultlist;
+     		// console.log(labelStr);
+     		 //得到当前页码
+     	//	 console.log(curr);
+     		 //得到数据总量
+     	//	 console.log(count);
+     		 }
+     	
+     	
+   	});
+ 	}
+	
+		function lable_tool_event_handler(obj) {
+			var lableData = obj.data;
+			var id=lableData.id;
+			switch (obj.event) {
+				case 'select':
+					$('#labelId').val(lableData.id);
+					$('#labelName').val(lableData.labelName);
+					//flag=true;
+					layer.close(layer.index);
+						break;
+			}
+			var url="/config/configLabelItem/list/json";
+			var redata={"labelId":$('#labelId').val(),"pageIndex":0};
+			//这里直接查询模板信息
+			 data=getConfigLabelFieldByTypeId(redata,url);
+			console.log(data);
+			renderTable(data);
+			// layer.index--;
+		}
+ 
+		  
+	    function  lable_filed_focus_handler(){
+			layer.open({
+				type : 1
+				, area : [ '600px', '500px' ]
+				, content : $('#hidden2')
+				, success : function () {
+					curTable.reload();
+					// 重新加载表格中的数据
+					$('#hidden2').css('display', 'block');
+				}
+			});
+
+		} 
+	    //根据标签模板类型id获取标签文档格式的所有标签元素
+	      function getConfigLabelFieldByTypeId(data,url){
+	    	var resjson=[];
+	    	$.ajax({
+				type: "post",
+				dataType: "json",
+				contentType:'application/x-www-form-urlencoded',
+				url:url,
+				data:data,
+				async:false,
+		        success: function(res){
+					resjson=res.resultlist;//标签模板的所有字段，排序号
+					      }
+				  });
+			  
+			return resjson;
+	    }
+	    
+	    //确认标签模板
+            form.on('submit(save)', function(data){
+             	var res=data.field;
+          		quantity=res.quantity;//标签个数
+       			var labelId=res.labelId;
+       			materialQuantity=res.materialQuantity;//物品规格数量
+       			materialId = eval('('+parent.materialId+')');//从父页面传过来的物品规格id
+       		//	materialName = eval('('+parent.materialName+')');//从父页面传过来的物品规格id
+       		 	var url="/barcode/barcodeMain/selectLabelItemById";
+       			//configBarcodeRule:10359 物品规格标签类型id
+       			var id="";
+       			if(materialId!=""){//根据物品规格id查询，生成物品规格标签
+       				id=materialId;
+       			}
+       			datas=selectItemById({"id":id,"configBarcodeRule":"10359","quantity":quantity},url);
+       			
+            	console.log(labelStr);//选择的模板的所有模板标签
+       			console.log(datas); //根据物品规格id，标签数量生成的标签：
+       			//得到了标签模板所有字段，以及标签生成的所有数据，开始调用模板，打印标签：
+       	
+       				//1.1物品规格标签模板
+       				 print_Preview(datas,methodName,'S1');
+       				//1.2栈板标签模板
+       				//1.3包装箱标签模板
+       				//2加载模板：初始化模板代码块》》分页》》模板代码块》》模板动态变量加载》》打印
+       		 var index = parent.layer.getFrameIndex(window.name);
+			  	parent.location.reload(); 
+                parent.layer.close(index);
+       		
+       		
+     		 })
+   	  
+
+         
+         //取消标签模板设定
+         $("#callback").click(function(){
+        	 
+        	    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+        	    parent.layer.close(index); 
+        	 
+     
+         })
+     
+         //自定义方法：用来变量赋值
+         methodName = function (datas){
+         	//var oldQuantity="";
+        	LODOP=getLodop();
+        	var str=document.getElementById('S1').value;
+        	var str2=document.getElementById('S1').value;
+        	if(str!=null&&str!=""){
+        		str.trim().split('\n').forEach(function(v, i) {//按行拿出前两行模板代码块
+        			window['str' + (i+1)] = v
+        			if(i<2){
+        				str =str.replace(v,"").trim();
+        			}
+        		})
+        		str2.trim().split('\n').forEach(function(v, i) {//按行拿出前两行以外的模板代码块
+        			window['str2' + (i+1)] = v
+        			if(i>1){
+        				str2 =str2.replace(v,"").trim();
+        			}
+        		})		
+        		
+        		eval(str2); 
+        	}
+         	var resjosn=datas;
+       		if(str==null||str==""){
+       			CreateMaterialLableTop();
+       		} 
+       		//根据物品规格id查物品
+       	 var productData=selectItemById({"id":materialId},'/product/productMaterial/selectProductByMaterilId');
+       		if(productData!=null){
+		       	 //根据物品id查栈板、仓库
+		       	var pid=productData[0].productId;
+		  var  warehousePallet = selectItemById({"productId":pid},'/warehouse/warehousePallet/list/json?pageIndex=1&&pageSize=10');
+       		}
+       		quantity=parseInt(quantity);		
+       	resjosn.forEach(function(val,key){
+	       		if(key>20&&(key+1)%(Math.ceil(quantity/2))==0||key==quantity-1||quantity==1||key==0){
+	       			LODOP.SET_PRINT_MODE("CUSTOM_TASK_NAME","单次条码打印"+key);//为每个打印单独设置任务名
+	       		}
+       			LODOP.NewPage();
+       			 if(val[1]!=undefined&&val[1]!=""){
+       				materialName=val[1];
+       			 }
+       			 if(val[3]!=undefined&&val[3]!=""){
+	       			materialCode=val[3];
+       			 }
+       			 if(val[4]!=undefined&&val[4]!=""){
+	       			lableCode=val[4];
+       			 }
+       			 if(val[5]!=undefined&&val[5]!=""){
+	    			companyName=val[5]; 
+       			 }
+    			quantityStock=materialQuantity;
+	    			if(str!=null&&str!=""){
+						eval(str); //加载模板
+					}else{
+						CreateMaterialLableBottom();
+					}	
+					eavlLabelFeild(labelStr);//根据查询出来的模板字段进行动态变量赋值
+					
+					if(quantity>20&&(key+1)%(Math.ceil(quantity/2))==0||key==quantity-1||quantity==1){
+						 LODOP.PRINT();
+					} 
+					
+					
+    		 		//插入打印记录:条码，物品id,物品规格id,栈板id，仓库id,供应商id,数量
+					// barcodeResultData.push({"barcode":lableCode,"productId":productData.productId,"materialId":materialId,"warehouseId":warehousePallet.warehouseId,"palletId":warehousePallet.id,"supplierId":key.supplierId,"quantity":quantity});//条码主表
+  			 		 //trackBarcodeResultData.push({"barcode":lableCode,"productId":productData.productId,"materialId":materialId,"warehouseId":warehousePallet.warehouseId,"palletId":warehousePallet.id,"supplierId":key.supplierId,"quantity":quantity});//条码追踪表
+					
+    			 
+       		}); 
+       		
+       		 
+         	
+         		
+         	};
+         //创建默认物品规格标签模板上半部
+         function CreateMaterialLableTop(){		
+            	LODOP=getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));  
+            	LODOP.PRINT_INIT("物品规格标签");//请设置打印任务名，自定义
+            	LODOP.SET_PRINT_PAGESIZE(1,820,400,"");//设计纸张大小
+            	LODOP.SET_PRINT_MODE("PROGRAM_CONTENT_BYVAR",true);//生成程序时，内容参数有变量用变量，无变量用具体值
+            	LODOP.SET_PRINT_PAGESIZE(1,820,400,"");
+
+            }; 
+         //创建物品规格标签模板下半部
+         function CreateMaterialLableBottom(){	
+        		LODOP.ADD_PRINT_TEXT(8,14,61,20,"物品规格名称");
+        		LODOP.ADD_PRINT_TEXT(8,75,72,20,materialName);
+        		LODOP.ADD_PRINT_TEXT(8,147,41,20,"数量");
+        		LODOP.ADD_PRINT_TEXT(8,180,54,20,quantityStock);
+        		LODOP.ADD_PRINT_TEXT(28,14,61,20,"物品规格编码");
+        		LODOP.ADD_PRINT_TEXT(28,75,162,20,materialCode);
+        		LODOP.ADD_PRINT_BARCODE(49,15,190,60,"128Auto",lableCode);
+        		LODOP.ADD_PRINT_TEXT(109,12,62,20,"供应商");
+        		LODOP.ADD_PRINT_TEXT(109,74,152,20,companyName);
+            }; 
+         
+            //根据选定的模板ID,装载对应的模板标签字段，进行动态变量赋值
+        	function eavlLabelFeild(labelFeildData){
+        		var resjosn=labelFeildData;
+        		for (var i = 0; i < resjosn.length; i++) {
+             		LODOP.SET_PRINT_STYLEA(parseInt(resjosn[i].sortNo),"ContentVName",resjosn[i].configLabelField.labelFieldName);
+				}
+            	  
+              } 
+         
+
+       //自定义验证规则
+       form.verify({
+     	  number : [/^[0-9]*$/, '必须输入数字啊']
+       }); 
+
+ 
+});	
+function selected() {
+	return returnData;
+}
+</script>
+ 
+  
+
+</html>

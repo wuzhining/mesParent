@@ -1,0 +1,107 @@
+package com.techsoft.service.config;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumYesOrNo;
+import com.techsoft.dao.config.ConfigDictionaryDao;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.config.ConfigDictionaryParamVo;
+import com.techsoft.entity.config.ConfigDictionaryVo;
+
+@Service
+public class ConfigDictionaryServiceImpl extends BaseServiceImpl<ConfigDictionary> implements ConfigDictionaryService {
+	@Autowired
+	private ConfigDictionaryDao configDictionaryDao;
+
+	@Override
+	public BaseDao<ConfigDictionary> getBaseDao() {
+		return configDictionaryDao;
+	}
+
+	@Override
+	public Class<ConfigDictionary> getEntityClass() {
+		return ConfigDictionary.class;
+	}
+
+	@Override
+	protected ConfigDictionary insertEntity(ConfigDictionary entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected ConfigDictionary updatePartEntity(ConfigDictionary entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected ConfigDictionary updateEntity(ConfigDictionary entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}
+
+	public List<ConfigDictionary> selectListByParentId(Long parentId) throws BusinessException, SQLException {
+		if (parentId==null) {
+			return null;
+		}
+		ConfigDictionaryParamVo configDictionary = new ConfigDictionaryParamVo();
+		configDictionary.setParentId(parentId);
+		configDictionary.setIsValid(EnumYesOrNo.YES.getValue());
+		List<ConfigDictionary> list = (List<ConfigDictionary>) configDictionaryDao
+				.selectListByParamVo(configDictionary);
+		return list;
+	}
+	
+	public List<ConfigDictionary> selectListByParentCode(String dictCode, CommonParam commonParam) throws BusinessException, SQLException {
+		if (StringUtils.isBlank(dictCode)) {
+			return null;
+		}
+		ConfigDictionaryParamVo configDictionary = new ConfigDictionaryParamVo();
+		configDictionary.setDictCode(dictCode);
+		configDictionary.setIsValid(EnumYesOrNo.YES.getValue());
+		if(commonParam!=null){
+			if(commonParam.getTenantId()!=null){
+				configDictionary.setTenantId(commonParam.getTenantId());
+			}
+		}
+		List<ConfigDictionary> list = (List<ConfigDictionary>) configDictionaryDao
+				.selectListByParamVo(configDictionary);
+		return list;
+	}
+
+	public ConfigDictionaryVo getByCode(String dictCode, CommonParam commonParam) throws BusinessException, SQLException {
+		if (StringUtils.isBlank(dictCode)) {
+			return null;
+		}
+		ConfigDictionaryParamVo configDictionary = new ConfigDictionaryParamVo();
+		configDictionary.setDictCode(dictCode);
+		if(commonParam!=null){
+			if(commonParam.getTenantId()!=null){
+				configDictionary.setTenantId(commonParam.getTenantId());
+			}
+		}
+		List<ConfigDictionary> list = (List<ConfigDictionary>) configDictionaryDao
+				.selectListByParamVo(configDictionary);
+		if ((list != null) && (!list.isEmpty())) {
+			ConfigDictionaryVo configDictionaryVo = new ConfigDictionaryVo(list.get(0));
+			if (configDictionaryVo.getParentId() > 1) {
+				configDictionaryVo
+						.setParentConfigDictionary(configDictionaryDao.selectById(configDictionaryVo.getParentId()));
+			}
+			
+			return configDictionaryVo;
+		}
+		return null;
+	}
+
+}

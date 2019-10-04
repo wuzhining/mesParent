@@ -1,0 +1,204 @@
+package com.techsoft.entity.common;
+
+import java.util.Date;
+
+import com.techsoft.common.BaseEntity;
+
+public class EquipFixture extends BaseEntity {
+	private static final long serialVersionUID = -4855486282818211961L;
+
+
+	public EquipFixture(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private String fixtureCode;	
+	   
+	private String fixtureName;	
+	   
+	private Long fixtureTypeDictId;	
+	   
+	private Long fixtureStatusDictId;	
+	   
+	private Long warehouseId;	
+	   
+	private Long locationId;	
+	   
+	private Long supplierId;	
+	   
+	private String location;	
+	   
+	private Integer standarlive;	
+	   
+	private Integer quantity;	
+	   
+	private Integer numberUsed;	
+	   
+	private String materialCode;	
+	   
+	private String dateConfirm;	
+	   
+	private String dateExpire;	
+	   
+	private Long confirmUserId;	
+	   
+	private Date confirmTime;	
+	   
+	private String confirmResult;	
+	   
+	private String remark;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public String getFixtureCode() {
+		return fixtureCode;
+	}
+
+	public void setFixtureCode(String fixtureCode) {
+		this.fixtureCode = fixtureCode;
+	}
+                		
+	public String getFixtureName() {
+		return fixtureName;
+	}
+
+	public void setFixtureName(String fixtureName) {
+		this.fixtureName = fixtureName;
+	}
+                		
+	public Long getFixtureTypeDictId() {
+		return fixtureTypeDictId;
+	}
+
+	public void setFixtureTypeDictId(Long fixtureTypeDictId) {
+		this.fixtureTypeDictId = fixtureTypeDictId;
+	}
+                		
+	public Long getFixtureStatusDictId() {
+		return fixtureStatusDictId;
+	}
+
+	public void setFixtureStatusDictId(Long fixtureStatusDictId) {
+		this.fixtureStatusDictId = fixtureStatusDictId;
+	}
+                		
+	public Long getWarehouseId() {
+		return warehouseId;
+	}
+
+	public void setWarehouseId(Long warehouseId) {
+		this.warehouseId = warehouseId;
+	}
+                		
+	public Long getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(Long locationId) {
+		this.locationId = locationId;
+	}
+                		
+	public Long getSupplierId() {
+		return supplierId;
+	}
+
+	public void setSupplierId(Long supplierId) {
+		this.supplierId = supplierId;
+	}
+                		
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+                		
+	public Integer getStandarlive() {
+		return standarlive;
+	}
+
+	public void setStandarlive(Integer standarlive) {
+		this.standarlive = standarlive;
+	}
+                		
+	public Integer getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
+	}
+                		
+	public Integer getNumberUsed() {
+		return numberUsed;
+	}
+
+	public void setNumberUsed(Integer numberUsed) {
+		this.numberUsed = numberUsed;
+	}
+                		
+	public String getMaterialCode() {
+		return materialCode;
+	}
+
+	public void setMaterialCode(String materialCode) {
+		this.materialCode = materialCode;
+	}
+                		
+	public String getDateConfirm() {
+		return dateConfirm;
+	}
+
+	public void setDateConfirm(String dateConfirm) {
+		this.dateConfirm = dateConfirm;
+	}
+                		
+	public String getDateExpire() {
+		return dateExpire;
+	}
+
+	public void setDateExpire(String dateExpire) {
+		this.dateExpire = dateExpire;
+	}
+                		
+	public Long getConfirmUserId() {
+		return confirmUserId;
+	}
+
+	public void setConfirmUserId(Long confirmUserId) {
+		this.confirmUserId = confirmUserId;
+	}
+                		
+	public Date getConfirmTime() {
+		return confirmTime;
+	}
+
+	public void setConfirmTime(Date confirmTime) {
+		this.confirmTime = confirmTime;
+	}
+                		
+	public String getConfirmResult() {
+		return confirmResult;
+	}
+
+	public void setConfirmResult(String confirmResult) {
+		this.confirmResult = confirmResult;
+	}
+                		
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

@@ -1,0 +1,14 @@
+package com.techsoft.entity.history;
+
+import com.techsoft.entity.common.HistoryInventoryLocation;
+
+public class HistoryInventoryLocationVo extends HistoryInventoryLocation {
+	private static final long serialVersionUID = 6481705583861465070L;
+
+	public HistoryInventoryLocationVo() {	
+	}
+	
+	public HistoryInventoryLocationVo(HistoryInventoryLocation value) {
+		value.cloneProperties(this);
+	}		
+}

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">历史追溯</a> <a><cite>条码追踪表</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="text" name="barcode"  placeholder="请输入条码" autocomplete="off" class="layui-input">
+         <input type="hidden" name="productId" id="productId" placeholder="请选择产品" autocomplete="off" class="layui-input">
+       	  <input type="text" name="productName" id="productName" placeholder="请选择产品" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="productSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		</button> 
+        <input type="hidden" name="materialId" id="materialId" placeholder="请选择物料" autocomplete="off" class="layui-input">
+		<input type="text" name="materialName" id="materialName" placeholder="请选择产品规格" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="materialSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		</button> 
+		<input type="hidden" name="warehouseId" id="warehouseId" placeholder="请选择仓库id" autocomplete="off" class="layui-input">
+	       	<input type="text" name="warehouseName" id="warehouseName" placeholder="请选择仓库名称" autocomplete="off" class="layui-input">
+	           <button class="layui-btn layui-btn-sm  " id="warehouseSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+			</button>
+         <!-- <select name="barcodeRuleDictId"  lay-search>    
+            <option value="">请选择条码规则类型</option> 
+            <#if BarcodeRuleList??>
+             <#list BarcodeRuleList as item>
+		       <option value="${item.id?c}" >${item.dictName}</option>
+		    </#list>
+		    </#if> 
+        </select> -->  
+        <select name="barcodeStatusDictId"  lay-search>    
+            <option value="">请选择条码状态</option> 
+            <#if barcodeStatusList??>
+             <#list barcodeStatusList as item>
+		       <option value="${item.id?c}" >${item.dictName}</option>
+		    </#list>
+		    </#if> 
+        </select>
+        
+        <select name="billTypeDictId"  lay-search>    
+            <option value="">请选择单据类型</option> 
+            <#if billTypeDicList??>
+             <#list billTypeDicList as item>
+		       <option value="${item.id?c}" >${item.dictName}</option>
+		    </#list>
+		    </#if> 
+        </select>  
+        <select name="billStatusDictId"  lay-search>    
+            <option value="">请选择单据状态</option> 
+            <#if billStatusDicList??>
+             <#list billStatusDicList as item>
+		       <option value="${item.id?c}" >${item.dictName}</option>
+		    </#list>
+		    </#if> 
+        </select> 
+        
+        <select name="supplierId"  lay-search>    
+            <option value="">请选择供应商名称</option> 
+            <#if firmPartnerList??>
+             <#list firmPartnerList as item>
+		       <option value="${item.id?c}" >${item.companyName}</option>
+		    </#list>
+		    </#if> 
+        </select>  
+        <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button> 
+        <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+       <!--   <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button>  -->
+<!--         <button class="layui-btn" id="add" ><i class="layui-icon"></i>添加</button> -->
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+
+    <!-- 产品名称 -->
+   <script type="text/html" id=productNameTpl>
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+  </script>
+   <!-- 产品规格名称 -->
+   <script type="text/html" id="materialNameTpl">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+   
+   <!-- 条码规则类型 -->
+   <script type="text/html" id="barcodeRuleTpl">
+	{{#  if(d.barcodeRuleList){}}
+		{{ d.barcodeRuleList.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   
+
+    <!--条码条码状态 -->
+   <script type="text/html" id="barcodeStatusTpl">
+	{{#  if(d.barcodeStatusList){}}
+		{{ d.barcodeStatusList.dictName 
+ 	}}
+	{{# } }}
+   </script>
+
+   <!--操作状态 -->
+   <script type="text/html" id="operationStatuTpl">
+	{{#  if(d.operationStatusList){}}
+		{{ d.operationStatusList.dictName 
+ 	}}
+	{{# } }}
+   </script>
+
+   <!-- 单据状态 -->
+   <script type="text/html" id="billStatusDictIdTpl">
+	{{#  if(d.billStatusDicList){}}
+		{{ d.billStatusDicList.dictName 
+ 	}}
+	{{# } }}
+   </script>
+    <!-- 单据类型 -->
+   <script type="text/html" id="billTypeIdTpl">
+	{{#  if(d.billTypeDicList){}}
+		{{ d.billTypeDicList.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   
+  
+    <!-- 合作伙伴-->
+   <script type="text/html" id="supplierIdTpl">
+	{{#  if(d.firmPartnerList){}}
+		{{ d.firmPartnerList.companyName 
+ 	}}
+	{{# } }}
+   </script> 
+   
+   <!-- 仓库-->
+   <script type="text/html" id="warehouseIdTpl">
+	{{#  if(d.structWarehouseList){}}
+		{{ d.structWarehouseList.warehouseName 
+ 	}}
+	{{# } }}
+   </script> 
+   
+   
+    <!-- 货位-->
+   <script type="text/html" id="locationIdTpl">
+	{{#  if(d.warehouseLocationList){}}
+		{{ d.warehouseLocationList.locationName 
+ 	}}
+	{{# } }}
+   </script> 
+   
+   <!--操作人-->
+   <script type="text/html" id="createUserIdTpl">
+	{{#  if(d.userPassportList){}}
+		{{ d.userPassportList.realName 
+ 	}}
+	{{# } }}
+   </script> 
+  
+    <!--单据编码-->
+   <script type="text/html" id="billCodeTpl">
+	{{#  if(d.billCode){}}
+		{{ d.billCode 
+ 	}}
+	{{# } }}
+   </script>  
+
+
+<!--工厂名称-->
+ <script type="text/html" id="factoryNameTpl">
+	{{#  if(d.structFactorylist){}}
+		{{ d.structFactorylist.factoryName 
+ 	}}
+	{{# } }}
+   </script> 
+    <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+</script>
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/track/trackBarcode/list/json'
+		    	,cols: [[
+		    	     {field:'factoryId',  title: '所属工厂名称', align:'center',minWidth: 120,templet:'#factoryNameTpl'}
+ 		    	    ,{field:'barcode',  title: '条码', align:'center',minWidth: 120}
+		    	    ,{field:'productId',  title: '产品名称',align:'center', minWidth: 120,templet:'#productNameTpl'}
+		    	    ,{field:'materialId',  title: '产品规格名称', align:'center',minWidth: 120,templet:'#materialNameTpl'}
+		    	    ,{field:'sku', title: '产品规格值', align:'center',minWidth: 220,templet: '#sku'}
+		    	    ,{field:'barcodeRuleDictId',  title: '条码规则类型',align:'center', minWidth: 120,templet:'#barcodeRuleTpl'}
+		    	    /* ,{field:'barcodePackboxId',  title: '外层包装箱条码ID',align:'center', minWidth: 120} */
+		    	    ,{field:'barcodeStatusDictId',  title: '条码状态',align:'center', minWidth: 120,templet:'#barcodeStatusTpl'}
+		    	    ,{field:'operationStatusDictId',  title: '操作状态',align:'center', minWidth: 120,templet:'#operationStatuTpl'}
+		    	    ,{field:'batchNumber',  title: '批次号',align:'center', minWidth: 120}
+		    	    ,{field:'billTypeDictId',  title: '单据类型',align:'center', minWidth: 120,templet:'#billTypeIdTpl'}
+		    	    ,{field:'billId',  title: '单据编码',align:'center', minWidth: 200,templet:'#billCodeTpl'}
+		    	    /* ,{field:'billItemId',  title: '单据明细ID',align:'center', minWidth: 120} */
+		    	    ,{field:'billStatusDictId',  title: '单据状态',align:'center', minWidth: 120,templet:'#billStatusDictIdTpl'}
+		    	    ,{field:'supplierId',  title: '供应商名称',align:'center', minWidth: 120,templet:'#supplierIdTpl'}
+		    	    ,{field:'warehouseId',  title: '仓库名称',align:'center', minWidth: 120,templet:'#warehouseIdTpl'}
+		    	    ,{field:'locationId',  title: '仓库货位',align:'center', minWidth: 120,templet:'#locationIdTpl'}
+		    	    ,{field:'quantity',  title: '数量',align:'center', minWidth: 120}
+		    	    ,{field:'remark',  title: '备注',align:'center', minWidth: 220} 
+		    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+		    	    ,{field:'createUserId',  title: '操作人', align:'center',minWidth: 120,templet:'#createUserIdTpl'}
+		    	  ]],done:function(){
+		    	}
+		  	});
+			
+			form.on('submit(search)', function (data) {
+				layuitable.reload(data.field);
+		        return false;
+		  	});
+			
+			$('#materialSearch').on('click',function(e){
+				openWinSelect('/product/productMaterial/productMaterialOpen',"materialId","materialName");
+				e.preventDefault();//默认from表单提交时不刷新
+			}) 
+			$('#productSearch').on('click',function(e){
+		   		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+		   		e.preventDefault();//默认from表单提交时不刷新
+		   	}) 
+		   	$('#warehouseSearch').on('click',function(e){
+		   		openWinSelect('/struct/structWarehouse/structWarehouseOpen',"warehouseId","warehouseName");
+		   		e.preventDefault();//默认from表单提交时不刷新
+		   	})
+		   	//重置
+			$('#reset').on('click',function(e){
+		   		$("input").val("");
+		   		$("select").val("");
+		   	}) 
+		});	
+	
+</script>
+ 
+  </body>
+
+</html>

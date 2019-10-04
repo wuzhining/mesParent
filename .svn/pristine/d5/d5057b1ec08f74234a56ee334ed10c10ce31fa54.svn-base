@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />        
+        <table class="layui-table ">
+
+            <tr>   
+               <td width="10%" class="tableleft">检验单编码</td>
+               <td>
+                 <input type="text" name="inspectCode" lay-verify="inspectCode" class="layui-input" maxlength="20" disabled="disabled" value="${(entity.inspectCode)!''}"/>
+               </td> 
+               <td width="10%" class="tableleft">源单据编码</td>
+               <td>
+                <input type="text" name="fromBillId" lay-verify="fromBillId" class="layui-input" maxlength="20" disabled="disabled"  value="<#if entity??&&entity.fromBillId??>${entity.fromBillId?c}<#else></#if>" /> 
+               </td> 
+           </tr>
+           
+           <tr>
+              <td width="10%" class="tableleft">检验单状态</td>
+               <td>
+               	     <select name="inspectStatusDictId" disabled="disabled"> 
+	                    <#if inspectStatusList??>
+	                     <#list inspectStatusList as item>
+				            <option value="${item.id?c}" <#if (entity.inspectStatusDictId??&&entity.inspectStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+				         </#list>
+				         </#if>
+				    </select>
+               </td> 
+               <td width="10%" class="tableleft">源单据类型</td>
+               <td>
+	                <select name="fromBillTypeDictId" disabled="disabled"> 
+	                    <#if fromBillTypeList??>
+	                     <#list fromBillTypeList as item>
+				            <option value="${item.id?c}" <#if (entity.fromBillTypeDictId??&&entity.fromBillTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+				         </#list>
+				         </#if>
+				    </select>   
+               </td>
+           </tr>
+           
+           <tr>
+               <td width="10%" class="tableleft">物料名称</td>
+                <td>
+	         	 	  <div class="div-choiceBox-intd ">  
+	         	 	    <input type="hidden" id="materialId" disabled="disabled" name="materialId" class="layui-input" value="<#if entity??&&entity.materialId??>${entity.materialId?c}<#else></#if>" />  
+		          		<input type="text" id="materialName" name="materialName" value="${(productMaterial.materialName)!''}" class="layui-input" maxlength="20" disabled="disabled" class="layui-input input-choiceBox-intd">
+	          		  </div>  	
+               </td> 
+               <td width="10%" class="tableleft">供应商名称</td>
+               <td>
+				   <input  type="hidden"  name="supplierId"  id="supplierId" class="layui-input" maxlength="20" value="<#if entity??&&entity.supplierId??>${entity.supplierId?c}<#else></#if>" />
+                  <input type="text" id="supplierName" name="supplierName" value="${(firmPartner.companyName)!''}" class="layui-input" maxlength="20" disabled="disabled" class="layui-input input-choiceBox-intd">
+               </td>  
+           </tr>
+           
+          <tr>
+               <td width="10%" class="tableleft">抽样检验方式</td>
+               <td colspan="4" >
+                 <select name="inspectModeDictId" id="inspectModeDictId" > 
+                  <!--  <option value="">请选择</option> -->
+                    <#if inspectModeList??>
+                     <#list inspectModeList as item>
+			            <option value="${item.id?c}" <#if (entity.inspectModeDictId??&&entity.inspectModeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td>
+           </tr>
+           
+           
+           <tr>   
+               <td width="10%" class="tableleft">检验结果</td>
+               <td>
+               	     <select name="inspectResultDictId" id="inspectResultDictId"  lay-filter="resultId" lay-verify="resultId">
+               	      <option value="">请选择</option> 
+	                    <#if inspectResultList??>
+	                     <#list inspectResultList as item>
+				            <option value="${item.id?c}" <#if (entity.inspectResultDictId??&&entity.inspectResultDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+				         </#list>
+				         </#if>
+				    </select>
+               </td> 
+               
+               <td width="10%" class="tableleft">处理结果</td> 
+               <td>
+                 <input type="hidden"  name="dealResultDictId" id="initcityId" class="layui-input" maxlength="20" value="<#if entity??&&entity.dealResultDictId??>${entity.dealResultDictId?c}<#else></#if>" />
+                 <select name="dealResultDictId" id="dealResultDictId" lay-verify="dealResultDictId">
+                    <option value="">请选择</option>
+			     </select>
+               </td>
+               
+           </tr>
+
+           <tr>
+               <td width="10%" class="tableleft">检出数量</td>
+               <td>
+                 <input type="text" name="quantity" id="quantity" lay-verify="quantity"  class="layui-input" maxlength="20" disabled="disabled" value="<#if entity??&&entity.quantity??>${entity.quantity?c}<#else></#if>" /> 
+               </td>
+              <td width="10%" class="tableleft">实际抽样数量</td>
+               <td>
+                 <input type="text" name="quantitySample" lay-verify="numberQS"  id="quantitySample" class="layui-input" maxlength="20"  value="<#if entity??&&entity.quantitySample??>${entity.quantitySample?c}<#else></#if>" /> 
+               </td> 
+           </tr>
+
+           <tr>
+              <td width="10%" class="tableleft">抽样不合格数量</td>
+               <td>
+                <input type="text" name="quantitySampleFail" id="quantitySampleFail" lay-verify="numberQSF" class="layui-input" maxlength="20" value="<#if entity??&&entity.quantitySampleFail??>${entity.quantitySampleFail?c}<#else></#if>" /> 
+               </td> 
+               <td width="10%" class="tableleft">备注</td>
+               <td ><input type="text" name="remark" id="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+           </tr>
+      </table>  
+	         <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+				    <div class="layui-col-md12" style='text-align:center;'>
+		    	      <span class="layui-breadcrumb"> 
+				         <cite>操作历史记录</cite>
+				      </span>
+				   </div>
+			       <div class="layui-col-md12" style="text-align: center;">
+			   			<table class="layui-hide" id="historyBillStatus" lay-filter="historyBillStatus"></table>
+			   		</div>
+			   	</div>
+		    </div>
+		    <div id ='noneDiv' class="layui-col-md12" style='text-align:center;'>
+		    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+		    </div>
+      </form>
+  </div>     
+    
+    <script type="text/html" id="billTypeDictName">
+	{{#  if(d.billTypeDictionary){}}
+		{{ d.billTypeDictionary.dictName
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="billStatusDictName">
+	{{#  if(d.billStatusDictionary){}}
+		{{ d.billStatusDictionary.dictName
+ 	}}
+	{{# } }}
+ </script>
+ 
+ <script type="text/html" id="createUserName">
+	{{#  if(d.caretUserPassport){}}
+		{{ d.caretUserPassport.realName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="modifyUserName">
+	{{#  if(d.modifyUserPassport){}}
+		{{ d.modifyUserPassport.realName 
+ 	}}
+	{{# } }}
+ </script>  
+<script>
+    var rId = 0;
+    var flag = true; 
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','layer','layuiconfig','layuiformajax','layuitable'], function(){
+    	$ = layui.$, 
+    	admin = layui.admin, 
+    	table = layui.table, 
+    	layer = layui.layer, 
+    	laydate = layui.laydate,
+    	layuitable = layui.layuitable,
+    	form = layui.form; 
+		var layuiformajax = layui.layuiformajax;
+		verifyQty()
+		var ids = $("#id").val();
+    	var historyBillStatusTable = layuitable.render({
+        	elem: '#historyBillStatus'
+        	,height:200
+        	,id:'listTable'
+        	,url:'/history/historyBillStatus/list/json?billId='+ids+'&&billTypeDictId=10202L'
+        	,cols: [[    
+             	     {field:'id', width:120, title: 'ID',align:'center'}
+             	    ,{field:'billTypeDictName',  title: '单据类型',align:'center', minWidth: 120,templet:'#billTypeDictName'}
+             	    ,{field:'billStatusDictName',  title: '状态',align:'center', minWidth: 120,templet:'#billStatusDictName'} 
+	           	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+             	    ,{field:'createTime',  title: '创建时间',align:'center', minWidth: 120}
+             	   /*  ,{field:'modifyTime',  title: '更新时间',align:'center', minWidth: 120} */
+             	    ,{field:'createUserName',  title: '创建人',align:'center', minWidth: 120,templet:'#createUserName'}
+             	    ,{field:'modifyUserId',  title: '更新人',align:'center', minWidth: 120,templet:'#modifyUserName'}
+        	]]
+      	});
+    	
+    	
+        //级联监听
+        form.on('select(resultId)', function(data){
+    	  if(data.value != ''){
+    		  rId=data.value;
+    	  }
+      	  $("#dealResultDictId option[value!='']").remove();
+       	  linkCommonMethod('parentId',"1065",'dealResultDictId','dictName','','/config/configDictionary/dealResult?dealResultId='+ rId);
+    	  $("#dealResultDictId").get(0).selectedIndex=0;	  
+        });
+    	 
+
+	  	var addType = getParam('add');
+	  	if(addType === '1'){
+	  		    //查看
+	  			$("form :input").prop('disabled',true)//整个form表单不可编辑
+	  			layui.form.render('select');//layui禁用下拉框必须加，否则无效
+     	    /* $('#inspectModeDictId').prop("disabled", true);
+    	    $('#inspectResultDictId').prop("disabled", true); 
+    	    $('#dealResultDictId').attr('disabled','disabled');   
+    	    layui.form.render('select');//layui禁用下拉框必须加，否则无效
+    	    $('#quantitySample').attr('disabled','disabled');   
+    	    $('#quantitySampleFail').attr('disabled','disabled'); 
+    	    $('#remark').attr('disabled','disabled');  */
+	  		document.getElementById("noneDiv").style.display="none";
+
+	  	};
+	  	
+        //自定义验证规则
+        var reg = /^[0-9]*[1-9][0-9]*$/ //正整数不包含0
+        var reg0 = /^[1-9]\d*|0$/ //正整数包含0
+        form.verify({
+        	resultId: function(value){
+           if(value==null || value ==''){
+             return '请选择检验结果！';
+           }
+         }
+         ,dealResultDictId: function(value){
+             if(value==null || value ==''){
+                 return '请选择处理结果！';
+             }
+         }
+ 	    ,numberQS: function (value) {
+	        if (value =='' ||value==null) {
+                 return '实际抽样数量不能为空!';
+            }else if(!reg.test(value)){
+                return '实际抽样数量数必须为正整数!';
+            }
+	    }
+ 	    ,numberQSF: function (value) {
+	        if (value =='' ||value==null) {
+                 return '抽样不合格数量不能为空!';
+            }else if(!reg0.test(value)){
+                return '抽样不合格数量必须为正整数或0!';
+            }
+	    }
+         
+       }); 
+        
+        
+
+     function verifyQty(){
+		  //监听失去焦点赋值
+   	     $("#quantitySample").blur(function(){
+   		   var quantityS = $("#quantitySample").val();
+   		   var qy = $("#quantity").val();
+	   		   if(parseInt(quantityS) > parseInt(qy)){
+	   		       layer.alert("实际抽样数量："+quantityS +"，不能大于检出数量："+qy);
+	   		         return false;
+	   		   }else{
+	   			     return true;
+	   		 }
+	   			
+   		  });
+    	
+	   		var quantitySF = $("#quantitySampleFail").val();
+	   		if(rId =='10476' && parseInt(quantitySF)== 0){
+	   			layer.alert("检验结果为【不合格】，抽样不合格数量不能为0");
+	   		       return false;
+	   		}else{
+   			    var quantityS = $("#quantitySample").val();
+				if(parseInt(quantitySF) > parseInt(quantityS)){
+				   layer.alert("抽样不合格数量："+quantitySF +"，不能大于实际抽样数量："+quantityS);
+				    return false;
+				 }else{
+					return true;
+				 } 
+	   		} 
+
+     };
+     
+          //监听提交
+          form.on('submit(save)', function(data){       
+        	  console.log(data.field);
+        	  var str =data.field.inspectStatusDictId;
+        	  var URL;
+        	  var mag;
+        	  if(str=='10488'){
+        		  URL='/bill/billInspect/save';
+        		  mag="保存成功"
+        	  }else if(str=='10489'){
+        		  if(!verifyQty()){
+        			  return false;  
+        		  }
+        		  URL= '/bill/billInspect/inspectionSave';
+        		  mag="质检成功"
+        	  }
+        	  var url = URL;
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert(mag, {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+        });
+    
+    </script>
+    <script></script>
+  </body>
+
+</html>

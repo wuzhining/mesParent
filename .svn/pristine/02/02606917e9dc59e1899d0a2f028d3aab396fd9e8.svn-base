@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-unselect{
+			height:1px;
+		}
+	
+	</style>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+  			<div class="layui-col-md12">
+    			<div class="layui-form-query">
+    				<form class="layui-form m20">
+    					<div class="layui-form-item">
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						        <input type="text" name="likeProductCode"  placeholder="产品编码" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						          <input type="text" name="likeProductName"  placeholder="产品名称" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						   <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      	 <select name="productTypeDictId" lay-search>    
+					                <option value="">请选择产品类型</option> 
+					                 <#if productTypeList??>
+					                     <#list productTypeList as item>
+								            <option value="${item.id?c}">${item.dictName}</option>
+								         </#list>
+								      </#if>
+					            </select>
+						      </div>
+						    </div>
+						    <div class="layui-inline">
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+						      </div>
+						    </div>
+			  			</div>
+            		</form>
+            	</div>
+            </div>
+            <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12">
+        				<table  class="layui-hide" id="product_result" lay-filter="product_result"></table>
+        			</div>
+        		</div>
+        	</div>
+        
+        </div>
+    </div>
+</div>   
+</body>
+
+ <script type="text/html" id="productTypeName">
+	{{#  if(d.productType){}}
+		{{ d.productType.dictName 
+
+ 	}}
+	{{# } }}
+</script>  
+ 
+<style type="text/css">
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+            vertical-align:middle;
+        }
+      
+</style>
+ 
+<script type="text/javascript">
+var returnData = [];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use(['form','table','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery,  table = layui.table,layuitable = layui.layuitable
+	layer = layui.layer;
+	
+	var curTable = layuitable.render({
+    	elem: '#product_result'
+    	,id:'product_result'
+    	,url:'/product/productMain/list/json'
+    	,height:300
+   		,cols: [[
+		    	 {type:'radio'}
+		    	,{field:'productTypeDictId',  title: '产品类型',align:'center', width: 130,templet: '#productTypeName'}
+   	    	    ,{field:'productCode',  title: '产品编码',align:'center', width: 150}
+   	    	    ,{field:'productName',  title: '产品名称',align:'center', width: 500}
+     	    	]]
+  	});
+	
+	form.on('submit(search)', function (data) {
+		curTable.reload(data.field);
+        return false;
+  	});
+	// table.on('tool(product_result)', product_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+	table.on('radio(product_result)', function(obj){
+	  //console.log(obj.checked); //当前是否选中状态
+	  //console.log(obj.data); //选中行的相关数据
+	  //console.log(obj.type); //如果触发的是全选，则为：all，如果触发的是单选，则为：one
+	  returnData=[];
+	  var checkStatus = table.checkStatus('product_result')
+      ,selectData = checkStatus.data;
+	   returnData.push(selectData);
+	  
+	});
+
+ 
+});	
+function selected() {
+	return returnData;
+}
+</script>
+ 
+  
+
+</html>

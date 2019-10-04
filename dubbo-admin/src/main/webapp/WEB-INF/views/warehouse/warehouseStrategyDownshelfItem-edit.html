@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+           <tr>
+            <td width="15%" class="tableleft">排序号</td>
+               <td>
+               <input type="text" name="sortNo" class="layui-input" maxlength="16" value="${(entity.sortNo)!''}"/>
+               </td>
+            <td width="15%" class="tableleft">下架排序方式</td>
+               <td>
+                <select id="adcdesOrderDictId"  name="adcdesOrderDictId" > 
+                        <option value="">请选择</option>
+	                    <#if adcdesOrderList??>
+	                     <#list adcdesOrderList as item>
+				            <option value="${item.id?c}">${item.dictName}</option>
+				         </#list>
+				         </#if>
+			   </select>
+               </td>
+           </tr>
+           <tr>
+			   <td width="15%" class="tableleft">下架匹配方式</td>
+               <td> 
+               <select id="modeMatchingDictId"  name="modeMatchingDictId" > 
+                        <option value="">请选择</option>
+	                    <#if modeMatchingList??>
+	                     <#list modeMatchingList as item>
+				            <option value="${item.id?c}">${item.dictName}</option>
+				         </#list>
+				         </#if>
+			   </select>
+			   </td>
+                <td width="15%" class="tableleft">下架策略属性</td>
+               <td> 
+               <select id="attributeDictId"  name="attributeDictId" lay-filter="attributeDict"> 
+                        <option value="">请选择</option>
+	                    <#if attributeList??>
+	                     <#list attributeList as item>
+				           <option value="${item.id?c}">${item.dictName}</option>
+				         </#list>
+				         </#if>
+			   </select>
+			   </td>
+           </tr>
+            <tr>
+               <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select  name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="15%" class="tableleft">备注</td>
+               <td><input type="text" name="remark" class="layui-input" maxlength="16" value="${(entity.remark)!''}"/></td>
+           </tr>
+            <tr id="trAreaRack">
+               <td id="tdArea" width="15%" class="tableleft">区域</td>
+               <td id="selectArea">
+               <select id="areaId" name="areaId" lay-filter="areaIdSelect">
+                  <option value="">请选择</option>
+                    <#if areaList??>
+                     <#list areaList as item>
+			            <option value="${item.id?c}">${item.areaName}</option>
+			         </#list>
+			         </#if>
+			   </select>
+			   </td>
+               <td id="tdRack" width="15%" class="tableleft">货架</td>
+               <td id=selectRack> 
+			    <select id="rackId" name="rackId" lay-filter="rackSelect">
+                  <option value="">请选择</option>
+			   </select>
+               </td>
+           </tr>
+           <tr>
+            <td id="tdLocation" width="15%" class="tableleft">货位</td>
+               <td id="selectLocation">
+               <select id="locationId" name="locationId" lay-filter="locationSelect">
+               	 <option value="">请选择</option>
+			   </select>
+			   </td>
+            <td id="tdValue" width="15%" class="tableleft">值</td>			   
+			   <td id="inputValue"><input type="text" name="value" class="layui-input" maxlength="16" /></td>
+           </tr>
+           
+       </table>  
+        
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+    </div>
+    <script>
+    
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+          $("#trAreaRack,#tdArea,#selectArea,#tdRack,#selectRack,#tdLocation,#selectLocation").hide();
+          $("#tdValue,#inputValue").hide();
+          
+          //自定义验证规则
+          //监听 功能定义类型 下拉框值发生变化
+          form.on('select(attributeDict)', function(data){
+              selectHS(data.value);
+          });
+          
+          //选择区域查货架级联监听
+          form.on('select(areaIdSelect)', function(data){
+        	  var areaId=0;
+        	  if(data.value != ''){
+        		  areaId=data.value;
+        	  }
+        	  $("#rackId option[value!='']").remove();
+        	  linkCommonMethod('areaId',areaId,'rackId','rackName','','/warehouse/warehouseRack/rackLink');
+        	  //$("#rackId").get(0).selectedIndex=0;
+          });
+          
+          //选择货架查货位级联监听
+          form.on('select(rackSelect)', function(data){
+        	  var rackId=0;
+        	  if(data.value != ''){
+        		  rackId=data.value;
+        	  }
+        	  $("#locationId option[value!='']").remove();
+        	  linkCommonMethod('rackId',rackId,'locationId','locationName','','/warehouse/warehouseLocation/locationLink');
+        	  //$("#locationId").get(0).selectedIndex=0;
+          });
+          
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  var obj={};
+        	  var strategyUpshelfId = parent.$("#ids").val();
+        	  obj=data.field;
+        	  obj['strategyUpshelfId']=strategyUpshelfId;
+        	  console.log(obj);
+        	  var url = '/warehouse/warehouseStrategyDownshelfItem/save';
+        	  layuiformajax.postJson(url, obj, function (result) {
+        			if (result.isSuccess) {
+           	    	   layer.alert("保存成功", {icon: 6},function () {
+         	                // 获得frame索引
+         	                var index = parent.layer.getFrameIndex(window.name);
+         				  	parent.location.reload(); 
+         	                parent.layer.close(index);
+         	            });	
+        			}else{
+        				layer.alert(result.message, {
+        					icon : 2
+        				});
+        			}
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    
+    function selectHS(value){
+ 		if(value=='10546'){//序列号
+     		$("#trAreaRack,#tdArea,#selectArea,#tdRack,#selectRack,#tdLocation,#selectLocation").show();
+     		$("#tdValue,#inputValue").hide();
+     	}else{
+     		$("#trAreaRack,#tdArea,#selectArea,#tdRack,#selectRack,#tdLocation,#selectLocation").hide();
+     		$("#tdValue,#inputValue").show();
+     	}
+    }
+    </script>
+  </body>
+
+</html>

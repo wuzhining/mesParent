@@ -1,0 +1,73 @@
+package com.techsoft.service.bill;
+
+import java.util.List;
+
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.entity.barcode.BarcodeMainVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillWarehouse;
+
+/**
+ * @auther:Wang
+ * @version:2019年5月27日下午2:50:20
+ * @param:
+ * @description
+ */
+public interface BillWarehouseOutService extends BaseService<BillWarehouse> {
+	/**
+	 * @auther:Wang
+	 * @version:2019年5月27日上午11:07:03
+	 * @param:barcodeMainVo 条码对象
+	 * @description pda根据出库单扫描条码进行下架
+	 *  1. 获得当前扫码的条码信息   this.getInsideBarcode()返回条码对象list;
+	 *  2. 更改扫描条码下架状态   barcodeMainDao.updateBatch(条码对象list);
+	 *  3. 增加下架历史记录  trackBarcodeDao.insertSnlist(条码对象list);
+	 *  4. 下架更改出库明细单扫描数量  billWarehouseItemDao.updateOffStore();
+	 *  5. 更改出库主表状态为处理中 billWarehouseDao.updateBillStatusMain();
+	 */
+	public BarcodeMain updateOffBarcode(BarcodeMainVo barcodeMainVo, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年5月27日下午1:29:18
+	 * @param:billId 出库单ID
+	 * @description 领料出库完结 将条码出库,更改单据完成数量
+	 * 	1. 得到领料单下架的所有条码  totalBarcodeList = this.getOutBarcode(单据ID,登录对象);
+	 * 	2. 根据条码自动生成对应仓库的出库单据   this.outBill(totalBarcodeList,单据ID,登录对象);
+	 *  3. 更新单据明细的出库数量  billWarehouseItemDao.updateOutStoreBill(paramVo, commonParam);
+	 *  4. 批量更新条码出库   barcodeMainDao.updateBatch(totalBarcodeList, commonParam);
+	 *  5. 插入历史条码记录表  trackBarcodeDao.insertSnlist(trackparamVo, commonParam);
+	 *  6. 更新主表状态信息为完结  billWarehouseDao.updateBillStatusMain();
+	 */
+	public void updateOutBarcode(String billId,Long factoryId, CommonParam commonParam)
+			throws BusinessException, SQLException;
+	
+	/**
+	 * @auther:Wang
+	 * @version:2019年5月24日下午3:09:27
+	 * @param:barcode 扫描条码
+	 * @param:unpackQty 拆出数量
+	 * @description 下架拆包
+	 *  1. 定义俩个条码对象 被拆包对象 barcode(传入参数) 拆出条码对象 newBarcode
+	 *  2. 将条码数量进行拆减
+	 *  3. 将原条码上架  barcodeMainDao.updateEntity(barcode, commonParam);
+	 *  4. 修改领料单明细下架数量 billWarehouseItemDao.updateOffStore();
+	 *  5. 库存新增拆出条码 barcodeMainDao.insertEntity(newBarcode, commonParam);
+	 *  6. 增加拆包历史记录表  trackBarcodeUnpackDao.insertEntity(tUnpack, commonParam);
+	 */
+	public List<BarcodeMain> updateUnpackBarcode(BarcodeMain barcode, String unpackQty, CommonParam commonParam)
+			throws BusinessException, SQLException;
+	
+	/**
+	*@auther:Wang
+	*@version:2019年6月11日上午11:48:48
+	*@param:materialId 物料ID
+	*@description 根据领料单传过来的物料返回出最优的推荐条码信息
+	*/
+	public List<BarcodeMain> bestLocation(Long materialId,CommonParam commonParam) throws BusinessException, SQLException;
+
+}

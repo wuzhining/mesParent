@@ -1,0 +1,14 @@
+package com.techsoft.entity.work;
+
+import com.techsoft.entity.common.WorkPlanMaterial;
+
+public class WorkPlanMaterialVo extends WorkPlanMaterial {
+	private static final long serialVersionUID = 6753712450505780529L;
+
+	public WorkPlanMaterialVo() {	
+	}
+	
+	public WorkPlanMaterialVo(WorkPlanMaterial value) {
+		value.cloneProperties(this);
+	}		
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+	<script type="text/html" id="billStatus">
+	{{#  if(d.billStatus){}}
+		{{ d.billStatus.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="productMaterial">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+    <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script> 
+  <body>
+
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+          <input type="text" name="materialId"  placeholder="请输入物料ID" autocomplete="off" class="layui-input">
+          <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+	    
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable_details" lay-filter="tablefilter_details"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="del">操作</a>
+</script>
+   
+<script type="text/javascript">
+
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arr = url.split('=');
+	var ids = arr[1];
+	
+	var layuiformajax = layui.layuiformajax;
+        	var curTable = layuitable.render({
+            	elem: '#listTable_details'
+            	,id:'listTable_details'
+            	,url:'/bill/billWarehouseItem/list/json?billId='+ids
+            	,cols: [[
+            	    /*  {type: 'checkbox', fixed: 'left'}, */
+            	     {field:'materialId', width:120, title: '物料编码',align:'center'}
+            	    ,{field:'materialName', width:120, title: '物料名称',align:'center',templet:'#productMaterial'}
+            	    ,{field:'sku', title: '物料规格值', align:'center',minWidth: 220,templet: '#sku'}
+            	    ,{field:'billStatus',  title: '领料状态',align:'center', minWidth: 120,templet:'#billStatus'}
+            	    ,{field:'quantity',  title: '单据数量',align:'center', minWidth: 120}
+            	    ,{field:'quantityFinish',  title: '完成数量',align:'center', minWidth: 120}
+            	    ,{field:'quantityScan',  title: '扫描数量',align:'center', minWidth: 120}
+            	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+            	]]
+          	});
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+
+    
+	table.on('tool(tablefilter_details)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'del') {
+	          //监听提交
+       	  var url = '';
+       	  layuiformajax.postJson(url, '', function (result) {
+       		  layer.msg('删除成功!', {icon: 1, time: 1000},function () {
+     	                // 获得frame索引
+     	                var index = parent.layer.getFrameIndex(window.name);
+     				  	location.reload(); 
+     	                layer.close(index);
+     	            });
+       		  
+     	    	   /* layer.alert("删除成功", {icon: 1},function () {
+     	                // 获得frame索引
+     	                var index = parent.layer.getFrameIndex(window.name);
+     				  	location.reload(); 
+     	                layer.close(index);
+     	            }); */
+     		  });
+	
+		}
+	});
+ 	
+
+});	
+</script>
+ 
+  </body>
+
+</html>

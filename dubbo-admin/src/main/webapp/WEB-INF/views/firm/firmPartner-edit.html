@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+            <td width="15%" class="tableleft">用户</td>
+               <td>
+                <input type="text" name="userId" class="layui-input" maxlength="20" value="${(entity.userId?c)!''}"/>
+               </td> 
+               
+               <td width="15%" class="tableleft">状态</td>
+               <td>
+               	  <select name="status">
+				   <#if mapUserStatus??>
+					  <#list mapUserStatus?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.status??&&entity.status==testKey)>selected</#if> >${mapUserStatus[testKey]}</option>
+					  </#list>
+				   </#if> 
+			      </select>
+               </td>
+             
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">合作伙伴类型</td>
+               <td>
+                   <select name="partnerTypeDictId"> 
+                    <#if dictionaryList??>
+                     <#list dictionaryList as item>
+			            <option value="${item.id?c}" <#if (entity.partnerTypeDictId??&&entity.partnerTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			       </select>
+               </td>
+               <td width="15%" class="tableleft">公司名称</td>
+               <td>
+                 <input type="text" name="companyName"  class="layui-input" maxlength="20" value="${(entity.companyName)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">简称</td>
+               <td>
+                   <input type="text" name="simpleName"  class="layui-input" maxlength="20" value="${(entity.simpleName)!''}"/>
+               </td>
+               <td width="15%" class="tableleft">国家</td>
+               <td>
+			     <select id="countryId"  name="countryId" lay-search="" lay-filter="countrySelect"> 
+                        <option value="0">请选择</option>
+                    <#if configCountryList??>
+                     <#list configCountryList as item>
+			            <option value="${item.id?c}" <#if (entity.countryId??&&entity.countryId==item.id)>selected="selected"</#if>>${item.countryName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">省</td>
+               <td>
+               	   <input   type="hidden"  name="provinceId" id="initprovinceId" class="layui-input" maxlength="20" value="<#if entity??&&entity.provinceId??>${entity.provinceId?c}<#else></#if>" />
+                   <select name="provinceId" id="provinceId" lay-search="" lay-filter="PId">  			       </select>
+               </td>
+               <td width="15%" class="tableleft">市</td>
+               <td>
+                 <input   type="hidden"  name="cityId" id="initcityId" class="layui-input" maxlength="20" value="<#if entity??&&entity.cityId??>${entity.cityId?c}<#else></#if>" />
+                 <select name="cityId" id="cityId" lay-search="" lay-filter="CTId"> 
+			     </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">区</td>
+               <td>
+                   <input   type="hidden"  name="areaId" id="initareaId" class="layui-input" maxlength="20" value="<#if entity??&&entity.areaId??>${entity.areaId?c}<#else></#if>" />
+                   <select name="areaId" id="areaId" lay-search="" lay-filter="AId">
+			       </select>
+               </td>
+               <td width="15%" class="tableleft">地址</td>
+               <td>
+                 <input type="text" name="address"  class="layui-input" maxlength="20" value="${(entity.address)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">联系人电话</td>
+               <td>
+                   <input type="text" name="contactPhone" lay-verify="contactPhone"  class="layui-input" maxlength="20" value="${(entity.contactPhone)!''}"/>
+               </td>
+               <td width="15%" class="tableleft">联系人姓名</td>
+               <td>
+                 <input type="text" name="contactName"  class="layui-input" maxlength="20" value="${(entity.contactName)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">电子邮箱</td>
+               <td>
+                   <input type="text" name="email" lay-verify="email"  class="layui-input" maxlength="20" value="${(entity.email)!''}"/>
+               </td>
+               <td width="15%" class="tableleft">备注</td>
+               <td>
+                 <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+          //自定义验证规则
+          
+          //国家—省份级联监听
+          form.on('select(countrySelect)', function(data){
+        	  $("#provinceId option[value!='']").remove();
+        	  $("#cityId option[value!='']").remove();
+        	  $("#areaId option[value!='']").remove();
+        	  linkByCountry(data.value,'provinceId','areaName','','/firm/firmPartner/linkByCountry');
+        	  $("#provinceId").get(0).selectedIndex=0;
+          });
+          //省—市级联监听
+          form.on('select(PId)', function(data){
+        	  $("#cityId option[value!='']").remove();
+        	  $("#areaId option[value!='']").remove();
+        	  linkByCountry(data.value,'cityId','areaName','','/firm/firmPartner/linkByCountry');
+        	  $("#cityId").get(0).selectedIndex=0;
+          });
+          //市—县、区级联监听
+          form.on('select(CTId)', function(data){
+        	  $("#areaId option[value!='']").remove();
+        	  linkByCountry(data.value,'areaId','areaName','','/firm/firmPartner/linkByCountry');
+        	  $("#areaId").get(0).selectedIndex=0;
+          });
+          
+
+          
+             //自定义验证规则
+           var telephone = /^(([0\+]\d{2,3}-)?(0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;//电话号码
+       	   //var mobilePhone = /^[1][3,4,5,7,8][0-9]{9}$/;//手机号码
+       	   var reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;//邮箱
+        // form.verify({
+            	//contactPhone: function(value){
+	            	  /* if ((!telephone.test(value)) || (!mobilePhone.test(value))){ */
+	                  /*   if (!telephone.test(value)){
+	                    return '请正确填写电话号码';
+	                  }
+                }
+                ,email: function(value){
+	                   if(!reg.test(value)){
+	                        return '请正确填写邮箱';
+	                    }
+                }
+              }); */
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/firm/firmPartner/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+        		    if (result.isSuccess) {
+        	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });	
+	     			}else{
+	     				layer.alert(result.message, {
+	     					icon : 2
+	     				});
+	     			}
+      		  });
+      		  
+            return false;
+          });
+          
+          
+          
+        });
+    
+	    function linkByCountry(parentId,selectId,selectName,linkId,url){
+	    	layui.use([ 'form'], function(){
+	    		var form = layui.form;
+	    		var resjosn=null;
+	    		$.ajax({
+	    			type: "post",
+	    			dataType: "",
+	    			contentType:'application/x-www-form-urlencoded',
+	    			url:url,
+	    			data:{parentId:parentId},		
+	    	        success: function(res){
+	    				resjosn=JSON.parse(res);
+	    				console.log(resjosn);
+	    				resjosn.forEach(function(val,key){
+	    					var option1 = $("<option></option>");
+	    					option1.attr("value",val.id).text(val[selectName]);
+	    					if (val.id == linkId){
+	    						option1.attr("selected","selected");
+	    					};
+	    					$("#"+selectId).append(option1);
+	    				});
+	    				form.render('select');
+	    			}
+    			});
+	    	});
+	    } 
+    </script>
+    <script>
+	    $(function () {
+	    	//初始化
+	    	linkByCountry($("#countryId").val(),'provinceId','areaName',$("#initprovinceId").val(),'/firm/firmPartner/linkByCountry');
+	    	if ($("#initcityId").val()==null || $("#initcityId").val()=="") {	
+	    	} else {
+	    		linkByCountry($("#initprovinceId").val(),'cityId','areaName',$("#initcityId").val(),'/firm/firmPartner/linkByCountry');
+	    	}
+	    	if ($("#initareaId").val()==null || $("#initareaId").val()=="") {}
+	    	else{
+	    		linkByCountry($("#initcityId").val(),'areaId','areaName',$("#initareaId").val(),'/firm/firmPartner/linkByCountry');
+	    	}
+	    });
+    </script>
+  </body>
+
+</html>

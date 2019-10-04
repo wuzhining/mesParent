@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.config.ConfigLabelFieldMapper">
+	<resultMap id="ConfigLabelField" type="com.techsoft.entity.common.ConfigLabelField" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="LABEL_FIELD_NAME" property="labelFieldName" />
+		<result column="PRINT_MODE_DICT_ID" property="printModeDictId" />
+		<result column="FONT" property="font" />
+		<result column="IS_BOLD" property="isBold" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="labelFieldName != null">
+			AND A.LABEL_FIELD_NAME= #{labelFieldName}
+		</if>
+		<if test="printModeDictId != null">
+			AND A.PRINT_MODE_DICT_ID= #{printModeDictId}
+		</if>
+		<if test="font != null">
+			AND A.FONT= #{font}
+		</if>
+		<if test="isBold != null">
+			AND A.IS_BOLD= #{isBold}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	<if test="likeLabelFieldName != null">
+		<bind name="likeLabelFieldName" value="'%' + _parameter.likeLabelFieldName + '%'"/>
+		AND A.LABEL_FIELD_NAME LIKE #{likeLabelFieldName}
+	</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+	
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.LABEL_FIELD_NAME,
+		A.PRINT_MODE_DICT_ID,
+		A.FONT,
+		A.IS_BOLD,
+		A.IS_VALID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for CONFIG_LABEL_FIELD_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from CONFIG_LABEL_FIELD
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.ConfigLabelField">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_LABEL_FIELD A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.ConfigLabelField">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_LABEL_FIELD A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_LABEL_FIELD A WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_LABEL_FIELD A WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.ConfigLabelField">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_LABEL_FIELD A WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigLabelField">
+		INSERT INTO CONFIG_LABEL_FIELD (
+		TENANT_ID,
+		LABEL_FIELD_NAME,
+		PRINT_MODE_DICT_ID,
+		FONT,
+		IS_BOLD,
+		IS_VALID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{labelFieldName},
+		#{printModeDictId},
+		#{font},
+		#{isBold},
+		#{isValid},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigLabelField">
+		UPDATE CONFIG_LABEL_FIELD SET
+		TENANT_ID=#{tenantId},
+		LABEL_FIELD_NAME=#{labelFieldName},
+		PRINT_MODE_DICT_ID=#{printModeDictId},
+		FONT=#{font},
+		IS_BOLD=#{isBold},
+		IS_VALID=#{isValid},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigLabelField">
+		UPDATE CONFIG_LABEL_FIELD SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="labelFieldName != null" >
+			LABEL_FIELD_NAME=#{labelFieldName},
+		</if>
+		<if test="printModeDictId != null" >
+			PRINT_MODE_DICT_ID=#{printModeDictId},
+		</if>
+		<if test="font != null" >
+			FONT=#{font},
+		</if>
+		<if test="isBold != null" >
+			IS_BOLD=#{isBold},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.config.ConfigLabelFieldParamVo"
+		      resultType="com.techsoft.entity.common.ConfigLabelField" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_LABEL_FIELD A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

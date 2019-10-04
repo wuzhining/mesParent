@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">       
+      <form id="dataForm"  method="post" class="layui-form" enctype="multipart/form-data">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />        
+        <table class="layui-table ">
+        
+        
+           <tr>
+               <td width="10%" class="tableleft">检验文档名称</td>      
+                <td>
+					<input type="text" name="documentName" id="documentName" class="layui-input" lay-verify="documentName" maxlength="16" value="${(entity.documentName)!''}"/> 
+                </td>
+               <td id='td5' width="10%" class="tableleft">供应商名称</td>
+               <td id='td6'>
+                	<div class="div-choiceBox-intd ">  
+                		<input type="hidden"  id="supplierId" name="supplierId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.supplierId??>${entity.supplierId?c}<#else></#if>">
+                		<input type="text" id="companyName" name="companyName" value="${(firmPartner.companyName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd"/>
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="supplierSearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div> 
+               </td> 
+           </tr>
+
+           <tr>
+               <td width="10%" class="tableleft">物品</td>
+                <td>
+                	<div class="div-choiceBox-intd ">   
+                		<input type="hidden"  id="productId" name="productId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>">
+                		<input type="text" id="productName" name="productName" value="${(productMain.productName)!''}"  disabled="disabled" class="layui-input input-choiceBox-intd">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="productSearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div>
+                </td> 
+             <td width="10%" class="tableleft">检验文档名称</td>      
+                <td>
+					<input type="file"  name="pathDocument" id="pathDocument" class="layui-input" lay-verify="pathDocument"  value="${(entity.pathDocument)!''}"/> 
+                </td>  
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">备注</td>
+               <td colspan="4"><input type="text" name="remark"  id="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+           </tr>
+
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" type="button" id="save" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    
+     <script type="text/html" id="productSelect">
+        <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+     </script>
+    
+    <script>
+    var statusDictId="10313";
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','layer','layuiconfig','layuiformajax','layuitable','upload'], function(){
+		    	$ = layui.$, 
+		    	admin = layui.admin, 
+		    	table = layui.table, 
+		    	layer = layui.layer, 
+		    	laydate = layui.laydate,
+		    	layuitable = layui.layuitable,
+		    	form = layui.form; 
+				var layuiformajax = layui.layuiformajax;
+		        var upload = layui.upload;
+         
+          $('#productSearch').on('click',function(e){
+       		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+       		e.preventDefault();//默认from表单提交时不刷新
+       	  })
+       	 $('#supplierSearch').on('click',function(e){
+    		openWinSelect('/firm/firmPartner/firmPartnerOpen',"supplierId","companyName");
+       		e.preventDefault();//默认from表单提交时不刷新
+       	 })
+
+        	  //执行实例
+         	   var uploadInst = upload.render({
+        	     elem: '#pathDocument' //绑定元素
+        	    ,url: '/quality/qualityInspectDocument/saveFile' //上传接口
+        	    ,accept:'file'
+        	    ,data:{
+        	    	documentName:function(){
+        	    		return $("#documentName").val()
+        	    	},
+        	    	supplierId:function(){
+        	    		return $("#supplierId").val();
+        	    	},
+        	    	productId:function(){
+        	    		return $("#productId").val();
+        	    	},
+        	    	remark:function(){
+        	    		return $("#remark").val();
+        	    	},
+        	    	id:function(){
+        	    		return $("#id").val()
+        	    	},
+        	    	version:function(){
+        	    		return $("#version").val()
+        	    	}
+        	    }
+        	    ,auto:false
+        	    ,bindAction:'#save'
+        	    ,field:'pathDocument'
+	    	    ,done: function(res, index, uploadInst){
+	    	    	if(res.isSuccess==true){
+	       	    	   layer.alert("保存成功", {icon: 6},function () {
+	      	                // 获得frame索引
+	      	                var index = parent.layer.getFrameIndex(window.name);
+	      				  	parent.location.reload(); 
+	      	                parent.layer.close(index);
+	      	            });
+	    	    	}
+    		    }
+
+        	  });   
+         	  
+          
+        //监听提交
+          form.on('submit(save)', function(data){
+        	  if($('#pathDocument').val() != ""){
+        		  uploadInst();
+        		  
+        	  }else{
+        		  
+        		  
+        	  console.log(data.field);
+        	  var url = '/quality/qualityInspectDocument/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+        	  
+        	  }
+            return false;
+          });
+
+        });
+    
+
+    </script>
+  </body>
+</html>

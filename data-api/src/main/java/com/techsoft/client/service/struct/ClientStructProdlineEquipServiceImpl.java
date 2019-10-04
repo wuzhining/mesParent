@@ -1,0 +1,206 @@
+package com.techsoft.client.service.struct;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.EquipSpecsWork;
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.entity.common.StructProdlineEquip;
+import com.techsoft.entity.struct.StructProdlineEquipVo;
+import com.techsoft.entity.struct.StructProdlineEquipParamVo;
+import com.techsoft.service.equip.EquipSpecsWorkService;
+import com.techsoft.service.equip.EquipWorkService;
+import com.techsoft.service.struct.StructProdlineEquipService;
+
+@org.springframework.stereotype.Service
+public class ClientStructProdlineEquipServiceImpl extends BaseClientServiceImpl<StructProdlineEquip> implements ClientStructProdlineEquipService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProdlineEquipService structProdlineEquipService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipWorkService equipWorkService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipSpecsWorkService equipSpecsWorkService;
+    
+	@Override
+	public BaseService<StructProdlineEquip> getBaseService() {
+		return structProdlineEquipService;
+	}	    	
+    
+	private StructProdlineEquipVo getVo(StructProdlineEquip structProdlineEquip, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProdlineEquipVo vo = new StructProdlineEquipVo(structProdlineEquip);
+		// TODO 此处填充其它关联字段的处理代码
+		//生产设备
+		if(vo.getEquipWorkId() != null && vo.getEquipWorkId() > 0L){
+			EquipWork equipWork = equipWorkService.selectById(vo.getEquipWorkId(), commonParam);
+			if(equipWork != null){
+				vo.setEquipWork(equipWork);
+			}
+		}
+		//生产设备品种规格
+		if(vo.getEquipSpecsWorkId() != null && vo.getEquipSpecsWorkId() > 0L){
+			EquipSpecsWork equipSpecsWork = equipSpecsWorkService.selectById(vo.getEquipSpecsWorkId(), commonParam);
+			if(equipSpecsWork != null){
+				vo.setEquipSpecsWork(equipSpecsWork);
+			}
+		}
+		return vo;
+	} 
+	
+	private StructProdlineEquipVo getExtendVo(StructProdlineEquip structProdlineEquip, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProdlineEquipVo vo = this.getVo(structProdlineEquip, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<StructProdlineEquipVo> getVoList(List<StructProdlineEquip> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<StructProdlineEquipVo> voList = new ArrayList<StructProdlineEquipVo>();
+		for (StructProdlineEquip entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<StructProdlineEquipVo> getExtendVoList(List<StructProdlineEquip> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<StructProdlineEquipVo> voList = new ArrayList<StructProdlineEquipVo>();
+		for (StructProdlineEquip entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public StructProdlineEquipVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProdlineEquip entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<StructProdlineEquipVo>  selectListVoByParamVo(StructProdlineEquipParamVo structProdlineEquip, CommonParam commonParam) throws BusinessException, SQLException {
+		if(structProdlineEquip==null){
+			structProdlineEquip = new StructProdlineEquipParamVo();
+		}
+		structProdlineEquip.setTenantId(commonParam.getTenantId());	
+	
+		List<StructProdlineEquip> list = (List<StructProdlineEquip>) this.getBaseService().selectListByParamVo(structProdlineEquip, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<StructProdlineEquipVo> selectPageVoByParamVo(StructProdlineEquipParamVo structProdlineEquip, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(structProdlineEquip==null){
+			structProdlineEquip = new StructProdlineEquipParamVo();
+		}
+		structProdlineEquip.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<StructProdlineEquip> list  = (PageInfo<StructProdlineEquip>) this.getBaseService().selectPageByParamVo(structProdlineEquip, commonParam, pageNo, pageSize);
+		List<StructProdlineEquipVo> volist = new ArrayList<StructProdlineEquipVo>();
+		
+		Iterator<StructProdlineEquip> iter = list.getList().iterator();
+		StructProdlineEquipVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<StructProdlineEquipVo> vpage = new Page<StructProdlineEquipVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public StructProdlineEquipVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StructProdlineEquip entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<StructProdlineEquipVo>  selectListExtendVoByParamVo(StructProdlineEquipParamVo structProdlineEquip, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(structProdlineEquip==null){
+			structProdlineEquip = new StructProdlineEquipParamVo();
+		}
+		structProdlineEquip.setTenantId(commonParam.getTenantId());	
+					
+		List<StructProdlineEquip> list = (List<StructProdlineEquip>) this.getBaseService().selectListByParamVo(structProdlineEquip, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<StructProdlineEquipVo> selectPageExtendVoByParamVo(StructProdlineEquipParamVo structProdlineEquip, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(structProdlineEquip==null){
+			structProdlineEquip = new StructProdlineEquipParamVo();
+		}
+		structProdlineEquip.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<StructProdlineEquip> list  = (PageInfo<StructProdlineEquip>) this.getBaseService().selectPageByParamVo(structProdlineEquip, commonParam, pageNo, pageSize);
+		List<StructProdlineEquipVo> volist = new ArrayList<StructProdlineEquipVo>();
+		
+		Iterator<StructProdlineEquip> iter = list.getList().iterator();
+		StructProdlineEquipVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<StructProdlineEquipVo> vpage = new Page<StructProdlineEquipVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(StructProdlineEquipParamVo structProdlineEquipParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		StructProdlineEquip structProdlineEquip = null;
+		try {
+			if (structProdlineEquipParamVo.getId() == null) {//新增
+			 
+				structProdlineEquipParamVo.setTenantId(commonParam.getTenantId());
+				structProdlineEquip = structProdlineEquipService.saveOrUpdate(structProdlineEquipParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				StructProdlineEquip structProdlineEquipVoTemp = this.selectById(structProdlineEquipParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(structProdlineEquipVoTemp,
+						structProdlineEquipParamVo);
+  
+				structProdlineEquip = structProdlineEquipService.saveOrUpdate(
+						structProdlineEquipVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(structProdlineEquip);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

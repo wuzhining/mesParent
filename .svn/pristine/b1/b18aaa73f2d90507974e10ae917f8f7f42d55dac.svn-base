@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.config.ConfigParameterMapper">
+	<resultMap id="ConfigParameter" type="com.techsoft.entity.common.ConfigParameter" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="PARAM_TYPE" property="paramType" />
+		<result column="PARAM_CODE" property="paramCode" />
+		<result column="PARAM_NAME" property="paramName" />
+		<result column="PARAM_VALUE" property="paramValue" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="IS_OPEN" property="isOpen" />
+		<result column="IS_SYSTEMSET" property="isSystemset" />
+		<result column="SORT_NO" property="sortNo" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="paramType != null">
+			AND A.PARAM_TYPE= #{paramType}
+		</if>
+		<if test="paramCode != null">
+			AND A.PARAM_CODE= #{paramCode}
+		</if>
+		<if test="paramName != null">
+			AND A.PARAM_NAME= #{paramName}
+		</if>
+		<if test="paramValue != null">
+			AND A.PARAM_VALUE= #{paramValue}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="isOpen != null">
+			AND A.IS_OPEN= #{isOpen}
+		</if>
+		<if test="isSystemset != null">
+			AND A.IS_SYSTEMSET= #{isSystemset}
+		</if>
+		<if test="sortNo != null">
+			AND A.SORT_NO= #{sortNo}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>		
+		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.PARAM_TYPE,
+		A.PARAM_CODE,
+		A.PARAM_NAME,
+		A.PARAM_VALUE,
+		A.IS_VALID,
+		A.IS_OPEN,
+		A.IS_SYSTEMSET,
+		A.SORT_NO,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_CONFIG_PARAMETER_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from CONFIG_PARAMETER
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.ConfigParameter">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_PARAMETER A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.ConfigParameter">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_PARAMETER A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE CONFIG_PARAMETER A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE CONFIG_PARAMETER  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.ConfigParameter">
+		UPDATE CONFIG_PARAMETER A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigParameter">
+		INSERT INTO CONFIG_PARAMETER (
+		TENANT_ID,
+		PARAM_TYPE,
+		PARAM_CODE,
+		PARAM_NAME,
+		PARAM_VALUE,
+		IS_VALID,
+		IS_OPEN,
+		IS_SYSTEMSET,
+		SORT_NO,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{paramType},
+		#{paramCode},
+		#{paramName},
+		#{paramValue},
+		#{isValid},
+		#{isOpen},
+		#{isSystemset},
+		#{sortNo},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigParameter">
+		UPDATE CONFIG_PARAMETER SET
+		TENANT_ID=#{tenantId},
+		PARAM_TYPE=#{paramType},
+		PARAM_CODE=#{paramCode},
+		PARAM_NAME=#{paramName},
+		PARAM_VALUE=#{paramValue},
+		IS_VALID=#{isValid},
+		IS_OPEN=#{isOpen},
+		IS_SYSTEMSET=#{isSystemset},
+		SORT_NO=#{sortNo},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigParameter">
+		UPDATE CONFIG_PARAMETER SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="paramType != null" >
+			PARAM_TYPE=#{paramType},
+		</if>
+		<if test="paramCode != null" >
+			PARAM_CODE=#{paramCode},
+		</if>
+		<if test="paramName != null" >
+			PARAM_NAME=#{paramName},
+		</if>
+		<if test="paramValue != null" >
+			PARAM_VALUE=#{paramValue},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="isOpen != null" >
+			IS_OPEN=#{isOpen},
+		</if>
+		<if test="isSystemset != null" >
+			IS_SYSTEMSET=#{isSystemset},
+		</if>
+		<if test="sortNo != null" >
+			SORT_NO=#{sortNo},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.config.ConfigParameterParamVo"
+		      resultType="com.techsoft.entity.common.ConfigParameter" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_PARAMETER A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

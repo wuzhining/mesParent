@@ -1,0 +1,12 @@
+package com.techsoft.dao.product;
+
+import java.util.List;
+
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.entity.common.ProductMaterial;
+
+public interface ProductMaterialDao extends BaseDao<ProductMaterial> {
+	public void insertBatchProductMat(List<ProductMaterial> list) throws BusinessException, SQLException;;
+}

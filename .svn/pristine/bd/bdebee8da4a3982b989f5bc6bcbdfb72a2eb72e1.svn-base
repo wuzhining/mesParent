@@ -1,0 +1,224 @@
+package com.techsoft.controller.pda;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.struct.ClientStructFactoryService;
+import com.techsoft.client.service.struct.ClientStructProcessNodeService;
+import com.techsoft.client.service.struct.ClientStructProcessService;
+import com.techsoft.client.service.struct.ClientStructProductionlineService;
+import com.techsoft.client.service.struct.ClientStructWorkshopService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.struct.StructFactoryParamVo;
+import com.techsoft.entity.struct.StructFactoryVo;
+import com.techsoft.entity.struct.StructProcessNodeParamVo;
+import com.techsoft.entity.struct.StructProcessNodeVo;
+import com.techsoft.entity.struct.StructProcessParamVo;
+import com.techsoft.entity.struct.StructProcessVo;
+import com.techsoft.entity.struct.StructProductionlineParamVo;
+import com.techsoft.entity.struct.StructProductionlineVo;
+import com.techsoft.entity.struct.StructWorkshopParamVo;
+import com.techsoft.entity.struct.StructWorkshopVo;
+
+/**
+ * pda请求工厂构造controller层
+ * 
+ * @author
+ *
+ */
+@Controller
+@RequestMapping("/pda/struct")
+public class PdaStructController extends BaseController {
+	@Autowired
+	private ClientStructProcessService clientStructProcessService;
+	@Autowired
+	private ClientStructProcessNodeService clientStructProcessNodeService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientStructProductionlineService clientStructProductionlineService;
+	@Autowired
+	private ClientStructFactoryService clientStructFactoryService;
+	@Autowired
+	private ClientStructWorkshopService clientStructWorkshopService;
+
+	// 工厂列表
+	@ResponseBody
+	@RequestMapping("/factoryList")
+	public ResultMessage factoryList(HttpServletRequest request) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<StructFactoryVo> list = new ArrayList<StructFactoryVo>();
+
+		try {
+			StructFactoryParamVo structFactoryParamVo = new StructFactoryParamVo();
+			structFactoryParamVo.setIsValid(EnumYesOrNo.YES.getValue());
+			list = clientStructFactoryService.selectListVoByParamVo(structFactoryParamVo, this.getCommonParam(request));
+
+			if ((list == null) || (list.isEmpty())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无信息");
+			} else {
+				resultMessage.setIsSuccess(true);
+				resultMessage.put(list);
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+
+
+	// 车间列表
+	@ResponseBody
+	@RequestMapping("/workshopList")
+	public ResultMessage workshopList(HttpServletRequest request, Long factoryId) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<StructWorkshopVo> list = new ArrayList<StructWorkshopVo>();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+		}
+		try {
+			StructWorkshopParamVo structWorkshopParamVo = new StructWorkshopParamVo();
+			structWorkshopParamVo.setIsValid(EnumYesOrNo.YES.getValue());
+			structWorkshopParamVo.setFactoryId(factoryId);
+			list = clientStructWorkshopService.selectListVoByParamVo(structWorkshopParamVo, this.getCommonParam(request));
+
+			if ((list == null) || (list.isEmpty())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无信息");
+			} else {
+				resultMessage.setIsSuccess(true);
+				resultMessage.put(list);
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+	
+	// 产线列表
+	@ResponseBody
+	@RequestMapping("/prodlineList")
+	public ResultMessage prodlineList(HttpServletRequest request, Long factoryId, Long workshopId) {
+        ResultMessage resultMessage = new ResultMessage();
+		List<StructProductionlineVo> list = new ArrayList<StructProductionlineVo>();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+		}
+		try {
+			StructProductionlineParamVo structProductionlineParamVo = new StructProductionlineParamVo();
+			structProductionlineParamVo.setIsValid(EnumYesOrNo.YES.getValue());
+			structProductionlineParamVo.setFactoryId(factoryId); 
+			structProductionlineParamVo.setWorkshopId(workshopId);
+			list = clientStructProductionlineService.selectListVoByParamVo(structProductionlineParamVo, this.getCommonParam(request));
+
+			if ((list == null) || (list.isEmpty())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无信息");
+			} else {
+				resultMessage.setIsSuccess(true);
+				resultMessage.put(list);
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+
+	// 工艺路线列表
+	@ResponseBody
+	@RequestMapping("/processList")
+	public ResultMessage processList(HttpServletRequest request, Long factoryId) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<StructProcessVo> list = new ArrayList<StructProcessVo>();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+		}
+		try {
+			StructProcessParamVo structProcessParamVo = new StructProcessParamVo();
+			structProcessParamVo.setIsValid(EnumYesOrNo.YES.getValue());
+			structProcessParamVo.setFactoryId(factoryId);
+			list = clientStructProcessService.selectListVoByParamVo(structProcessParamVo, this.getCommonParam(request));
+
+			if ((list == null) || (list.isEmpty())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无信息");
+			} else {
+				resultMessage.setIsSuccess(true);
+				resultMessage.put(list);
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+
+	// 工序列表
+	@ResponseBody
+	@RequestMapping("/processNodeList")
+	public ResultMessage processNodeList(HttpServletRequest request, Long processId,String factoryId) {
+		ResultMessage resultMessage = new ResultMessage();
+		List<StructProcessNodeVo> list = new ArrayList<StructProcessNodeVo>();
+		if (processId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工艺路线ID不能为空");
+		}
+		try {
+			StructProcessNodeParamVo structProcessNodeParamVo = new StructProcessNodeParamVo();
+			structProcessNodeParamVo.setIsValid(EnumYesOrNo.YES.getValue());
+			structProcessNodeParamVo.setProcessId(processId);
+			list = clientStructProcessNodeService.selectListVoByParamVo(structProcessNodeParamVo,
+					this.getCommonParam(request));
+
+			if ((list == null) || (list.isEmpty())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("无信息");
+			} else {
+				resultMessage.setIsSuccess(true);
+				resultMessage.put(list);
+			}
+
+		} catch (BusinessException e) {
+			resultMessage.addErr("业务运行异常");
+		} catch (SQLException e) {
+			resultMessage.addErr("SQL查询异常");
+		}
+
+		return resultMessage;
+	}
+
+	
+	
+}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">数据配置</a> <a><cite>数据表属性</cite></a>
+      </span>
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <select name="tableObjectId">    
+               <option value="">数据表对象中文名称</option> 
+                <#if CTOList1??>
+                   <#list CTOList1 as item>
+		            <option value="${item.id?c}">${item.tableObjectNameCn}</option>
+	               </#list>
+	            </#if>
+          </select>
+          <input type="text" name="tableObjectFieldCn"  placeholder="数据表属性中文名称" autocomplete="off" class="layui-input">
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加数据表属性','/config/configTableField/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script> 
+
+<script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+</script> 
+<script type="text/html" id="tableObjectName">
+	{{#  if(d.configTableObject){ }}
+		{{ d.configTableObject.tableObjectName 
+
+     }}
+  {{#  } }}
+</script> 
+<script type="text/html" id="tableObjectNameCn">
+	{{#  if(d.configTableObject){ }}
+		{{ d.configTableObject.tableObjectNameCn 
+
+     }}
+  {{#  } }}
+</script> 
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/config/configTableField/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+    	    ,{field:'tableObjectId', width:160, title: '数据表对象',align:'center'}
+    	    ,{field:'tableObjectName', width:160, title: '数据表对象',align:'center',templet: '#tableObjectName'}
+    	    ,{field:'tableObjectNameCn', width:160, title: '数据表对象中文名称',align:'center',templet: '#tableObjectNameCn'}
+    	    ,{field:'tableObjectField', width:200, title: '数据表属性名称',align:'center'}
+    	    ,{field:'tableObjectFieldCn', width:200, title: '数据表属性中文名称',align:'center'}
+    	    ,{field:'isValid',  title: '是否有效',align:'center', minWidth: 120,templet: '#isValidTpl'}
+    	    ,{field:'remark',  title: '描述',align:'center', minWidth: 120}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+		,done: function () {
+	        $("[data-field='tableObjectId']").css('display','none');
+	    }
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑数据表属性','/config/configTableField/edit?id=' + data.id); 
+		}
+	});
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

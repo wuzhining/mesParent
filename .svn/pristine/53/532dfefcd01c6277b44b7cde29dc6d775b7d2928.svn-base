@@ -1,0 +1,269 @@
+package com.techsoft.client.service.bill;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+
+import com.techsoft.entity.common.BillDeliveryItem;
+import com.techsoft.entity.common.BillPurchase;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.entity.bill.BillDeliveryItemVo;
+import com.techsoft.entity.bill.BillDeliveryItemParamVo;
+import com.techsoft.service.bill.BillDeliveryItemService;
+import com.techsoft.service.bill.BillPurchaseService;
+import com.techsoft.service.bill.BillWarehouseService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+
+@org.springframework.stereotype.Service
+public class ClientBillDeliveryItemServiceImpl extends BaseClientServiceImpl<BillDeliveryItem>
+		implements ClientBillDeliveryItemService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillDeliveryItemService billDeliveryItemService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseService billWarehouseService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillPurchaseService billPurchaseService;
+
+	@Override
+	public BaseService<BillDeliveryItem> getBaseService() {
+		return billDeliveryItemService;
+	}
+
+	private BillDeliveryItemVo getVo(BillDeliveryItem billDeliveryItem, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillDeliveryItemVo vo = new BillDeliveryItemVo(billDeliveryItem);
+
+		if (vo.getBillStatusDictId() != null && vo.getBillStatusDictId() > 0L) {
+			ConfigDictionary billStatus = configDictionaryService.selectById(vo.getBillStatusDictId(), commonParam);
+			if (billStatus != null) {
+				vo.setBillStatus(billStatus);
+			}
+		}
+		if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+			ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(), commonParam);
+			if (productMaterial != null) {
+				if(productMaterial.getSkuValue()!=null&&productMaterial.getSkuValue()!=""){
+					ProductMaterialVo productMateriaVo=new ProductMaterialVo();
+					productMateriaVo.setSkuValue(productMaterial.getSkuValue());
+					vo.setProductMaterialVo(productMateriaVo);	
+				}
+				if(productMaterial.getProductTypeDictId() !=null && productMaterial.getProductTypeDictId() > 0L){
+					ConfigDictionary productType = configDictionaryService.selectById(productMaterial.getProductTypeDictId(), commonParam);
+					if (productType != null) {
+							vo.setProductType(productType);
+					}
+				}
+				vo.setProductMaterial(productMaterial);
+			}
+		}
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productMain = productMainService.selectById(vo.getProductId(), commonParam);
+			if (productMain != null) {
+				vo.setProductMain(productMain);
+			}
+		}
+		if (vo.getFromBillId() != null && vo.getFromBillId() > 0L) {
+			BillWarehouse billWarehouse = billWarehouseService.selectById(vo.getFromBillId(), commonParam);
+			BillPurchase billPurchase = billPurchaseService.selectById(vo.getFromBillId(), commonParam);
+			if (billWarehouse != null) {
+				vo.setBillWarehouse(billWarehouse);
+			}
+			if (billPurchase != null) {
+				vo.setBillPurchase(billPurchase);
+			}
+		}
+		return vo;
+	}
+
+	private BillDeliveryItemVo getExtendVo(BillDeliveryItem billDeliveryItem, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillDeliveryItemVo vo = this.getVo(billDeliveryItem, commonParam);
+
+		return vo;
+	}
+
+	private List<BillDeliveryItemVo> getVoList(List<BillDeliveryItem> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillDeliveryItemVo> voList = new ArrayList<BillDeliveryItemVo>();
+		for (BillDeliveryItem entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<BillDeliveryItemVo> getExtendVoList(List<BillDeliveryItem> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillDeliveryItemVo> voList = new ArrayList<BillDeliveryItemVo>();
+		for (BillDeliveryItem entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public BillDeliveryItemVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillDeliveryItem entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<BillDeliveryItemVo> selectListVoByParamVo(BillDeliveryItemParamVo billDeliveryItem,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (billDeliveryItem == null) {
+			billDeliveryItem = new BillDeliveryItemParamVo();
+		}
+		billDeliveryItem.setTenantId(commonParam.getTenantId());
+
+		List<BillDeliveryItem> list = (List<BillDeliveryItem>) this.getBaseService()
+				.selectListByParamVo(billDeliveryItem, commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<BillDeliveryItemVo> selectPageVoByParamVo(BillDeliveryItemParamVo billDeliveryItem,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (billDeliveryItem == null) {
+			billDeliveryItem = new BillDeliveryItemParamVo();
+		}
+		billDeliveryItem.setTenantId(commonParam.getTenantId());
+
+		PageInfo<BillDeliveryItem> list = (PageInfo<BillDeliveryItem>) this.getBaseService()
+				.selectPageByParamVo(billDeliveryItem, commonParam, pageNo, pageSize);
+		List<BillDeliveryItemVo> volist = new ArrayList<BillDeliveryItemVo>();
+
+		Iterator<BillDeliveryItem> iter = list.getList().iterator();
+		BillDeliveryItemVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<BillDeliveryItemVo> vpage = new Page<BillDeliveryItemVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public BillDeliveryItemVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillDeliveryItem entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<BillDeliveryItemVo> selectListExtendVoByParamVo(BillDeliveryItemParamVo billDeliveryItem,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (billDeliveryItem == null) {
+			billDeliveryItem = new BillDeliveryItemParamVo();
+		}
+		billDeliveryItem.setTenantId(commonParam.getTenantId());
+
+		List<BillDeliveryItem> list = (List<BillDeliveryItem>) this.getBaseService()
+				.selectListByParamVo(billDeliveryItem, commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<BillDeliveryItemVo> selectPageExtendVoByParamVo(BillDeliveryItemParamVo billDeliveryItem,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (billDeliveryItem == null) {
+			billDeliveryItem = new BillDeliveryItemParamVo();
+		}
+		billDeliveryItem.setTenantId(commonParam.getTenantId());
+
+		PageInfo<BillDeliveryItem> list = (PageInfo<BillDeliveryItem>) this.getBaseService()
+				.selectPageByParamVo(billDeliveryItem, commonParam, pageNo, pageSize);
+		List<BillDeliveryItemVo> volist = new ArrayList<BillDeliveryItemVo>();
+
+		Iterator<BillDeliveryItem> iter = list.getList().iterator();
+		BillDeliveryItemVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<BillDeliveryItemVo> vpage = new Page<BillDeliveryItemVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(BillDeliveryItemParamVo billDeliveryItemParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		BillDeliveryItem billDeliveryItem = null;
+		try {
+			if (billDeliveryItemParamVo.getId() == null) {// 新增
+
+				billDeliveryItemParamVo.setTenantId(commonParam.getTenantId());
+				billDeliveryItem = billDeliveryItemService.saveOrUpdate(billDeliveryItemParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				BillDeliveryItem billDeliveryItemVoTemp = this.selectById(billDeliveryItemParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(billDeliveryItemVoTemp, billDeliveryItemParamVo);
+
+				billDeliveryItem = billDeliveryItemService.saveOrUpdate(billDeliveryItemVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(billDeliveryItem);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+	
+	@Override
+	public ResultMessage endBill(Long billId, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			
+			resultMessage=billDeliveryItemService.endBill(billId,commonParam);
+			
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

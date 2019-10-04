@@ -1,0 +1,715 @@
+package com.techsoft.client.service.bill;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBillStatus;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.bill.BillWarehouseParamVo;
+import com.techsoft.entity.bill.BillWarehouseVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillDelivery;
+import com.techsoft.entity.common.BillInspect;
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.BillPurchase;
+import com.techsoft.entity.common.BillSaleorder;
+import com.techsoft.entity.common.BillSaleorderItem;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.BillWorkorder;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.FirmDepartment;
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.StructProductionline;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.entity.track.TrackBarcodeVo;
+import com.techsoft.service.barcode.BarcodeMainService;
+import com.techsoft.service.bill.BillDeliveryService;
+import com.techsoft.service.bill.BillInspectService;
+import com.techsoft.service.bill.BillInventoryService;
+import com.techsoft.service.bill.BillPurchaseService;
+import com.techsoft.service.bill.BillSaleorderService;
+import com.techsoft.service.bill.BillWarehouseAllocationService;
+import com.techsoft.service.bill.BillWarehouseArrivalService;
+import com.techsoft.service.bill.BillWarehouseDeliveryService;
+import com.techsoft.service.bill.BillWarehouseDiscardedService;
+import com.techsoft.service.bill.BillWarehouseInService;
+import com.techsoft.service.bill.BillWarehouseItemService;
+import com.techsoft.service.bill.BillWarehouseOutService;
+import com.techsoft.service.bill.BillWarehouseRejectService;
+import com.techsoft.service.bill.BillWarehouseReturnService;
+import com.techsoft.service.bill.BillWarehouseSaleReturnService;
+import com.techsoft.service.bill.BillWarehouseService;
+import com.techsoft.service.bill.BillWorkorderService;
+import com.techsoft.service.config.ConfigCodeRuleService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.firm.FirmDepartmentService;
+import com.techsoft.service.firm.FirmPartnerService;
+import com.techsoft.service.history.HistoryBillStatusService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.quality.QualityInspectModuleRelationService;
+import com.techsoft.service.quality.QualitySampleLevelService;
+import com.techsoft.service.quality.QualitySampleRuleItemService;
+import com.techsoft.service.quality.QualitySampleRuleService;
+import com.techsoft.service.struct.StructProductionlineService;
+import com.techsoft.service.struct.StructWarehouseService;
+import com.techsoft.service.track.TrackBarcodeService;
+
+@org.springframework.stereotype.Service
+public class ClientBillWarehouseServiceImpl extends BaseClientServiceImpl<BillWarehouse>
+		implements ClientBillWarehouseService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseService billWarehouseService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseItemService billWarehouseItemService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmDepartmentService firmDepartmentService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmPartnerService firmPartnerService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWarehouseService structWarehouseService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProductionlineService structProductionlineService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWorkorderService billWorkorderService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private HistoryBillStatusService historyBillStatusService; 
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private TrackBarcodeService trackBarcodeService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BarcodeMainService barcodeMainService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillInspectService billInspectService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private QualityInspectModuleRelationService qualityInspectModuleRelationService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private QualitySampleLevelService qualitySampleLevelService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private QualitySampleRuleService qualitySampleRuleService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private QualitySampleRuleItemService qualitySampleRuleItemService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigCodeRuleService configCodeRuleService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillPurchaseService billPurchaseService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseInService billWarehouseInService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseOutService billWarehouseOutService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseAllocationService billWarehouseAllocationService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseArrivalService billWarehouseArrivalService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseRejectService billWarehouseRejectService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseDeliveryService billWarehouseDeliveryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseReturnService billWarehouseReturnService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseSaleReturnService billWarehouseSaleReturnService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillDeliveryService billDeliveryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillSaleorderService billSaleorderService;//销售单
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillInventoryService billInventoryService;//销售单
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseDiscardedService billWarehouseDiscardedService;
+
+	@Override
+	public BaseService<BillWarehouse> getBaseService() {
+		return billWarehouseService;
+	}
+
+	private BillWarehouseVo getVo(BillWarehouse billWarehouse, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillWarehouseVo vo = new BillWarehouseVo(billWarehouse);
+		if (vo.getBillTypeDictId() != null && vo.getBillTypeDictId() > 0L) {
+			ConfigDictionary billType = configDictionaryService.selectById(vo.getBillTypeDictId(), commonParam);
+			if (billType != null) {
+				vo.setBillTypeDic(billType);
+			}
+		}
+		if (vo.getBillStatusDictId() != null && vo.getBillStatusDictId() > 0L) {
+			ConfigDictionary billStatus = configDictionaryService.selectById(vo.getBillStatusDictId(), commonParam);
+			if (billStatus != null) {
+				vo.setBillStatusDic(billStatus);
+			}
+		}
+		if (vo.getFromBillTypeDictId() != null && vo.getFromBillTypeDictId() > 0L) {
+			ConfigDictionary fromBillType = configDictionaryService.selectById(vo.getFromBillTypeDictId(), commonParam);
+			if (fromBillType != null) {
+				vo.setFromBillTypeDic(fromBillType);
+				
+				if (vo.getFromBillId() != null && vo.getFromBillId() > 0L) {
+				//单据
+				if (vo.getFromBillTypeDictId().equals(EnumDictBillType.BILL_TYPE_DELIVERY.getValue())) {//发货单
+				        BillDelivery billDelivery = billDeliveryService.selectById(vo.getFromBillId(), commonParam);
+				        if (billDelivery!=null) {
+				        	 vo.setFromBillCode(billDelivery.getBillCode());
+						}
+				} else if (vo.getFromBillTypeDictId().equals(EnumDictBillType.BILL_TYPE_SALEORDER.getValue())) {//销售单
+					    BillSaleorder billSaleorder = billSaleorderService.selectById(vo.getFromBillId(), commonParam);
+					    if (billSaleorder!=null) {
+					    	vo.setFromBillCode(billSaleorder.getBillCode());
+						}				   
+				} else if (vo.getFromBillTypeDictId().equals(EnumDictBillType.BILL_TYPE_EXAMINE.getValue())) {//检验单
+					    BillInspect billInspect = billInspectService.selectById(vo.getFromBillId(), commonParam);
+					    if (billInspect!=null) {
+					    	vo.setFromBillCode(billInspect.getInspectCode()); 
+						}
+		        } else if (vo.getFromBillTypeDictId().equals(EnumDictBillType.BILL_TYPE_WORKORDER.getValue())){//工单
+		        	    BillWorkorder billWorkorder = billWorkorderService.selectById(vo.getFromBillId(), commonParam);
+		        	    if (billWorkorder!=null) {
+		        	    	vo.setFromBillCode(billWorkorder.getWorkorderCode()); 
+						}    
+		        }else if (vo.getFromBillTypeDictId().equals(EnumDictBillType.BILL_TYPE_INVENTORY.getValue())){//盘点单
+	        	    BillInventory billInventory = billInventoryService.selectById(vo.getFromBillId(), commonParam);
+	        	    if (billInventory!=null) {
+	        	    	vo.setFromBillCode(billInventory.getBillCode()); 
+					}    
+	        }else{//仓库库单
+		        	    BillWarehouse billWarehouseCode =billWarehouseService.selectById(vo.getFromBillId(), commonParam);
+		        	    if(billWarehouseCode != null){
+						    vo.setFromBillCode(billWarehouseCode.getBillCode()); 
+		        	    }
+		        }
+			  }
+			}
+		}
+		if (vo.getFromBillId() != null && vo.getFromBillId() > 0L) {
+			BillWorkorder fromBill = billWorkorderService.selectById(vo.getFromBillId(), commonParam);
+			BillWarehouse fromBillWarehose = billWarehouseService.selectById(vo.getFromBillId(), commonParam);
+			BillInspect fromBillInspect = billInspectService.selectById(vo.getFromBillId(), commonParam);
+			BillPurchase fromBillPurchase = billPurchaseService.selectById(vo.getFromBillId(), commonParam);
+			BillDelivery fromBillDelivery = billDeliveryService.selectById(vo.getFromBillId(), commonParam);
+			if (fromBill != null) {
+				vo.setFromBill(fromBill);
+			}
+			if (fromBillWarehose != null) {
+				vo.setBillWarehouse(fromBillWarehose);
+			}
+			if (fromBillInspect != null) {
+				vo.setBillInpect(fromBillInspect);
+			}
+			if (fromBillPurchase != null) {
+				vo.setBillPurchase(fromBillPurchase);
+			}
+			if (fromBillDelivery != null) {
+				vo.setBillDelivery(fromBillDelivery);
+			}
+			
+			
+			
+		}
+
+		if (vo.getFromWarehouseId() != null && vo.getFromWarehouseId() > 0L) {
+			StructWarehouse fromWarehouse = structWarehouseService.selectById(vo.getFromWarehouseId(), commonParam);
+			if (fromWarehouse != null) {
+				vo.setFromWarehouse(fromWarehouse);
+			}
+		}
+		if (vo.getToWarehouseId() != null && vo.getToWarehouseId() > 0L) {
+			StructWarehouse toWarehouse = structWarehouseService.selectById(vo.getToWarehouseId(), commonParam);
+			if (toWarehouse != null) {
+				vo.setToWarehouse(toWarehouse);
+			}
+		}
+		if (vo.getFromProductionlineId() != null && vo.getFromProductionlineId() > 0L) {
+			StructProductionline fromProductionline = structProductionlineService
+					.selectById(vo.getFromProductionlineId(), commonParam);
+			if (fromProductionline != null) {
+				vo.setFromProductionline(fromProductionline);
+			}
+		}
+		if (vo.getToProductionlineId() != null && vo.getToProductionlineId() > 0L) {
+			StructProductionline toProductionline = structProductionlineService.selectById(vo.getToProductionlineId(),
+					commonParam);
+			if (toProductionline != null) {
+				vo.setToProductionline(toProductionline);
+			}
+		}
+		if (vo.getDepartmentId() != null && vo.getDepartmentId() > 0L) {
+			FirmDepartment firmDepartment = firmDepartmentService.selectById(vo.getDepartmentId(), commonParam);
+			if (firmDepartment != null) {
+				vo.setDepartment(firmDepartment);
+			}
+		}
+		if (vo.getPartnerId() != null && vo.getPartnerId() > 0L) {
+			FirmPartner firmPartner = firmPartnerService.selectById(vo.getPartnerId(), commonParam);
+			if (firmPartner != null) {
+				vo.setFirmPartner(firmPartner);
+			}
+		}
+
+//		// ---------------备料看板------------------
+		if (vo.getId() != null && vo.getId() > 0L) {
+			BillWarehouseItemParamVo billWarehouseItemParamVo = new BillWarehouseItemParamVo();
+			billWarehouseItemParamVo.setBillId(vo.getId());
+			List<BillWarehouseItem> listByParamVo = billWarehouseItemService
+					.selectListByParamVo(billWarehouseItemParamVo, commonParam);
+			if (listByParamVo.size() > 0) {
+				for (BillWarehouseItem billWarehouseItem : listByParamVo) {
+					ProductMaterial productMaterial = productMaterialService.selectById(billWarehouseItem.getMaterialId(), commonParam);
+					if (productMaterial != null) {
+						if(productMaterial.getSkuValue()!=null&&productMaterial.getSkuValue()!=""){
+							ProductMaterialVo productMateriaVo=new ProductMaterialVo();
+							productMateriaVo.setSkuValue(productMaterial.getSkuValue());
+							vo.setProductMaterialVo(productMateriaVo);
+							
+						}
+						vo.setProductMaterial(productMaterial);
+					}
+					if (billWarehouseItem.getProductId() != null && billWarehouseItem.getProductId() > 0L) {
+						ProductMain productMain = productMainService.selectById(billWarehouseItem.getProductId(),
+								commonParam);
+						if (productMain != null) {
+							vo.setProductMain(productMain);
+						}
+					}
+
+					if (vo.getFromBillId() != null && vo.getFromBillId() > 0L) {
+						BillWorkorder selectListByParamVo = billWorkorderService.selectById(vo.getFromBillId(),
+								commonParam);
+						if (selectListByParamVo != null) {
+							vo.setBillWorkorder(selectListByParamVo);
+						}
+
+					}
+					vo.setBillWarehouseItem(billWarehouseItem);
+				}
+			}
+		}
+		return vo;
+	}
+
+	private BillWarehouseVo getExtendVo(BillWarehouse billWarehouse, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillWarehouseVo vo = this.getVo(billWarehouse, commonParam);
+
+		return vo;
+	}
+
+	private List<BillWarehouseVo> getVoList(List<BillWarehouse> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWarehouseVo> voList = new ArrayList<BillWarehouseVo>();
+		for (BillWarehouse entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<BillWarehouseVo> getExtendVoList(List<BillWarehouse> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWarehouseVo> voList = new ArrayList<BillWarehouseVo>();
+		for (BillWarehouse entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public BillWarehouseVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillWarehouse entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<BillWarehouseVo> selectListVoByParamVo(BillWarehouseParamVo billWarehouse, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (billWarehouse == null) {
+			billWarehouse = new BillWarehouseParamVo();
+		}
+		billWarehouse.setTenantId(commonParam.getTenantId());
+
+		List<BillWarehouse> list = (List<BillWarehouse>) this.getBaseService().selectListByParamVo(billWarehouse,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<BillWarehouseVo> selectPageVoByParamVo(BillWarehouseParamVo billWarehouse, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (billWarehouse == null) {
+			billWarehouse = new BillWarehouseParamVo();
+		}
+		billWarehouse.setTenantId(commonParam.getTenantId());
+
+		PageInfo<BillWarehouse> list = (PageInfo<BillWarehouse>) this.getBaseService()
+				.selectPageByParamVo(billWarehouse, commonParam, pageNo, pageSize);
+		List<BillWarehouseVo> volist = new ArrayList<BillWarehouseVo>();
+
+		Iterator<BillWarehouse> iter = list.getList().iterator();
+		BillWarehouseVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<BillWarehouseVo> vpage = new Page<BillWarehouseVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public BillWarehouseVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillWarehouse entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<BillWarehouseVo> selectListExtendVoByParamVo(BillWarehouseParamVo billWarehouse,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (billWarehouse == null) {
+			billWarehouse = new BillWarehouseParamVo();
+		}
+		billWarehouse.setTenantId(commonParam.getTenantId());
+
+		List<BillWarehouse> list = (List<BillWarehouse>) this.getBaseService().selectListByParamVo(billWarehouse,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<BillWarehouseVo> selectPageExtendVoByParamVo(BillWarehouseParamVo billWarehouse,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (billWarehouse == null) {
+			billWarehouse = new BillWarehouseParamVo();
+		}
+		billWarehouse.setTenantId(commonParam.getTenantId());
+
+		PageInfo<BillWarehouse> list = (PageInfo<BillWarehouse>) this.getBaseService()
+				.selectPageByParamVo(billWarehouse, commonParam, pageNo, pageSize);
+		List<BillWarehouseVo> volist = new ArrayList<BillWarehouseVo>();
+
+		Iterator<BillWarehouse> iter = list.getList().iterator();
+		BillWarehouseVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<BillWarehouseVo> vpage = new Page<BillWarehouseVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(BillWarehouseParamVo billWarehouseParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		BillWarehouse billWarehouse = null;
+		try {
+			if (billWarehouseParamVo.getId() == null) {// 新增
+
+				billWarehouseParamVo.setTenantId(commonParam.getTenantId());
+
+				String createCode = configCodeRuleService.createCode(BillWarehouse.class.getName(),
+						billWarehouseParamVo.getBillTypeDictId(), null, commonParam);
+				billWarehouseParamVo.setBillCode(createCode);
+				billWarehouse = billWarehouseService.saveOrUpdate(billWarehouseParamVo, commonParam);
+
+				//新增历史表
+				historyBillStatusService.billHistoryInsert(billWarehouseParamVo.getBillTypeDictId(), EnumDictBillStatus.NEW.getValue(), billWarehouse.getId(), commonParam);
+
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				BillWarehouse billWarehouseVoTemp = this.selectById(billWarehouseParamVo.getId(), commonParam);
+				BeanUtil.copyNotNullProperties(billWarehouseVoTemp, billWarehouseParamVo);
+				billWarehouse = billWarehouseService.saveOrUpdate(billWarehouseVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(billWarehouse);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	// 来料审核生成质检单相关数据
+	public ResultMessage billCheck(BillWarehouseVo billWarehouseVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+
+			resultMessage = billWarehouseArrivalService.billCheck(billWarehouseVo, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+	
+	// 来料打印审核
+		public ResultMessage printCheck(BillWarehouseVo billWarehouseVo, CommonParam commonParam) {
+			ResultMessage resultMessage = new ResultMessage();
+			try {
+
+				resultMessage = billWarehouseArrivalService.printCheck(billWarehouseVo, commonParam);
+
+			} catch (BusinessException e) {
+				resultMessage.addErr(e.getMessage());
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return resultMessage;
+		}
+
+	@Override
+	public ResultMessage allocationOutput(List<BarcodeMain> list, Long fromWarehouseId, Long toWarehouseId,
+			CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		String billcode = null;
+		try {
+			// 向调拨服务请求
+			billcode = billWarehouseAllocationService.allocationOutput(list, fromWarehouseId, toWarehouseId,
+					commonParam);
+
+			if (!billcode.equals(null)) {
+				resultMessage.addErr("调拨出库完成！已生成调拨上架单:" + billcode);
+				resultMessage.setIsSuccess(true);
+			} else {
+				resultMessage.addErr("业务异常");
+			}
+		} catch (BusinessException e) {
+
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		}
+		return resultMessage;
+
+	}
+
+	@Override
+	public ResultMessage allocationnBillBarcodeInput(TrackBarcodeVo trackBarcodeVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			resultMessage = billWarehouseAllocationService.allocationnBillBarcodeInput(trackBarcodeVo, commonParam);
+
+			if (resultMessage.getIsSuccess().equals(true)) {
+				resultMessage.addErr("标签上架成功！");
+				resultMessage.setIsSuccess(true);
+			} else {
+				resultMessage.addErr("业务异常");
+			}
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultMessage;
+	}
+
+	/*@Override
+	public ResultMessage pickInsert(BillWarehouseVo billWarehouseVo, List<BillWorkorderBomVo> list,
+			CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			billWarehouseService.insertPickBatch(billWarehouseVo, list, commonParam);
+			resultMessage.setIsSuccess(true);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}*/
+
+	@Override
+	public ResultMessage unPickInsert(BillWarehouseVo billWarehouseVo, List<ProductMaterial> list,
+			CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			for (ProductMaterial productMaterial : list) {
+				if ( productMaterial.getQuantityStock() == null) {
+					resultMessage.setMessage("数量不能为空");
+					return resultMessage;
+				}
+				if ( productMaterial.getQuantityStock() <= 0) {
+					resultMessage.setMessage("数量不能为0");
+					return resultMessage;
+				}
+			}
+			billWarehouseService.insertUnPickBatch(billWarehouseVo, list, commonParam);
+			resultMessage.setIsSuccess(true);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage workerReturnSava(List<BillWorkorder> list, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			resultMessage = billWarehouseReturnService.workerReturnSava(list, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<BillWarehouseVo> selectPrepareMaterialsScreen(CommonParam commonParam)
+			throws BusinessException, SQLException {
+
+		List<BillWarehouse> list = (List<BillWarehouse>) billWarehouseService.selectPrepareMaterialsScreen();
+		List<BillWarehouseVo> volist = new ArrayList<BillWarehouseVo>();
+
+		Iterator<BillWarehouse> iter = list.iterator();
+		BillWarehouseVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<BillWarehouseVo> vpage = new Page<BillWarehouseVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(1);
+		vpage.setPageSize(1);
+		vpage.setTotal(1);
+
+		return new PageInfo(vpage);
+	}
+
+	@Override
+	public ResultMessage deliverySave(List<BillDelivery> billDelivery, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			resultMessage = billWarehouseDeliveryService.deliverySave(billDelivery, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+	
+	@Override
+	public ResultMessage barcodeReturn(List<BarcodeMain> barcodeList, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			resultMessage = billWarehouseReturnService.barcodeReturn(barcodeList, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+	
+	@Override
+	public ResultMessage barcodeSaleReturn(List<BarcodeMain> barcodeList, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			resultMessage = billWarehouseSaleReturnService.barcodeSaleReturn(barcodeList, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage shipInsert(BillWarehouseVo billWarehouseVo, List<BillSaleorderItem> list,
+			CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			for (BillSaleorderItem billSaleorderItem : list) {
+				if ( billSaleorderItem.getQuantity() == null) {
+					resultMessage.setMessage("数量不能为空");
+					return resultMessage;
+				}
+				if ( billSaleorderItem.getQuantity() <= 0) {
+					resultMessage.setMessage("数量不能为0");
+					return resultMessage;
+				}
+			}
+			billWarehouseService.insertShipBatch(billWarehouseVo, list, commonParam);
+			resultMessage.setIsSuccess(true);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage discardedOutInsert(List<BarcodeMain> barcodeList, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ResultMessage resultMessage = new ResultMessage();
+			resultMessage = billWarehouseDiscardedService.insertDiscarded(barcodeList, commonParam);
+		return resultMessage;
+	}
+
+	
+}

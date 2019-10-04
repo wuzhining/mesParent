@@ -1,0 +1,8 @@
+package com.techsoft.service.bill;
+
+import com.techsoft.common.BaseService;
+import com.techsoft.entity.common.BillDeliveryItem;
+
+public interface BillDeliveryItemService extends BaseService<BillDeliveryItem> {
+
+}

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+</head>
+<body>
+<div class="x-body">
+
+	<div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+        <input type="hidden"  id="equipWorkId"  name="equipWorkId" value="<#if entity??&&entity.equipWorkId??>${entity.equipWorkId?c}<#else></#if>" />
+        <input type="hidden"  id="equipWorkStackId"  name="equipWorkStackId" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <input type="hidden"  id="equipStackId"  name="equipStackId" value="${(entity.id)!''}"/>
+			<input type="text" id="materialCode" name="materialCode" placeholder="产品规格编码" autocomplete="off" class="layui-input input-choiceBox-intd"/>
+			<input type="text" id="materialName" name="materialName" placeholder="产品规格名称" autocomplete="off" class="layui-input input-choiceBox-intd"/>
+			<input type="hidden" id="productId" name="productId" class="layui-input input-choiceBox-intd" />
+			<input type="hidden" id="materialId" name="materialId" class="layui-input input-choiceBox-intd" />
+			<button class="layui-btn" id="materialSearch" style="width:50px;height:32px">
+				<i class="layui-icon layui-icon-more" ></i>
+			</button>
+        
+          <!-- <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button> -->
+          <button type="reset" class="layui-btn layui-btn-sm" id="reset"  lay-submit lay-filter="reset"style="background-color: #009688;color:#FFFFFF">重置</button>
+        </form>
+      </div>
+      
+      	    <div class="layui-col-md12" style='text-align:right;'>
+	    	<a class="layui-btn-small" href='javascript:void(0)' onclick="layer_window_show('物料信息','/equip/equipWorkStack/listProduct')"><i class="layui-icon"></i>添加物料</a>
+	    </div>
+      <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="listTableFilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+    <script type="text/html" id="materialNames">
+		{{#  if(d.productMaterial){}}
+			{{ d.productMaterial.materialName }}
+		{{# } }}
+	</script>
+    <script type="text/html" id="materialCodes">
+		{{#  if(d.productMaterial){}}
+			{{ d.productMaterial.materialCode }}
+		{{# } }}
+	</script>
+    <script type="text/html" id="skuValue">
+		{{#  if(d.productMaterial){}}
+			{{ d.productMaterial.skuValue }}
+		{{# } }}
+	</script>
+ 	<script type="text/html" id="barTools">	
+    	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="delete">删除</a>
+	</script>
+
+	<script type="text/html" id="productNames">
+		{{#  if(d.productMain){}}
+			{{ d.productMain.productName }}
+		{{# } }}
+	</script>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','layuitable','laydate','layuiconfig','layuiformajax'], function(){
+          var $ = layui.jquery;
+          var form = layui.form;
+          var layer = layui.layer;
+          var layuitable = layui.layuitable;
+          var table = layui.table;
+          var layuiformajax = layui.layuiformajax;
+          var equipStackId=parseInt($('#equipStackId').val());
+          
+          //自定义验证规则
+          form.verify({
+        	  factoryCode: [/[^\w\.\/]/ig, '只能输入字母或数字']
+          });
+
+          $('#materialSearch').on('click',function(e){
+        	  layer.open({
+        			type: 2, 
+        			title :'请选择数据',
+        			maxmin: true,
+        			area: ['850px', '550px'],
+        			btn: ['确定', '取消'],
+        			content: '/equip/equipWorkStack/searchMaterial',
+        			yes: function(index, layero){
+        				layer.close(index);
+        				var data={
+        						//equipStackId:equipStackId,
+        						equipWorkId:$('#equipWorkId').val(),
+        						equipWorkStackId:$('#equipWorkStackId').val(),
+        						materialId:$('#materialId').val(),
+        						productId:$('#productId').val(),
+        						version:$('#version').val()
+        				}
+        				
+        				curTable.reload(data);
+        			},
+        		}); 
+        	  
+  	   		  e.preventDefault();
+  	   	  });
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  
+        	  var url = '/equip/equipWorkStackProduct/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+        		  if (result.isSuccess) {
+          	    	   layer.alert("保存成功", {icon: 6},function () {
+        	                // 获得frame索引	
+        	                var index = parent.layer.getFrameIndex(window.name);
+        				  	parent.location.reload(); 
+        	                parent.layer.close(index);
+        	            });	
+       			}else{
+       				layer.alert(result.message, {
+       					icon : 2
+       				});
+       			}
+      		  });
+            return false;
+          });
+          
+      	var curTable = layuitable.render({
+        	elem: '#listTable'
+        	,id:'listTable'
+        	,title:'生产设备栈位物料'
+        	,url:'/equip/equipWorkStackProduct/list/json?equipWorkStackId='+equipStackId
+        	,cellMinWidth:150
+        	,cols: [[
+        	    {field:'id', width:80, title: 'ID',align:'center'}
+        	    ,{field:'productId',title: '产品ID',align:'center'}
+        	    ,{field:'productName',title: '产品',align:'center',templet: '#productNames'}
+        	    ,{field:'materialId',title: '产品规格ID',align:'center'}
+        	    ,{field:'materialName', title: '产品规格名称', align:'center',templet: '#materialNames'}
+        	    ,{field:'materialCode', title: '产品规格编码', align:'center',templet: '#materialCodes'}
+        	    ,{field:'skuValue', title: '产品规格值', align:'center',minWidth:250,templet: '#skuValue'}
+        	    ,{field:'quantity',  title: '单机数量',align:'center'}
+        	    ,{field:'remark',  title: '描述', align:'center'}
+        	    ,{field:'createTime',  title: '创建时间', align:'center'}
+        	    ,{field:'', width:'10%', title: '操作', align:'center', toolbar: '#barTools', fixed: 'right'}
+        	]]
+    		, done: function (res, curr, count) {
+    			//$("[data-field='id']").css('display','none');
+    			$("[data-field='productId']").css('display','none');
+    			$("[data-field='materialId']").css('display','none');
+    		}
+      	});
+      	
+    	/* form.on('submit(search)', function (formData) {
+    		formData.field.equipStackId=equipStackId;
+    		curTable.reload(formData.field);
+            return false;
+      	}); */
+    	
+    	form.on('submit(reset)', function (formData) {
+    		$('#materialId').val('');
+    		$('#materialName').val('');
+    		$('#materialCode').val('');
+    		$('#productId').val('');
+    		
+    		var data={
+    				equipWorkStackId:$('#equipWorkStackId').val()
+    		}
+    		curTable.reload(data);
+            return false;
+      	});
+    	
+    	table.on('tool(listTableFilter)', function(obj){
+    		data={
+    				'id':obj.data.id
+    		}
+    		
+    		if (obj.event === 'delete') {
+           	    var url = '/equip/equipWorkStackProduct/del';
+           	    layuiformajax.postJson(url, data, function (result) {
+           		    	layer.msg('删除成功!', {icon: 1, time: 1000},function () {
+           		    	curTable.reload();
+        	        });
+           		  
+       		    }); 
+    		}
+  		});
+          
+        });
+    </script>
+</body>
+</html>

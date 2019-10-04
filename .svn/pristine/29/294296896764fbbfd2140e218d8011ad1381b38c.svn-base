@@ -1,0 +1,203 @@
+package com.techsoft.controller.struct;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.struct.ClientStructFactoryService;
+import com.techsoft.client.service.struct.ClientStructProductionlineService;
+import com.techsoft.client.service.struct.ClientStructWorkshopAreaService;
+import com.techsoft.client.service.struct.ClientStructWorkshopService;
+import com.techsoft.client.service.struct.ClientStructWorkstationService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapUserStatus;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructWorkshop;
+import com.techsoft.entity.common.StructWorkshopArea;
+import com.techsoft.entity.struct.StructFactoryParamVo;
+import com.techsoft.entity.struct.StructWorkshopAreaParamVo;
+import com.techsoft.entity.struct.StructWorkshopParamVo;
+import com.techsoft.entity.struct.StructWorkstationParamVo;
+import com.techsoft.entity.struct.StructWorkstationVo;
+
+@Controller
+@RequestMapping("/struct/structWorkstation")
+public class StructWorkstationController extends BaseController {
+	@Autowired
+	private ClientStructWorkstationService clientStructWorkstationService;
+	@Autowired
+	private ClientStructFactoryService clientStructFactoryService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientStructWorkshopAreaService clientStructWorkshopAreaService;
+	@Autowired
+	private ClientStructWorkshopService clientStructWorkshopService;
+	
+	/**
+	 * 页面关联数据初始化
+	 * 
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) {
+		try {
+			//取车间集合
+			List<StructWorkshop> structWorkshopList = clientStructWorkshopService.selectListByParamVo(new StructWorkshopParamVo(),this.getCommonParam(null));
+			modelAndView.addObject("structWorkshopList", structWorkshopList);
+			//取车间区域集合
+			List<StructWorkshopArea> structWorkshopAreaList = clientStructWorkshopAreaService.selectListByParamVo(new StructWorkshopAreaParamVo(),this.getCommonParam(null));
+			modelAndView.addObject("structWorkshopAreaList", structWorkshopAreaList);
+			//取制程集合		
+			/*List<ConfigDictionary> dictionaryList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.STRUCT_PROCESS.getValue());
+			modelAndView.addObject("dictionaryList", dictionaryList);*/
+			//取工厂集合
+			StructFactoryParamVo paramVo = new StructFactoryParamVo();
+			List<StructFactory> factoryList = clientStructFactoryService.selectListByParamVo(paramVo,this.getCommonParam(null));
+			  modelAndView.addObject("factoryList", factoryList);
+			List<ConfigDictionary> executList =clientConfigDictionaryService.selectListByParentId(EnumDictionary.PROCESS_EXECUTIVE_TYPE.getValue());
+			  modelAndView.addObject("executList", executList);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());  
+		modelAndView.addObject("mapUserStatus", MapUserStatus.getMap());  
+	}
+
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("struct/structWorkstation-list");
+		return modelAndView;
+	}
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		try {
+			//获取工厂
+			List<StructFactory> factoryList = clientStructFactoryService.selectListByParamVo(new StructFactoryParamVo(),this.getCommonParam(request));
+			modelAndView.addObject("factoryList", factoryList);
+			//获取制程
+			List<ConfigDictionary> dictionaryList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.STRUCT_PROCESS.getValue());
+			modelAndView.addObject("dictionaryList", dictionaryList);
+			//执行方
+			List<ConfigDictionary> executList =clientConfigDictionaryService.selectListByParentId(EnumDictionary.PROCESS_EXECUTIVE_TYPE.getValue());
+			modelAndView.addObject("executList", executList);
+			StructWorkstationVo entity = new StructWorkstationVo();
+			if (id != null) {
+				entity = clientStructWorkstationService.getVoByID(id, this.getCommonParam(request));
+				//获取工厂
+				if(entity.getFactoryId()!=null && entity.getFactoryId() > 0L ){
+					StructFactory structFactory = clientStructFactoryService.getVoByID(entity.getFactoryId(), this.getCommonParam(request));
+					modelAndView.addObject("structFactory", structFactory);
+				}
+				//获取车间
+				if(entity.getWorkshopId()!=null && entity.getWorkshopId() > 0L ){
+					StructWorkshop structWorkshop = clientStructWorkshopService.getVoByID(entity.getWorkshopId(), this.getCommonParam(request));
+					modelAndView.addObject("structWorkshop", structWorkshop);
+				}
+				//获取车间区域
+				if(entity.getWorkshopAreaId()!=null && entity.getWorkshopAreaId() > 0L){
+					StructWorkshopArea structWorkshopArea = clientStructWorkshopAreaService.getVoByID(entity.getWorkshopAreaId(), this.getCommonParam(request));
+					modelAndView.addObject("structWorkshopArea", structWorkshopArea);
+				}
+			}
+			modelAndView.addObject("entity", entity);
+			modelAndView.setViewName("struct/structWorkstation-edit");
+			initData(modelAndView);
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")
+	public ReturnPageInfo listJson(HttpServletRequest request, StructWorkstationParamVo structWorkstationParamVo,
+			Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}		
+		try {
+			if (structWorkstationParamVo == null) {
+				structWorkstationParamVo = new StructWorkstationParamVo();
+			}
+			pageInfo = clientStructWorkstationService.selectPageVoByParamVo(structWorkstationParamVo,
+					this.getCommonParam(request), pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request, StructWorkstationParamVo structWorkstationParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+
+		structWorkstationParamVo.setModifyUserId(getLoginUserId(request));
+		resultMessage = clientStructWorkstationService.saveOrUpdate(structWorkstationParamVo, this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	@RequestMapping("/listWorkstation")
+	public ModelAndView lineProcess(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("struct/structProcedureWorkstation-Workstation");
+		return modelAndView;
+	}
+	
+	@RequestMapping("/structWorkstationOpen")
+	public ModelAndView structWorkstationOpen(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("struct/structWorkstation-Open");
+		return modelAndView;
+	}
+	
+	@RequestMapping("/addWorkstation")
+	public ModelAndView addWorkstation(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("struct/structWorkstation-addWorkstation");
+		return modelAndView;
+	}
+	
+	@RequestMapping("/addProcedureWorkstation")
+	public ModelAndView addProcedureWorkstation(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("struct/structWorkstation-addProcedureWorkstation");
+		return modelAndView;
+	}
+}

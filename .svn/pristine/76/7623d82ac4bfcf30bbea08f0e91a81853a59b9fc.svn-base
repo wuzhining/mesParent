@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">盘点单</a> <a><cite>单据明细</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <input class="layui-input" placeholder="开始时间" name="startTime" id="startTime">
+          <input class="layui-input" placeholder="结束时间" name="endTime" id="endTime">
+          <select name="materialId">    
+                <option value="">请选择物料</option> 
+                 <#if materialList??>
+                     <#list materialList as item>
+			            <option value="${item.id?c}" >${item.materialName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select> 
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <button class="layui-btn layui-btn-sm" id="add" ><i class="layui-icon"></i>添加盘点物料</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+ 	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="del">删除</a>
+</script> 
+ <script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+</script>  
+<script type="text/html" id="product">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+
+ 	}}
+	{{# } }}
+</script>  
+<script type="text/javascript">
+var bill ;
+var billStatusDictId;
+var warehouseId;
+var barcodeResultData=[];
+var trackBarcodeResultData=[];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	
+   	var urlArr = window.location.href.toString().split("?");
+  	function getParam(urlArr,paraName){
+  		if (urlArr.length > 1) {
+	  　　　　　　var arrPara = urlArr[1].split("&");
+	  　　　　　　var arr;
+	  　　　　　　for (var i = 0; i < arrPara.length; i++) {
+	  　　　　　　　　arr = arrPara[i].split("=");
+
+	  　　　　　　　　if (arr != null && arr[0] == paraName) {
+	  　　　　　　　　　　return arr[1];
+	  　　　　　　　　}
+	  　　　　　　}
+	  　　　　　　return "";
+	  　　　　}
+	  　　　　else {
+	  　　　　　　return "";
+	  　　　　}
+  	};
+  	var billId = getParam(urlArr,'billId');		//
+  	bill=billId;
+    billStatusDictId = getParam(urlArr,'billStatusDictId');
+    warehouseId=getParam(urlArr,'warehouseId'); 	
+	var layuiformajax = layui.layuiformajax;
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arr = url.split('=');
+	//var billId = arr[1].split("&&")[0];
+	var id = arr[2];
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/bill/billInventoryItem/list/json?billId='+billId
+		    	,cols: [[
+ 		    	     {field:'product',  title: '产品名称',align:'center', minWidth: 120,templet: '#product'}
+		    	    ,{field:'materialName',  title: '物料', align:'center',minWidth: 120,templet: '#materialName'}
+		    	    ,{field:'sku', title: '物料规格值', align:'center',minWidth: 220,templet: '#sku'}
+		    	    ,{field:'quantity',  title: '盘点数量',align:'center', minWidth: 120}
+		    	    ,{field:'quantityStock',  title: '系统库存数量',align:'center', minWidth: 120}
+		    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+		      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+		    	  ]],done:function(){
+		    	}
+		  	});
+	
+			
+			form.on('submit(search)', function (data) {
+				layuitable.reload(data.field);
+		        return false;
+		  	});
+	
+			table.on('tool(tablefilter)', function(obj) {
+				var data = obj.data;
+				if(obj.event=== 'del'){
+					if(billStatusDictId =='10488'){
+					var url = '/bill/billInventoryItem/del';
+					var datas={"id":data.id};
+			       	  layuiformajax.postJson(url, datas, function (result) {
+			       		  layer.msg('删除成功!', {icon: 1, time: 1000},function () {
+			     	                // 获得frame索引
+			     	                var index = parent.layer.getFrameIndex(window.name);
+			     				  	location.reload(); 
+			     	                layer.close(index);
+			     	            });
+			     		  });
+					}else{
+						var str='';
+						if(data.billStatusDictId==10489){
+							str='单据处理中，不能删除明细信息！';
+						}else if(data.billStatusDictId==10490){
+							str='单据已完结,不能删除明细信息！';
+						}
+						layer.alert(str);  
+					}
+				}
+			});
+			
+			$("#add").click(function(){
+				 //判断单据是否已完结  
+		         if (billStatusDictId =='10488'){
+					layer_window_show('选择仓库物料','/bill/billInventoryItem/choiceMaterial?billId='+bill+'&warehouseId='+warehouseId); 
+		         }else{
+		        	 var str='';
+						if(billStatusDictId==10489){
+							str='单据处理中，不能添加明细信息！';
+						}else if(billStatusDictId==10490){
+							str='单据已完结,不能添加明细信息！';
+						}
+						layer.alert(str);  
+		         }
+			});
+			
+			laydate.render({
+				elem: '#startTime' //指定元素
+				,type: 'date'
+				,format: 'yyyy-MM-dd' //可任意组合
+			});
+			
+			laydate.render({
+				elem: '#endTime' //指定元素
+				,type: 'date'
+				,format: 'yyyy-MM-dd' //可任意组合
+			});
+		});	
+</script>
+ 
+  </body>
+
+</html>

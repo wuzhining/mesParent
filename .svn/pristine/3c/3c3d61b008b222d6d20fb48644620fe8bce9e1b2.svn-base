@@ -1,0 +1,118 @@
+package com.techsoft.dao.warehouse;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.Arith;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.WarehouseLocationStock;
+import com.techsoft.entity.common.WarehouseProductStock;
+import com.techsoft.entity.warehouse.WarehouseLocationStockParamVo;
+import com.techsoft.entity.warehouse.WarehouseProductStockParamVo;
+import com.techsoft.mapper.warehouse.WarehouseProductStockMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+
+@Repository
+public class WarehouseProductStockDaoImpl extends BaseDaoImpl<WarehouseProductStock> implements WarehouseProductStockDao {
+	@Resource
+	protected WarehouseProductStockMapper warehouseProductStockMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<WarehouseProductStock> getEntityClass() {
+		return WarehouseProductStock.class;
+	}	
+	
+	@Override
+	public BaseMapper<WarehouseProductStock> getBaseMapper() {
+		return this.warehouseProductStockMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "WAREHOUSE_PRODUCT_STOCK";
+	}
+	
+	@Override
+	public void insertSaveCheck(WarehouseProductStock value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(WarehouseProductStock value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(WarehouseProductStock value) throws BusinessException, SQLException {
+	
+	}
+	
+	
+
+	private void updateProductStockQty(Long id, Double qty, String Type,CommonParam commonParam)throws BusinessException, SQLException {
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),
+				id.toString());
+		distributedLock.lock();
+		try {
+			WarehouseProductStock item = this.selectById(id);
+			if(Type.equals("IN")){
+			     item.setQuantityStock(Arith.add(item.getQuantityStock(), qty));
+			}
+			else if (Type.equals("OUT")) {
+				 item.setQuantityStock(Arith.sub(item.getQuantityStock(), qty));
+			}
+			item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			this.updatePartEntity(item, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+	}
+	
+	@Override
+	public  ResultMessage productStockChange(WarehouseProductStockParamVo paramVo,Double qty, String Type,CommonParam commonParam) throws BusinessException, SQLException  {
+		ResultMessage resultMessage = new ResultMessage();
+		//查询库位库存表数据
+		List<WarehouseProductStock> list=new ArrayList<WarehouseProductStock>();
+		list=warehouseProductStockMapper.selectListByEntityParamVo(paramVo);
+		
+		//当不存在数据时，新增该物料库存数据
+		if(list.size()==0 && Type.equals("IN")){
+			
+			paramVo.setId(this.getIdValue());
+			paramVo.setTenantId(commonParam.getTenantId());
+			paramVo.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+			paramVo.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+			paramVo.setQuantityStock(qty);
+			paramVo.setQuantityFrozen(0.0);
+			paramVo.setQuantityOrder(0.0);
+			this.insertEntity(paramVo, commonParam);
+		}
+		//当存在数据时，累计当前数量
+		else{
+			
+			this.updateProductStockQty(list.get(0).getId(),qty,Type,commonParam);
+			
+		}
+		resultMessage.setIsSuccess(true);
+		return resultMessage;
+	}
+}

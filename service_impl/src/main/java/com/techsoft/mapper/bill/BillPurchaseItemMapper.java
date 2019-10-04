@@ -1,0 +1,15 @@
+package com.techsoft.mapper.bill;
+
+import java.util.List;
+
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.entity.common.BillPurchaseItem;
+
+public interface BillPurchaseItemMapper extends BaseMapper<BillPurchaseItem> {
+	
+	public int updateBillPurchaseItem(List<BillPurchaseItem> items) throws BusinessException, SQLException;
+	
+	public int updatePartEntityS(BillPurchaseItem items) throws BusinessException, SQLException;
+}

@@ -1,0 +1,76 @@
+/* 通配设置   1em = 10px */
+html,body{
+	background-color:#383A4C;
+	width:100%;
+	height:100%;
+	font-family: Microsoft YaHei;
+}
+/* 看板导航条样式重写 */
+.navbar-default{
+	background-color: #4C4E5C;
+	border-color: #4C4E5C;
+	min-height: 40px;
+}
+.navbar{
+	border-radius: 0px;
+}
+.container-fluid{
+	position: relative;
+}
+.navbar-header{
+	width:10%;
+	height:40px;
+	float: left;
+}
+.navbar-default .navbar-text{
+	color: #C1C1C5;
+}
+.navbar-text{
+	margin: 10px 0px 5px 10px;
+	font-size: 2.5em;
+	font-weight: bold;
+}
+.title{
+	position: absolute;
+	left: 0;
+    right: 0;
+	float:left;
+	width:20%;
+	height:40px;
+}
+.title-p{
+	margin: 10px 0px 10px 0px; 
+	font-size:3em;
+	width: 100%;
+    text-align: center;
+}
+
+/* 主体部分 */
+table{
+	color: #2077BB;
+	font-weight: bold;
+	border:1px solid #727487;
+}
+table tr td{
+	border-bottom:1px solid #727487;
+	border-right:1px solid #727487;
+	color:#246DA8;
+	font-size :1.5rem;
+	text-align:center;
+}
+.main-body{
+	margin:0px auto;
+	padding:0px;
+	width:100%;
+	height:100%;
+}
+#table-info{
+	width:100%;
+}
+#table-info tr td{
+	vertical-align:bottom;
+}
+.red-status td{
+	color:red;
+} 
+

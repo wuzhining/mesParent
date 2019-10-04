@@ -1,0 +1,222 @@
+package com.techsoft.client.service.quality;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.QualityInspectDocument;
+import com.techsoft.entity.quality.QualityInspectDocumentVo;
+import com.techsoft.entity.quality.QualityInspectDocumentParamVo;
+import com.techsoft.service.firm.FirmPartnerService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.quality.QualityInspectDocumentService;
+
+@org.springframework.stereotype.Service
+public class ClientQualityInspectDocumentServiceImpl extends BaseClientServiceImpl<QualityInspectDocument>
+		implements ClientQualityInspectDocumentService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private QualityInspectDocumentService qualityInspectDocumentService;
+	// 供应商
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmPartnerService firmPartnerService;
+	// 产品
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+
+	@Override
+	public BaseService<QualityInspectDocument> getBaseService() {
+		return qualityInspectDocumentService;
+	}
+
+	private QualityInspectDocumentVo getVo(QualityInspectDocument qualityInspectDocument, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		QualityInspectDocumentVo vo = new QualityInspectDocumentVo(qualityInspectDocument);
+		// 产品供应商
+		if (vo.getSupplierId() != null && vo.getSupplierId() > 0L) {
+			FirmPartner supplierList = firmPartnerService.selectById(vo.getSupplierId(), commonParam);
+			if (supplierList != null) {
+				vo.setSupplier(supplierList);
+			}
+		}
+
+		// 产品
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productList = productMainService.selectById(vo.getProductId(), commonParam);
+			if (productList != null) {
+				vo.setProductMain(productList);
+			}
+		}
+		return vo;
+	}
+
+	private QualityInspectDocumentVo getExtendVo(QualityInspectDocument qualityInspectDocument, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		QualityInspectDocumentVo vo = this.getVo(qualityInspectDocument, commonParam);
+
+		return vo;
+	}
+
+	private List<QualityInspectDocumentVo> getVoList(List<QualityInspectDocument> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<QualityInspectDocumentVo> voList = new ArrayList<QualityInspectDocumentVo>();
+		for (QualityInspectDocument entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<QualityInspectDocumentVo> getExtendVoList(List<QualityInspectDocument> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<QualityInspectDocumentVo> voList = new ArrayList<QualityInspectDocumentVo>();
+		for (QualityInspectDocument entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public QualityInspectDocumentVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		QualityInspectDocument entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<QualityInspectDocumentVo> selectListVoByParamVo(QualityInspectDocumentParamVo qualityInspectDocument,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (qualityInspectDocument == null) {
+			qualityInspectDocument = new QualityInspectDocumentParamVo();
+		}
+		qualityInspectDocument.setTenantId(commonParam.getTenantId());
+
+		List<QualityInspectDocument> list = (List<QualityInspectDocument>) this.getBaseService()
+				.selectListByParamVo(qualityInspectDocument, commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<QualityInspectDocumentVo> selectPageVoByParamVo(
+			QualityInspectDocumentParamVo qualityInspectDocument, CommonParam commonParam, int pageNo, int pageSize)
+			throws BusinessException, SQLException {
+		if (qualityInspectDocument == null) {
+			qualityInspectDocument = new QualityInspectDocumentParamVo();
+		}
+		qualityInspectDocument.setTenantId(commonParam.getTenantId());
+
+		PageInfo<QualityInspectDocument> list = (PageInfo<QualityInspectDocument>) this.getBaseService()
+				.selectPageByParamVo(qualityInspectDocument, commonParam, pageNo, pageSize);
+		List<QualityInspectDocumentVo> volist = new ArrayList<QualityInspectDocumentVo>();
+
+		Iterator<QualityInspectDocument> iter = list.getList().iterator();
+		QualityInspectDocumentVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<QualityInspectDocumentVo> vpage = new Page<QualityInspectDocumentVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public QualityInspectDocumentVo getExtendVoByID(Long id, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		QualityInspectDocument entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<QualityInspectDocumentVo> selectListExtendVoByParamVo(
+			QualityInspectDocumentParamVo qualityInspectDocument, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (qualityInspectDocument == null) {
+			qualityInspectDocument = new QualityInspectDocumentParamVo();
+		}
+		qualityInspectDocument.setTenantId(commonParam.getTenantId());
+
+		List<QualityInspectDocument> list = (List<QualityInspectDocument>) this.getBaseService()
+				.selectListByParamVo(qualityInspectDocument, commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<QualityInspectDocumentVo> selectPageExtendVoByParamVo(
+			QualityInspectDocumentParamVo qualityInspectDocument, CommonParam commonParam, int pageNo, int pageSize)
+			throws BusinessException, SQLException {
+		if (qualityInspectDocument == null) {
+			qualityInspectDocument = new QualityInspectDocumentParamVo();
+		}
+		qualityInspectDocument.setTenantId(commonParam.getTenantId());
+
+		PageInfo<QualityInspectDocument> list = (PageInfo<QualityInspectDocument>) this.getBaseService()
+				.selectPageByParamVo(qualityInspectDocument, commonParam, pageNo, pageSize);
+		List<QualityInspectDocumentVo> volist = new ArrayList<QualityInspectDocumentVo>();
+
+		Iterator<QualityInspectDocument> iter = list.getList().iterator();
+		QualityInspectDocumentVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<QualityInspectDocumentVo> vpage = new Page<QualityInspectDocumentVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(QualityInspectDocumentParamVo qualityInspectDocumentParamVo,
+			CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		QualityInspectDocument qualityInspectDocument = null;
+		try {
+			if (qualityInspectDocumentParamVo.getId() == null) {// 新增
+
+				qualityInspectDocumentParamVo.setTenantId(commonParam.getTenantId());
+				qualityInspectDocument = qualityInspectDocumentService.saveOrUpdate(qualityInspectDocumentParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				QualityInspectDocument qualityInspectDocumentVoTemp = this
+						.selectById(qualityInspectDocumentParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(qualityInspectDocumentVoTemp, qualityInspectDocumentParamVo);
+
+				qualityInspectDocument = qualityInspectDocumentService.saveOrUpdate(qualityInspectDocumentVoTemp,
+						commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(qualityInspectDocument);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

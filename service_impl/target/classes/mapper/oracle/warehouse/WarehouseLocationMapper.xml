@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.warehouse.WarehouseLocationMapper">
+	<resultMap id="WarehouseLocation" type="com.techsoft.entity.common.WarehouseLocation" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="PRODUCT_TYPE_DICT_ID" property="productTypeDictId" />
+		<result column="LOCATION_TYPE_DICT_ID" property="locationTypeDictId" />
+		<result column="WAREHOUSE_ID" property="warehouseId" />
+		<result column="LOCATION_NAME" property="locationName" />
+		<result column="LOCATION_CODE" property="locationCode" />
+		<result column="AREA_ID" property="areaId" />
+		<result column="RACK_ID" property="rackId" />
+		<result column="SERIAL_COLUMN" property="serialColumn" />
+		<result column="SERIAL_LINE" property="serialLine" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="COORDINATE_X" property="coordinateX" />
+		<result column="COORDINATE_Y" property="coordinateY" />
+		<result column="COORDINATE_Z" property="coordinateZ" />
+		<result column="LIMIT_VOLUME" property="limitVolume" />
+		<result column="LIMIT_WEIGHT" property="limitWeight" />
+		<result column="LIMIT_QUANTITY" property="limitQuantity" />
+		<result column="LIMIT_QUANTITY_BOX" property="limitQuantityBox" />
+		<result column="LIMIT_QUANTITY_PALLET" property="limitQuantityPallet" />
+		<result column="SIZE_LENGTH" property="sizeLength" />
+		<result column="SIZE_HEIGHT" property="sizeHeight" />
+		<result column="SIZE_WIDTH" property="sizeWidth" />
+		<result column="IS_MIX_PRODUCT" property="isMixProduct" />
+		<result column="IS_MIX_BATCH" property="isMixBatch" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="productTypeDictId != null">
+			AND A.PRODUCT_TYPE_DICT_ID= #{productTypeDictId}
+		</if>
+		<if test="locationTypeDictId != null">
+			AND A.LOCATION_TYPE_DICT_ID= #{locationTypeDictId}
+		</if>
+		<if test="warehouseId != null">
+			AND A.WAREHOUSE_ID= #{warehouseId}
+		</if>
+		<if test="locationName != null">
+			AND A.LOCATION_NAME= #{locationName}
+		</if>
+		<if test="locationCode != null">
+			AND A.LOCATION_CODE= #{locationCode}
+		</if>
+		<if test="areaId != null">
+			AND A.AREA_ID= #{areaId}
+		</if>
+		<if test="rackId != null">
+			AND A.RACK_ID= #{rackId}
+		</if>
+		<if test="serialColumn != null">
+			AND A.SERIAL_COLUMN= #{serialColumn}
+		</if>
+		<if test="serialLine != null">
+			AND A.SERIAL_LINE= #{serialLine}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="coordinateX != null">
+			AND A.COORDINATE_X= #{coordinateX}
+		</if>
+		<if test="coordinateY != null">
+			AND A.COORDINATE_Y= #{coordinateY}
+		</if>
+		<if test="coordinateZ != null">
+			AND A.COORDINATE_Z= #{coordinateZ}
+		</if>
+		<if test="limitVolume != null">
+			AND A.LIMIT_VOLUME= #{limitVolume}
+		</if>
+		<if test="limitWeight != null">
+			AND A.LIMIT_WEIGHT= #{limitWeight}
+		</if>
+		<if test="limitQuantity != null">
+			AND A.LIMIT_QUANTITY= #{limitQuantity}
+		</if>
+		<if test="limitQuantityBox != null">
+			AND A.LIMIT_QUANTITY_BOX= #{limitQuantityBox}
+		</if>
+		<if test="limitQuantityPallet != null">
+			AND A.LIMIT_QUANTITY_PALLET= #{limitQuantityPallet}
+		</if>
+		<if test="sizeLength != null">
+			AND A.SIZE_LENGTH= #{sizeLength}
+		</if>
+		<if test="sizeHeight != null">
+			AND A.SIZE_HEIGHT= #{sizeHeight}
+		</if>
+		<if test="sizeWidth != null">
+			AND A.SIZE_WIDTH= #{sizeWidth}
+		</if>
+		<if test="isMixProduct != null">
+			AND A.IS_MIX_PRODUCT= #{isMixProduct}
+		</if>
+		<if test="isMixBatch != null">
+			AND A.IS_MIX_BATCH= #{isMixBatch}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	    <if test="likeLocationCode != null">
+		  <bind name="likeLocationCode" value="'%' + _parameter.likeLocationCode + '%'" />
+		  AND A.LOCATION_CODE LIKE #{likeLocationCode}
+		</if>
+		<if test="likeLocationName != null">
+		  <bind name="likeLocationName" value="'%' + _parameter.likeLocationName + '%'" />
+		  AND A.LOCATION_NAME LIKE #{likeLocationName}
+		</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.PRODUCT_TYPE_DICT_ID,
+		A.LOCATION_TYPE_DICT_ID,
+		A.WAREHOUSE_ID,
+		A.LOCATION_NAME,
+		A.LOCATION_CODE,
+		A.AREA_ID,
+		A.RACK_ID,
+		A.SERIAL_COLUMN,
+		A.SERIAL_LINE,
+		A.IS_VALID,
+		A.COORDINATE_X,
+		A.COORDINATE_Y,
+		A.COORDINATE_Z,
+		A.LIMIT_VOLUME,
+		A.LIMIT_WEIGHT,
+		A.LIMIT_QUANTITY,
+		A.LIMIT_QUANTITY_BOX,
+		A.LIMIT_QUANTITY_PALLET,
+		A.SIZE_LENGTH,
+		A.SIZE_HEIGHT,
+		A.SIZE_WIDTH,
+		A.IS_MIX_PRODUCT,
+		A.IS_MIX_BATCH,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_WAREHOUSE_LOCATION_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from WAREHOUSE_LOCATION
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.WarehouseLocation">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_LOCATION A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.WarehouseLocation">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_LOCATION A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE WAREHOUSE_LOCATION A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE WAREHOUSE_LOCATION  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseLocation">
+		UPDATE WAREHOUSE_LOCATION A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseLocation">
+		INSERT INTO WAREHOUSE_LOCATION (
+		TENANT_ID,
+		FACTORY_ID,
+		PRODUCT_TYPE_DICT_ID,
+		LOCATION_TYPE_DICT_ID,
+		WAREHOUSE_ID,
+		LOCATION_NAME,
+		LOCATION_CODE,
+		AREA_ID,
+		RACK_ID,
+		SERIAL_COLUMN,
+		SERIAL_LINE,
+		IS_VALID,
+		COORDINATE_X,
+		COORDINATE_Y,
+		COORDINATE_Z,
+		LIMIT_VOLUME,
+		LIMIT_WEIGHT,
+		LIMIT_QUANTITY,
+		LIMIT_QUANTITY_BOX,
+		LIMIT_QUANTITY_PALLET,
+		SIZE_LENGTH,
+		SIZE_HEIGHT,
+		SIZE_WIDTH,
+		IS_MIX_PRODUCT,
+		IS_MIX_BATCH,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{productTypeDictId},
+		#{locationTypeDictId},
+		#{warehouseId},
+		#{locationName},
+		#{locationCode},
+		#{areaId},
+		#{rackId},
+		#{serialColumn},
+		#{serialLine},
+		#{isValid},
+		#{coordinateX},
+		#{coordinateY},
+		#{coordinateZ},
+		#{limitVolume},
+		#{limitWeight},
+		#{limitQuantity},
+		#{limitQuantityBox},
+		#{limitQuantityPallet},
+		#{sizeLength},
+		#{sizeHeight},
+		#{sizeWidth},
+		#{isMixProduct},
+		#{isMixBatch},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseLocation">
+		UPDATE WAREHOUSE_LOCATION SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		PRODUCT_TYPE_DICT_ID=#{productTypeDictId},
+		LOCATION_TYPE_DICT_ID=#{locationTypeDictId},
+		WAREHOUSE_ID=#{warehouseId},
+		LOCATION_NAME=#{locationName},
+		LOCATION_CODE=#{locationCode},
+		AREA_ID=#{areaId},
+		RACK_ID=#{rackId},
+		SERIAL_COLUMN=#{serialColumn},
+		SERIAL_LINE=#{serialLine},
+		IS_VALID=#{isValid},
+		COORDINATE_X=#{coordinateX},
+		COORDINATE_Y=#{coordinateY},
+		COORDINATE_Z=#{coordinateZ},
+		LIMIT_VOLUME=#{limitVolume},
+		LIMIT_WEIGHT=#{limitWeight},
+		LIMIT_QUANTITY=#{limitQuantity},
+		LIMIT_QUANTITY_BOX=#{limitQuantityBox},
+		LIMIT_QUANTITY_PALLET=#{limitQuantityPallet},
+		SIZE_LENGTH=#{sizeLength},
+		SIZE_HEIGHT=#{sizeHeight},
+		SIZE_WIDTH=#{sizeWidth},
+		IS_MIX_PRODUCT=#{isMixProduct},
+		IS_MIX_BATCH=#{isMixBatch},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseLocation">
+		UPDATE WAREHOUSE_LOCATION SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="productTypeDictId != null" >
+			PRODUCT_TYPE_DICT_ID=#{productTypeDictId},
+		</if>
+		<if test="locationTypeDictId != null" >
+			LOCATION_TYPE_DICT_ID=#{locationTypeDictId},
+		</if>
+		<if test="warehouseId != null" >
+			WAREHOUSE_ID=#{warehouseId},
+		</if>
+		<if test="locationName != null" >
+			LOCATION_NAME=#{locationName},
+		</if>
+		<if test="locationCode != null" >
+			LOCATION_CODE=#{locationCode},
+		</if>
+		<if test="areaId != null" >
+			AREA_ID=#{areaId},
+		</if>
+		<if test="rackId != null" >
+			RACK_ID=#{rackId},
+		</if>
+		<if test="serialColumn != null" >
+			SERIAL_COLUMN=#{serialColumn},
+		</if>
+		<if test="serialLine != null" >
+			SERIAL_LINE=#{serialLine},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="coordinateX != null" >
+			COORDINATE_X=#{coordinateX},
+		</if>
+		<if test="coordinateY != null" >
+			COORDINATE_Y=#{coordinateY},
+		</if>
+		<if test="coordinateZ != null" >
+			COORDINATE_Z=#{coordinateZ},
+		</if>
+		<if test="limitVolume != null" >
+			LIMIT_VOLUME=#{limitVolume},
+		</if>
+		<if test="limitWeight != null" >
+			LIMIT_WEIGHT=#{limitWeight},
+		</if>
+		<if test="limitQuantity != null" >
+			LIMIT_QUANTITY=#{limitQuantity},
+		</if>
+		<if test="limitQuantityBox != null" >
+			LIMIT_QUANTITY_BOX=#{limitQuantityBox},
+		</if>
+		<if test="limitQuantityPallet != null" >
+			LIMIT_QUANTITY_PALLET=#{limitQuantityPallet},
+		</if>
+		<if test="sizeLength != null" >
+			SIZE_LENGTH=#{sizeLength},
+		</if>
+		<if test="sizeHeight != null" >
+			SIZE_HEIGHT=#{sizeHeight},
+		</if>
+		<if test="sizeWidth != null" >
+			SIZE_WIDTH=#{sizeWidth},
+		</if>
+		<if test="isMixProduct != null" >
+			IS_MIX_PRODUCT=#{isMixProduct},
+		</if>
+		<if test="isMixBatch != null" >
+			IS_MIX_BATCH=#{isMixBatch},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.warehouse.WarehouseLocationParamVo"
+		      resultType="com.techsoft.entity.common.WarehouseLocation" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_LOCATION A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	<insert id="insertBatch" flushCache="true" parameterType="java.util.List">
+	  	 INSERT INTO WAREHOUSE_LOCATION (
+			TENANT_ID,
+			FACTORY_ID,
+			PRODUCT_TYPE_DICT_ID,
+			LOCATION_TYPE_DICT_ID,
+			WAREHOUSE_ID,
+			LOCATION_NAME,
+			LOCATION_CODE,
+			AREA_ID,
+			RACK_ID,
+			SERIAL_COLUMN,
+			SERIAL_LINE,
+			IS_VALID,
+			COORDINATE_X,
+			COORDINATE_Y,
+			COORDINATE_Z,
+			LIMIT_VOLUME,
+			LIMIT_WEIGHT,
+			LIMIT_QUANTITY,
+			LIMIT_QUANTITY_BOX,
+			LIMIT_QUANTITY_PALLET,
+			SIZE_LENGTH,
+			SIZE_HEIGHT,
+			SIZE_WIDTH,
+			IS_MIX_PRODUCT,
+			IS_MIX_BATCH,
+			REMARK
+			,ID
+			,VERSION
+			,DEL_FLAG
+			,CREATE_USER_ID
+			,MODIFY_USER_ID
+			,CREATE_TIME
+			,MODIFY_TIME
+			
+			) VALUES
+		<foreach collection="list" item="item" separator=",">
+			(				
+			 #{item.tenantId}
+			,#{item.factoryId}
+			,#{item.productTypeDictId}
+			,#{item.locationTypeDictId}
+			,#{item.warehouseId}
+			,#{item.locationName}
+			,#{item.locationCode}
+			,#{item.areaId}
+			,#{item.rackId}
+			,#{item.serialColumn}
+			,#{item.serialLine}
+			,#{item.isValid}
+			,#{item.coordinateX}
+			,#{item.coordinateY}
+			,#{item.coordinateZ}
+			,#{item.limitVolume}
+			,#{item.limitWeight}
+			,#{item.limitQuantity}
+			,#{item.limitQuantityBox}
+			,#{item.limitQuantityPallet}
+			,#{item.sizeLength}
+			,#{item.sizeHeight}
+			,#{item.sizeWidth}
+			,#{item.isMixProduct}
+            ,#{item.isMixBatch}
+			,#{item.remark}
+			,#{item.id}
+			,1
+			,0
+			,#{item.createUserId}
+			,#{item.modifyUserId} 
+			,now()
+			,now()
+			)
+		</foreach>
+	</insert>	
+</mapper>

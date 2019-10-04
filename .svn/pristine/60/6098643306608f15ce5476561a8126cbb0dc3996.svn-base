@@ -1,0 +1,112 @@
+package com.techsoft.entity.common;
+
+import com.techsoft.common.BaseEntity;
+
+public class StructProcedureInstruct extends BaseEntity {
+	private static final long serialVersionUID = -195044321943787403L;
+
+
+	public StructProcedureInstruct(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private Long processNodeId;	
+	   
+	private String instructName;	
+	   
+	private String instructCode;	
+	   
+	private Long instructTypeDictId;	
+	   
+	private Long equipSpecsWorkId;	
+	   
+	private Long productId;	
+	   
+	private Long materialId;	
+	   
+	private String isValid;	
+	   
+	private String remark;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public Long getProcessNodeId() {
+		return processNodeId;
+	}
+
+	public void setProcessNodeId(Long processNodeId) {
+		this.processNodeId = processNodeId;
+	}
+                		
+	public String getInstructName() {
+		return instructName;
+	}
+
+	public void setInstructName(String instructName) {
+		this.instructName = instructName;
+	}
+                		
+	public String getInstructCode() {
+		return instructCode;
+	}
+
+	public void setInstructCode(String instructCode) {
+		this.instructCode = instructCode;
+	}
+                		
+	public Long getInstructTypeDictId() {
+		return instructTypeDictId;
+	}
+
+	public void setInstructTypeDictId(Long instructTypeDictId) {
+		this.instructTypeDictId = instructTypeDictId;
+	}
+                		
+	public Long getEquipSpecsWorkId() {
+		return equipSpecsWorkId;
+	}
+
+	public void setEquipSpecsWorkId(Long equipSpecsWorkId) {
+		this.equipSpecsWorkId = equipSpecsWorkId;
+	}
+                		
+	public Long getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Long productId) {
+		this.productId = productId;
+	}
+                		
+	public Long getMaterialId() {
+		return materialId;
+	}
+
+	public void setMaterialId(Long materialId) {
+		this.materialId = materialId;
+	}
+                		
+	public String getIsValid() {
+		return isValid;
+	}
+
+	public void setIsValid(String isValid) {
+		this.isValid = isValid;
+	}
+                		
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

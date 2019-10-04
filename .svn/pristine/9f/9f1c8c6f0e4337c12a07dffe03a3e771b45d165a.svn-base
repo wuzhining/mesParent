@@ -1,0 +1,21 @@
+package com.techsoft.common.enums;
+/**
+ * @author tanyekai
+ *  
+ */
+public enum EnumUserSystemRoletype {
+ 
+	 OPERATION("10"), //运营人员
+	 TENANT("11"), //SaaS租户
+	 ORDINARY("19"); //普通用户
+	
+	private String value;
+
+	private EnumUserSystemRoletype(String value) {
+		this.value = value;
+	}
+
+	public String getValue() {
+		return value;
+	}
+}

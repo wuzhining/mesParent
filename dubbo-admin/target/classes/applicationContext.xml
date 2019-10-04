@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        http://www.springframework.org/schema/context  
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+        http://www.springframework.org/schema/mvc  
+        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd 
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        ">
+
+	<!-- 消费方应用名，用于计算依赖关系，不要与提供方一样 -->
+	<dubbo:application name="dubbo-amdin" />
+	<!-- 静态资源 -->
+	<mvc:default-servlet-handler />
+
+	<!-- 引入配置文件 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:redis-config.properties</value>
+				<value>classpath*:dubbo.properties</value>
+				<!-- 要是有多个配置文件，只需在这里继续添加即可 -->
+			</list>
+		</property>
+	</bean>
+
+	<!-- 使用zk注册中心暴露服务地址 -->
+	<dubbo:registry protocol="zookeeper" address="${dubbo.address}" timeout="${dubbo.timeout}" 
+		file="${catalina.home}/dubbo-registry/dubbo-registry.properties" check="false"/>
+	<dubbo:consumer timeout="${dubbo.timeout}" retries="0" />
+
+
+	<!-- dubbo扫描注解包路径，多个包用逗号分隔 -->
+	<dubbo:annotation package="com.techsoft.client" />
+
+	
+
+	<!-- 此文件为了支持session缓存， 也可以用于其他方面的缓存 -->
+	<import resource="spring-redis.xml" />
+	
+	
+	
+	
+	
+	<bean id="springContextUtil" class="com.techsoft.common.utils.SpringContextUtil" scope="singleton" />
+	
+	
+	
+	
+	<!--开启shiro的注解-->
+    <bean id="advisorAutoProxyCreator" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+        <property name="proxyTargetClass" value="true"></property>
+    </bean>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"/>
+    <!--注入自定义的Realm-->
+    <bean id="shiroRealm" class="com.techsoft.context.shiro.ShiroRealm"></bean>
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="shiroRealm"></property>
+    </bean>
+    <!--自定义的filter-->
+    <bean id="shiroAuthorizationFilter" class="com.techsoft.context.shiro.ShiroAuthorizationFilter"></bean>
+    <!--配置ShiroFilter-->
+    <bean id="shiroFilter" class="com.techsoft.context.shiro.ShiroPermissionFactory">
+        
+        <property name="securityManager" ref="securityManager"></property>
+        <!--登录页面-->
+        <property name="loginUrl" value="/passport/index"></property>
+        <!--登录成功的跳转地址-->
+        <property name="successUrl" value="/default/index"/>
+        <!--验证失败的跳转地址-->
+		<property name="unauthorizedUrl" value="/passport/index" />
+		<property name="filters">
+          <map>
+            <entry key="perms">
+                <bean class="com.techsoft.context.shiro.ShiroAuthorizationFilter"/>
+            </entry>
+          </map> 
+        </property>
+ 
+        <!--URL的拦截-->
+        <property name="filterChainDefinitions" >
+            <value> 
+                /static/**                   = anon
+	           	/passport/login	 			 = anon
+            </value>
+        </property>
+
+    </bean>
+ 
+	 
+</beans>

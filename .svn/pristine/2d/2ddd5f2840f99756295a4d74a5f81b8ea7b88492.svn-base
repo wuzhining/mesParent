@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+   <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+ <script type="text/html" id="nodeName">
+	{{#  if(d.structProcessNode){}}
+		{{ d.structProcessNode.nodeName 
+ 	}}
+	{{# } }}
+</script>
+ <script type="text/html" id="instructTypeDictName">
+	{{#  if(d.listDictionary){}}
+		{{ d.listDictionary.dictName 
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="classesName">
+	{{#  if(d.equipWorkClasses){}}
+		{{ d.equipWorkClasses.classesName 
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="productName">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName
+ 	}}
+	{{# } }}
+</script>
+
+
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">生产工艺</a> <a><cite>工序指令</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="text" name="instructCode"  placeholder="请输入工序指令编码" autocomplete="off" class="layui-input">
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加工序指令','/struct/structProcedureInstruct/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script>
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/struct/structProcedureInstruct/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center'}
+    	    ,{field:'nodeName',  title: '工序名称',align:'center', minWidth: 120,templet:'#nodeName'}
+    	    ,{field:'instructCode',  title: '指令编码',align:'center', minWidth: 120}
+    	    ,{field:'instructName',  title: '指令名称', align:'center',minWidth: 120}
+    	    ,{field:'instructTypeDictName',  title: '指令类型',align:'center', minWidth: 120,templet:'#instructTypeDictName'}
+    	    ,{field:'classesName',  title: '设备分类',align:'center', minWidth: 120,templet:'#classesName'}
+    	    ,{field:'productName',  title: '输出产品名称',align:'center', minWidth: 120,templet:'#productName'}
+    	    ,{field:'materialName',  title: '输出物料名称',align:'center', minWidth: 120,templet:'#materialName'}
+    	    ,{field:'isValid',  title: '是否有效', align:'center',minWidth: 120,templet:'#isValidTpl'}
+    	    ,{field:'remark',  title: '备注', align:'center',minWidth: 120}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') {
+			layer_window_show('编辑','/struct/structProcedureInstruct/edit?id=' + data.id +'&&nodeName='+data.structProcessNode.nodeName +'&&classesName='+data.equipWorkClasses.classesName +'&&productName='+data.productMain.productName +'&&materialName='+data.productMaterial.materialName);
+		}
+	});
+});	
+</script>
+ 
+  </body>
+
+</html>

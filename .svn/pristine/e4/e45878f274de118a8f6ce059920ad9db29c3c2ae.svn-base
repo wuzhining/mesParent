@@ -1,0 +1,6 @@
+package com.techsoft.common.constants;
+
+public class ConstantParameter {
+
+	public final static String CURRENT_TENANT_ID = "CURRENT_TENANT_ID";
+}

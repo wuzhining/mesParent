@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-unselect{
+			height:1px;
+		}
+	
+	</style>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+  			<div class="layui-col-md12">
+    			<div class="layui-form-query">
+    				<form class="layui-form m20">
+    					<div class="layui-form-item">
+    					<input type="hidden"  id="specsFixtureid"  name="specsFixtureId"/>
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						        <input type="text" name="areaName"  placeholder="区位名称" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline">
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+						      </div>
+						    </div>
+			  			</div>
+            		</form>
+            	</div>
+            	<div class="layui-col-md12 layui-btn-sm" style='text-align:right;'>
+			    	<a class="layui-btn-small" href='javascript:void(0)' onclick="layer_window_show('工具品种规格区位信息','/equip/equipSpecsFixtureArea/edit')"><i class="layui-icon"></i>添加区位</a> 
+			    </div>
+            </div>
+            <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12">
+        				<table class="layui-hide" id="product_result" lay-filter="product_result"></table>
+        			</div>
+        		</div>
+        	</div>
+        
+        </div>
+    </div>
+</div>   
+</body>
+<script type="text/html" id="fixtureSpecsCode">
+	{{#  if(d.equipSpecsFixture){}}
+		{{ d.equipSpecsFixture.fixtureSpecsCode 
+
+ 	}}
+	{{# } }}
+</script>  
+<script type="text/html" id="fixtureSpecsName">
+	{{#  if(d.equipSpecsFixture){}}
+		{{ d.equipSpecsFixture.fixtureSpecsName
+ 	}}
+	{{# } }}
+</script>  
+<script type="text/html" id="barTools">	
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="delete">删除</a>
+</script>
+ 
+<script type="text/javascript">
+var returnData = [];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use(['form','table','layuitable','layuiformajax'], function(){
+	var form = layui.form, 
+	$ = layui.jquery,  table = layui.table,layuitable = layui.layuitable
+	layer = layui.layer;
+	var layuiformajax = layui.layuiformajax;
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arr = url.split('?');
+    var result=url.indexOf("?");
+    if(result>0){
+        	var specsFixtureId = arr[1].split('=')[1];
+        	$('#specsFixtureid').val(specsFixtureId);
+        	console.log(specsFixtureId);
+    }
+	var curTable = layuitable.render({
+    	elem: '#product_result'
+    	,id:'product_result'
+    	,url:'/equip/equipSpecsFixtureArea/list/json?specsFixtureId='+specsFixtureId
+    	,cellMinWidth: 200
+    	,height:380
+    	,width:"auto"
+   		,cols: [[
+		    	 {field:'specsFixtureId',  title: '工具品种规格ID',align:'center'}
+   	    	    ,{field:'fixtureSpecsCode',  title: '工具品种规格编码',align:'center',templet: '#fixtureSpecsCode'}
+   	    	    ,{field:'fixtureSpecsName',  title: '工具品种规格名称',align:'center',templet: '#fixtureSpecsName'}
+   	    	    ,{field:'areaName',  title: '工具品种规格区位名称',align:'center'}
+   	    	 	,{field:'',title: '操作', align:'center', toolbar: '#barTools', fixed: 'right'}
+     	    	]]
+		, done: function (res, curr, count) {
+			$("[data-field='specsFixtureId']").css('display','none');
+		}
+  	});
+	
+	form.on('submit(search)', function (data) {
+		curTable.reload(data.field);
+        return false;
+  	});
+ 
+	table.on('tool(product_result)', function(obj){
+		var data = obj.data;
+		if (obj.event === 'delete') {
+       	    var url = '/equip/equipSpecsFixtureArea/del?id='+data.id;
+       	    layuiformajax.postJson(url, data, function (result) {
+       		    	layer.msg('删除成功!', {icon: 1, time: 1000},function () {
+       		    	curTable.reload();
+    	        });
+       		  
+   		    }); 
+		}
+		});
+});	
+</script>
+ 
+  
+
+</html>

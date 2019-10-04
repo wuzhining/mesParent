@@ -1,0 +1,35 @@
+package com.techsoft.common.maps;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.techsoft.common.enums.EnumUserSystemRoletype;
+
+/**
+ * 
+ * @author tanyekai
+ * 
+ */
+public class MapUserSystemRoletype {
+	private static Map<String, String> map = null;
+
+	public static Map<String, String> getMap() {
+		if (MapUserSystemRoletype.map == null) {
+			Map<String, String> maps = new HashMap<String, String>();
+			maps.put(EnumUserSystemRoletype.OPERATION.getValue(), "平台运营人员");
+			maps.put(EnumUserSystemRoletype.TENANT.getValue(), "公司超级管理员");
+			maps.put(EnumUserSystemRoletype.ORDINARY.getValue(), "公司管理员");  
+			maps.put(EnumUserSystemRoletype.EMPLOYEE.getValue(), "公司作业员工");  
+			MapUserSystemRoletype.map = maps;
+		}
+		return MapUserSystemRoletype.map;
+	}
+ 
+	public static String getValue(String key) {
+		if (MapUserSystemRoletype.map == null) {
+			getMap();
+		}
+
+		return MapUserSystemRoletype.map.get(key);
+	}
+}

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+   <script type="text/html" id="isValidTpl">
+    {{#  if(d.isLocked == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script>
+  <!-- 物品分类 -->
+  <script type="text/html" id="productType">
+	{{#  if(d.productType){}}
+		{{ d.productType.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <!-- 物品名称 -->
+  <script type="text/html" id="product">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+   </script>
+   <!-- 物品规格编码 -->
+   <script type="text/html" id="MaterialCode">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialCode 
+ 	}}
+	{{# } }}
+   </script>
+   <!-- 物品规格名称 -->
+    <script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+
+ 	}}
+	{{# } }}
+</script>
+  <script type="text/html" id="typeStockDic">
+	{{#  if(d.typeStockDic){}}
+		{{ d.typeStockDic.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="billTypeDic">
+	{{#  if(d.billTypeDic){}}
+		{{ d.billTypeDic.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="billStatusDic">
+	{{#  if(d.billStatusDic){}}
+		{{ d.billStatusDic.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="auditStatus">
+	{{#  if(d.auditStatusDic){}}
+		{{ d.auditStatusDic.dictName 
+
+ 	}}
+	{{# } }}
+	</script> 
+   <script type="text/html" id="fromBillTypeDic">
+	{{#  if(d.fromBillTypeDic){}}
+		{{ d.fromBillTypeDic.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="fromBill">
+	{{#  if(d.fromBill){}}
+		{{ d.fromBill.workorderCode 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="fromProductionline">
+	{{#  if(d.fromProductionline){}}
+		{{ d.fromProductionline.productionlineName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="toProductionline">
+	{{#  if(d.toProductionline){}}
+		{{ d.toProductionline.productionlineName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="fromWarehouse">
+	{{#  if(d.fromWarehouse){}}
+		{{ d.fromWarehouse.warehouseName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="toWarehouse">
+	{{#  if(d.toWarehouse){}}
+		{{ d.toWarehouse.warehouseName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="department">
+	{{#  if(d.department){}}
+		{{ d.department.departmentName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="firmPartner">
+	{{#  if(d.firmPartner){}}
+		{{ d.firmPartner.companyName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="billStatus">
+	{{#  if(d.billStatus){}}
+		{{ d.billStatus.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="productMaterial">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+  <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script>	 
+
+   
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">仓库管理/出库管理</a> <a><cite>非生产领料</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <!-- <input class="layui-input" placeholder="开始时间" name="startTime" id="startTime">
+          <input class="layui-input" placeholder="结束时间" name="endTime" id="endTime"> -->
+          <input type="text" name="billCode"  placeholder="请输入出库单号" autocomplete="off" class="layui-input">
+           <select name="billStatusDictId">    
+                <option value="">请选择单据状态</option> 
+                 <#if billStatusDictIdList??>
+                    <#list billStatusDictIdList as item>
+		           	 	<option value="${item.id?c}" >${item.dictName}</option>
+		         	</#list>
+		         </#if> 
+          </select> 
+          <select name="fromProductionlineId">    
+              <option value="">请选择来源产线</option> 
+               <#if structProductionlinList??>
+                   <#list structProductionlinList as item>
+	            		<option value="${item.id?c}" >${item.productionlineName}</option>
+	         		</#list>
+	          </#if> 
+          </select> 
+          <input type="hidden" name="fromWarehouseId" id="fromWarehouseId" placeholder="请选择源仓库id" autocomplete="off" class="layui-input">
+       	  <input type="text" name="warehouseName" id="warehouseName" placeholder="请选择源仓库名称" autocomplete="off" class="layui-input">
+          <button class="layui-btn layui-btn-sm  " id="warehouseSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+		  </button>
+		  <input type="hidden" name="partnerId" id="partnerId" placeholder="请选择合作伙伴Id" autocomplete="off" class="layui-input">
+	 	  <input type="text" name="companyName" id="companyName" placeholder="请选择合作伙伴" autocomplete="off" class="layui-input">
+	      <button class="layui-btn layui-btn-sm  " id="supplierSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		   </button>
+		   <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>
+           <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+          
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-col-md-offset10 layui-btn layui-btn-sm" onclick="layer_window_show('新增出库单','/bill/billWarehousePick/choiceMatreial')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:30px"></span>
+      </xblock>
+       <div class="layui-col-md12" style="">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div> 
+        </div>
+        <div class="layui-col-md12" style="">
+        		<span>单据详情>>单据编码：<span id="bill" style="color:red"></span> </span>
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable_details" lay-filter="tablefilter_details"></table>
+        			</div>
+        		</div> 
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="lookOver">查看</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="audit">审核</a>
+</script>    
+<script type="text/javascript">
+var auditStatusDictId="";
+var remark="";
+var url='/bill/billWarehousePick/auditSave';//用于保存审核状态的url
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,height: 350
+    	,url:'/bill/billWarehousePick/list/json?billTypeDictId='+10271
+    	,limits:[5,10,15,20]
+    	,cols: [[
+    	     {field:'billCode', width:120, title: '单据编码',align:'center'}
+    	    ,{field:'billTypeDic',  title: '单据类型',align:'center',templet:'#billTypeDic'}
+    	    ,{field:'billStatusDic',  title: '单据状态',align:'center',templet:'#billStatusDic'}
+    	    ,{field:'auditStatusDictId',  title: '审核状态编码',align:'center'}
+    	    ,{field:'auditStatus',  title: '审核状态',align:'center',templet: '#auditStatus'}
+    	    /* ,{field:'fromBill',  title: '来源单', align:'center',templet:'#fromBill'}
+    	    ,{field:'fromBillTypeDic',  title: '来源单据类型',align:'center',templet:'#fromBillTypeDic'}   
+    	    ,{field:'fromWarehouse',  title: '来源仓库',align:'center',templet:'#fromWarehouse'}
+    	    ,{field:'toWarehouse',  title: '目标仓库',align:'center',templet:'#toWarehouse'}
+    	    ,{field:'fromProductionline',  title: '来源产线',align:'center',templet:'#fromProductionline'}
+    	    ,{field:'toProductionline',  title: '目标产线',align:'center',templet:'#toProductionline'}
+    	    ,{field:'department',  title: '部门',align:'center',templet:'#department'}
+    	    ,{field:'firmPartner',  title: '合作伙伴',align:'center',templet:'#firmPartner'} */
+    	    ,{field:'createTime',  title: '创建时间', align:'center'}
+    	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]],done:function(){
+	    		// 隐藏列
+	    		$(".layui-table-box").find("[data-field='auditStatusDictId']").css("display","none");
+	    }
+  	});
+	
+	$('#reset').on('click',function(e){
+		$('#fromWarehouseId').val("");
+		$('#partnerId').val("");
+	})
+	 
+	$('#warehouseSearch').on('click',function(e){
+   		openWinSelect('/struct/structWarehouse/structWarehouseOpen',"fromWarehouseId","warehouseName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+   	$('#supplierSearch').on('click',function(e){
+		openWinSelect('/firm/firmPartner/firmPartnerOpen',"partnerId","companyName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+   //清空
+	$("#warehouseName").blur(function(){
+		if($('#warehouseName').val() == ""){
+			$('#fromWarehouseId').val("");
+		}
+	});
+   	$("#companyName").blur(function(){
+		if($('#companyName').val() == ""){
+			$('#partnerId').val("");
+		}
+	});
+	
+	var renderTable = function (billId) {
+		layuitable.render({
+	    	elem: '#listTable_details'
+	    	,id:'listTable_details'
+	    	,url:'/bill/billWarehouseItem/list/json?billId='+billId
+	    	,limits:[5,10,15,20]
+	    	,cols: [[
+	    	         {field:'productType', width:120, title: '物品分类',align:'center',templet:'#productType'}
+	 				,{field:'product', width:120, title: '物品名称',align:'center',templet:'#product'}
+	 				,{field:'materialCode', width:120, title: '物品规格编码',align:'center',templet:'#MaterialCode'}
+	 				,{field:'materialName', width:120, title: '物品规格名称',align:'center',templet:'#materialName'}
+	 	    	    ,{field:'sku', title: '物品规格值', align:'center',templet: '#sku'}
+	    	    ,{field:'billStatus',  title: '领料状态',align:'center',templet:'#billStatus'}
+	    	    ,{field:'quantity',  title: '单据数量',align:'center'}
+	    	    ,{field:'quantityFinish',  title: '完成数量',align:'center'}
+	    	    ,{field:'quantityScan',  title: '扫描数量',align:'center'}
+	    	]]
+	  	});
+	}
+	
+	//搜索
+	form.on('submit(search)', function (data) {
+		var billCode=data.field.billCode!=null?data.field.billCode:"";
+		table.reload('listTable',{
+			url:'/bill/billWarehousePick/list/json?billTypeDictId='+10271
+			,where:{
+				"billCode":billCode,
+				"fromWarehouseId":data.field.fromWarehouseId,
+				"partnerId":data.field.partnerId,
+				"fromProductionlineId":data.field.fromProductionlineId,
+				"billStatusDictId":data.field.billStatusDictId
+			}
+		});
+    	return false;
+		});
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if(obj.event === 'check'){
+			if(data.billStatusDic =='新建'){
+				var url = '/bill/billWarehouse/arrivalCheck?id='+ data.id;
+		       	  layuiformajax.postJson(url, '', function (result) {
+		       		parent.layer.msg('审核成功!', {icon: 1, time: 1000},function () {
+		     				  	location.reload(); 
+		     	            });
+		       		 
+		     		  });
+			}else{
+				var str='';
+					str='单据不是新建状态,无需再次审核！';
+				layer.alert("【"+data.billCode+"】"+str);  
+			}
+		}
+		 if(obj.event == 'lookOver'){
+				layer_window_show('查看领料单','/bill/billWarehousePick/lookOver?id=' + data.id); 
+			}
+		 if(obj.event === 'audit'){
+				if(data.auditStatusDictId =='10585'){
+					
+					auditStatusDictId=data.auditStatusDictId;
+					remark=data.remark;
+					id=data.id;
+					layer_window_show('单据审核','/bill/billWarehouse/audit?id=' + data.id,"900","500"); 
+				}else{
+					var str='单据已审核,无需再次审核！';
+					layer.alert("【"+data.billCode+"】"+str);  
+				}
+		} 
+	});
+	
+	//初始化
+	renderTable(0);
+    //监听行单击事件（单击事件为：rowDouble） 
+    table.on('row(tablefilter)', function(obj){
+    	var data = obj.data;
+    	$("#bill").html(data.billCode); 
+      	//根据id加载
+    	renderTable(data.id);
+      	//标注选中样式
+      	obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+    });
+	
+	
+	
+	laydate.render({
+		elem: '#startTime' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd' //可任意组合
+	});
+	
+	laydate.render({
+		elem: '#endTime' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd' //可任意组合
+	});
+});	
+</script>
+ 
+  </body>
+
+</html>

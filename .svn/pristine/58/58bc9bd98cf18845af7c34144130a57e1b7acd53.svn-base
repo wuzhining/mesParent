@@ -1,0 +1,213 @@
+package com.techsoft.dao.bill;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBillStatus;
+import com.techsoft.entity.bill.BillInspectParamVo;
+import com.techsoft.entity.common.BillInspect;
+import com.techsoft.mapper.bill.BillInspectMapper;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.utils.zklock.DistributedLock;
+import com.techsoft.utils.zklock.LockManager;
+
+@Repository
+public class BillInspectDaoImpl extends BaseDaoImpl<BillInspect> implements BillInspectDao {
+	@Resource
+	protected BillInspectMapper billInspectMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<BillInspect> getEntityClass() {
+		return BillInspect.class;
+	}	
+	
+	@Override
+	public BaseMapper<BillInspect> getBaseMapper() {
+		return this.billInspectMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "BILL_INSPECT";
+	}
+	
+	@Override
+	public void insertSaveCheck(BillInspect value) throws BusinessException, SQLException {
+		
+		if (value.getInspectCode() == null || value.getInspectCode().equals(0L)) {
+			throw new BusinessException("检验单编码不能为空");
+		}
+		if (value.getSupplierId() == null || value.getSupplierId().equals(0L)) {
+			throw new BusinessException("供应商名称不能为空");
+		}
+		if (value.getFromBillTypeDictId() == null || value.getFromBillTypeDictId().equals(0L)) {
+			throw new BusinessException("源单据类型不能为空");
+		}
+		
+		if (value.getFromBillId() == null || value.getFromBillId().equals(0L)) {
+			throw new BusinessException("源单据名称不能为空");
+		}
+		
+		if (value.getMaterialId() == null || value.getMaterialId().equals(0L)) {
+			throw new BusinessException("物料名称不能为空");
+		}
+		
+		if (value.getInspectModeDictId() == null) {
+			throw new BusinessException("抽样检验方式不能为空");
+		}
+		
+		if (value.getInspectStatusDictId() == null || value.getInspectStatusDictId().equals(0L)) {
+			throw new BusinessException("检验单状态不能为空");
+		}
+		
+		
+/*		if (value.getInspectResultDictId() == null) {
+			throw new BusinessException("检验结果不能为空");
+		}
+		
+		if (value.getDealResultDictId() == null) {
+			throw new BusinessException("处理结果不能为空");
+		}*/
+		
+		if (value.getQuantity() == null || value.getQuantity().equals(0L)) {
+			throw new BusinessException("检出数量不能为空");
+		}
+		
+		if (value.getQuantitySample() == null || value.getQuantitySample().equals(0L)) {
+			throw new BusinessException("实际抽样数量不能为空");
+		}
+		
+		if (value.getQuantitySampleFail() == null || value.getQuantitySampleFail().equals(0L)) {
+			throw new BusinessException("抽样不合格数量不能为空");
+		}
+		
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("创建人不能为空");
+		}
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(BillInspect value) throws BusinessException, SQLException {
+		
+		if (value.getInspectCode() == null || value.getInspectCode().equals(0L)) {
+			throw new BusinessException("检验单编码不能为空");
+		}
+		if (value.getSupplierId() == null || value.getSupplierId().equals(0L)) {
+			throw new BusinessException("供应商名称不能为空");
+		}
+		if (value.getFromBillTypeDictId() == null || value.getFromBillTypeDictId().equals(0L)) {
+			throw new BusinessException("源单据类型不能为空");
+		}
+		
+		if (value.getFromBillId() == null || value.getFromBillId().equals(0L)) {
+			throw new BusinessException("源单据名称不能为空");
+		}
+		
+		if (value.getMaterialId() == null || value.getMaterialId().equals(0L)) {
+			throw new BusinessException("物料名称不能为空");
+		}
+		
+		if (value.getInspectModeDictId() == null) {
+			throw new BusinessException("抽样检验方式不能为空");
+		}
+		
+		if (value.getInspectStatusDictId() == null || value.getInspectStatusDictId().equals(0L)) {
+			throw new BusinessException("检验单状态不能为空");
+		}
+		
+		
+/*		if (value.getInspectResultDictId() == null) {
+			throw new BusinessException("检验结果不能为空");
+		}
+		
+		if (value.getDealResultDictId() == null) {
+			throw new BusinessException("处理结果不能为空");
+		}*/
+		
+		if (value.getQuantity() == null || value.getQuantity().equals(0L)) {
+			throw new BusinessException("检出数量不能为空");
+		}
+		
+		if (value.getQuantitySample() == null || value.getQuantitySample().equals(0L)) {
+			throw new BusinessException("实际抽样数量不能为空");
+		}
+		
+		if (value.getQuantitySampleFail() == null || value.getQuantitySampleFail().equals(0L)) {
+			throw new BusinessException("抽样不合格数量不能为空");
+		}
+		if (value.getModifyUserId() == null || value.getModifyUserId().equals(0L)) {
+			throw new BusinessException("修改人不能为空");
+		}
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(BillInspect value) throws BusinessException, SQLException {
+		   throw new BusinessException("检验单基础数据不能删除");
+	}
+
+	@Override
+	public void insertBillInspectBatch(List<BillInspect> items, CommonParam commonParam)
+			throws BusinessException, SQLException {
+			try {
+				
+				for (BillInspect item : items) {
+					if (commonParam.getUserId() != null) {
+						item.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+						item.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+					}
+				}
+				int rows = this.billInspectMapper.insertBillInspectBatch(items);
+				if (rows != items.size()) {
+					throw new BusinessException("新增明细数量不一致！请检查");
+				}
+				
+				
+			} catch (RuntimeException e) {
+				throw new SQLException(e.getMessage());
+			}
+		
+	}
+	
+	@Override
+	public void updateInspectBillStatus(BillInspectParamVo billInspectVo, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		DistributedLock distributedLock = LockManager.getZKDistributedLock(this.getEntityClass().getName(),billInspectVo.getId().toString());
+		distributedLock.lock();
+		try {
+			BillInspect item = this.selectById(billInspectVo.getId());
+		    item.setInspectStatusDictId(EnumDictBillStatus.FINISHED.getValue());
+			
+			billInspectVo.setInspectStatusDictId(item.getInspectStatusDictId());
+			this.updatePartEntity(billInspectVo, commonParam);
+		} finally {
+			distributedLock.unlock();
+		}
+	}
+			
+	//mine
+	@Override
+	public List<BillInspect> selectIQCIncomeScreen() 
+			throws BusinessException, SQLException{
+		return billInspectMapper.selectIQCIncomeScreen(null);
+	}
+}
+
+

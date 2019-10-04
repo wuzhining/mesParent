@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style type="text/css">
+		.left{
+			box-sizing: border-box;
+			width:20%;
+			height:100%;
+			float:left;
+			border:1px solid #E5E5E5;
+			border-radius:10px;
+		}
+		.right{
+			/* width: calc(80% - 2px); */
+			width: 80%;
+			height:100%;
+			float:left;
+			box-sizing: border-box;
+		}
+		.top{
+			width:100%;
+			/* height: calc(60% - 1px); */
+			height:60%;
+			box-sizing: border-box;
+			border:1px solid #E5E5E5;
+			border-radius:10px;
+		}
+		.bottom{
+			width:100%;
+			height:40%;
+			border:1px solid #E5E5E5;
+			border-top:0px;
+			border-radius:10px;
+			box-sizing: border-box;
+		}
+		.bottom > div{
+			margin:0px;
+			border-radius:10px;
+		}
+	</style>
+  </head>
+  <body style='height:100%'>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">生产管理</a> <a><cite>加工工艺</cite></a>
+      </span>
+    </div>
+    <div class="x-body" style='height:93%'>
+    	<!-- 左侧树形表格 -->
+		<div class='left'>
+			<table id="permissionTable" class="layui-table" lay-filter="permissionTable"></table>
+		</div>
+		<div class='right'>
+			<!-- 工艺流程连线图 -->
+			<div class='top'></div>
+			<!-- 数据网格 -->
+			<div class='bottom'>
+				<table class="layui-hide" id="dailyPlanTable" lay-filter="dailyPlanTablefilter"></table>
+			</div>
+		</div>
+    </div>
+	<script type="text/javascript">
+		layui.config({
+		    base: '/static/plugins/layui/base/',
+		    v: new Date().getTime()
+		}).extend({
+	        treetable: 'module/treetable-lay/treetable'
+	    }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable','treetable'], function(){
+			var form = layui.form, 
+			$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+			layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+			var layuiformajax = layui.layuiformajax;
+			var treetable = layui.treetable;
+			
+			// 渲染表格
+	          var renderTable = function (date) {
+	          	$.ajax({
+	        		type: "post",
+	        		dataType: "json",
+	        		contentType:'application/x-www-form-urlencoded',
+	        		treeDefaultClose: true,   // treetable新增参数
+	        	    treeLinkage: true,        // treetable新增参数
+	        		url:'/product/productBom/list/json',
+	        		data:date,
+	        		success: function(res){ 
+	        			 res=res.resultlist;
+			             treetable.render({
+			                 treeColIndex: 0,//树形图标显示在第几列
+			                 treeSpid: 0,//最上级的父级id
+			                 treeIdName: 'id',//id字段的名称
+			                 treePidName: 'parentId',//pid字段的名称
+			                // onlyIconControl: false,//是否仅允许节点左侧图标控制展开收缩
+			                 treeDefaultClose: true,//是否默认折叠
+			                 treeLinkage: true,//父级展开时是否自动展开所有子级
+			                 elem: '#permissionTable',
+			                 /* width:'100%',
+			                 height:'100%',  */
+			                 data:res,
+			                 page: false,
+			                 cols: [[
+			                     {field:'bomCode', title: 'BOM编码',align:'left', minWidth: 150}
+			             	    ,{field:'productId',hidden:true,  title: '产品ID', align:'center'}
+			             	    ,{field:'productCode',  title: '产品编码',align:'center', minWidth: 90,templet:'#productCode'}
+			             	    ,{field:'productName',  title: '产品名称', align:'center',minWidth: 90,templet: '#productName2'}
+			                 ]],
+			                 done: function () {
+			                    $(".layui-table-box").find("[data-field='productId']").css("display","none");   
+			             		$(".layui-table-box").find("[data-field='id']").css("display","none"); 
+			             		$(".layui-table-box").find("[data-field='bomStatusDictId']").css("display","none"); 
+			                    layer.closeAll('loading');
+			                 }
+			             });
+			        }
+	        	});
+	         };
+	        renderTable();
+	        
+	      //日计划信息表
+		    var dailyPlan = table.render({
+	        	elem: '#dailyPlanTable'
+	        	,id:'dailyPlanTablefilter'
+	        	,url:'/bill/billPurchaseItem/list/json?billPurchaseId'
+	        	,cols: [[
+		             	   {field:'1',  title: '基本信息',align:'center', minWidth: 120,colspan:2}
+		             	   ,{field:'2',  title: '订单数量相关列',align:'center', minWidth: 120,colspan:8}
+		        	],[
+							 {field:'id', width:120, title: 'ID',align:'center'}
+							 ,{field:'billPurchaseId',  title: '产品编码',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'billCode',  title: '产品名称',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'productId',  title: '需求数量',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'productName',  title: '现有库存',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'materialId',  title: '采购数量',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'materialName',  title: '工序差额',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'sku', title: '已排数量', align:'center',minWidth: 220,colspan:1}
+							 ,{field:'billStatusDictId',  title: '未排数量',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'billStatusDictName',  title: '距交期天数',align:'center', minWidth: 120,colspan:1}
+							 ,{field:'quantity',  title: '合计',align:'center', minWidth: 120,colspan:1}
+		        	   ]]
+		    	,done: function () {
+			        
+			    }
+	      	});
+		});	
+	</script>
+ 
+  </body>
+
+</html>

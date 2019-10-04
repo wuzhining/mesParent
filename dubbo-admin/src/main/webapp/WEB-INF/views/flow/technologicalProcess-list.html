@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<!--utilfunc(start)-->
+		<link rel="stylesheet" type="text/css" href="/static/js/flow/utilfunc/css/reset.css">
+		<link rel="stylesheet" type="text/css" href="/static/js/flow/utilfunc/css/utilfunc.css">
+		<script type="text/javascript" src="/static/js/flow/utilfunc/js/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="/static/js/flow/utilfunc/js/jquery.popui.js"></script>
+		<script type="text/javascript" src="/static/js/flow/utilfunc/js/utilfunc.js"></script>
+		<script type="text/javascript" src="/static/js/flow/utilfunc/js/utilfunc-ui.js"></script>
+		<!--utilfunc(end)-->
+		
+		<!--plugin(start)-->
+		<script type="text/javascript" src="/static/js/flow/plugin/jquery-ui-1.11.2.min.js"></script>
+		<script type="text/javascript" src="/static/js/flow/plugin/jquery.jsPlumb-1.7.2-min.js"></script>
+		<!--plugin(end)-->
+		
+		<!--topo(start)-->
+		<link rel="stylesheet" type="text/css" href="/static/css/technologicalProcessFlow.css">
+		<script type="text/javascript" src="/static/js/technologicalProcessFlow.js"></script>
+		<!--topo(end)-->
+		
+		<link rel="stylesheet" href="/static/css/font.css?201904021111">
+		<link rel="stylesheet" href="/static/css/admin.css">
+		<script type="text/javascript" src="/static/plugins/layui/layui.js" charset="utf-8"></script>
+		
+		<title>dtopo</title>
+		<style>
+			#lefticon dd{
+				border-bottom:1px solid #4E5465;
+			}
+		</style>
+	</head>
+	<body class="topobody">
+		 <form id="dataForm"  method="post" class="layui-form">
+	        <input type="hidden" id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+	        <input type="hidden" id="processVersion"  name="processVersion" value="<#if entity??&&entity.processVersion??>${entity.processVersion?c}<#else></#if>" />
+		</form>
+		<div class="topocon">
+		    <div class="topoleft">
+		    	<div class="companylogo"><a href="#nogo"><img src="/static/images/flow/logo.gif" alt="" /></a></div>
+		    	 <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+			    <ul id="lefticon" class="layui-nav layui-nav-tree"  lay-filter="test" style='width:100%'>
+					<li class="layui-nav-item layui-nav-itemed">
+				    	<a class="" href="javascript:;">工具</a>
+			        	<dl class="layui-nav-child">
+				            <#if ProcessNodeList??>
+				                   <#list ProcessNodeList as item>
+						           <dd>
+						            	<div class="iconitems" icontype="${item.id?c}">
+							            	<img src="/static/images/flow/little-icon/firework.gif" alt="" />
+							            	<p style='display:none;'>${item.nodeCode}</p>
+						                	<span>${item.nodeNames}</span>
+						                </div>
+					                </dd>
+						        </#list>
+						     </#if>
+			          	</dl>
+				    </li>
+				   <!--  <li class="layui-nav-item">
+				    	<a href="javascript:;">功能</a>
+			            <dl class="layui-nav-child">
+				             <dd>
+				            	<div class="iconitems" icontype="uifirework">
+				            		<img src="/static/images/flow/little-icon/print.gif" alt="" />
+			                		<span>打印</span>
+				            	</div>
+				             </dd>
+			            </dl>
+				    </li> -->
+				</ul> 
+		    </div>
+		    <div class="toporight">
+		        <div class="funcbtn">
+		            <ul id="linewrap">
+		               	<li>
+		                    <span><img src="/static/images/flow/line10.png" alt="PASS" /><em>PASS</em><i></i></span>
+		                </li>
+		                <li>
+		                    <span><img src="/static/images/flow/line11.png" alt="FAIL" /><em>FAIL</em><i></i></span>
+		                </li>
+		            </ul>
+		            <div class="morebtn">
+		            	<a id="saveTopoBtn"><img src="/static/images/flow/icon0.gif" alt="保存" /><font>保存</font></a>
+		                <!-- <a id="viewTopoBtn"><img src="/static/images/flow/icon0.gif" alt="预览" /><font>预览</font></a> -->
+		                <a id="delTopoBtn"><img src="/static/images/flow/icon0.gif" alt="清屏" /><font>清屏</font></a>
+		            </div>
+		        </div>
+		        <div class="topocontent" id="topocontent"></div>
+		    </div>
+		</div>
+		<div class="rightkeypop" id="rightkeyPop">
+			<span class="ReName" id="ReName">重命名</span>
+		    <span class="delele" id="delEle">删除元素</span>
+		</div>
+		<div class="loading_pop" id="loadingPop"><img src="/static/images/flow/loading.gif" width="500" height="500" alt="loading......"></div>
+		<div id="num"></div>
+		
+		<script>
+		    //JavaScript代码区域
+		    layui.use('element', function(){
+		        var element = layui.element;
+		 
+		    });
+		    var isShow = true;  //定义一个标志位
+		    $('.kit-side-fold').click(function(){
+		        //选择出所有的span，并判断是不是hidden
+		        $('.layui-nav-item span').each(function(){
+		            if($(this).is(':hidden')){
+		                $(this).show();
+		            }else{
+		                $(this).hide();
+		            }
+		        });
+		        //判断isshow的状态
+		        if(isShow){
+		            $('.layui-side.layui-bg-black').width(60); //设置宽度
+		            $('.kit-side-fold i').css('margin-right', '70%');  //修改图标的位置
+		            //将footer和body的宽度修改
+		            $('.layui-body').css('left', 60+'px');
+		            $('.layui-footer').css('left', 60+'px');
+		            //将二级导航栏隐藏
+		            $('dd span').each(function(){
+		                $(this).hide();
+		            });
+		            //修改标志位
+		            isShow =false;
+		        }else{
+		            $('.layui-side.layui-bg-black').width(200);
+		            $('.kit-side-fold i').css('margin-right', '10%');
+		            $('.layui-body').css('left', 200+'px');
+		            $('.layui-footer').css('left', 200+'px');
+		            $('dd span').each(function(){
+		                $(this).show();
+		            });
+		            isShow =true;
+		        }
+		    });
+		</script>
+	</body>
+</html>

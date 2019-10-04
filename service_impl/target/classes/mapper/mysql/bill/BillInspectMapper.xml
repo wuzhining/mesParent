@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.bill.BillInspectMapper">
+    <cache type="org.mybatis.caches.redis.RedisCache"/>
+	<resultMap id="BillInspect" type="com.techsoft.entity.common.BillInspect" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="INSPECT_CODE" property="inspectCode" />
+		<result column="SUPPLIER_ID" property="supplierId" />
+		<result column="FROM_BILL_TYPE_DICT_ID" property="fromBillTypeDictId" />
+		<result column="FROM_BILL_ID" property="fromBillId" />
+		<result column="FROM_BILL_CODE" property="fromBillCode" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="AUDIT_STATUS_DICT_ID" property="auditStatusDictId" />
+		<result column="INSPECT_MODE_DICT_ID" property="inspectModeDictId" />
+		<result column="INSPECT_STATUS_DICT_ID" property="inspectStatusDictId" />
+		<result column="INSPECT_RESULT_DICT_ID" property="inspectResultDictId" />
+		<result column="DEAL_RESULT_DICT_ID" property="dealResultDictId" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="QUANTITY_SAMPLE" property="quantitySample" />
+		<result column="QUANTITY_SAMPLE_FAIL" property="quantitySampleFail" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="inspectCode != null">
+			AND A.INSPECT_CODE= #{inspectCode}
+		</if>
+		<if test="supplierId != null">
+			AND A.SUPPLIER_ID= #{supplierId}
+		</if>
+		<if test="fromBillTypeDictId != null">
+			AND A.FROM_BILL_TYPE_DICT_ID= #{fromBillTypeDictId}
+		</if>
+		<if test="fromBillId != null">
+			AND A.FROM_BILL_ID= #{fromBillId}
+		</if>
+		<if test="fromBillCode != null">
+			AND A.FROM_BILL_CODE= #{fromBillCode}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="auditStatusDictId != null">
+			AND A.AUDIT_STATUS_DICT_ID= #{auditStatusDictId}
+		</if>
+		<if test="inspectModeDictId != null">
+			AND A.INSPECT_MODE_DICT_ID= #{inspectModeDictId}
+		</if>
+		<if test="inspectStatusDictId != null">
+			AND A.INSPECT_STATUS_DICT_ID= #{inspectStatusDictId}
+		</if>
+		<if test="inspectResultDictId != null">
+			AND A.INSPECT_RESULT_DICT_ID= #{inspectResultDictId}
+		</if>
+		<if test="dealResultDictId != null">
+			AND A.DEAL_RESULT_DICT_ID= #{dealResultDictId}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="quantitySample != null">
+			AND A.QUANTITY_SAMPLE= #{quantitySample}
+		</if>
+		<if test="quantitySampleFail != null">
+			AND A.QUANTITY_SAMPLE_FAIL= #{quantitySampleFail}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.INSPECT_CODE,
+		A.SUPPLIER_ID,
+		A.FROM_BILL_TYPE_DICT_ID,
+		A.FROM_BILL_ID,
+		A.FROM_BILL_CODE,
+		A.MATERIAL_ID,
+		A.AUDIT_STATUS_DICT_ID,
+		A.INSPECT_MODE_DICT_ID,
+		A.INSPECT_STATUS_DICT_ID,
+		A.INSPECT_RESULT_DICT_ID,
+		A.DEAL_RESULT_DICT_ID,
+		A.QUANTITY,
+		A.QUANTITY_SAMPLE,
+		A.QUANTITY_SAMPLE_FAIL,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_BILL_INSPECT_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from BILL_INSPECT
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.BillInspect">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_INSPECT A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.BillInspect">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_INSPECT A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE BILL_INSPECT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE BILL_INSPECT  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.BillInspect">
+		UPDATE BILL_INSPECT A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillInspect">
+		INSERT INTO BILL_INSPECT (
+		TENANT_ID,
+		FACTORY_ID,
+		INSPECT_CODE,
+		SUPPLIER_ID,
+		FROM_BILL_TYPE_DICT_ID,
+		FROM_BILL_ID,
+		FROM_BILL_CODE,
+		MATERIAL_ID,
+		AUDIT_STATUS_DICT_ID,
+		INSPECT_MODE_DICT_ID,
+		INSPECT_STATUS_DICT_ID,
+		INSPECT_RESULT_DICT_ID,
+		DEAL_RESULT_DICT_ID,
+		QUANTITY,
+		QUANTITY_SAMPLE,
+		QUANTITY_SAMPLE_FAIL,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{inspectCode},
+		#{supplierId},
+		#{fromBillTypeDictId},
+		#{fromBillId},
+		#{fromBillCode},
+		#{materialId},
+		#{auditStatusDictId},
+		#{inspectModeDictId},
+		#{inspectStatusDictId},
+		#{inspectResultDictId},
+		#{dealResultDictId},
+		#{quantity},
+		#{quantitySample},
+		#{quantitySampleFail},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillInspect">
+		UPDATE BILL_INSPECT SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		INSPECT_CODE=#{inspectCode},
+		SUPPLIER_ID=#{supplierId},
+		FROM_BILL_TYPE_DICT_ID=#{fromBillTypeDictId},
+		FROM_BILL_ID=#{fromBillId},
+		FROM_BILL_CODE=#{fromBillCode},
+		MATERIAL_ID=#{materialId},
+		AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		INSPECT_MODE_DICT_ID=#{inspectModeDictId},
+		INSPECT_STATUS_DICT_ID=#{inspectStatusDictId},
+		INSPECT_RESULT_DICT_ID=#{inspectResultDictId},
+		DEAL_RESULT_DICT_ID=#{dealResultDictId},
+		QUANTITY=#{quantity},
+		QUANTITY_SAMPLE=#{quantitySample},
+		QUANTITY_SAMPLE_FAIL=#{quantitySampleFail},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillInspect">
+		UPDATE BILL_INSPECT SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="inspectCode != null" >
+			INSPECT_CODE=#{inspectCode},
+		</if>
+		<if test="supplierId != null" >
+			SUPPLIER_ID=#{supplierId},
+		</if>
+		<if test="fromBillTypeDictId != null" >
+			FROM_BILL_TYPE_DICT_ID=#{fromBillTypeDictId},
+		</if>
+		<if test="fromBillId != null" >
+			FROM_BILL_ID=#{fromBillId},
+		</if>
+		<if test="fromBillCode != null" >
+			FROM_BILL_CODE=#{fromBillCode},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="auditStatusDictId != null" >
+			AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		</if>
+		<if test="inspectModeDictId != null" >
+			INSPECT_MODE_DICT_ID=#{inspectModeDictId},
+		</if>
+		<if test="inspectStatusDictId != null" >
+			INSPECT_STATUS_DICT_ID=#{inspectStatusDictId},
+		</if>
+		<if test="inspectResultDictId != null" >
+			INSPECT_RESULT_DICT_ID=#{inspectResultDictId},
+		</if>
+		<if test="dealResultDictId != null" >
+			DEAL_RESULT_DICT_ID=#{dealResultDictId},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="quantitySample != null" >
+			QUANTITY_SAMPLE=#{quantitySample},
+		</if>
+		<if test="quantitySampleFail != null" >
+			QUANTITY_SAMPLE_FAIL=#{quantitySampleFail},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.bill.BillInspectParamVo"
+		      resultType="com.techsoft.entity.common.BillInspect" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_INSPECT A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	  <if test="inspectCodeLike != null">
+	    <bind name="pattern" value="'%' + _parameter.inspectCodeLike + '%'" />
+	       AND A.INSPECT_CODE LIKE #{pattern}
+	  </if>
+	  <if test="fromBillIdlist != null">
+	        AND (A.FROM_BILL_ID IN
+			<foreach item="item" index="index" collection="fromBillIdlist" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>) 
+	  </if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	
+	<insert id="insertBillInspectBatch" flushCache="true" parameterType="java.util.List">
+		INSERT INTO BILL_INSPECT (
+		TENANT_ID,
+		INSPECT_CODE,
+		SUPPLIER_ID,
+		AUDIT_STATUS_DICT_ID,
+		FROM_BILL_TYPE_DICT_ID,
+		FROM_BILL_ID,
+		FROM_BILL_CODE,
+		MATERIAL_ID,
+		INSPECT_MODE_DICT_ID,
+		INSPECT_STATUS_DICT_ID,
+		INSPECT_RESULT_DICT_ID,
+		DEAL_RESULT_DICT_ID,
+		QUANTITY,
+		QUANTITY_SAMPLE,
+		QUANTITY_SAMPLE_FAIL,
+		REMARK,
+		ID,
+		VERSION,
+		DEL_FLAG,
+		CREATE_USER_ID,
+		MODIFY_USER_ID,
+		CREATE_TIME,
+		MODIFY_TIME
+		)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+		(	
+		#{item.tenantId},
+		#{item.inspectCode},
+		#{item.supplierId},
+		#{item.auditStatusDictId},
+		#{item.fromBillTypeDictId},
+		#{item.fromBillId},
+		#{item.fromBillCode},
+		#{item.materialId},
+		#{item.inspectModeDictId},
+		#{item.inspectStatusDictId},
+		#{item.inspectResultDictId},
+		#{item.dealResultDictId},
+		#{item.quantity},
+		#{item.quantitySample},
+		#{item.quantitySampleFail},
+		#{item.remark},
+		#{item.id},1,0,#{item.createUserId},#{item.modifyUserId} 
+		,now()
+		,now()
+		)
+		</foreach>
+	</insert>
+	<!-- mine -->
+	<!--IQC待检看板 -->
+	<sql id="Order_By_CreateTime_Sql">
+	 	order by CREATE_TIME asc
+	</sql>
+	
+	<select id="selectIQCIncomeScreen" parameterType="com.techsoft.entity.bill.BillInspectParamVo"
+		      resultType="com.techsoft.entity.common.BillInspect" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_INSPECT A
+		WHERE A.INSPECT_STATUS_DICT_ID != 10490
+		<include refid="Order_By_CreateTime_Sql" />
+	</select>
+</mapper>

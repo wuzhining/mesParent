@@ -1,0 +1,58 @@
+package com.techsoft.dao.warehouse;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.WarehouseProductStock;
+import com.techsoft.mapper.warehouse.WarehouseProductStockMapper;
+
+@Repository
+public class WarehouseProductStockDaoImpl extends BaseDaoImpl<WarehouseProductStock> implements WarehouseProductStockDao {
+	@Resource
+	protected WarehouseProductStockMapper warehouseProductStockMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<WarehouseProductStock> getEntityClass() {
+		return WarehouseProductStock.class;
+	}	
+	
+	@Override
+	public BaseMapper<WarehouseProductStock> getBaseMapper() {
+		return this.warehouseProductStockMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "WAREHOUSE_PRODUCT_STOCK";
+	}
+	
+	@Override
+	public void insertSaveCheck(WarehouseProductStock value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void updateSaveCheck(WarehouseProductStock value) throws BusinessException, SQLException {
+	
+	}
+	
+	@Override
+	public void deleteSaveCheck(WarehouseProductStock value) throws BusinessException, SQLException {
+	
+	}
+			
+}

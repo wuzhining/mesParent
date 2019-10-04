@@ -1,0 +1,14 @@
+package com.techsoft.entity.work;
+
+import com.techsoft.entity.common.WorkPlanWorkstation;
+
+public class WorkPlanWorkstationVo extends WorkPlanWorkstation {
+	private static final long serialVersionUID = 2441421066415731177L;
+
+	public WorkPlanWorkstationVo() {	
+	}
+	
+	public WorkPlanWorkstationVo(WorkPlanWorkstation value) {
+		value.cloneProperties(this);
+	}		
+}

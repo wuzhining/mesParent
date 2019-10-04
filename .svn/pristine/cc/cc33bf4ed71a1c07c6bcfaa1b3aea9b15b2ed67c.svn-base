@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+   <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+ <script type="text/html" id="nodeNameTpl">
+	{{#  if(d.structProcessNode){}}
+		{{ d.structProcessNode.nodeName 
+ 	}}
+	{{# } }}
+</script>
+ <script type="text/html" id="instructTypeDictNameTpl">
+	{{#  if(d.listDictionary){}}
+		{{ d.listDictionary.dictName 
+ 	}}
+	{{# } }}
+</script>
+<!-- 执行方法 -->
+ <script type="text/html" id="executiveTypeDictName">
+	{{#  if(d.executive){}}
+		{{ d.executive.dictName 
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="equipSpecsWorkIdTpl">
+	{{#  if(d.equipSpecsWork){}}
+		{{ d.equipSpecsWork.equipSpecsName 
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="equipSpecsWorkCode">
+	{{#  if(d.equipSpecsWork){}}
+		{{ d.equipSpecsWork.equipSpecsCode 
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="productNameTpl">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="materialNameTpl">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="processName">
+	{{#  if(d.structProcess){}}
+		{{ d.structProcess.processName
+ 	}}
+	{{# } }}
+</script>
+
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">生产工艺</a> <a><cite>工序指令</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="text" name="instructCodeLike"  placeholder="请输入工序指令编码" autocomplete="off" class="layui-input">
+          <input type="text" name="instructNameLike"  placeholder="请输入工序指令名称" autocomplete="off" class="layui-input">
+            <select name="instructTypeDictId"  lay-search>    
+                <option value="">请选择指令类型</option> 
+                 <#if instructTypeDictIdList??>
+                     <#list instructTypeDictIdList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+           </select>
+           <input type="hidden" name="processNodeId" id="processNodeId" placeholder="请选择工序指令" autocomplete="off" class="layui-input">
+          <input type="hidden" name="instructName" id="instructName" placeholder="请选择工序指令" autocomplete="off" class="layui-input"> 
+           <input type="hidden" name="processId" id="processId" placeholder="请选择工艺流程" autocomplete="off" class="layui-input">
+       	  <input type="text" name="processName" id="processName" placeholder="请选择工艺流程" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="processSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		   </button> 
+           <select name="executiveTypeDictId"  lay-search>    
+                <option value="">请选择执行方类型</option> 
+                 <#if executList??>
+                     <#list executList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+           </select>
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-col-md-offset10 layui-btn layui-btn-sm" onclick="layer_window_show('添加工序指令','/struct/structProcedureInstruct/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:30px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="seachProcedureEquipFixTure">关联工序工具</a>   
+  	<!--<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="seachProcedureMaterial">关联工序物料</a>   -->
+</script>
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/struct/structProcedureInstruct/list/json'
+    	,cols: [[
+    	    {field:'id', width:100, title: 'ID',align:'center'}
+    	    ,{field:'instructCode',  title: '指令编码',align:'center'}
+    	    ,{field:'instructName',  title: '指令名称', align:'center'}
+    	    ,{field:'instructTypeDictName',  title: '指令类型',align:'center',templet:'#instructTypeDictNameTpl'}
+    	    ,{field:'processName',  title: '工艺流程名称',align:'center',templet:'#processName'}
+    	    ,{field:'nodeName',  title: '工序名称',align:'center',templet:'#nodeNameTpl'}
+    	    ,{field:'executiveTypeDictId',  title: '执行方类型',align:'center',templet:'#executiveTypeDictName'}
+    	    ,{field:'equipSpecsWorkCode',  title: '设备品种规格编码',align:'center',templet:'#equipSpecsWorkCode'}
+    	    ,{field:'equipSpecsWorkId',  title: '设备品种规格名称',align:'center',templet:'#equipSpecsWorkIdTpl'}
+    	    ,{field:'quantityEquip',  title: '设备数量', align:'center'}
+    	    ,{field:'sortNo',  title: '排序号', align:'center'}
+    	    ,{field:'productName',  title: '输出物品名称',align:'center',templet:'#productNameTpl'}
+    	    ,{field:'materialName',  title: '输出物品规格名称',align:'center',templet:'#materialNameTpl'}
+    	    ,{field:'isValid',  title: '是否有效', align:'center',width: 80,templet:'#isValidTpl'}
+    	    ,{field:'remark',  title: '备注', align:'center',width: 80}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',width: 60}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]],done: function() {
+	        $("[data-field='id']").css('display','none');
+	    }  
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+   	//重置
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	}) 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		console.log(data);
+		var processNodeId = data.processNodeId;
+		if (obj.event === 'edit') {
+			//layer_window_show('编辑','/struct/structProcedureInstruct/edit?id=' + data.id +'&&materialName='+data.productMaterial.materialName+'&&nodeName='+data.structProcessNode.nodeName);
+			layer_window_show('编辑工序指令','/struct/structProcedureInstruct/edit?id=' + data.id );
+		}
+		if (obj.event === 'seachProcedureEquipFixTure') { 
+			layer_window_show('工序工具清单','/struct/structProcedureEquipFixture/list?id=' + data.id + '&&processNodeId=' + processNodeId );
+ 
+		}
+		if (obj.event === 'seachProcedureMaterial') {
+			layer_window_show('工序物料清单','/struct/structProcedureMaterial/list?id=' + data.id + '&&processNodeId=' + processNodeId);
+		}
+		
+	});
+   	
+	 $('#processSearch').on('click',function(e){
+		 openWinSelectCurrency('/struct/structProcessNode/listProcessNode',"processNodeId","instructName","structProcess","processId","processName","","","");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	}) 
+});	
+</script>
+ 
+  </body>
+
+</html>

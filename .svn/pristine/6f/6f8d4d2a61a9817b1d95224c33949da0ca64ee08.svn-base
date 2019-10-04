@@ -1,0 +1,92 @@
+package com.techsoft.entity.common;
+
+import com.techsoft.common.BaseEntity;
+
+public class StructWorkstation extends BaseEntity {
+	private static final long serialVersionUID = 663118781297385169L;
+
+
+	public StructWorkstation(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private Long factoryId;	
+	   
+	private Long workshopId;	
+	   
+	private Long workshopAreaId;	
+	   
+	private String workstationName;	
+	   
+	private String workstationCode;	
+	   
+	private String isValid;	
+	   
+	private String remark;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public Long getFactoryId() {
+		return factoryId;
+	}
+
+	public void setFactoryId(Long factoryId) {
+		this.factoryId = factoryId;
+	}
+                		
+	public Long getWorkshopId() {
+		return workshopId;
+	}
+
+	public void setWorkshopId(Long workshopId) {
+		this.workshopId = workshopId;
+	}
+                		
+	public Long getWorkshopAreaId() {
+		return workshopAreaId;
+	}
+
+	public void setWorkshopAreaId(Long workshopAreaId) {
+		this.workshopAreaId = workshopAreaId;
+	}
+                		
+	public String getWorkstationName() {
+		return workstationName;
+	}
+
+	public void setWorkstationName(String workstationName) {
+		this.workstationName = workstationName;
+	}
+                		
+	public String getWorkstationCode() {
+		return workstationCode;
+	}
+
+	public void setWorkstationCode(String workstationCode) {
+		this.workstationCode = workstationCode;
+	}
+                		
+	public String getIsValid() {
+		return isValid;
+	}
+
+	public void setIsValid(String isValid) {
+		this.isValid = isValid;
+	}
+                		
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

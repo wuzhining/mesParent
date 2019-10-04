@@ -1,0 +1,14 @@
+package com.techsoft.entity.config;
+
+import com.techsoft.entity.common.ConfigAppInterface;
+
+public class ConfigAppInterfaceVo extends ConfigAppInterface {
+	private static final long serialVersionUID = 338819168096694538L;
+
+	public ConfigAppInterfaceVo() {	
+	}
+	
+	public ConfigAppInterfaceVo(ConfigAppInterface value) {
+		value.cloneProperties(this);
+	}		
+}

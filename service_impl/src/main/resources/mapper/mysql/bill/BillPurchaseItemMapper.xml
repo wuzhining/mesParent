@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.bill.BillPurchaseItemMapper">
+	<resultMap id="BillPurchaseItem" type="com.techsoft.entity.common.BillPurchaseItem" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="BILL_PURCHASE_ID" property="billPurchaseId" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="BILL_STATUS_DICT_ID" property="billStatusDictId" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="QUANTITY_FINISH" property="quantityFinish" />
+		<result column="QUANTITY_SCAN" property="quantityScan" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="billPurchaseId != null">
+			AND A.BILL_PURCHASE_ID= #{billPurchaseId}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="billStatusDictId != null">
+			AND A.BILL_STATUS_DICT_ID= #{billStatusDictId}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="quantityFinish != null">
+			AND A.QUANTITY_FINISH= #{quantityFinish}
+		</if>
+		<if test="quantityScan != null">
+			AND A.QUANTITY_SCAN= #{quantityScan}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<if test="notFinish != null">
+			AND A.BILL_STATUS_DICT_ID != #{notFinish}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	   <if test="ids != null">
+	        AND (A.BILL_PURCHASE_ID IN
+			<foreach item="item" index="index" collection="ids" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>)
+	   </if>
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.BILL_PURCHASE_ID,
+		A.PRODUCT_ID,
+		A.MATERIAL_ID,
+		A.BILL_STATUS_DICT_ID,
+		A.QUANTITY,
+		A.QUANTITY_FINISH,
+		A.QUANTITY_SCAN,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_BILL_PURCHASE_ITEM_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from BILL_PURCHASE_ITEM
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.BillPurchaseItem">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_PURCHASE_ITEM A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.BillPurchaseItem">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_PURCHASE_ITEM A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE BILL_PURCHASE_ITEM A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE BILL_PURCHASE_ITEM  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.BillPurchaseItem">
+		UPDATE BILL_PURCHASE_ITEM A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillPurchaseItem">
+		INSERT INTO BILL_PURCHASE_ITEM (
+		TENANT_ID,
+		BILL_PURCHASE_ID,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		BILL_STATUS_DICT_ID,
+		QUANTITY,
+		QUANTITY_FINISH,
+		QUANTITY_SCAN,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{billPurchaseId},
+		#{productId},
+		#{materialId},
+		#{billStatusDictId},
+		#{quantity},
+		#{quantityFinish},
+		#{quantityScan},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillPurchaseItem">
+		UPDATE BILL_PURCHASE_ITEM SET
+		TENANT_ID=#{tenantId},
+		BILL_PURCHASE_ID=#{billPurchaseId},
+		PRODUCT_ID=#{productId},
+		MATERIAL_ID=#{materialId},
+		BILL_STATUS_DICT_ID=#{billStatusDictId},
+		QUANTITY=#{quantity},
+		QUANTITY_FINISH=#{quantityFinish},
+		QUANTITY_SCAN=#{quantityScan},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillPurchaseItem">
+		UPDATE BILL_PURCHASE_ITEM SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="billPurchaseId != null" >
+			BILL_PURCHASE_ID=#{billPurchaseId},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="billStatusDictId != null" >
+			BILL_STATUS_DICT_ID=#{billStatusDictId},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="quantityFinish != null" >
+			QUANTITY_FINISH=#{quantityFinish},
+		</if>
+		<if test="quantityScan != null" >
+			QUANTITY_SCAN=#{quantityScan},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.bill.BillPurchaseItemParamVo"
+		      resultType="com.techsoft.entity.common.BillPurchaseItem" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_PURCHASE_ITEM A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	<!-- 批量修改明细状态 -->
+	<update id="updateBillPurchaseItem" parameterType="java.util.List">
+	<foreach collection="list" item="item" index="index" separator=";">
+		UPDATE BILL_PURCHASE_ITEM 
+	    <set>
+	    
+	    	<if test="item.billStatusDictId != null" >
+				 BILL_STATUS_DICT_ID=#{item.billStatusDictId},
+			</if>
+			<if test="item.quantityFinish != null" >
+				 QUANTITY_FINISH=#{item.quantityFinish},
+			</if>
+			<if test="item.quantityScan != null" >
+				 QUANTITY_SCAN=#{item.quantityScan},
+			</if>
+		
+		MODIFY_TIME=now(),
+	    VERSION = VERSION + 1
+		</set>
+		WHERE 
+		BILL_ID=#{item.billId}
+		<if test="item.materialId != null" >
+		AND MATERIAL_ID=#{item.materialId}
+		</if>
+		</foreach>	
+	</update>
+	
+	<update id="updatePartEntityS" flushCache="true" parameterType="com.techsoft.entity.common.BillPurchaseItem">
+		UPDATE BILL_PURCHASE_ITEM SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="billStatusDictId != null" >
+			BILL_STATUS_DICT_ID=#{billStatusDictId},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="quantityFinish != null" >
+			QUANTITY_FINISH=#{quantityFinish},
+		</if>
+		<if test="quantityScan != null" >
+			QUANTITY_SCAN=#{quantityScan},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE BILL_PURCHASE_ID=#{billPurchaseId} AND DEL_FLAG !=1			
+	</update>
+
+</mapper>

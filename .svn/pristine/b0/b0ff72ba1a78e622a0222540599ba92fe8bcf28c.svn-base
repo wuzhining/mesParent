@@ -1,0 +1,113 @@
+package com.techsoft.dao.struct;
+
+import java.util.List;
+import javax.annotation.Resource;
+import org.springframework.stereotype.Repository;
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.StructProcessLine;
+import com.techsoft.mapper.struct.StructProcessLineMapper;
+
+@Repository
+public class StructProcessLineDaoImpl extends BaseDaoImpl<StructProcessLine> implements StructProcessLineDao {
+	@Resource
+	protected StructProcessLineMapper structProcessLineMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<StructProcessLine> getEntityClass() {
+		return StructProcessLine.class;
+	}	
+	
+	@Override
+	public BaseMapper<StructProcessLine> getBaseMapper() {
+		return this.structProcessLineMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "STRUCT_PROCESS_LINE";
+	}
+	
+	@Override
+	public void insertSaveCheck(StructProcessLine value) throws BusinessException, SQLException {
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("工厂名称不能为空");
+		}
+		if (value.getProcessId() == null || value.getProcessId().equals(0L)) {
+			throw new BusinessException("所属工艺流程不能为空");
+		}
+		if (value.getPrevNodeId() == null || value.getPrevNodeId().equals(0L)) {
+			throw new BusinessException("上一个工序流程节点不能为空");
+		}
+		if (value.getNextNodeId() == null || value.getNextNodeId().equals(0L)) {
+			throw new BusinessException("下一个工序流程节点不能为空");
+		}
+		if (value.getLineTypeDictId() == null || value.getLineTypeDictId().equals(0L)) {
+			throw new BusinessException("流转线类型不能为空");
+		}
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("创建人不能为空");
+		}
+	}
+	
+	@Override
+	public void updateSaveCheck(StructProcessLine value) throws BusinessException, SQLException {
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("工厂名称不能为空");
+		}
+		if (value.getProcessId() == null || value.getProcessId().equals(0L)) {
+			throw new BusinessException("所属工艺流程不能为空");
+		}
+		if (value.getPrevNodeId() == null || value.getPrevNodeId().equals(0L)) {
+			throw new BusinessException("上一个工序流程节点不能为空");
+		}
+		if (value.getNextNodeId() == null || value.getNextNodeId().equals(0L)) {
+			throw new BusinessException("下一个工序流程节点不能为空");
+		}
+		if (value.getLineTypeDictId() == null || value.getLineTypeDictId().equals(0L)) {
+			throw new BusinessException("流转线类型不能为空");
+		}
+		if (value.getModifyUserId() == null || value.getModifyUserId().equals(0L)) {
+			throw new BusinessException("修改人不能为空");
+		}
+	}
+	
+	@Override
+	public void deleteSaveCheck(StructProcessLine value) throws BusinessException, SQLException {
+		throw new BusinessException("工序流程路线不能删除");
+	}
+
+	@Override
+	public void insertBatch(List<StructProcessLine> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		// TODO Auto-generated method stub
+		
+		int rows = structProcessLineMapper.insertBatch(list);
+		
+		if (rows != list.size()) {
+			throw new BusinessException("新增行数不一致！请检查");
+		}
+	}
+
+	@Override
+	public int updateBatch(List<StructProcessLine> processLineList, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		// TODO Auto-generated method stub
+		int result = structProcessLineMapper.updateBatch(processLineList);
+		
+		return result;
+	}
+			
+}

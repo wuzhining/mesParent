@@ -1,0 +1,86 @@
+package com.techsoft.dao.struct;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.StructProcess;
+import com.techsoft.mapper.struct.StructProcessMapper;
+
+@Repository
+public class StructProcessDaoImpl extends BaseDaoImpl<StructProcess> implements StructProcessDao {
+	@Resource
+	protected StructProcessMapper structProcessMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<StructProcess> getEntityClass() {
+		return StructProcess.class;
+	}	
+	
+	@Override
+	public BaseMapper<StructProcess> getBaseMapper() {
+		return this.structProcessMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "STRUCT_PROCESS";
+	}
+	
+	@Override
+	public void insertSaveCheck(StructProcess value) throws BusinessException, SQLException {
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("工厂名称不能为空");
+		}
+		if (value.getProcessCode() == null || value.getProcessCode().equals(0L)) {
+			throw new BusinessException("工艺流程编码不能为空");
+		}
+		if (value.getProcessName() == null || value.getProcessName().equals(0L)) {
+			throw new BusinessException("工艺流程名称不能为空");
+		}
+		if (value.getProcessVersion() == null || value.getProcessVersion().equals(0L)) {
+			throw new BusinessException("工艺流程版本不能为空");
+		}
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("创建人不能为空");
+		}
+	}
+	
+	@Override
+	public void updateSaveCheck(StructProcess value) throws BusinessException, SQLException {
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("工厂名称不能为空");
+		}
+		if (value.getProcessCode() == null || value.getProcessCode().equals(0L)) {
+			throw new BusinessException("工艺流程编码不能为空");
+		}
+		if (value.getProcessName() == null || value.getProcessName().equals(0L)) {
+			throw new BusinessException("工艺流程名称不能为空");
+		}
+		if (value.getProcessVersion() == null || value.getProcessVersion().equals(0L)) {
+			throw new BusinessException("工艺流程版本不能为空");
+		}
+		if (value.getModifyUserId() == null || value.getModifyUserId().equals(0L)) {
+			throw new BusinessException("修改人不能为空");
+		}
+	}
+	
+	@Override
+	public void deleteSaveCheck(StructProcess value) throws BusinessException, SQLException {
+		throw new BusinessException("工艺流程基础数据不能删除");
+	}
+			
+}

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.scada.ScadaAoiVersionMapper">
+	<resultMap id="ScadaAoiVersion" type="com.techsoft.entity.common.ScadaAoiVersion" > 
+	    <id column="ID" property="id" />
+		<result column="RESERVED1BYINT" property="reserved1byint" />
+		<result column="RESERVED2BYINT" property="reserved2byint" />
+		<result column="RESERVED3BYINT" property="reserved3byint" />
+		<result column="RESERVED4BYINT" property="reserved4byint" />
+		<result column="RESERVED5BYINT" property="reserved5byint" />
+		<result column="RESERVED1BYCHAR" property="reserved1bychar" />
+		<result column="RESERVED2BYCHAR" property="reserved2bychar" />
+		<result column="RESERVED3BYCHAR" property="reserved3bychar" />
+		<result column="RESERVED4BYCHAR" property="reserved4bychar" />
+		<result column="RESERVED5BYCHAR" property="reserved5bychar" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="reserved1byint != null">
+			AND A.RESERVED1BYINT= #{reserved1byint}
+		</if>
+		<if test="reserved2byint != null">
+			AND A.RESERVED2BYINT= #{reserved2byint}
+		</if>
+		<if test="reserved3byint != null">
+			AND A.RESERVED3BYINT= #{reserved3byint}
+		</if>
+		<if test="reserved4byint != null">
+			AND A.RESERVED4BYINT= #{reserved4byint}
+		</if>
+		<if test="reserved5byint != null">
+			AND A.RESERVED5BYINT= #{reserved5byint}
+		</if>
+		<if test="reserved1bychar != null">
+			AND A.RESERVED1BYCHAR= #{reserved1bychar}
+		</if>
+		<if test="reserved2bychar != null">
+			AND A.RESERVED2BYCHAR= #{reserved2bychar}
+		</if>
+		<if test="reserved3bychar != null">
+			AND A.RESERVED3BYCHAR= #{reserved3bychar}
+		</if>
+		<if test="reserved4bychar != null">
+			AND A.RESERVED4BYCHAR= #{reserved4bychar}
+		</if>
+		<if test="reserved5bychar != null">
+			AND A.RESERVED5BYCHAR= #{reserved5bychar}
+		</if>
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	</sql>		
+	<sql id="Base_Column_List">    
+	    A.ID,
+		A.RESERVED1BYINT,
+		A.RESERVED2BYINT,
+		A.RESERVED3BYINT,
+		A.RESERVED4BYINT,
+		A.RESERVED5BYINT,
+		A.RESERVED1BYCHAR,
+		A.RESERVED2BYCHAR,
+		A.RESERVED3BYCHAR,
+		A.RESERVED4BYCHAR,
+		A.RESERVED5BYCHAR
+	</sql>
+
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from SCADA_AOI_VERSION
+	</select>
+		
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.scada.ScadaAoiVersionParamVo"
+		      resultType="com.techsoft.entity.common.ScadaAoiVersion" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SCADA_AOI_VERSION A
+		WHERE (1 = 1)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

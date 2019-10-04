@@ -1,0 +1,22 @@
+package com.techsoft.common.enums;
+/**
+ * 
+ * 条码状态
+ *
+ */
+public enum EnumDictBarcodeStatus {
+	NEW(10510L),//新建
+	INSTORE(10511L),//在架 
+	OFFSTORE(10512L),//下架
+	OUTSTORE(10513L);//出库
+	  
+	private Long value;
+
+	private EnumDictBarcodeStatus(Long value) {
+		this.value = value;
+	}
+
+	public Long getValue() {
+		return value;
+	}
+}

@@ -1,0 +1,26 @@
+package com.techsoft.entity.sys;
+
+import com.techsoft.entity.common.UserPassport;
+
+public class UserPassportVo extends UserPassport {
+	private static final long serialVersionUID = -8779619259944394738L;
+	
+    private String statusName;
+
+	public UserPassportVo() {	
+	}
+	
+	public UserPassportVo(UserPassport value) {
+		value.cloneProperties(this);
+	}	
+	
+    
+	public String getStatusName() {
+		return statusName;
+	}
+
+	public void setStatusName(String statusName) {
+		this.statusName = statusName;
+	}
+
+}

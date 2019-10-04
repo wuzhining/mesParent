@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.alarm.AlarmInforFlowMapper">
+<cache type="org.mybatis.caches.redis.RedisCache"/>
+	<resultMap id="AlarmInforFlow" type="com.techsoft.entity.common.AlarmInforFlow" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="EQUIP_WORK_ID" property="equipWorkId" />
+		<result column="PROBLEM_ID" property="problemId" />
+		<result column="ALARM_LEVEL_ID" property="alarmLevelId" />
+		<result column="ALARM_TYPE_DICT_ID" property="alarmTypeDictId" />
+		<result column="STATUS_DICT_ID" property="statusDictId" />
+		<result column="DEAL_RESULT_DICT_ID" property="dealResultDictId" />
+		<result column="ALARM_USER_ID" property="alarmUserId" />
+		<result column="RESPOND_USER_ID" property="respondUserId" />
+		<result column="DEAL_USER_ID" property="dealUserId" />
+		<result column="CONFIRM_USER_ID" property="confirmUserId" />
+		<result column="ALARM_TIME" property="alarmTime" />
+		<result column="RESPOND_TIME" property="respondTime" />
+		<result column="CONFIRM_TIME" property="confirmTime" />
+		<result column="DEAL_TIME" property="dealTime" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="equipWorkId != null">
+			AND A.EQUIP_WORK_ID= #{equipWorkId}
+		</if>
+		<if test="problemId != null">
+			AND A.PROBLEM_ID= #{problemId}
+		</if>
+		<if test="alarmLevelId != null">
+			AND A.ALARM_LEVEL_ID= #{alarmLevelId}
+		</if>
+		<if test="alarmTypeDictId != null">
+			AND A.ALARM_TYPE_DICT_ID= #{alarmTypeDictId}
+		</if>
+		<if test="statusDictId != null">
+			AND A.STATUS_DICT_ID= #{statusDictId}
+		</if>
+		<if test="dealResultDictId != null">
+			AND A.DEAL_RESULT_DICT_ID= #{dealResultDictId}
+		</if>
+		<if test="alarmUserId != null">
+			AND A.ALARM_USER_ID= #{alarmUserId}
+		</if>
+		<if test="respondUserId != null">
+			AND A.RESPOND_USER_ID= #{respondUserId}
+		</if>
+		<if test="dealUserId != null">
+			AND A.DEAL_USER_ID= #{dealUserId}
+		</if>
+		<if test="confirmUserId != null">
+			AND A.CONFIRM_USER_ID= #{confirmUserId}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+		<if test="alarmTimeBegin != null">
+		<![CDATA[
+		   AND A.ALARM_TIME >=  #{alarmTimeBegin}
+		]]>
+		</if>
+		<if test="alarmTimeEnd != null">
+		<![CDATA[
+		   AND A.ALARM_TIME <= #{alarmTimeEnd}
+		]]>
+		</if>		
+		<if test="respondTimeBegin != null">
+		<![CDATA[
+		   AND A.RESPOND_TIME >=  #{respondTimeBegin}
+		]]>
+		</if>
+		<if test="respondTimeEnd != null">
+		<![CDATA[
+		   AND A.RESPOND_TIME <= #{respondTimeEnd}
+		]]>
+		</if>		
+		<if test="confirmTimeBegin != null">
+		<![CDATA[
+		   AND A.CONFIRM_TIME >=  #{confirmTimeBegin}
+		]]>
+		</if>
+		<if test="confirmTimeEnd != null">
+		<![CDATA[
+		   AND A.CONFIRM_TIME <= #{confirmTimeEnd}
+		]]>
+		</if>		
+		<if test="dealTimeBegin != null">
+		<![CDATA[
+		   AND A.DEAL_TIME >=  #{dealTimeBegin}
+		]]>
+		</if>
+		<if test="dealTimeEnd != null">
+		<![CDATA[
+		   AND A.DEAL_TIME <= #{dealTimeEnd}
+		]]>
+		</if>		
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.EQUIP_WORK_ID,
+		A.PROBLEM_ID,
+		A.ALARM_LEVEL_ID,
+		A.ALARM_TYPE_DICT_ID,
+		A.STATUS_DICT_ID,
+		A.DEAL_RESULT_DICT_ID,
+		A.ALARM_USER_ID,
+		A.RESPOND_USER_ID,
+		A.DEAL_USER_ID,
+		A.CONFIRM_USER_ID,
+		A.ALARM_TIME,
+		A.RESPOND_TIME,
+		A.CONFIRM_TIME,
+		A.DEAL_TIME,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_ALARM_INFOR_FLOW_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from ALARM_INFOR_FLOW
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.AlarmInforFlow">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ALARM_INFOR_FLOW A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.AlarmInforFlow">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ALARM_INFOR_FLOW A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE ALARM_INFOR_FLOW A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE ALARM_INFOR_FLOW  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.AlarmInforFlow">
+		UPDATE ALARM_INFOR_FLOW A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.AlarmInforFlow">
+		INSERT INTO ALARM_INFOR_FLOW (
+		TENANT_ID,
+		EQUIP_WORK_ID,
+		PROBLEM_ID,
+		ALARM_LEVEL_ID,
+		ALARM_TYPE_DICT_ID,
+		STATUS_DICT_ID,
+		DEAL_RESULT_DICT_ID,
+		ALARM_USER_ID,
+		RESPOND_USER_ID,
+		DEAL_USER_ID,
+		CONFIRM_USER_ID,
+		ALARM_TIME,
+		RESPOND_TIME,
+		CONFIRM_TIME,
+		DEAL_TIME,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{equipWorkId},
+		#{problemId},
+		#{alarmLevelId},
+		#{alarmTypeDictId},
+		#{statusDictId},
+		#{dealResultDictId},
+		#{alarmUserId},
+		#{respondUserId},
+		#{dealUserId},
+		#{confirmUserId},
+		#{alarmTime},
+		#{respondTime},
+		#{confirmTime},
+		#{dealTime},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.AlarmInforFlow">
+		UPDATE ALARM_INFOR_FLOW SET
+		TENANT_ID=#{tenantId},
+		EQUIP_WORK_ID=#{equipWorkId},
+		PROBLEM_ID=#{problemId},
+		ALARM_LEVEL_ID=#{alarmLevelId},
+		ALARM_TYPE_DICT_ID=#{alarmTypeDictId},
+		STATUS_DICT_ID=#{statusDictId},
+		DEAL_RESULT_DICT_ID=#{dealResultDictId},
+		ALARM_USER_ID=#{alarmUserId},
+		RESPOND_USER_ID=#{respondUserId},
+		DEAL_USER_ID=#{dealUserId},
+		CONFIRM_USER_ID=#{confirmUserId},
+		ALARM_TIME=#{alarmTime},
+		RESPOND_TIME=#{respondTime},
+		CONFIRM_TIME=#{confirmTime},
+		DEAL_TIME=#{dealTime},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.AlarmInforFlow">
+		UPDATE ALARM_INFOR_FLOW SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="equipWorkId != null" >
+			EQUIP_WORK_ID=#{equipWorkId},
+		</if>
+		<if test="problemId != null" >
+			PROBLEM_ID=#{problemId},
+		</if>
+		<if test="alarmLevelId != null" >
+			ALARM_LEVEL_ID=#{alarmLevelId},
+		</if>
+		<if test="alarmTypeDictId != null" >
+			ALARM_TYPE_DICT_ID=#{alarmTypeDictId},
+		</if>
+		<if test="statusDictId != null" >
+			STATUS_DICT_ID=#{statusDictId},
+		</if>
+		<if test="dealResultDictId != null" >
+			DEAL_RESULT_DICT_ID=#{dealResultDictId},
+		</if>
+		<if test="alarmUserId != null" >
+			ALARM_USER_ID=#{alarmUserId},
+		</if>
+		<if test="respondUserId != null" >
+			RESPOND_USER_ID=#{respondUserId},
+		</if>
+		<if test="dealUserId != null" >
+			DEAL_USER_ID=#{dealUserId},
+		</if>
+		<if test="confirmUserId != null" >
+			CONFIRM_USER_ID=#{confirmUserId},
+		</if>
+		<if test="alarmTime != null" >
+			ALARM_TIME=#{alarmTime},
+		</if>
+		<if test="respondTime != null" >
+			RESPOND_TIME=#{respondTime},
+		</if>
+		<if test="confirmTime != null" >
+			CONFIRM_TIME=#{confirmTime},
+		</if>
+		<if test="dealTime != null" >
+			DEAL_TIME=#{dealTime},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.alarm.AlarmInforFlowParamVo"
+		      resultType="com.techsoft.entity.common.AlarmInforFlow" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ALARM_INFOR_FLOW A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

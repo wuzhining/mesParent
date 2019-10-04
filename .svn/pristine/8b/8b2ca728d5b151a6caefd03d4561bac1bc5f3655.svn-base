@@ -1,0 +1,14 @@
+package com.techsoft.entity.equip;
+
+import com.techsoft.entity.common.EquipSpecsFixture;
+
+public class EquipSpecsFixtureVo extends EquipSpecsFixture {
+	private static final long serialVersionUID = -341287360551703465L;
+
+	public EquipSpecsFixtureVo() {	
+	}
+	
+	public EquipSpecsFixtureVo(EquipSpecsFixture value) {
+		value.cloneProperties(this);
+	}		
+}

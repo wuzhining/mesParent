@@ -1,0 +1,28 @@
+﻿#此文件由mybaits-redis包自动读取
+#不需要spring去加载此属性文件， 如果加载
+#此文件的属性名称与其他属性名称冲突会产生问题
+#比如timeout属性会引数据库的相关属性产生冲突
+#redis的服务器地址
+host=192.168.1.208
+#redis的服务端口
+#port=6379
+port=6316
+#服务器密码
+#password=4B63DA14A18D398DE053CB0713AC72BF
+password=redis&208Guid
+#链接数据库,这个设置无效， 只会取0数据库
+default.db=1
+#客户端超时时间单位是毫秒
+timeout=60000
+#最大连接数
+maxActive=300
+#最大空闲数
+maxIdle=100
+#最小空闲数
+minIdle=1
+#最大建立连接等待时间
+maxWait=1000
+#指明是否在从池中取出连接前进行检验,如果检验失败,则从池中去除连接并尝试取出另一个
+testOnBorrow=true
+#当调用return Object方法时，进行有效性检查
+testOnReturn=true

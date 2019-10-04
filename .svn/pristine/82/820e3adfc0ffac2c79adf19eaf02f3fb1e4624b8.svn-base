@@ -1,0 +1,395 @@
+package com.techsoft.service.bill;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumAuditStatus;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.enums.EnumDictWorkPlanStatus;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.enums.EnumProductType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.Arith;
+import com.techsoft.dao.bill.BillWorkorderDao;
+import com.techsoft.dao.config.ConfigDictionaryDao;
+import com.techsoft.dao.history.HistoryBillStatusAuditDao;
+import com.techsoft.dao.history.HistoryBillStatusDao;
+import com.techsoft.dao.product.ProductBomDao;
+import com.techsoft.dao.product.ProductMaterialDao;
+import com.techsoft.dao.struct.StructProcedureEquipFixtureDao;
+import com.techsoft.dao.struct.StructProcedureInstructDao;
+import com.techsoft.dao.struct.StructProcedureMaterialDao;
+import com.techsoft.dao.struct.StructProcessDao;
+import com.techsoft.dao.struct.StructProcessNodeDao;
+import com.techsoft.dao.struct.StructProcessProductDao;
+import com.techsoft.dao.work.WorkPlanMaterialDao;
+import com.techsoft.dao.work.WorkTaskProcedureDao;
+import com.techsoft.entity.bill.BillWorkorderVo;
+import com.techsoft.entity.common.BillWorkorder;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ProductBom;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.StructProcedureInstruct;
+import com.techsoft.entity.common.StructProcedureMaterial;
+import com.techsoft.entity.common.StructProcess;
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.entity.common.StructProcessProduct;
+import com.techsoft.entity.common.WorkPlanMaterial;
+import com.techsoft.entity.common.WorkTaskProcedure;
+import com.techsoft.entity.product.ProductBomParamVo;
+import com.techsoft.entity.product.ProductBomVo;
+import com.techsoft.entity.struct.StructProcedureInstructParamVo;
+import com.techsoft.entity.struct.StructProcedureMaterialParamVo;
+import com.techsoft.entity.struct.StructProcessNodeParamVo;
+import com.techsoft.entity.struct.StructProcessProductParamVo;
+
+@Service
+public class BillWorkorderServiceImpl extends BaseServiceImpl<BillWorkorder> implements BillWorkorderService {
+	@Autowired
+	private BillWorkorderDao billWorkorderDao;
+	@Autowired
+	private ProductBomDao productBomDao;
+	@Autowired
+	private ProductMaterialDao productMaterialDao;
+	@Autowired
+	private ConfigDictionaryDao configDictionaryDao;
+	@Autowired
+	private StructProcessProductDao structProcessProductDao;
+	@Autowired
+	private StructProcessDao structProcessDao;
+	@Autowired
+	private StructProcessNodeDao structProcessNodeDao;
+	@Autowired
+	private StructProcedureInstructDao structProcedureInstructDao;
+	@Autowired
+	private StructProcedureEquipFixtureDao structProcedureEquipFixtureDao;
+	@Autowired
+	private WorkTaskProcedureDao workTaskProcedureDao;
+	@Autowired
+	private WorkPlanMaterialDao workPlanMaterialDao;
+	@Autowired
+	private HistoryBillStatusDao historyBillStatusDao;
+	@Autowired
+	private HistoryBillStatusAuditDao historyBillStatusAuditDao;
+	@Autowired
+	private StructProcedureMaterialDao structProcedureMaterialDao;
+
+	@Override
+	public BaseDao<BillWorkorder> getBaseDao() {
+		return billWorkorderDao;
+	}
+
+	@Override
+	public Class<BillWorkorder> getEntityClass() {
+		return BillWorkorder.class;
+	}
+
+	@Override
+	protected BillWorkorder insertEntity(BillWorkorder insertEntity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+
+		BillWorkorder billWorkorder = super.insertEntity(insertEntity, commonParam);
+
+		if (billWorkorder != null) {
+			// 增加单据历史记录
+			historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WORKORDER.getValue(),
+					billWorkorder.getWorkorderStatusDictId(), billWorkorder.getId(), billWorkorder.getWorkorderCode(),
+					commonParam);
+			// 增加单据审批记录
+			historyBillStatusAuditDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WORKORDER.getValue(),
+					billWorkorder.getAuditStatusDictId(), billWorkorder.getId(), billWorkorder.getWorkorderCode(),
+					commonParam);
+		}
+		return billWorkorder;
+	}
+
+	@Override
+	protected BillWorkorder updatePartEntity(BillWorkorder entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillWorkorder billWorkorder = super.updatePartEntity(entity, commonParam);
+		if (billWorkorder != null) {
+			// 增加单据历史记录
+			historyBillStatusDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WORKORDER.getValue(),
+					billWorkorder.getWorkorderStatusDictId(), billWorkorder.getId(), billWorkorder.getWorkorderCode(),
+					commonParam);
+			// 增加单据审批记录,审批id不为未审批状态时，表示已修改审批状态
+			if (billWorkorder.getAuditStatusDictId() != 10585L) {
+				historyBillStatusAuditDao.billHistoryInsert(EnumDictBillType.BILL_TYPE_WORKORDER.getValue(),
+						billWorkorder.getAuditStatusDictId(), billWorkorder.getId(), billWorkorder.getWorkorderCode(),
+						commonParam);
+			}
+
+		}
+		return billWorkorder;
+	}
+
+	@Override
+	protected BillWorkorder updateEntity(BillWorkorder entity, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}
+
+	@Override
+	public ResultMessage workorderCheck(BillWorkorderVo billWorkorderVo, CommonParam commonParam) {
+		// TODO Auto-generated method stub
+		ResultMessage resultMessage = new ResultMessage();
+		ProductBomParamVo productBomParamVo = new ProductBomParamVo();
+		ProductMaterial productMaterial = new ProductMaterial();
+		ConfigDictionary configDictionary = new ConfigDictionary();
+
+		if (billWorkorderVo.getBomId() == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.setMessage("该工单对应BOMID,请先维护!");
+		}
+		List<StructProcessNode> listCheckNode = new ArrayList<StructProcessNode>();
+		List<StructProcedureMaterial> allProcedureMaterialList = new ArrayList<StructProcedureMaterial>();
+		/**
+		 * checkIs = true 判断是否审核成功 true表示可以生成 工作工序任务、工作物料计划、工作设备计划、工作治具计划 反之
+		 * 返回审核失败的具体消息给WEB页面
+		 */
+		boolean checkIs = true;
+		// 工单产品 BOM ID
+		long bomId = billWorkorderVo.getBomId();
+		// 工单产品 BOM 规格ID
+		long materialId = 0L;
+		productBomParamVo.setId(materialId);
+		productBomParamVo.setTenantId(commonParam.getTenantId());
+		try {
+			List<ProductBom> listBom = productBomDao.selectListByParamVo(productBomParamVo);
+			if (listBom.size() > 0) {
+				labe: for (ProductBom productBom : listBom) {
+					try {
+						// 找到工单产品对应的 BOM ID
+						if (productBom.getMaterialId().equals(billWorkorderVo.getMaterialId())) {
+							bomId = productBom.getId();
+							materialId = productBom.getMaterialId();
+						}
+						productMaterial = productMaterialDao.selectById(productBom.getMaterialId());
+						configDictionary = configDictionaryDao.selectById(productMaterial.getProductTypeDictId());
+						if (!EnumProductType.RAWMATERIAL.getValue().equals(productMaterial.getProductTypeDictId())) {
+							checkIs = true;
+						} else {
+							resultMessage.setIsSuccess(false);
+							checkIs = false;
+							resultMessage.setMessage("该工单产品对应BOM结构不存在成品或半成品,请先维护!");
+						}
+						if (checkIs == true) {
+							// 根据产品ID和物料规格ID查询是否存在产品工艺路线
+							StructProcessProductParamVo structProcessProduct = new StructProcessProductParamVo();
+							structProcessProduct.setProductId(productMaterial.getProductId());
+							structProcessProduct.setMaterialId(productMaterial.getId());
+							List<StructProcessProduct> listPro = structProcessProductDao
+									.selectListByParamVo(structProcessProduct);
+							if (listPro.size() == 0) {
+								resultMessage.setIsSuccess(false);
+								checkIs = false;
+								resultMessage.setMessage("物料规格编码为" + productMaterial.getMaterialCode() + "的"
+										+ configDictionary.getDictName() + "不存在产品工艺路线请先维护!");
+								break;
+							}
+
+							// 查询工艺路线是否存在
+							StructProcess structProcess = structProcessDao.selectById(listPro.get(0).getProcessId());
+							if (structProcess == null) {
+								resultMessage.setIsSuccess(false);
+								checkIs = false;
+								resultMessage.setMessage(listPro.get(0).getProcessId() + "工艺路线不存在,请先维护!");
+								break;
+							}
+
+							// 查询工艺路线工序节点是否存在
+							StructProcessNodeParamVo structProcessNode = new StructProcessNodeParamVo();
+							structProcessNode.setProcessId(structProcess.getId());
+							List<StructProcessNode> listNode = structProcessNodeDao
+									.selectListByParamVo(structProcessNode);
+							if (listNode.size() == 0) {
+								resultMessage.setIsSuccess(false);
+								checkIs = false;
+								resultMessage.setMessage(listPro.get(0).getProcessId() + "工艺路线不存在工序,请先维护!");
+								break;
+							}
+
+							if (checkIs == true) {
+
+								// 判断每个工序是否存在工序指令
+								for (StructProcessNode ProcessNode : listNode) {
+									StructProcedureInstructParamVo ProcedureInstruct = new StructProcedureInstructParamVo();
+									ProcedureInstruct.setProcessNodeId(ProcessNode.getId());
+									List<StructProcedureInstruct> listInstruct = structProcedureInstructDao
+											.selectListByParamVo(ProcedureInstruct);
+									if (listInstruct.size() == 0) {
+										resultMessage.setIsSuccess(false);
+										checkIs = false;
+										resultMessage.setMessage(ProcessNode.getId() + "工序不存在工序指令,请先维护!");
+										break labe;
+									} else {
+										// // 判断每个工序是否维护工序物料清单
+										StructProcedureMaterialParamVo procedureMaterial = new StructProcedureMaterialParamVo();
+										procedureMaterial.setProcessNodeId(ProcessNode.getId());
+										List<StructProcedureMaterial> listProcedureMaterial = structProcedureMaterialDao
+												.selectListByParamVo(procedureMaterial);
+										if (listProcedureMaterial.size() >= 0) {
+											allProcedureMaterialList.addAll(listProcedureMaterial);
+
+										}
+									}
+									listCheckNode.add(ProcessNode);
+								}
+								if (allProcedureMaterialList.size() == 0) {
+									resultMessage.setIsSuccess(false);
+									checkIs = false;
+									resultMessage.setMessage("工序不存在工序物料清单,请先维护!");
+									break labe;
+								}
+
+							}
+						}
+					} catch (BusinessException e) {
+						e.printStackTrace();
+					}
+				}
+			} else {
+				resultMessage.setIsSuccess(false);
+				checkIs = false;
+				resultMessage.setMessage("该工单产品对应BOM不存在,请先维护!");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (checkIs == true) {
+			List<ProductBomVo> materialBomTreeList = new ArrayList<ProductBomVo>();
+
+			try {
+				List<ProductBom> bomTreeList = productBomDao.selectListBomTree(bomId, commonParam);
+				if ((bomTreeList != null) && (!bomTreeList.isEmpty())) {
+					for (ProductBom productBom : bomTreeList) {
+
+						ProductMaterial material = productMaterialDao.selectById(productBom.getMaterialId());
+						if (EnumProductType.RAWMATERIAL.getValue().equals(material.getProductTypeDictId())) { // 如果是物料
+							ProductBomVo productBomVo = new ProductBomVo(productBom);
+							productBomVo.setProductMaterial(material);
+							materialBomTreeList.add(productBomVo);
+						}
+					}
+				} else {
+					resultMessage.setIsSuccess(false);
+					resultMessage.setMessage("该工单产品对应BOM物料不存在,请先维护!");
+				}
+
+				List<WorkTaskProcedure> items = new ArrayList<WorkTaskProcedure>();
+				List<WorkPlanMaterial> planMaterial = new ArrayList<WorkPlanMaterial>();
+				Integer index = 0;
+				String idString = "";
+				String idString2 = "";
+				Long taskProceId = workTaskProcedureDao.getIdValue();
+				Long planMatId = workPlanMaterialDao.getIdValue();
+				DecimalFormat locationdf = new DecimalFormat("0000");
+				DecimalFormat locationdfID = new DecimalFormat("000000");
+				Long idLong = 0L;
+
+				for (StructProcessNode allNode : listCheckNode) {
+					// 工作工序任务
+					WorkTaskProcedure wp = new WorkTaskProcedure();
+					index++;
+					idString = locationdf.format(index);
+					idString2 = locationdfID.format(index);
+					idLong = Long.valueOf(taskProceId.toString() + idString2);
+					wp.setId(idLong);
+					wp.setTenantId(commonParam.getTenantId());
+					wp.setFactoryId(billWorkorderVo.getFactoryId());
+					wp.setBillWorkorderId(billWorkorderVo.getId());
+					wp.setWorkshopId(billWorkorderVo.getWorkshopId());
+					wp.setProcessNodeId(allNode.getId());
+					wp.setBomId(bomId);
+					wp.setPriority(billWorkorderVo.getPriority());
+					wp.setQuantity(billWorkorderVo.getQuantity());
+					wp.setQuantityInput(billWorkorderVo.getQuantityInput());
+					wp.setQuantityOutput(billWorkorderVo.getQuantityOutput());
+					wp.setTaskCode(taskProceId.toString() + idString);
+					wp.setTaskStatusDictId(EnumDictionary.WORK_TASK_STATUS.getValue());
+					wp.setTimePlanStart(billWorkorderVo.getTimePlanStart());
+					wp.setTimePlanEnd(billWorkorderVo.getTimePlanEnd());
+					wp.setTimeActualStart(billWorkorderVo.getTimeActualStart());
+					wp.setTimeActualEnd(billWorkorderVo.getTimeActualEnd());
+					wp.setIsLocked(billWorkorderVo.getIsLocked());
+					wp.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+					wp.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+					items.add(wp);
+
+					
+			        for (StructProcedureMaterial structProcedureMaterial : allProcedureMaterialList) {
+							if(structProcedureMaterial.getProcessNodeId().equals(allNode.getId()))// 该个工序的物料清单 
+							{
+								for (ProductBom productBom : bomTreeList) {
+									if(structProcedureMaterial.getMaterialId().equals(productBom.getMaterialId())){
+
+										// 工作物料计划
+										WorkPlanMaterial wm = new WorkPlanMaterial();
+										wm.setId(Long.valueOf(planMatId.toString() + idString2));
+										wm.setTenantId(commonParam.getTenantId());
+										wm.setFactoryId(billWorkorderVo.getFactoryId());
+										wm.setBillWorkorderId(billWorkorderVo.getId());
+										wm.setWorkshopId(billWorkorderVo.getWorkshopId());
+										wm.setTaskId(idLong);
+										wm.setWorkshopId(billWorkorderVo.getWorkshopId());
+										wm.setProcessNodeId(allNode.getId()); 
+										wm.setBomId(productBom.getId());
+										wm.setProductId(billWorkorderVo.getProductId());
+										wm.setMaterialId(structProcedureMaterial.getMaterialId());
+										wm.setPlanStatusDictId(EnumDictWorkPlanStatus.BF01.getValue());
+										wm.setQuantity(Arith.mul(billWorkorderVo.getQuantity(), productBom.getQuantity()));
+										wm.setQuantityInput(Arith.mul(billWorkorderVo.getQuantity(), productBom.getQuantity()));
+										wm.setTimePlanStart(billWorkorderVo.getTimePlanStart());
+										wm.setTimePlanEnd(billWorkorderVo.getTimePlanEnd());
+										wm.setTimeActualStart(billWorkorderVo.getTimeActualStart());
+										wm.setTimeActualEnd(billWorkorderVo.getTimeActualEnd());
+										wm.setIsLocked((billWorkorderVo.getIsLocked()));
+										wm.setRemark(billWorkorderVo.getRemark());
+										wm.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+										wm.setCreateUserId(Long.valueOf(commonParam.getUserId()));
+										planMaterial.add(wm);
+									}
+								}
+			       
+						 }
+				    }
+				 
+
+				}
+
+				// 工作工序任务
+				workTaskProcedureDao.insertBatch(items, commonParam);
+				// 工作物料计划
+				workPlanMaterialDao.insertBatch(planMaterial, commonParam);
+				// 修改工单状态为已审核
+				BillWorkorder wo = new BillWorkorder();
+				wo.setId(billWorkorderVo.getId());
+				wo.setAuditStatusDictId(EnumAuditStatus.AUDITED.getValue());
+				wo.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				wo.setModifyUserId(Long.valueOf(commonParam.getUserId()));
+				billWorkorderDao.updateBatch(wo, commonParam);
+
+				resultMessage.setIsSuccess(true);
+				resultMessage.setMessage(billWorkorderVo.getWorkorderCode() + "工单审核成功!");
+			} catch (BusinessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return resultMessage;
+	}
+}

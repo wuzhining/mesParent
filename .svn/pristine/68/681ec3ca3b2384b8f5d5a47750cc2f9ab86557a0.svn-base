@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.sys.AdminAuthOrgUserMapper">
+	<resultMap id="AdminAuthOrgUser" type="com.techsoft.entity.common.AdminAuthOrgUser" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="USER_ID" property="userId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="WAREHOUSE_ID" property="warehouseId" />
+		<result column="WORKSHOP_ID" property="workshopId" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="userId != null">
+			AND A.USER_ID= #{userId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="warehouseId != null">
+			AND A.WAREHOUSE_ID= #{warehouseId}
+		</if>
+		<if test="workshopId != null">
+			AND A.WORKSHOP_ID= #{workshopId}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.USER_ID,
+		A.FACTORY_ID,
+		A.WAREHOUSE_ID,
+		A.WORKSHOP_ID
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for ADMIN_AUTH_ORG_USER_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from ADMIN_AUTH_ORG_USER
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.AdminAuthOrgUser">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ADMIN_AUTH_ORG_USER A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.AdminAuthOrgUser">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ADMIN_AUTH_ORG_USER A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM ADMIN_AUTH_ORG_USER A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE   A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM ADMIN_AUTH_ORG_USER A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.AdminAuthOrgUser">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM ADMIN_AUTH_ORG_USER A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.AdminAuthOrgUser">
+		INSERT INTO ADMIN_AUTH_ORG_USER (
+		TENANT_ID,
+		USER_ID,
+		FACTORY_ID,
+		WAREHOUSE_ID,
+		WORKSHOP_ID
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{userId},
+		#{factoryId},
+		#{warehouseId},
+		#{workshopId}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.AdminAuthOrgUser">
+		UPDATE ADMIN_AUTH_ORG_USER SET
+		TENANT_ID=#{tenantId},
+		USER_ID=#{userId},
+		FACTORY_ID=#{factoryId},
+		WAREHOUSE_ID=#{warehouseId},
+		WORKSHOP_ID=#{workshopId},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.AdminAuthOrgUser">
+		UPDATE ADMIN_AUTH_ORG_USER SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="userId != null" >
+			USER_ID=#{userId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="warehouseId != null" >
+			WAREHOUSE_ID=#{warehouseId},
+		</if>
+		<if test="workshopId != null" >
+			WORKSHOP_ID=#{workshopId},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.sys.AdminAuthOrgUserParamVo"
+		      resultType="com.techsoft.entity.common.AdminAuthOrgUser" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ADMIN_AUTH_ORG_USER A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	<!-- 批量新增条码打印 -->
+	<insert id="insertAuthOrgsUser" flushCache="true" parameterType="java.util.List">
+	  	INSERT INTO ADMIN_AUTH_ORG_USER (
+		TENANT_ID,
+		USER_ID,
+		FACTORY_ID,
+		WAREHOUSE_ID,
+		WORKSHOP_ID,
+		ID
+		,VERSION
+		,DEL_FLAG
+		,CREATE_USER_ID
+		,MODIFY_USER_ID
+		,CREATE_TIME
+		,MODIFY_TIME
+		) VALUES
+			<foreach collection="list" item="item" separator=",">
+			(
+				#{item.tenantId},
+				#{item.userId},
+				#{item.factoryId},
+				#{item.warehouseId},
+				#{item.workshopId},
+				#{item.id},
+				1,
+				0,
+				#{item.createUserId},
+				#{item.modifyUserId},
+				now(),
+				now()
+			)
+			 </foreach>
+	</insert>
+	
+</mapper>

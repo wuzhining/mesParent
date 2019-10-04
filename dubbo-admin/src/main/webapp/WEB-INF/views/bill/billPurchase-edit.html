@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+            <tr>
+                <td width="15%" class="tableleft">供应商</td>
+                <td>
+                	<div class="div-choiceBox-intd ">  
+                		<input type="hidden"  id="supplierId" name="supplierId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.supplierId??>${entity.supplierId?c}<#else></#if>">
+                		<input type="text" id="companyName"  lay-verify="required" name="companyName" value="${(firmPartner.companyName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd"/>
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="supplierSearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div> 
+                </td>
+               <td width="10%" class="tableleft" >采购单状态</td>
+               <td>
+                 <select id="billStatusDictId" name="billStatusDictId" disabled="true" > 
+                    <#if billPurchaseStatusList??>
+                     <#list billPurchaseStatusList as item>
+			            <option value="${item.id?c}" <#if (entity.billStatusDictId??&&entity.billStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+            </tr>
+            <tr>
+            	<td width="10%" class="tableleft" >审核状态</td>
+               <td>
+                 <select id="auditStatusDictId" name="auditStatusDictId"  disabled="true" > 
+                    <#if auditStatusDictList??>
+                     <#list auditStatusDictList as item>
+			            <option value="${item.id?c}" <#if (entity.auditStatusDictId??&&entity.auditStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+            	<td width="15%" class="tableleft">预计到货日期</td>
+                <td>
+                    <input class="layui-input" autocomplete="off" lay-verify="required" placeholder="预计到货日期" name="dateArrival" id="dateArrival" maxlength="20" value="${(entity.dateArrival)!''}"/>
+                </td>
+            </tr>
+            <tr>
+                <td width="15%" class="tableleft">描述</td>
+                <td colspan="3">
+                    <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+                </td> 
+            </tr>
+       </table>  
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+    </div>
+   
+  <script>
+  var statusDictId="10313";
+  var ids = $("#id").val();
+  var statuId=window.parent.billStatusDictId;
+  if (ids!=null&&ids!=""){
+	/* if(statuId=='10488'){
+		$('#billStatusDictId').attr("disabled", false);
+	} */
+  }else{
+	    ids="0";
+		$('#billStatusDictId').val(10488);
+		$('#auditStatusDictId').val(10585);
+  }
+
+     layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+    	var form = layui.form, 
+    	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+    	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+    	var layuiformajax = layui.layuiformajax;
+
+      	$('#supplierSearch').on('click',function(e){
+    		openWinSelect('/firm/firmPartner/firmPartnerOpen',"supplierId","companyName");
+       		e.preventDefault();//默认from表单提交时不刷新
+       	})
+    	
+          //自定义验证规则
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/bill/billPurchase/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          laydate.render({
+              elem: '#dateArrival'
+              ,type: 'date'
+              ,format: 'yyyy-MM-dd' //可任意组合
+              ,min:minDate()
+            });
+
+        // 设置最小可选的日期
+        function minDate(){
+            var now = new Date();
+            return now.getFullYear()+"-" + (now.getMonth()+1) + "-" + now.getDate();
+        }  
+          
+          
+          
+    });
+     
+    </script>
+  </body>
+
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+   <script type="text/html" id="isValidTpl">
+    {{#  if(d.isLocked == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script>
+  <script type="text/html" id="typeStockDic">
+	{{#  if(d.typeStockDic){}}
+		{{ d.typeStockDic.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="billTypeDic">
+	{{#  if(d.billTypeDic){}}
+		{{ d.billTypeDic.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="billStatusDic">
+	{{#  if(d.billStatusDic){}}
+		{{ d.billStatusDic.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="fromBillTypeDic">
+	{{#  if(d.fromBillTypeDic){}}
+		{{ d.fromBillTypeDic.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="fromBill">
+	{{#  if(d.fromBill){}}
+		{{ d.fromBill.workorderCode 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="fromBillWarehosue">
+	{{#  if(d.billWarehouse){}}
+		{{ d.billWarehouse.billCode 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="fromFirmPartner">
+	{{#  if(d.fromFirmPartner){}}
+		{{ d.fromFirmPartner.companyName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="toFirmPartner">
+	{{#  if(d.toFirmPartner){}}
+		{{ d.toFirmPartner.companyName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="billStatus">
+	{{#  if(d.billStatus){}}
+		{{ d.billStatus.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="productMaterial">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="billCode">
+	{{#  if(d.billWarehouse){}}
+		{{ d.billWarehouse.billCode 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="product">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+   </script>
+  <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script> 
+   
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">入库管理</a> <a><cite>供应商发货管理</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <!-- <input class="layui-input" placeholder="开始时间" name="startTime" id="startTime">
+          <input class="layui-input" placeholder="结束时间" name="endTime" id="endTime"> -->
+          <input type="text" name="billCode"  placeholder="请输入发货单号" autocomplete="off" class="layui-input">
+          <select name="billStatusDictId">    
+                <option value="">请选择单据状态</option> 
+                <#if billStatusDictIdList??>
+                    <#list billStatusDictIdList as item>
+		            	<option value="${item.id?c}" >${item.dictName}</option>
+		         	</#list>
+		         </#if> 
+          </select> 
+          <input type="hidden" name="fromPartnerId" id="fromPartnerId" placeholder="请选择原公司Id" autocomplete="off" class="layui-input">
+	 	  <input type="text" name="companyName" id="companyName" placeholder="请选择源公司" autocomplete="off" class="layui-input">
+	      <button class="layui-btn layui-btn-sm  " id="supplierSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		   </button>
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('新增发货单','/bill/billWarehouseDelivery/choiceRejectBill')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12" style="">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div> 
+        </div>
+        <!-- <div class="layui-col-md12" style="height: 70px">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="" lay-filter=""></table>
+        			</div>
+        		</div> 
+        </div> -->
+        <div class="layui-col-md12" style="">
+        		<span>单据详情>>单据编码：<span id="bill" style="color:red"></span> </span>
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable_details" lay-filter="tablefilter_details"></table>
+        			</div>
+        		</div> 
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="lookOver">查看</a>
+</script>    
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,height: 350
+    	,url:'/bill/billWarehouseDelivery/list/json?billTypeDictId='+10269
+    	,limits:[5,10,15,20]
+    	,cols: [[
+    	     {field:'billCode', width:150, title: '单据编码',align:'center'}
+    	    ,{field:'billTypeDic',  title: '单据类型',align:'center', minWidth: 120,templet:'#billTypeDic'}
+    	    ,{field:'billStatusDic',  title: '单据状态',align:'center', minWidth: 80,templet:'#billStatusDic'}
+    	    ,{field:'fromBillTypeDic',  title: '来源单据类型',align:'center', minWidth: 120,templet:'#fromBillTypeDic'}   
+    	    ,{field:'fromFirmPartner',  title: '来自公司',align:'center', minWidth: 120,templet:'#fromFirmPartner'}
+    	    ,{field:'toFirmPartner',  title: '目的公司',align:'center', minWidth: 120,templet:'#toFirmPartner'}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+    	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'} 
+    	]]
+  	});
+	
+	$('#supplierSearch').on('click',function(e){
+		openWinSelect('/firm/firmPartner/firmPartnerOpen',"fromPartnerId","companyName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+   	//清空
+   	$("#companyName").blur(function(){
+		if($('#companyName').val() == ""){
+			$('#fromPartnerId').val("");
+		}
+	});
+	
+	var renderTable = function (billId) {
+		layuitable.render({
+	    	elem: '#listTable_details'
+	    	,id:'listTable_details'
+	    	,url:'/bill/billDeliveryItem/list/json?billId='+billId
+	    	,limits:[5,10,15,20]
+	    	,cols: [[
+                 {field:'billCode',  title: '来源单号',align:'center', minWidth: 120,templet:'#billCode'}
+                ,{field:'productId', width:120, title: '产品ID',align:'center'}
+                ,{field:'product', width:120, title: '产品名称',align:'center',templet:'#product'}
+	    	    ,{field:'materialId', width:120, title: '物料编码',align:'center'}
+	    	    ,{field:'materialName', width:120, title: '物料名称',align:'center',templet:'#productMaterial'}
+	    	    ,{field:'sku', title: '物料规格值', align:'center',minWidth: 220,templet: '#sku'}
+	    	    ,{field:'billStatus',  title: '单据状态',align:'center', minWidth: 120,templet:'#billStatus'}
+	    	    ,{field:'quantity',  title: '单据数量',align:'center', minWidth: 120}
+	    	    ,{field:'quantityFinish',  title: '完成数量',align:'center', minWidth: 120}
+	    	    ,{field:'quantityScan',  title: '扫描数量',align:'center', minWidth: 120}
+	    	]]
+	  	});
+	}
+	
+	//搜索
+	form.on('submit(search)', function (data) {
+		var billCode=data.field.billCode!=null?data.field.billCode:"";
+		table.reload('listTable',{
+			url:'/bill/billWarehouseDelivery/list/json?billTypeDictId='+10269
+			,where:{
+				"billCode":billCode,
+				"fromPartnerId":data.field.fromPartnerId,
+				"billStatusDictId":data.field.billStatusDictId,
+			}
+		});
+    	return false;
+		});
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑供应商发货单','/bill/billWarehouseDelivery/edit?id=' + data.id); 
+		}else if(obj.event === 'lookOver'){
+			layer_window_show('查看发货单','/bill/billWarehouseDelivery/lookOver?id=' + data.id); 
+		}
+	});
+	
+	//初始化
+	renderTable(0);
+    //监听行单击事件（单击事件为：rowDouble） 
+    table.on('row(tablefilter)', function(obj){
+    	var data = obj.data;
+    	$("#bill").html(data.billCode); 
+      	//根据id加载
+    	renderTable(data.id);
+      	//标注选中样式
+      	obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+    });
+	
+	
+	
+	laydate.render({
+		elem: '#startTime' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd' //可任意组合
+	});
+	
+	laydate.render({
+		elem: '#endTime' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd' //可任意组合
+	});
+});	
+</script>
+ 
+  </body>
+
+</html>

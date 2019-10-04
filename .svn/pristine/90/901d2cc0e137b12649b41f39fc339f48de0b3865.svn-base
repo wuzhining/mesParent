@@ -1,0 +1,225 @@
+package com.techsoft.controller.alarm;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.common.SQLException;
+import com.techsoft.controller.BaseController;
+
+import com.techsoft.client.service.alarm.ClientAlarmInforFlowService;
+import com.techsoft.client.service.alarm.ClientAlarmLevelService;
+import com.techsoft.client.service.alarm.ClientAlarmProblemService;
+import com.techsoft.client.service.struct.ClientStructProductionlineService;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.entity.alarm.AlarmInforFlowVo;
+import com.techsoft.entity.alarm.AlarmLevelParamVo;
+import com.techsoft.entity.alarm.AlarmProblemParamVo;
+import com.techsoft.entity.common.AlarmLevel;
+import com.techsoft.entity.common.AlarmProblem;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.StructProductionline;
+import com.techsoft.entity.struct.StructProductionlineParamVo;
+import com.techsoft.entity.alarm.AlarmInforFlowParamVo;
+import com.techsoft.common.enums.EnumDictAlarmStatus;
+
+@Controller
+@RequestMapping("/alarm/alarmInforFlow")
+public class AlarmInforFlowController extends BaseController {
+	@Autowired
+	private ClientAlarmInforFlowService clientAlarmInforFlowService;
+	@Autowired
+	private ClientStructProductionlineService ClientStructProductionlineService;
+	@Autowired
+	private ClientAlarmProblemService clientAlarmProblemService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientAlarmLevelService clientAlarmLevelService;
+	
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		try {
+			//取生产线集合
+			StructProductionlineParamVo ParamVo = new StructProductionlineParamVo();
+			List<StructProductionline> productionlineList = ClientStructProductionlineService.selectListByParamVo(ParamVo,this.getCommonParam(null));
+			modelAndView.addObject("productionlineList", productionlineList); 
+			//获取报警等级
+			List<AlarmLevel> alarmLevelList = clientAlarmLevelService.selectListByParamVo(new AlarmLevelParamVo(),this.getCommonParam(null));
+			modelAndView.addObject("alarmLevelList", alarmLevelList); 
+
+			//取报警问题集合
+			AlarmProblemParamVo ParamVoproblem = new AlarmProblemParamVo();
+			List<AlarmProblem> problemList = clientAlarmProblemService.selectListByParamVo(ParamVoproblem,this.getCommonParam(null));
+			modelAndView.addObject("problemList", problemList);
+			
+			//取报警类型集合
+			List<ConfigDictionary> classList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.ALARM_TYPE.getValue());
+			modelAndView.addObject("classList", classList);
+			
+			//取状态集合
+			List<ConfigDictionary> alarmstatusList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.ALARM_STATUS.getValue());
+			modelAndView.addObject("alarmstatusList", alarmstatusList);
+			
+		} catch (SQLException e) {  
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("alarm/alarmInforFlow-list");
+		return modelAndView;
+	}
+	
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("alarm/alarmInforFlow-edit");
+		AlarmInforFlowVo entity = new AlarmInforFlowVo();
+		try {
+			if (id != null) {
+				entity = clientAlarmInforFlowService.getVoByID(id, this.getCommonParam(request));
+				AlarmProblem alarmProblem = clientAlarmProblemService.getVoByID(entity.getProblemId(), this.getCommonParam(request));
+				modelAndView.addObject("alarmProblem", alarmProblem);
+				
+				ConfigDictionary configDictionary =clientConfigDictionaryService.getVoByID(entity.getAlarmTypeDictId(), this.getCommonParam(request));
+				modelAndView.addObject("configDictionary", configDictionary);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("entity", entity);
+		initData(modelAndView);
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			AlarmInforFlowParamVo alarmInforFlowParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}		
+		try {
+            if(alarmInforFlowParamVo==null){
+            	alarmInforFlowParamVo = new AlarmInforFlowParamVo();
+            }
+            //alarmInforFlowParamVo.setTenantId(getLoginTenantId(request)); 
+			pageInfo = clientAlarmInforFlowService.selectPageVoByParamVo(
+					alarmInforFlowParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			AlarmInforFlowParamVo alarmInforFlowParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+	    alarmInforFlowParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientAlarmInforFlowService.saveOrUpdate(alarmInforFlowParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+	
+	
+	//接警
+	@RequestMapping("/knotAlarmList")
+	public ModelAndView knotAlarmList(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("alarm/knotAlarm-list");
+		return modelAndView;
+	}
+	
+	//PQE分析确认
+	@RequestMapping("/analysisPQEList")
+	public ModelAndView analysisPQEList(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("alarm/analysisPQE-list");
+		return modelAndView;
+	}
+	
+	//关闭警报
+	@RequestMapping("/closeAlertList")
+	public ModelAndView closeAlertList(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("alarm/closeAlert-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping(value = "/alarmSave", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage kontAlarmEdit(HttpServletRequest request,
+			AlarmInforFlowParamVo alarmInforFlowParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+		alarmInforFlowParamVo.setModifyUserId(getLoginUserId(request));
+	    if(alarmInforFlowParamVo.getStatusDictId().equals(EnumDictAlarmStatus.ALARM.getValue())){
+		    //设置响应人
+	    	alarmInforFlowParamVo.setRespondUserId(getLoginUserId(request));
+	    	alarmInforFlowParamVo.setRespondTime(new Date()); 
+	    	alarmInforFlowParamVo.setStatusDictId(EnumDictAlarmStatus.IN_PROCESS.getValue());	
+	    }else if(alarmInforFlowParamVo.getStatusDictId().equals(EnumDictAlarmStatus.IN_PROCESS.getValue())){
+		    //设置PQE确人
+	    	alarmInforFlowParamVo.setConfirmUserId(getLoginUserId(request));
+	    	alarmInforFlowParamVo.setConfirmTime(new Date()); 
+	    	alarmInforFlowParamVo.setStatusDictId(EnumDictAlarmStatus.FINISHED_PROCESSING.getValue());	
+	    }else if(alarmInforFlowParamVo.getStatusDictId().equals(EnumDictAlarmStatus.FINISHED_PROCESSING.getValue())){
+		    //设置关闭确人
+	    	alarmInforFlowParamVo.setDealUserId(getLoginUserId(request));
+	    	alarmInforFlowParamVo.setDealTime(new Date()); 
+	    	alarmInforFlowParamVo.setStatusDictId(EnumDictAlarmStatus.END.getValue());	
+	    }
+	    
+	    long start = System.currentTimeMillis();
+		resultMessage = clientAlarmInforFlowService.saveOrUpdate(alarmInforFlowParamVo,this.getCommonParam(request));
+	    long end = System.currentTimeMillis();
+	    System.out.println("运行时间："+(end-start)+"毫秒");
+
+		return resultMessage;
+	}
+
+
+}

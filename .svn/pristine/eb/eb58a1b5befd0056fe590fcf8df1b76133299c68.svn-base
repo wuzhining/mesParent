@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+         <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+            <tr>
+               <td width="15%" class="tableleft">编码规则</td>
+                 <td>
+                	<select name="codeRuleId"> 
+	                    <#if configCodeRuleList??>
+	                     <#list configCodeRuleList as item>
+				            <option value="${item.id?c}" <#if (entity.codeRuleId??&&entity.codeRuleId==item.id)>selected="selected"</#if>>${item.codeRuleName}</option>
+				         </#list>
+				         </#if>
+				    </select>
+                </td>	
+               <td width="15%" class="tableleft">功能定义</td>
+                 <td>
+                	<select name="labelFunctionId"> 
+	                    <#if configLabelFunctionList1??>
+	                     <#list configLabelFunctionList1 as item>
+				            <option value="${item.id?c}" <#if (entity.labelFunctionId??&&entity.labelFunctionId==item.id)>selected="selected"</#if>>${item.value}</option>
+				         </#list>
+				         </#if>
+				    </select>
+                </td>
+           </tr> 
+           <tr>
+               <td width="15%" class="tableleft">值</td>
+               <td>
+                 <input type="text" name="value" class="layui-input" maxlength="20" value="${(entity.value)!''}"/>
+               </td> 
+               <td width="15%" class="tableleft">排序号</td>
+               <td>
+                <input type="text" name="sortNo" class="layui-input" lay-verify="decimal" maxlength="20" value="<#if entity??&&entity.sortNo??>${entity.sortNo?c}<#else></#if>"/>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          form.verify({
+        	
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	 
+        	  var url = '/config/configCodeRuleItem/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	  if (result.isSuccess){
+      	    		layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            }); 
+      	    	  }else{
+      	    		  layer.alert(result.message,{
+      	    			  icon:2
+      	    		  });
+      	    	  }
+        		  
+      		  });
+        	 
+            return false;
+            
+          });
+          
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

@@ -1,0 +1,205 @@
+package com.techsoft.client.service.config;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+
+import com.techsoft.entity.common.ConfigAppInterface;
+import com.techsoft.entity.common.ConfigCountry;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.config.ConfigAppInterfaceVo;
+import com.techsoft.entity.config.ConfigAppInterfaceParamVo;
+import com.techsoft.service.config.ConfigAppInterfaceService;
+import com.techsoft.service.config.ConfigDictionaryService;
+
+@org.springframework.stereotype.Service
+public class ClientConfigAppInterfaceServiceImpl extends BaseClientServiceImpl<ConfigAppInterface> implements ClientConfigAppInterfaceService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigAppInterfaceService configAppInterfaceService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+    
+	@Override
+	public BaseService<ConfigAppInterface> getBaseService() {
+		return configAppInterfaceService;
+	}	    	
+    
+	private ConfigAppInterfaceVo getVo(ConfigAppInterface configAppInterface, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigAppInterfaceVo vo = new ConfigAppInterfaceVo(configAppInterface);
+		// TODO 此处填充其它关联字段的处理代码
+		
+		//接口类型
+		if (vo.getInterfaceTypeDictId() != null && vo.getInterfaceTypeDictId() > 0L) {
+		ConfigDictionary interfaceDic = configDictionaryService.selectById(vo.getInterfaceTypeDictId(), commonParam);
+		if(interfaceDic != null) {
+			vo.setInterfaceTypeDic(interfaceDic);
+		}
+		}
+		//接口方类型
+		if (vo.getInterfaceCallerDictId() != null && vo.getInterfaceCallerDictId() > 0L) {
+		ConfigDictionary interfaceTypeCallerDic = configDictionaryService.selectById(vo.getInterfaceCallerDictId(), commonParam);
+		if(interfaceTypeCallerDic != null) {
+			vo.setInterfaceTypeCallerDic(interfaceTypeCallerDic);
+		}
+		}
+		return vo;
+	} 
+	
+	private ConfigAppInterfaceVo getExtendVo(ConfigAppInterface configAppInterface, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigAppInterfaceVo vo = this.getVo(configAppInterface, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<ConfigAppInterfaceVo> getVoList(List<ConfigAppInterface> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<ConfigAppInterfaceVo> voList = new ArrayList<ConfigAppInterfaceVo>();
+		for (ConfigAppInterface entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<ConfigAppInterfaceVo> getExtendVoList(List<ConfigAppInterface> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<ConfigAppInterfaceVo> voList = new ArrayList<ConfigAppInterfaceVo>();
+		for (ConfigAppInterface entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public ConfigAppInterfaceVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigAppInterface entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<ConfigAppInterfaceVo>  selectListVoByParamVo(ConfigAppInterfaceParamVo configAppInterface, CommonParam commonParam) throws BusinessException, SQLException {
+		if(configAppInterface==null){
+			configAppInterface = new ConfigAppInterfaceParamVo();
+		}
+		configAppInterface.setTenantId(commonParam.getTenantId());	
+	
+		List<ConfigAppInterface> list = (List<ConfigAppInterface>) this.getBaseService().selectListByParamVo(configAppInterface, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<ConfigAppInterfaceVo> selectPageVoByParamVo(ConfigAppInterfaceParamVo configAppInterface, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(configAppInterface==null){
+			configAppInterface = new ConfigAppInterfaceParamVo();
+		}
+		configAppInterface.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<ConfigAppInterface> list  = (PageInfo<ConfigAppInterface>) this.getBaseService().selectPageByParamVo(configAppInterface, commonParam, pageNo, pageSize);
+		List<ConfigAppInterfaceVo> volist = new ArrayList<ConfigAppInterfaceVo>();
+		
+		Iterator<ConfigAppInterface> iter = list.getList().iterator();
+		ConfigAppInterfaceVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<ConfigAppInterfaceVo> vpage = new Page<ConfigAppInterfaceVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ConfigAppInterfaceVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigAppInterface entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<ConfigAppInterfaceVo>  selectListExtendVoByParamVo(ConfigAppInterfaceParamVo configAppInterface, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(configAppInterface==null){
+			configAppInterface = new ConfigAppInterfaceParamVo();
+		}
+		configAppInterface.setTenantId(commonParam.getTenantId());	
+					
+		List<ConfigAppInterface> list = (List<ConfigAppInterface>) this.getBaseService().selectListByParamVo(configAppInterface, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<ConfigAppInterfaceVo> selectPageExtendVoByParamVo(ConfigAppInterfaceParamVo configAppInterface, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(configAppInterface==null){
+			configAppInterface = new ConfigAppInterfaceParamVo();
+		}
+		configAppInterface.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<ConfigAppInterface> list  = (PageInfo<ConfigAppInterface>) this.getBaseService().selectPageByParamVo(configAppInterface, commonParam, pageNo, pageSize);
+		List<ConfigAppInterfaceVo> volist = new ArrayList<ConfigAppInterfaceVo>();
+		
+		Iterator<ConfigAppInterface> iter = list.getList().iterator();
+		ConfigAppInterfaceVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<ConfigAppInterfaceVo> vpage = new Page<ConfigAppInterfaceVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(ConfigAppInterfaceParamVo configAppInterfaceParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		ConfigAppInterface configAppInterface = null;
+		try {
+			if (configAppInterfaceParamVo.getId() == null) {//新增
+			 
+				configAppInterfaceParamVo.setTenantId(commonParam.getTenantId());
+				configAppInterface = configAppInterfaceService.saveOrUpdate(configAppInterfaceParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				ConfigAppInterface configAppInterfaceVoTemp = this.selectById(configAppInterfaceParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(configAppInterfaceVoTemp,
+						configAppInterfaceParamVo);
+  
+				configAppInterface = configAppInterfaceService.saveOrUpdate(
+						configAppInterfaceVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(configAppInterface);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

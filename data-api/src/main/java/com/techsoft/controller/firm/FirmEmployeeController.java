@@ -1,0 +1,161 @@
+package com.techsoft.controller.firm;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapUserStatus;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.common.SQLException;
+import com.techsoft.controller.BaseController;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.firm.ClientFirmEmployeeService;
+import com.techsoft.client.service.firm.ClientFirmPostService;
+import com.techsoft.client.service.sys.ClientUserPassportService;
+import com.techsoft.entity.firm.FirmEmployeeVo;
+import com.techsoft.entity.firm.FirmPostParamVo;
+import com.techsoft.entity.sys.UserPassportParamVo;
+import com.techsoft.service.sys.UserPassportService;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.FirmPost;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.entity.firm.FirmEmployeeParamVo;
+
+@Controller
+@RequestMapping("/firm/firmEmployee")
+public class FirmEmployeeController extends BaseController {
+	@Autowired
+	private ClientFirmEmployeeService clientFirmEmployeeService;
+	@Autowired
+	private ClientFirmPostService clientFirmPostService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientUserPassportService clientUserPassportService;
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		try {
+			//取员工状态集合
+			List<ConfigDictionary> dictionaryList = clientConfigDictionaryService
+					.selectListByParentId(EnumDictionary.EMPLOYEE_STATUS.getValue());
+			modelAndView.addObject("dictionaryList", dictionaryList);
+			//取上级岗位集合
+			FirmPostParamVo FPPVo = new FirmPostParamVo();
+			List<FirmPost> firmPostList = clientFirmPostService.selectListByParamVo(FPPVo, this.getCommonParam(null));
+			modelAndView.addObject("firmPostList", firmPostList);
+			//获取用户集合
+			UserPassportParamVo userPassportParamVo = new UserPassportParamVo();
+			List<UserPassport> userPassportList = clientUserPassportService.selectListByParamVo(userPassportParamVo, this.getCommonParam(null));
+			modelAndView.addObject("userPassportList",userPassportList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());  
+		modelAndView.addObject("mapUserStatus", MapUserStatus.getMap());  
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("firm/firmEmployee-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		//UserPassport userPassport = null;
+		try {
+			
+			//取员工状态集合
+			List<ConfigDictionary> dictionaryList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.EMPLOYEE_STATUS.getValue());
+			modelAndView.addObject("dictionaryList", dictionaryList);
+			//获取用户集合
+			UserPassportParamVo userPassportParamVo = new UserPassportParamVo();
+			List<UserPassport> userPassportList = clientUserPassportService.selectListByParamVo(userPassportParamVo, this.getCommonParam(null));
+			modelAndView.addObject("userPassportList",userPassportList);
+			FirmEmployeeVo entity = new FirmEmployeeVo();
+			if (id != null) {
+				entity = clientFirmEmployeeService.getVoByID(id, this.getCommonParam(request));
+				//取上级岗位集合
+				FirmPost firmPost = clientFirmPostService.getVoByID(entity.getWorkpostId(), this.getCommonParam(null));
+				modelAndView.addObject("firmPost", firmPost);
+				
+			}
+			modelAndView.addObject("entity", entity);
+			modelAndView.setViewName("firm/firmEmployee-edit");
+			initData(modelAndView);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			FirmEmployeeParamVo firmEmployeeParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}			
+		try {
+            if(firmEmployeeParamVo==null){
+            	firmEmployeeParamVo = new FirmEmployeeParamVo();
+            }
+			pageInfo = clientFirmEmployeeService.selectPageVoByParamVo(
+					firmEmployeeParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			FirmEmployeeParamVo firmEmployeeParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+	    firmEmployeeParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientFirmEmployeeService.saveOrUpdate(firmEmployeeParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	@RequestMapping("/firmEmployeeOpen")
+	public ModelAndView firmEmployeeOpen(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("firm/firmEmployee-Open");
+		return modelAndView;
+	}
+}

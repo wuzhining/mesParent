@@ -1,0 +1,293 @@
+package com.techsoft.client.service.product;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.ProductPackbox;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.entity.product.ProductPackboxParamVo;
+import com.techsoft.entity.product.ProductPackboxVo;
+import com.techsoft.service.config.ConfigCodeRuleService;
+import com.techsoft.service.firm.FirmPartnerService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.product.ProductPackboxService;
+import com.techsoft.service.struct.StructWarehouseService;
+import com.techsoft.service.warehouse.WarehouseLocationService;
+
+@org.springframework.stereotype.Service
+public class ClientProductPackboxServiceImpl extends BaseClientServiceImpl<ProductPackbox>
+		implements ClientProductPackboxService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductPackboxService productPackboxService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private FirmPartnerService firmPartnerService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WarehouseLocationService warehouseLocationService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWarehouseService structWarehouseService; 
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigCodeRuleService configCodeRuleService;
+
+	@Override
+	public BaseService<ProductPackbox> getBaseService() {
+		return productPackboxService;
+	}
+
+	private ProductPackboxVo getVo(ProductPackbox productPackbox, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ProductPackboxVo vo = new ProductPackboxVo(productPackbox);
+		// 产品规格
+		if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+			ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(), commonParam);
+			if (productMaterial != null) {
+				if(productMaterial.getSkuValue()!=null&&productMaterial.getSkuValue()!=""){
+					ProductMaterialVo productMateriaVo=new ProductMaterialVo();
+					productMateriaVo.setSkuValue(productMaterial.getSkuValue());
+					vo.setProductMaterialVo(productMateriaVo);
+					
+				}
+				vo.setProductMaterial(productMaterial);
+			}
+		}
+		// 产品
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productMain = productMainService.selectById(vo.getProductId(), commonParam);
+			if (productMain != null) {
+				vo.setProductMain(productMain);
+			}
+		}
+
+		return vo;
+	}
+
+	private ProductPackboxVo getExtendVo(ProductPackbox productPackbox, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ProductPackboxVo vo = this.getVo(productPackbox, commonParam);
+
+		return vo;
+	}
+
+	private List<ProductPackboxVo> getVoList(List<ProductPackbox> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ProductPackboxVo> voList = new ArrayList<ProductPackboxVo>();
+		for (ProductPackbox entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<ProductPackboxVo> getExtendVoList(List<ProductPackbox> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ProductPackboxVo> voList = new ArrayList<ProductPackboxVo>();
+		for (ProductPackbox entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public ProductPackboxVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ProductPackbox entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<ProductPackboxVo> selectListVoByParamVo(ProductPackboxParamVo productPackbox, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (productPackbox == null) {
+			productPackbox = new ProductPackboxParamVo();
+		}
+		productPackbox.setTenantId(commonParam.getTenantId());
+
+		List<ProductPackbox> list = (List<ProductPackbox>) this.getBaseService().selectListByParamVo(productPackbox,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ProductPackboxVo> selectPageVoByParamVo(ProductPackboxParamVo productPackbox,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (productPackbox == null) {
+			productPackbox = new ProductPackboxParamVo();
+		}
+		productPackbox.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ProductPackbox> list = (PageInfo<ProductPackbox>) this.getBaseService()
+				.selectPageByParamVo(productPackbox, commonParam, pageNo, pageSize);
+		List<ProductPackboxVo> volist = new ArrayList<ProductPackboxVo>();
+
+		Iterator<ProductPackbox> iter = list.getList().iterator();
+		ProductPackboxVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ProductPackboxVo> vpage = new Page<ProductPackboxVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ProductPackboxVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ProductPackbox entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<ProductPackboxVo> selectListExtendVoByParamVo(ProductPackboxParamVo productPackbox,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (productPackbox == null) {
+			productPackbox = new ProductPackboxParamVo();
+		}
+		productPackbox.setTenantId(commonParam.getTenantId());
+
+		List<ProductPackbox> list = (List<ProductPackbox>) this.getBaseService().selectListByParamVo(productPackbox,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ProductPackboxVo> selectPageExtendVoByParamVo(ProductPackboxParamVo productPackbox,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (productPackbox == null) {
+			productPackbox = new ProductPackboxParamVo();
+		}
+		productPackbox.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ProductPackbox> list = (PageInfo<ProductPackbox>) this.getBaseService()
+				.selectPageByParamVo(productPackbox, commonParam, pageNo, pageSize);
+		List<ProductPackboxVo> volist = new ArrayList<ProductPackboxVo>();
+
+		Iterator<ProductPackbox> iter = list.getList().iterator();
+		ProductPackboxVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ProductPackboxVo> vpage = new Page<ProductPackboxVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(ProductPackboxParamVo productPackboxParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		if (commonParam.getUserId() != null) {
+			productPackboxParamVo.setCreateUserId(Long.parseLong(commonParam.getUserId()));
+		}
+		if (commonParam.getTenantId() != null) {
+			productPackboxParamVo.setTenantId(commonParam.getTenantId());
+		}
+		if (productPackboxParamVo.getCreateUserId() == null) {
+			resultMessage.addErr("请先登录");
+			return resultMessage;
+		}
+		if (productPackboxParamVo.getPackboxName() == null) {
+			resultMessage.addErr("包装规格名称不能为空");
+			return resultMessage;
+		}
+		if (productPackboxParamVo.getProductId() == null) {
+			resultMessage.addErr("产品不能为空");
+			return resultMessage;
+		}
+		if (productPackboxParamVo.getMaterialId() == null) {
+			resultMessage.addErr("产品规格不能为空");
+			return resultMessage;
+		}
+		if (productPackboxParamVo.getPackboxName().length() > 64) {
+			resultMessage.addErr("包装规格名称不能超过64个字符");
+			return resultMessage;
+		}
+		if (productPackboxParamVo.getQuantityMain() == null) {
+			resultMessage.addErr("主单位数量不能为空");
+			return resultMessage;
+		}
+		if (productPackboxParamVo.getQuantityPack() == null || productPackboxParamVo.getQuantityPack() == 0) {
+			resultMessage.addErr("包装数量不能为空或0");
+			return resultMessage;
+		}
+		if (productPackboxParamVo.getIsInner().equals("1")) {
+			if (productPackboxParamVo.getQuantityInner() == null || productPackboxParamVo.getQuantityInner() == 0) {
+				resultMessage.addErr("内包装数量不能为空或0");
+				return resultMessage;
+			}
+
+		}
+		if (productPackboxParamVo.getRemark() != null) {
+			if (productPackboxParamVo.getRemark().length() > 128) {
+				resultMessage.addErr("备注不能超过128个字符");
+				return resultMessage;
+			}
+
+		}
+
+		ProductPackbox productPackbox = null;
+		try {
+			if (productPackboxParamVo.getId() == null) {// 新增
+				
+				ProductPackboxParamVo temp=new ProductPackboxParamVo();
+				temp.setProductId(productPackboxParamVo.getProductId());
+				
+				List<ProductPackbox> tempList=productPackboxService.selectListByParamVo(temp, commonParam);
+				if (tempList.size()>0) {
+					resultMessage.addErr("产品已经包装！");
+					return resultMessage;
+				}
+
+				String boxBarcode = configCodeRuleService.createCode(ProductPackbox.class.getName(), null, null,
+						commonParam);
+				productPackboxParamVo.setPackboxCode(boxBarcode);
+				productPackboxParamVo.setTenantId(commonParam.getTenantId());
+				productPackbox = productPackboxService.saveOrUpdate(productPackboxParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+				
+			} else { // 修改
+				ProductPackbox productPackboxVoTemp = this.selectById(productPackboxParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(productPackboxVoTemp, productPackboxParamVo);
+
+				productPackbox = productPackboxService.saveOrUpdate(productPackboxVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(productPackbox);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

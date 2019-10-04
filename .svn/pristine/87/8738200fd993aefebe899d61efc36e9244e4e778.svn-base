@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />        
+        <table class="layui-table ">
+           <tr>
+
+               <td width="10%" class="tableleft">检验项名称</td>
+               <td><input type="text" name="inspectItemName" id="inspectItemName"  lay-verify="inspectItemName"  class="layui-input" maxlength="16" value="${(entity.inspectItemName)!''}"/></td>
+               <td width="10%" class="tableleft">上一级检验项名称</td>
+               <td>
+                 <select name="parentId" lay-search> 
+                    <option value="0" >请选择</option>
+                    <#if qualityInspectItemList??>
+                     <#list qualityInspectItemList as item>
+			            <option value="${item.id?c}" <#if (entity.parentId??&&entity.parentId==item.id)>selected="selected"</#if>>${item.inspectItemName}</option>
+			         </#list>
+			         </#if>
+			       </select>
+               </td> 
+           </tr>
+           <tr>
+
+           <td width="10%" class="tableleft">是否模块</td>
+               <td>
+                <select name="isModule">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isModule??&&entity.isModule==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td> 
+               <td width="10%" class="tableleft">检验项类型名称</td>
+               <td>
+                   <div class="div-choiceBox-intd ">
+                		<input type="hidden"  id="inspectTypeId" lay-filter="inspectTypeId"  name="inspectTypeId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.inspectTypeId??>${entity.inspectTypeId?c}<#else></#if>">
+		          		<input type="text" id="inspectTypeName" name="inspectTypeName" value="${(qualityInspectType.inspectTypeName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="inspectTypeSearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	 	</div>                                                                       
+			   </td>
+           </tr>
+           <tr>
+               
+               <td width="10%" class="tableleft">备注</td>
+               <td colspan="4"><input type="text" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+             
+           </tr>
+
+           <tr>
+            <td colspan="4" style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>  
+    </div>
+
+ <script>
+  layui.config({
+      base: '/static/plugins/layui/base/',
+      v: new Date().getTime()
+  }).use([ 'form','table','layer','layuiconfig','layuiformajax','layuitable'], function(){
+  		  	$ = layui.$, 
+  		  	admin = layui.admin, 
+  		  	table = layui.table, 
+  		  	layer = layui.layer, 
+  		  	laydate = layui.laydate,
+  		  	layuitable = layui.layuitable,
+  		  	form = layui.form; 
+  			var layuiformajax = layui.layuiformajax;
+         
+          $('#inspectTypeSearch').on('click',function(e){
+       		openWinInspectType('/quality/qualityInspectType/qualityInspectTypeOpen',"inspectTypeId","inspectTypeName");
+       		e.preventDefault();//默认from表单提交时不刷新
+       	})
+      	   
+        
+          //自定义验证规则
+           form.verify({
+        	   inspectItemName: function(value){
+              if(value==null || value ==''){
+                return '检验项名称不能为空！';
+              }
+            }
+            ,inspectTypeName: function(value){
+                if(value==null || value ==''){
+                    return '检验类型名称不能为空！';
+                }
+            }
+          }); 
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/quality/qualityInspectItem/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+     	    	   layer.alert("保存成功", {icon: 6},function (index) {
+     	    		 	layer.close(index);
+     				  	parent.location.reload(); 
+     	            });
+     		  });
+             return false;
+          });
+          
+          
+
+    	  	var addType = getParam('add');
+    	  	if(addType === '1'){		//新增
+    	  		$(':input','#dataForm') 
+	    	  		.not(':button, :submit, :reset, :hidden') 
+	    	  		.val('') 
+	    	  		.removeAttr('checked') 
+	    	  		.removeAttr('selected');
+    	  		$("#id").val('');	
+    	  		$("#version").val('');
+    	  	
+    	  		var prtID = getParam('id'),
+    	  			prtNm = getParam('prtNm');
+	    	  	if(prtID){						//新增二级菜单
+	    	  		$("#parentId").val(prtID);
+	    	  		$("#parentName").val(prtNm);
+	    	  		$("#parentName").change(function(){
+	    	  			var currentVal = $("#parentName").val();
+	    	  			if(currentVal === ''){
+	    	  				$("#parentId").val('0');
+	    	  			};
+	    	  		});
+	    	  	}else{							//新增顶级菜单	
+	    	  		$("#parentId").val('0');
+	    	  		$("#parentName").val('0');
+	    	  	};
+    	  	};
+           
+        });
+    
+    
+	/* 
+	    检验水平弹出框
+	*/
+	//页面上隐藏的用于弹层的所有物料的列表的相关设置 
+    function openWinInspectType(url,inputId,inputName){
+			layer.open({
+				  	type: 2, 
+				  	title :'请选择数据',
+				  	maxmin: true,
+					area: ['650px', '500px'],
+				 	btn: ['确定', '取消'],
+				  	content: url, //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com ', 'no']
+			  		yes: function(index, layero){
+			  			var iframeWin = window[layero.find('iframe')[0]['name']];//得到iframe页的窗口对象，执行iframe页的方法：
+			            var selectData = iframeWin.selected();//调用子页面的方法，得到子页面返回的ids
+			  			if (selectData.length <= 0) {
+			  				layer.msg('请至少选择一个！');
+			  			} else {
+								var id=selectData[0][0].id;
+								var name=selectData[0][0].inspectTypeName;
+			  					$("#"+inputId).val(id);
+			  					$("#"+inputName).val(name);
+				  				layer.close(index);
+			  				
+			  			}
+			  		},
+		  		 
+				}); 
+		};
+
+    </script>
+    <script></script>
+  </body>
+
+</html>

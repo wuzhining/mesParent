@@ -1,0 +1,120 @@
+package com.techsoft.entity.equip;
+
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipClassesWork;
+import com.techsoft.entity.common.EquipSpecsWork;
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.entity.common.StructProductionline;
+import com.techsoft.entity.common.StructWorkshop;
+import com.techsoft.entity.common.StructWorkshopArea;
+import com.techsoft.entity.common.StructWorkstation;
+
+public class EquipWorkVo extends EquipWork {
+	private static final long serialVersionUID = 1014822078131512672L;
+
+	private EquipClassesWork equipClassesWork;
+	private EquipSpecsWork equipSpecsWork; //生产设备品种规格
+	private ConfigDictionary configDictionaryStatus;
+	private StructFactory structFactory;
+	private StructWorkshopArea structWorkshopArea;
+	private StructProductionline structProductionline;
+	private StructProcessNode structProcessNode;
+	private StructWorkshop structWorkshop;
+	private StructWorkstation structWorkstation;
+	private ConfigDictionary switchStatus;//开关状态
+	
+	
+	public StructWorkstation getStructWorkstation() {
+		return structWorkstation;
+	}
+
+	public void setStructWorkstation(StructWorkstation structWorkstation) {
+		this.structWorkstation = structWorkstation;
+	}
+
+	public StructProcessNode getStructProcessNode() {
+		return structProcessNode;
+	}
+
+	public void setStructProcessNode(StructProcessNode structProcessNode) {
+		this.structProcessNode = structProcessNode;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	public EquipWorkVo() {	
+	}
+	
+	public EquipWorkVo(EquipWork value) {
+		value.cloneProperties(this);
+	}
+
+	public EquipClassesWork getEquipClassesWork() {
+		return equipClassesWork;
+	}
+
+	public void setEquipClassesWork(EquipClassesWork equipClassesWork) {
+		this.equipClassesWork = equipClassesWork;
+	}
+
+	public ConfigDictionary getConfigDictionaryStatus() {
+		return configDictionaryStatus;
+	}
+
+	public void setConfigDictionaryStatus(ConfigDictionary configDictionaryStatus) {
+		this.configDictionaryStatus = configDictionaryStatus;
+	}
+
+	public StructFactory getStructFactory() {
+		return structFactory;
+	}
+
+	public void setStructFactory(StructFactory structFactory) {
+		this.structFactory = structFactory;
+	}
+
+	public StructWorkshopArea getStructWorkshopArea() {
+		return structWorkshopArea;
+	}
+
+	public void setStructWorkshopArea(StructWorkshopArea structWorkshopArea) {
+		this.structWorkshopArea = structWorkshopArea;
+	}
+
+	public StructProductionline getStructProductionline() {
+		return structProductionline;
+	}
+
+	public void setStructProductionline(StructProductionline structProductionline) {
+		this.structProductionline = structProductionline;
+	}
+
+	public StructWorkshop getStructWorkshop() {
+		return structWorkshop;
+	}
+
+	public void setStructWorkshop(StructWorkshop structWorkshop) {
+		this.structWorkshop = structWorkshop;
+	}
+
+	public EquipSpecsWork getEquipSpecsWork() {
+		return equipSpecsWork;
+	}
+
+	public void setEquipSpecsWork(EquipSpecsWork equipSpecsWork) {
+		this.equipSpecsWork = equipSpecsWork;
+	}
+
+	public ConfigDictionary getSwitchStatus() {
+		return switchStatus;
+	}
+
+	public void setSwitchStatus(ConfigDictionary switchStatus) {
+		this.switchStatus = switchStatus;
+	}
+	
+}

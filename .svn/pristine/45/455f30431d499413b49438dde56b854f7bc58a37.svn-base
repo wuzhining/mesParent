@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+    <body>
+   
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+         <input type="hidden"  id="ids" />
+          <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+          <select name="factoryId">    
+                <option value="">请选择工厂</option> 
+                 <#if factoryList??>
+                     <#list factoryList as item>
+			            <option value="${item.id?c}" >${item.factoryName}</option>
+			         </#list>
+			         </#if> 
+          </select>
+          <select name="warehouseId">    
+                <option value="">请选择仓库</option> 
+                 <#if warehouseList??>
+                     <#list warehouseList as item>
+			            <option value="${item.id?c}" >${item.warehouseName}</option>
+			         </#list>
+			         </#if> 
+          </select>
+          <select name="workshopId">    
+                <option value="">请选择车间</option> 
+                 <#if workshopList??>
+                     <#list workshopList as item>
+			            <option value="${item.id?c}" >${item.workshopName}</option>
+			         </#list>
+			         </#if> 
+          </select>
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <button class="layui-btn layui-btn-sm"  onclick="layer_window_show('添加系统功能页面','/sys/adminAuthOrgUser/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+  <script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="delete">删除</a>
+</script>  
+<script type="text/html" id="userName">
+	{{#  if(d.userPassport){ }}
+		{{ d.userPassport.userName 
+
+     }}
+  {{#  } }}
+</script> 
+<script type="text/html" id="factoryName">
+	{{#  if(d.structFactory){ }}
+		{{ d.structFactory.factoryName 
+
+     }}
+  {{#  } }}
+</script> 
+<script type="text/html" id="warehouseName">
+	{{#  if(d.structWarehouse){ }}
+		{{ d.structWarehouse.warehouseName 
+
+     }}
+  {{#  } }}
+</script> 
+<script type="text/html" id="workshopName">
+	{{#  if(d.structWorkshop){ }}
+		{{ d.structWorkshop.workshopName 
+
+     }}
+  {{#  } }}
+</script>    
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime() 
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable','layer'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arr = url.split('=');
+	var ids = arr[1];
+	$("#ids").val(ids);
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/sys/adminAuthOrgUser/list/json?userId='+ids
+    	,cols: [[
+    	     {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+    	    ,{field:'userId',  title: '用户id',align:'center', minWidth: 100}
+    	    ,{field:'userName',  title: '用户',align:'center', minWidth: 210,templet:'#userName'}
+    	    ,{field:'factoryId',  title: '工厂id', align:'center',minWidth: 100}
+    	    ,{field:'factoryName',  title: '工厂', align:'center',minWidth: 220,templet:'#factoryName'}
+    	    ,{field:'warehouseId',  title: '仓库id', align:'center',minWidth: 100}
+    	    ,{field:'warehouseName',  title: '仓库', align:'center',minWidth: 220,templet:'#warehouseName'}
+    	    ,{field:'workshopId',  title: '车间id', align:'center',minWidth: 100}
+    	    ,{field:'workshopName',  title: '车间', align:'center',minWidth: 220,templet:'#workshopName'}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 210}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+	  ,done: function () {
+	        $("[data-field='userId']").css('display','none'); 
+	        $("[data-field='factoryId']").css('display','none'); 
+	        $("[data-field='warehouseId']").css('display','none'); 
+	        $("[data-field='workshopId']").css('display','none'); 
+	    } 
+	});  
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	//监听提交
+    form.on('submit(save)', function(data){
+  	  console.log(data.field);
+  	  var url = '/sys/userPassport/save';
+  	  layuiformajax.postJson(url, data.field, function (result) {
+	    	   layer.alert("保存成功", {icon: 6},function () {
+	                // 获得frame索引
+	                var index = parent.layer.getFrameIndex(window.name);
+				  	parent.location.reload(); 
+	                parent.layer.close(index);
+	            });
+		  });
+		  
+      return false;
+    });
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑分配数据权限','/sys/adminAuthOrgUser/edit?id='+data.id+'&forward=2');  
+		}else{
+			var url='/sys/adminAuthOrgUser/del?id='+data.id;
+			layuiformajax.postJson(url, '', function (result) {
+				layer.msg('删除成功！',{icon:1,time:1000},function(){
+				//获得frame索引
+					var index = parent.layer.getFrameIndex(window.name);
+					location.reload();
+					layer.close(index);
+				});
+			});
+		}
+	});
+  	});
+  	
+
+
+</script>
+ 
+  </body>
+
+</html>

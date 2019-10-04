@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.common.mapper.BaseEntityMapper">
+	<!-- 基础实体属性与字段的对应关系 -->
+	<resultMap id="BaseEntityMap" type="com.techsoft.common.BaseEntity">
+		<id column="ID" property="id" />
+		<result column="VERSION" property="version" />
+		<result column="DEL_FLAG" property="delFlag" />
+		<result column="CREATE_TIME" property="createTime" />
+		<result column="MODIFY_TIME" property="modifyTime" />
+		<result column="CREATE_USER_ID" property="createUserId" />
+		<result column="MODIFY_USER_ID" property="modifyUserId" />
+	</resultMap>
+
+	<sql id="BaseEntityConditionSql">
+		<if test="id != null">
+			AND A.ID= #{id}
+		</if>
+		<if test="version != null">
+			AND A.VERSION= #{version}
+		</if>
+		<if test="delFlag != null">
+			AND A.DEL_FLAG= #{delFlag}
+		</if>
+		<if test="createUserId != null">
+			AND A.CREATE_USER_ID= #{createUserId}
+		</if>
+		<if test="modifyUserId != null">
+			AND A.MODIFY_USER_ID= #{modifyUserId}
+		</if>
+		<if test="createTimeBegin != null">
+		<![CDATA[
+		   AND A.CREATE_TIME >=  #{createTimeBegin}
+		]]>
+		</if>
+		<if test="createTimeEnd != null">
+		<![CDATA[
+		   AND A.CREATE_TIME <= #{createTimeEnd}
+		]]>
+		</if>
+		<if test="modifyTimeBegin != null">
+		<![CDATA[
+		   AND A.MODIFY_TIME >=  #{modifyTimeBegin}
+		]]>
+		</if>
+		<if test="modifyTimeEnd != null">
+		<![CDATA[
+		   AND A.MODIFY_TIME <= #{modifyTimeEnd}
+		]]>
+		</if>
+	</sql>
+
+	<sql id="BaseEntityColumnList">
+		,A.ID
+		,A.VERSION
+		,A.DEL_FLAG
+		,A.CREATE_TIME
+		,A.MODIFY_TIME
+		,A.CREATE_USER_ID
+		,A.MODIFY_USER_ID
+	</sql>
+
+	<sql id="BaseEntityInsertColumn">
+		,ID
+		,VERSION
+		,DEL_FLAG
+		,CREATE_TIME
+		,CREATE_USER_ID
+		,MODIFY_TIME	
+		,MODIFY_USER_ID			
+	</sql>
+
+	<sql id="BaseEntityInsertValue">
+		,#{id}
+		,1
+		,0
+		,getdate()
+		,#{createUserId}
+		,getdate()
+		,#{createUserId}		
+	</sql>
+
+	<sql id="BaseEntityUpdate">
+		MODIFY_TIME=getdate()
+		,MODIFY_USER_ID=#{modifyUserId}
+		,VERSION = VERSION + 1
+	</sql>
+
+	<sql id="BaseEntityDelete">
+		DEL_FLAG = 1,
+		VERSION = VERSION + 1
+	</sql>
+
+</mapper>

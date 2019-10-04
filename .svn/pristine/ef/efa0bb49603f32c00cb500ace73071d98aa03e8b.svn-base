@@ -1,0 +1,14 @@
+package com.techsoft.entity.struct;
+
+import com.techsoft.entity.common.StructProdlineEquip;
+
+public class StructProdlineEquipVo extends StructProdlineEquip {
+	private static final long serialVersionUID = 7070309009922195342L;
+
+	public StructProdlineEquipVo() {	
+	}
+	
+	public StructProdlineEquipVo(StructProdlineEquip value) {
+		value.cloneProperties(this);
+	}		
+}

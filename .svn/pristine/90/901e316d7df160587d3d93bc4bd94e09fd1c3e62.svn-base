@@ -1,0 +1,166 @@
+package com.techsoft.service.bill;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumBarcodeStatus;
+import com.techsoft.common.enums.EnumBillStatus;
+import com.techsoft.common.enums.EnumBillType;
+import com.techsoft.common.enums.EnumInpectStatus;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.dao.bill.BillInspectDao;
+import com.techsoft.dao.bill.BillWarehouseDao;
+import com.techsoft.dao.bill.BillWarehouseItemDao;
+import com.techsoft.dao.config.ConfigCodeRuleDao;
+import com.techsoft.dao.history.HistoryBillStatusDao;
+import com.techsoft.dao.track.TrackBarcodeDao;
+import com.techsoft.entity.bill.BillInspectParamVo;
+import com.techsoft.entity.common.BillInspect;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+
+@Service
+public class BillInspectServiceImpl extends BaseServiceImpl<BillInspect> implements BillInspectService {
+	@Autowired
+	private BillInspectDao billInspectDao;
+	@Autowired
+	private BillWarehouseItemDao billWarehouseItemDao;
+	@Autowired
+	private BillWarehouseDao billWarehouseDao; 
+	@Autowired
+	private TrackBarcodeDao trackBarcodeDao; 
+	@Autowired
+	private ConfigCodeRuleDao configCodeRuleDao;
+	@Autowired
+	private HistoryBillStatusDao historyBillStatusDao;
+	
+	@Override
+	public BaseDao<BillInspect> getBaseDao() {
+		return billInspectDao;
+	}	
+	
+	@Override
+	public Class<BillInspect> getEntityClass() {
+		return BillInspect.class;
+	}
+	
+	@Override
+	protected BillInspect insertEntity(BillInspect entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillInspect updatePartEntity(BillInspect entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillInspect updateEntity(BillInspect entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}
+
+	
+
+	/**
+	 *@auther :Yang
+	 *@version :2019年5月29日
+	 *@param billInspectVo
+	 *@param commonParam
+	 *@return
+	 *@throws BusinessException
+	 *@throws SQLException
+	 *@description
+	 *更新质检单信息，判断质检合格与不合格，如果合格入库上架，如不合格整批退货给供应商
+	 */
+	public ResultMessage updateInspectOKorNG(BillInspectParamVo billInspectVo, CommonParam commonParam) throws BusinessException, SQLException { 
+		ResultMessage resultMessage = new ResultMessage(); 
+			try {
+				//查询需生成单据的标签
+				List<TrackBarcode> inspectTrackList = new ArrayList<TrackBarcode>();
+				TrackBarcodeParamVo paramVo =new TrackBarcodeParamVo();
+				paramVo.setBillItemId(billInspectVo.getId());
+				inspectTrackList=trackBarcodeDao.selectListByParamVo(paramVo);
+				if (inspectTrackList.size()!= 0) {
+					
+				//10489是处理中的
+				if(billInspectVo.getInspectStatusDictId().equals(EnumBillStatus.DOING.getValue())){//合格的处理
+					
+			      if(billInspectVo.getInspectResultDictId().equals(EnumInpectStatus.QUALITY_INSPECT_RESULT_PASS.getValue())){
+
+					//生成入库上架单主表及明细表
+					BillWarehouse billWarehouseInspect= new BillWarehouse();
+					String createCode = configCodeRuleDao.createCode(BillWarehouse.class.getName(), EnumBillType.BILL_TYPE_WAREHOUSE_IN.getValue(), null, commonParam);
+					billWarehouseInspect.setFactoryId(paramVo.getFactoryId());
+					billWarehouseInspect=billWarehouseDao.insertAllocationMainAndDetail(billInspectVo.getId(),createCode,billInspectVo.getSupplierId(),
+							      EnumBillType.BILL_TYPE_WAREHOUSE_IN.getValue(),EnumBillType.BILL_TYPE_EXAMINE.getValue(),EnumBillStatus.NEW.getValue(),null, null, "CHECK", commonParam);
+					
+					//
+					historyBillStatusDao.billHistoryInsert(billWarehouseInspect.getBillTypeDictId(), EnumBillStatus.NEW.getValue(), billWarehouseInspect.getId(),createCode,commonParam);
+					
+					//查询相应的入库明细Id
+					List<BillWarehouseItem> AbillItemInpect =new ArrayList<BillWarehouseItem>();
+					AbillItemInpect=billWarehouseItemDao.getbillItemListBybillId(billWarehouseInspect.getId(), commonParam);
+					//生成入库上架条码追踪表
+					trackBarcodeDao.insertAllocationInOrOutSnList(billWarehouseInspect.getId(), EnumBillType.BILL_TYPE_WAREHOUSE_IN.getValue(),
+							EnumBillStatus.NEW.getValue(),EnumBarcodeStatus.NEW.getValue(),inspectTrackList, AbillItemInpect, "CHECK", commonParam);
+					//更新追踪条码表的单据状态
+					trackBarcodeDao.updateCheckTrackStatus(billInspectVo.getId(), EnumBillStatus.FINISHED.getValue(), commonParam);
+
+				}else if(billInspectVo.getInspectResultDictId().equals(EnumInpectStatus.QUALITY_INSPECT_RESULT_FAIL.getValue())){//不合格的处理
+
+					//生成退货出库单主表及明细表
+					BillWarehouse billWarehouseInspect= new BillWarehouse();
+					String createCode = configCodeRuleDao.createCode(BillWarehouse.class.getName(), EnumBillType.BILL_TYPE_WAREHOUSE_REJECT_SUPPLER.getValue(), null, commonParam);
+					billWarehouseInspect=billWarehouseDao.insertAllocationMainAndDetail(billInspectVo.getId(),createCode,billInspectVo.getSupplierId(),
+							      EnumBillType.BILL_TYPE_WAREHOUSE_REJECT_SUPPLER.getValue(),EnumBillType.BILL_TYPE_EXAMINE.getValue(),EnumBillStatus.NEW.getValue(),null, null, "CHECK", commonParam);
+					historyBillStatusDao.billHistoryInsert(billWarehouseInspect.getBillTypeDictId(), EnumBillStatus.NEW.getValue(), billWarehouseInspect.getId(), createCode,commonParam);
+					//查询相应的出库明细Id
+					List<BillWarehouseItem> AbillItemInpect =new ArrayList<BillWarehouseItem>();
+					AbillItemInpect=billWarehouseItemDao.getbillItemListBybillId(billWarehouseInspect.getId(), commonParam);
+					//生成退货出库条码追踪表
+					trackBarcodeDao.insertAllocationInOrOutSnList(billWarehouseInspect.getId(), EnumBillType.BILL_TYPE_WAREHOUSE_REJECT_SUPPLER.getValue(),
+							EnumBillStatus.NEW.getValue(),EnumBarcodeStatus.NEW.getValue(),inspectTrackList, AbillItemInpect, "CHECK", commonParam);
+					//更新追踪条码表的单据状态
+					trackBarcodeDao.updateCheckTrackStatus(billInspectVo.getId(), EnumBillStatus.FINISHED.getValue(), commonParam);
+				  }
+				
+				}
+					//更新质检单为完结
+					billInspectDao.updateInspectBillStatus(billInspectVo,commonParam); 
+					//插入历史记录表
+					String createInspectCode = configCodeRuleDao.createCode(BillInspect.class.getName(), null, null, commonParam);
+					historyBillStatusDao.billHistoryInsert(EnumBillType.BILL_TYPE_EXAMINE.getValue(), billInspectVo.getInspectStatusDictId(), billInspectVo.getId(),createInspectCode, commonParam);
+					
+					resultMessage.setIsSuccess(true);
+			    }else{
+			    	resultMessage.setMessage("【"+paramVo.getBillItemId()+"】"+"没有生成标签");
+			    	throw new BusinessException("【"+paramVo.getBillItemId()+"】"+"没有生成标签");
+			    }
+				} catch (BusinessException e) {
+					e.printStackTrace();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+				return resultMessage;
+			}
+	
+
+	//mine
+	@Override
+	public List<BillInspect> selectIQCIncomeScreen()
+			throws BusinessException, SQLException {
+		return billInspectDao.selectIQCIncomeScreen();
+		
+	}
+}

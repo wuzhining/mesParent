@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.config.ConfigAppInterfaceMapper">
+	<resultMap id="ConfigAppInterface" type="com.techsoft.entity.common.ConfigAppInterface" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="INTERFACE_CODE" property="interfaceCode" />
+		<result column="INTERFACE_NAME" property="interfaceName" />
+		<result column="INTERFACE_TYPE_DICT_ID" property="interfaceTypeDictId" />
+		<result column="INTERFACE_CALLER_DICT_ID" property="interfaceCallerDictId" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="IS_TIMING" property="isTiming" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="interfaceCode != null">
+			AND A.INTERFACE_CODE= #{interfaceCode}
+		</if>
+		<if test="interfaceName != null">
+			AND A.INTERFACE_NAME= #{interfaceName}
+		</if>
+		<if test="interfaceTypeDictId != null">
+			AND A.INTERFACE_TYPE_DICT_ID= #{interfaceTypeDictId}
+		</if>
+		<if test="interfaceCallerDictId != null">
+			AND A.INTERFACE_CALLER_DICT_ID= #{interfaceCallerDictId}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="isTiming != null">
+			AND A.IS_TIMING= #{isTiming}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.INTERFACE_CODE,
+		A.INTERFACE_NAME,
+		A.INTERFACE_TYPE_DICT_ID,
+		A.INTERFACE_CALLER_DICT_ID,
+		A.IS_VALID,
+		A.IS_TIMING
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for CONFIG_APP_INTERFACE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from CONFIG_APP_INTERFACE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.ConfigAppInterface">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_APP_INTERFACE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.ConfigAppInterface">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_APP_INTERFACE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_APP_INTERFACE A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		 FROM  CONFIG_APP_INTERFACE  A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.ConfigAppInterface">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_APP_INTERFACE A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigAppInterface">
+		INSERT INTO CONFIG_APP_INTERFACE (
+		TENANT_ID,
+		INTERFACE_CODE,
+		INTERFACE_NAME,
+		INTERFACE_TYPE_DICT_ID,
+		INTERFACE_CALLER_DICT_ID,
+		IS_VALID,
+		IS_TIMING
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{interfaceCode},
+		#{interfaceName},
+		#{interfaceTypeDictId},
+		#{interfaceCallerDictId},
+		#{isValid},
+		#{isTiming}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigAppInterface">
+		UPDATE CONFIG_APP_INTERFACE SET
+		TENANT_ID=#{tenantId},
+		INTERFACE_CODE=#{interfaceCode},
+		INTERFACE_NAME=#{interfaceName},
+		INTERFACE_TYPE_DICT_ID=#{interfaceTypeDictId},
+		INTERFACE_CALLER_DICT_ID=#{interfaceCallerDictId},
+		IS_VALID=#{isValid},
+		IS_TIMING=#{isTiming},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigAppInterface">
+		UPDATE CONFIG_APP_INTERFACE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="interfaceCode != null" >
+			INTERFACE_CODE=#{interfaceCode},
+		</if>
+		<if test="interfaceName != null" >
+			INTERFACE_NAME=#{interfaceName},
+		</if>
+		<if test="interfaceTypeDictId != null" >
+			INTERFACE_TYPE_DICT_ID=#{interfaceTypeDictId},
+		</if>
+		<if test="interfaceCallerDictId != null" >
+			INTERFACE_CALLER_DICT_ID=#{interfaceCallerDictId},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="isTiming != null" >
+			IS_TIMING=#{isTiming},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.config.ConfigAppInterfaceParamVo"
+		      resultType="com.techsoft.entity.common.ConfigAppInterface" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_APP_INTERFACE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

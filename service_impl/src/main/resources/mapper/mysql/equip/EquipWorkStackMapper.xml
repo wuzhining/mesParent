@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.equip.EquipWorkStackMapper">
+	<resultMap id="EquipWorkStack" type="com.techsoft.entity.common.EquipWorkStack" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="EQUIP_WORK_ID" property="equipWorkId" />
+		<result column="EQUIP_STACK_AREA" property="equipStackArea" />
+		<result column="EQUIP_STACK_CODE" property="equipStackCode" />
+		<result column="EQUIP_STACK_NAME" property="equipStackName" />
+		<result column="EQUIP_FIXTURE_ID" property="equipFixtureId" />
+		<result column="EQUIP_FIXTURE_STACK_ID" property="equipFixtureStackId" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="equipWorkId != null">
+			AND A.EQUIP_WORK_ID= #{equipWorkId}
+		</if>
+		<if test="equipStackArea != null">
+			AND A.EQUIP_STACK_AREA= #{equipStackArea}
+		</if>
+		<if test="equipStackCode != null">
+			AND A.EQUIP_STACK_CODE= #{equipStackCode}
+		</if>
+		<if test="equipStackName != null">
+			AND A.EQUIP_STACK_NAME= #{equipStackName}
+		</if>
+		<if test="equipFixtureId != null">
+			AND A.EQUIP_FIXTURE_ID= #{equipFixtureId}
+		</if>
+		<if test="equipFixtureStackId != null">
+			AND A.EQUIP_FIXTURE_STACK_ID= #{equipFixtureStackId}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.EQUIP_WORK_ID,
+		A.EQUIP_STACK_AREA,
+		A.EQUIP_STACK_CODE,
+		A.EQUIP_STACK_NAME,
+		A.EQUIP_FIXTURE_ID,
+		A.EQUIP_FIXTURE_STACK_ID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_EQUIP_WORK_STACK_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from EQUIP_WORK_STACK
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.EquipWorkStack">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_WORK_STACK A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.EquipWorkStack">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_WORK_STACK A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE EQUIP_WORK_STACK A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE EQUIP_WORK_STACK  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.EquipWorkStack">
+		UPDATE EQUIP_WORK_STACK A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipWorkStack">
+		INSERT INTO EQUIP_WORK_STACK (
+		TENANT_ID,
+		EQUIP_WORK_ID,
+		EQUIP_STACK_AREA,
+		EQUIP_STACK_CODE,
+		EQUIP_STACK_NAME,
+		EQUIP_FIXTURE_ID,
+		EQUIP_FIXTURE_STACK_ID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{equipWorkId},
+		#{equipStackArea},
+		#{equipStackCode},
+		#{equipStackName},
+		#{equipFixtureId},
+		#{equipFixtureStackId},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipWorkStack">
+		UPDATE EQUIP_WORK_STACK SET
+		TENANT_ID=#{tenantId},
+		EQUIP_WORK_ID=#{equipWorkId},
+		EQUIP_STACK_AREA=#{equipStackArea},
+		EQUIP_STACK_CODE=#{equipStackCode},
+		EQUIP_STACK_NAME=#{equipStackName},
+		EQUIP_FIXTURE_ID=#{equipFixtureId},
+		EQUIP_FIXTURE_STACK_ID=#{equipFixtureStackId},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipWorkStack">
+		UPDATE EQUIP_WORK_STACK SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="equipWorkId != null" >
+			EQUIP_WORK_ID=#{equipWorkId},
+		</if>
+		<if test="equipStackArea != null" >
+			EQUIP_STACK_AREA=#{equipStackArea},
+		</if>
+		<if test="equipStackCode != null" >
+			EQUIP_STACK_CODE=#{equipStackCode},
+		</if>
+		<if test="equipStackName != null" >
+			EQUIP_STACK_NAME=#{equipStackName},
+		</if>
+		<if test="equipFixtureId != null" >
+			EQUIP_FIXTURE_ID=#{equipFixtureId},
+		</if>
+		<if test="equipFixtureStackId != null" >
+			EQUIP_FIXTURE_STACK_ID=#{equipFixtureStackId},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.equip.EquipWorkStackParamVo"
+		      resultType="com.techsoft.entity.common.EquipWorkStack" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_WORK_STACK A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

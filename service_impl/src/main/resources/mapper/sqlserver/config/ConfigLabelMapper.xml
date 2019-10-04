@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.config.ConfigLabelMapper">
+	<resultMap id="ConfigLabel" type="com.techsoft.entity.common.ConfigLabel" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="LABEL_NAME" property="labelName" />
+		<result column="BARCODE_RULE_DICT_ID" property="barcodeRuleDictId" />
+		<result column="PRINT_MODE_DICT_ID" property="printModeDictId" />
+		<result column="TEMPLET_PATH" property="templetPath" />
+		<result column="TEMPLET_CONTENT" property="templetContent" />
+		<result column="PRINTER_NAME" property="printerName" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="labelName != null">
+			AND A.LABEL_NAME= #{labelName}
+		</if>
+		<if test="barcodeRuleDictId != null">
+			AND A.BARCODE_RULE_DICT_ID= #{barcodeRuleDictId}
+		</if>
+		<if test="printModeDictId != null">
+			AND A.PRINT_MODE_DICT_ID= #{printModeDictId}
+		</if>
+		<if test="templetPath != null">
+			AND A.TEMPLET_PATH= #{templetPath}
+		</if>
+		<if test="templetContent != null">
+			AND A.TEMPLET_CONTENT= #{templetContent}
+		</if>
+		<if test="printerName != null">
+			AND A.PRINTER_NAME= #{printerName}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	<if test="likeLabelName != null">
+		<bind name="likeLabelName" value="'%' + _parameter.likeLabelName + '%'"/>
+		AND A.LABEL_NAME LIKE #{likeLabelName}
+	</if>
+	<if test="likePrinterName != null">
+		<bind name="likePrinterName" value="'%' + _parameter.likePrinterName + '%'"/>
+		AND A.PRINTER_NAME LIKE #{likePrinterName}
+	</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.LABEL_NAME,
+		A.BARCODE_RULE_DICT_ID,
+		A.PRINT_MODE_DICT_ID,
+		A.TEMPLET_PATH,
+		A.TEMPLET_CONTENT,
+		A.PRINTER_NAME,
+		A.IS_VALID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for CONFIG_LABEL_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from CONFIG_LABEL
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.ConfigLabel">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_LABEL A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.ConfigLabel">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_LABEL A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_LABEL A WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_LABEL A WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.ConfigLabel">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM CONFIG_LABEL A WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigLabel">
+		INSERT INTO CONFIG_LABEL (
+		TENANT_ID,
+		LABEL_NAME,
+		BARCODE_RULE_DICT_ID,
+		PRINT_MODE_DICT_ID,
+		TEMPLET_PATH,
+		TEMPLET_CONTENT,
+		PRINTER_NAME,
+		IS_VALID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{labelName},
+		#{barcodeRuleDictId},
+		#{printModeDictId},
+		#{templetPath},
+		#{templetContent},
+		#{printerName},
+		#{isValid},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigLabel">
+		UPDATE CONFIG_LABEL SET
+		TENANT_ID=#{tenantId},
+		LABEL_NAME=#{labelName},
+		BARCODE_RULE_DICT_ID=#{barcodeRuleDictId},
+		PRINT_MODE_DICT_ID=#{printModeDictId},
+		TEMPLET_PATH=#{templetPath},
+		TEMPLET_CONTENT=#{templetContent},
+		PRINTER_NAME=#{printerName},
+		IS_VALID=#{isValid},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.ConfigLabel">
+		UPDATE CONFIG_LABEL SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="labelName != null" >
+			LABEL_NAME=#{labelName},
+		</if>
+		<if test="barcodeRuleDictId != null" >
+			BARCODE_RULE_DICT_ID=#{barcodeRuleDictId},
+		</if>
+		<if test="printModeDictId != null" >
+			PRINT_MODE_DICT_ID=#{printModeDictId},
+		</if>
+		<if test="templetPath != null" >
+			TEMPLET_PATH=#{templetPath},
+		</if>
+		<if test="templetContent != null" >
+			TEMPLET_CONTENT=#{templetContent},
+		</if>
+		<if test="printerName != null" >
+			PRINTER_NAME=#{printerName},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.config.ConfigLabelParamVo"
+		      resultType="com.techsoft.entity.common.ConfigLabel" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM CONFIG_LABEL A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

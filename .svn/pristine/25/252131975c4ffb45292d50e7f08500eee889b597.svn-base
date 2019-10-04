@@ -1,0 +1,213 @@
+package com.techsoft.controller.product;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.firm.ClientFirmPartnerService;
+import com.techsoft.client.service.product.ClientProductMainService;
+import com.techsoft.client.service.product.ClientProductMaterialService;
+import com.techsoft.client.service.product.ClientProductPackboxService;
+import com.techsoft.client.service.struct.ClientStructWarehouseService;
+import com.techsoft.client.service.warehouse.ClientWarehouseLocationService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapUserStatus;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.ProductPackbox;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.product.ProductMainParamVo;
+import com.techsoft.entity.product.ProductMaterialParamVo;
+import com.techsoft.entity.product.ProductPackboxParamVo;
+import com.techsoft.entity.product.ProductPackboxVo;
+import com.techsoft.entity.warehouse.WarehouseLocationParamVo;
+
+@Controller
+@RequestMapping("/product/productPackbox")
+public class ProductPackboxController extends BaseController {
+	@Autowired
+	private ClientProductPackboxService clientProductPackboxService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientStructWarehouseService clientStructWarehouseService;
+	@Autowired
+	private ClientWarehouseLocationService clientWarehouseLocationService;
+	@Autowired
+	private ClientProductMainService clientProductMainService;
+	@Autowired
+	private ClientFirmPartnerService clientFirmPartnerService;
+	@Autowired
+	private ClientProductMaterialService clientProductMaterialService;
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());  
+		modelAndView.addObject("mapUserStatus", MapUserStatus.getMap());  
+		try {
+		/*	//取仓库集合
+			StructWarehouseParamVo ParamVowarehosue = new StructWarehouseParamVo();
+			List<StructWarehouse> warehouseList = clientStructWarehouseService.selectListByParamVo(ParamVowarehosue,this.getCommonParam(null));
+			modelAndView.addObject("warehouseList", warehouseList);
+			//取供应商公司集合
+			FirmPartnerParamVo firmPartnerParamVo = new FirmPartnerParamVo();
+			List<FirmPartner> firmPartnerList = clientFirmPartnerService.selectListByParamVo(firmPartnerParamVo, this.getCommonParam(null));
+			modelAndView.addObject("firmPartnerList", firmPartnerList);*/
+			//度量类型数据字典
+			List<ConfigDictionary> measureTypeDictList = clientConfigDictionaryService
+					.selectListByParentId(EnumDictionary.PACKBOX_MEASURE_TYPE.getValue());
+			modelAndView.addObject("measureTypeDictList", measureTypeDictList);
+			ProductMainParamVo productMainParamVo = new ProductMainParamVo();
+			//取物品集合
+			List<ProductMain> productMainList =clientProductMainService.selectListByParamVo(productMainParamVo, this.getCommonParam(null));
+			modelAndView.addObject("productMainList", productMainList);
+			//取物料合集
+			ProductMaterialParamVo productMaterialParamVo= new ProductMaterialParamVo();
+			List<ProductMaterial> productMaterialList = clientProductMaterialService.selectListByParamVo(productMaterialParamVo, this.getCommonParam(null));
+			modelAndView.addObject("productMaterialList", productMaterialList);
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("product/productPackbox-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		
+		ProductPackboxVo entity = new ProductPackboxVo();
+		try {
+			if (id != null) {
+				entity = clientProductPackboxService.getVoByID(id, this.getCommonParam(request));
+			}
+			modelAndView.setViewName("product/productPackbox-edit");
+			modelAndView.addObject("entity", entity);
+			initData(modelAndView);
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+ 
+	/**
+	 * 根据物品id查包装箱
+	 * @param request
+	 * @param productPackboxParamVo
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/selectPackboxByProductId")
+	public List<ProductPackbox> selectProductByMaterilId(HttpServletRequest request,ProductPackboxParamVo productPackboxParamVo) {
+			if (productPackboxParamVo == null) {
+				productPackboxParamVo = new ProductPackboxParamVo();
+			}
+			productPackboxParamVo.setTenantId(getLoginTenantId(request));
+			List<ProductPackbox> productPackboxlList = new ArrayList<ProductPackbox>();
+			try {
+				productPackboxlList=clientProductPackboxService.selectListByParamVo(productPackboxParamVo,this.getCommonParam(request));
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		return productPackboxlList;
+	}
+	
+	/**
+	 * 根据仓库查货位
+	 * @param request 包含有仓库id
+	 * @param structWarehouseLocationParamVo 货位对象
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/linkLocationByWarehouse")
+	public List<WarehouseLocation> linkLocationByWarehouse(HttpServletRequest request, WarehouseLocationParamVo warehouseLocationParamVo) {
+			if (warehouseLocationParamVo == null) {
+				warehouseLocationParamVo = new WarehouseLocationParamVo();
+			}
+			warehouseLocationParamVo.setTenantId(getLoginTenantId(request));
+			List<WarehouseLocation> warehouseLocationList = new ArrayList<WarehouseLocation>();
+			try {
+				warehouseLocationList=clientWarehouseLocationService.selectListByParamVo(warehouseLocationParamVo,this.getCommonParam(request));
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		return warehouseLocationList;
+	}
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			ProductPackboxParamVo productPackboxParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}		
+		try {
+            if(productPackboxParamVo==null){
+            	productPackboxParamVo = new ProductPackboxParamVo();
+            }
+			pageInfo = clientProductPackboxService.selectPageVoByParamVo(
+					productPackboxParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			ProductPackboxParamVo productPackboxParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+	    productPackboxParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientProductPackboxService.saveOrUpdate(productPackboxParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+
+}

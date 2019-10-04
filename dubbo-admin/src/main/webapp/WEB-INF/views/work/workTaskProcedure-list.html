@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-unselect{
+			height:1px;
+		}
+	</style>
+  </head>
+  <script type="text/html" id="isLockedTpl">
+    {{#  if(d.isLocked == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  <script type="text/html" id="factory">
+	{{#  if(d.factory){}}
+		{{ d.factory.factoryName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="billWorkorder">
+	{{#  if(d.billWorkorder){}}
+		{{ d.billWorkorder.workorderCode 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="workshop">
+	{{#  if(d.workshop){}}
+		{{ d.workshop.workshopName 
+ 	}}
+	{{# } }}
+   </script>
+    <script type="text/html" id="processNode">
+	{{#  if(d.structProcessNode){}}
+		{{ d.structProcessNode.nodeName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="productBom">
+	{{#  if(d.productBom){}}
+		{{ d.productBom.bomCode 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="taskStatusDic">
+	{{#  if(d.taskStatusDic){}}
+		{{ d.taskStatusDic.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="productionline">
+	{{#  if(d.productionline){}}
+		{{ d.productionline.productionlineName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="productType">
+	{{#  if(d.productType){}}
+		{{ d.productType.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="productCode">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productCode 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="productName">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="materialCode">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialCode 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="executiveName">
+	{{#  if(d.executive){}}
+		{{ d.executive.dictName 
+ 	}}
+	{{# } }}
+   </script>
+   <script type="text/html" id="createUser">
+	{{#  if(d.userPassport){}}
+		{{ d.userPassport.realName
+ 	}}
+	{{# } }}
+   </script> 
+   <script type="text/html" id="modifyUser">
+	{{#  if(d.modifyUser){}}
+		{{ d.modifyUser.realName
+ 	}}
+	{{# } }}
+    </script> 
+   
+   
+   
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+  			<div class="layui-col-md12">
+    			<div class="layui-form-query">
+    				<form class="layui-form m20">
+    					<div class="layui-form-item">
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						        <input type="text" name="billWorkorderId"  placeholder="工单编码" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						          <input type="text" name="taskCode"  placeholder="任务编码" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline">
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button> 
+						      <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+						      </div>
+						    </div>
+			  			</div>
+            		</form>
+            	</div>
+            </div>
+            <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12">
+        				<table  class="layui-hide" id="shelf_result" lay-filter="shelf_result"></table>
+        			</div>
+        		</div>
+        	</div>
+        
+        </div>
+    </div>
+</div>   
+</body>
+
+<script type="text/html" id="barDemo">	
+ </script> 
+<style type="text/css">
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+            vertical-align:middle;
+        }
+      
+</style>
+ 
+<script type="text/javascript">
+var returnData = [];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arr = url.split('=');
+	var workorderId = arr[1];
+	$("#ids").val(workorderId);
+	
+	var curTable = layuitable.render({
+    	elem: '#shelf_result'
+    	,id:'shelf_result'
+    	,url:'/work/workTaskProcedure/list/json?billWorkorderId=' +workorderId
+    	,height:640
+   		,cols: [[
+		    	,{field:'id',  title: 'ID',align:'center', width: 10}
+   	    	    ,{field:'billWorkorderId',  title: '工单ID',align:'center', width: 120}
+   	    	 	/* ,{field:'billWorkorder',  title: '工单编码',align:'center', width: 120,templet:'#billWorkorder'} */
+   	    	 	,{field:'processNodeId',  title: '工序ID',align:'center', width: 120}
+	   	    	,{field:'processNode',  title: '工序编码',align:'center', width: 120,templet:'#processNode'}
+	   	    	,{field:'sortNo',  title: '工序排序',align:'center', width: 120}
+	   	    	,{field:'taskCode',  title: '任务编码',align:'center', width: 180}
+	   	    	,{field:'taskStatusDictId',  title: '任务状态',align:'center', width: 120}
+	   	    	,{field:'taskStatusDict',  title: '任务状态',align:'center', width: 120,templet:'#taskStatusDic'}
+	   	    	,{field:'priority',  title: '优先级',align:'center', width: 120}
+	   	    	,{field:'quantity',  title: '工单数量(可修改)',align:'center', width: 120,edit: 'text'}
+	   	    	,{field:'quantityInput',  title: '已投入数量',align:'center', width: 120}
+	   	    	,{field:'quantityOutput',  title: '已产出数量',align:'center', width: 120}
+	   	    	,{field:'quantityStandard',  title: '合格数量',align:'center', width: 120}
+		    	,{field:'factoryId',  title: '工厂ID',align:'center', width: 100}
+		    	,{field:'factory',  title: '工厂名称',align:'center', width: 100,templet:'#factory'}
+   	    	    ,{field:'workshopId',  title: '车间ID',align:'center', width: 120}
+   	    	 	,{field:'workshop',  title: '车间名称',align:'center', width: 120,templet:'#workshop'}
+   	    	 	,{field:'productionlineId',  title: '产线ID',align:'center', width: 120}
+	    	 	,{field:'productionline',  title: '产线名称',align:'center', width: 120,templet:'#productionline'}
+	   	    	,{field:'bomId',  title: 'BOMId',align:'center', width: 120}
+	   	    	,{field:'productBom',  title: '产品BOM编码',align:'center', width: 120,templet:'#productBom'}
+	   	    	,{field:'productId',  title: '物品Id',align:'center', width: 120}
+	   	    	,{field:'productType',  title: '物品类型',align:'center', width: 120,templet:'#productType'}
+	   	    	,{field:'productCode',  title: '物品编码',align:'center', width: 120,templet:'#productCode'}
+	   	    	,{field:'productName',  title: '物品名称',align:'center', width: 120,templet:'#productName'}
+	   	    	,{field:'materialId',  title: '物品规格Id',align:'center', width: 120}
+	   	    	,{field:'materialCode',  title: '物品规格编码',align:'center', width: 120,templet:'#materialCode'}
+	   	    	,{field:'materialName',  title: '物品规格名称',align:'center', width: 120,templet:'#materialName'}
+	   	    	,{field:'sku',  title: '物品规格值',align:'center', width: 120,templet:'#sku'}
+	   	    	,{field:'executiveName',  title: '执行方',align:'center', width: 120,templet:'#executiveName'}
+	   	    	,{field:'timePlanStart',  title: '计划开始时间',align:'center', width: 170}
+	   	    	,{field:'timePlanEnd',  title: '计划结束时间',align:'center', width: 170}
+	   	    	,{field:'timeActualStart',  title: '实际上线时间',align:'center', width: 170}
+	   	    	,{field:'timeActualEnd',  title: '实际结案时间',align:'center', width: 170}
+	   	    	,{field:'isLocked',  title: '是否锁定',align:'center', width: 100,templet:'#isLockedTpl'}
+	   	    	,{field:'remark',  title: '备注', align:'center',width: 200}
+	    	    ,{field:'createTime',  title: '创建时间', align:'center',width: 170}
+	    	    ,{field:'modifyTime',  title: '更新时间', align:'center',width: 170}
+	    	    ,{field:'createUserId',  title: '创建人', align:'center', templet:'#createUser'}
+	    	    ,{field:'modifyUserId',  title: '更新人', align:'center', templet:'#modifyUser'}
+	    	    /* ,{field:'', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'} */
+   	    	]],done:function(){
+   	    		// 隐藏列
+   	    		$(".layui-table-box").find("[data-field='id']").css("display","none");
+   	    		$(".layui-table-box").find("[data-field='billWorkorderId']").css("display","none");
+   	    		$(".layui-table-box").find("[data-field='factoryId']").css("display","none");
+   	    		/* $(".layui-table-box").find("[data-field='billWorkorderId']").css("display","none"); */
+   	    		$(".layui-table-box").find("[data-field='workshopId']").css("display","none");
+   	    		$(".layui-table-box").find("[data-field='productionlineId']").css("display","none");
+   	    		$(".layui-table-box").find("[data-field='processNodeId']").css("display","none");
+   	    		$(".layui-table-box").find("[data-field='bomId']").css("display","none");
+   	    		$(".layui-table-box").find("[data-field='taskStatusDictId']").css("display","none");
+   	    		$(".layui-table-box").find("[data-field='productionlineId']").css("display","none");
+   	    		$(".layui-table-box").find("[data-field='productId']").css("display","none");
+   	    		$(".layui-table-box").find("[data-field='materialId']").css("display","none");
+    	    }
+  	});
+	
+	form.on('submit(search)', function (data) {
+		curTable.reload(data.field);
+        return false;
+  	});
+	// table.on('tool(product_result)', product_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+	table.on('radio(shelf_result)', function(obj){
+	  //console.log(obj.checked); //当前是否选中状态
+	  //console.log(obj.data); //选中行的相关数据
+	  //console.log(obj.type); //如果触发的是全选，则为：all，如果触发的是单选，则为：one
+	  var checkStatus = table.checkStatus('shelf_result')
+      ,selectData = checkStatus.data;
+	  for (var i = 0; i < selectData.length; i++) {
+		  selectData[i]['strategyUpShelfName']=selectData[i].fixtureName;
+	}
+	   returnData.push(selectData);
+	  
+	});
+	
+	
+	table.on('tool(shelf_result)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('更改产线','/work/workTaskProcedure/edit?id=' + data.id); 
+		}
+	 
+	});
+	
+	//监听单元格编辑
+	table.on('edit(shelf_result)', function(obj){
+		var value = obj.value //得到修改后的值
+	    ,data = obj.data //得到所在行所有键值
+	    ,field = obj.field; //得到字段
+	    
+	    var url = '/work/workTaskProcedure/save';
+        layuiformajax.postJson(url, {"id":data.id,"quantity":value}, function (result) {
+   	    	if (result.isSuccess) {
+   	    	    layer.alert("保存成功", {icon: 6},function () {
+   	                // 获得frame索引
+   	                var index = layer.getFrameIndex(window.name);
+   				  	location.reload(); 
+   	                layer.close(index);
+   	            });	
+   			}else{
+   				layer.alert(result.message, {
+   					icon : 2
+   				});
+   			}
+		});
+	    
+	});
+
+ 
+});	
+function selected() {
+	return returnData;
+}
+</script>
+ 
+  
+
+</html>

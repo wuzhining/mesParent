@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+        <tr>
+               <td width="10%" class="tableleft">产品规格编码</td>
+              <td>
+               <#if entity??&&entity.id??>${(entity.materialCode)!''}
+               <#else>
+                <input type="text" name="materialCode" class="layui-input"   maxlength="20"  />
+               </#if>
+               </td> 
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">产品规格名称</td>
+               <td><input type="text" name="materialName" lay-verify="nameLength" class="layui-input" maxlength="64" value="${(entity.materialName)!''}"/></td>
+           
+               <td width="10%" class="tableleft">产品</td>
+               <td>
+                	<div class="div-choiceBox-intd ">   
+                		<input type="hidden"  id="productId" name="productId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>">
+                		<input type="text" id="productName" name="productName" disabled="disabled" class="layui-input input-choiceBox-intd">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd"  id="productSearch" >
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	 	</div>
+               </td> 
+           </tr>
+            
+           <tr>
+               <td width="10%" class="tableleft">产品规格值</td>
+               <td>
+                	<div class="div-choiceBox-intd ">   
+                		<input type="text" id="skuValues" name="skuValue" value="${(entity.sku)!''}" lay-verify="required" disabled="disabled"   class="layui-input input-choiceBox-intd">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="skuValueSearch">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	 	</div>
+               </td>
+
+               <td width="10%" class="tableleft">供应商</td>
+               <td>
+                	<select name="supplierId" > 
+	                    <#if firmPartnerList??>
+	                     <#list firmPartnerList as item>
+				            <option value="${item.id?c}" <#if (entity.supplierId??&&entity.supplierId==item.id)>selected="selected"</#if>>${item.companyName}</option>
+				         </#list>
+				         </#if>
+				    </select>
+               </td>
+               
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">产品类型</td>
+               <td>
+               		<input type="hidden"  id="productTypeDictId" name="productTypeDictId" disabled="productTypeDictId"  value="<#if entity??&&entity.productTypeDictId??>${entity.productTypeDictId?c}<#else></#if>">
+              		<input type="text" id="productTypeDictName" name="productTypeDictName" disabled="disabled" class="layui-input">
+               </td>
+              <!--  <td>
+                 <select name="productTypeDictId" disabled="disabled"> 
+                    <#if productTypeList??>
+                     <#list productTypeList as item>
+			            <option value="${item.id?c}" <#if (entity.productTypeDictId??&&entity.productTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td> -->
+             
+               <td width="10%" class="tableleft">产品规格状态</td>
+               <td>
+                 <select name="materialStatusDictId" disabled="disabled"> 
+                    <#if materialStatusDictList??>
+                     <#list materialStatusDictList as item>
+			            <option value="${item.id?c}" <#if (entity.materialStatusDictId??&&entity.materialStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">库存单位</td>
+               <td>
+                 <select name="stockUnitDictId" id="stockUnitDictId" disabled="true"> 
+                    <#if stockUnitDictList??>
+                     <#list stockUnitDictList as item>
+			            <option value="${item.id?c}" <#if (entity.stockUnitDictId??&&entity.stockUnitDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+             
+               <td width="10%" class="tableleft">生产单位</td>
+               <td>
+                 <select name="workUnitDictId" id="workUnitDictId" disabled="disabled"> 
+                    <#if workUnitDictList??>
+                     <#list workUnitDictList as item>
+			            <option value="${item.id?c}" <#if (entity.workUnitDictId??&&entity.workUnitDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+           </tr>
+           
+           <tr>
+           	   <td width="10%" class="tableleft">体积限制</td>
+               <td><input type="text" name="volume" class="layui-input"  lay-verify="required|doubleAndNumber" maxlength="16" value="<#if entity??&&entity.volume??>${entity.volume?c}<#else></#if>"/></td>
+               <td width="10%" class="tableleft">重量限制</td>
+               <td><input type="text" name="weight" class="layui-input"  lay-verify="required|doubleAndNumber" maxlength="16" value="<#if entity??&&entity.weight??>${entity.weight?c}<#else></#if>"/></td>
+               
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">尺寸-长</td>
+               <td><input type="text" name="sizeLength" class="layui-input"  lay-verify="required|doubleAndNumber" maxlength="100" value="<#if entity??&&entity.sizeLength??>${entity.sizeLength?c}<#else></#if>"/></td>
+               <td width="10%" class="tableleft">尺寸-高</td>
+               <td><input type="text" name="sizeHeight" class="layui-input"  lay-verify="required|doubleAndNumber" maxlength="100" value="<#if entity??&&entity.sizeHeight??>${entity.sizeHeight?c}<#else></#if>"/></td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">尺寸-宽</td>
+               <td><input type="text" name="sizeWidth" class="layui-input"  lay-verify="required|doubleAndNumber" maxlength="100" value="<#if entity??&&entity.sizeWidth??>${entity.sizeWidth?c}<#else></#if>"/></td>
+               <td width="10%" class="tableleft">是否有效期控制</td>
+               <td>
+                 <select name="isPeriodControl">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isPeriodControl??&&entity.isPeriodControl==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">生产有效期</td>
+               <td><input type="text" name="periodManufacture" class="layui-input"  lay-verify="number" maxlength="100" value="<#if entity??&&entity.periodManufacture??>${entity.periodManufacture?c}<#else></#if>"/></td>
+               <td width="10%" class="tableleft">出库有效期</td>
+               <td><input type="text" name="periodWarehouseOut" class="layui-input"  lay-verify="number" maxlength="100" value="<#if entity??&&entity.periodWarehouseOut??>${entity.periodWarehouseOut?c}<#else></#if>"/></td>
+           </tr>
+           <tr>
+              
+               <td width="10%" class="tableleft">默认上架策略ID</td>
+               <td>
+               <span class="div-choiceBox-intd " >  
+               <input type="text" id="strategyUpShelfName" name="strategyUpShelfName" class="layui-input input-choiceBox-intd"/>
+               <input type="hidden" id="strategyUpshelfId" name="strategyUpshelfId" class="layui-input input-choiceBox-intd"  value="<#if entity??&&entity.strategyUpshelfId??>${entity.strategyUpshelfId?c}<#else></#if>"/>
+               <button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="upShelfSearch" style="width:50px;height:32px">
+		         			<i class="layui-icon layui-icon-more" ></i>
+		       </button>
+		       </span>
+               </td>
+                     <td width="10%" class="tableleft">默认下架策略ID</td>
+               <td>
+               <span class="div-choiceBox-intd " >  
+               <input type="text" id="strategyDownShelfName" name="strategyDownShelfName" class="layui-input input-choiceBox-intd"/>
+               <input type="hidden" id="strategyDownshelfId" name="strategyDownshelfId" class="layui-input input-choiceBox-intd"  value="<#if entity??&&entity.strategyDownshelfId??>${entity.strategyDownshelfId?c}<#else></#if>"/>
+               <button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="shelfSearch" style="width:50px;height:32px">
+		         			<i class="layui-icon layui-icon-more" ></i>
+		       </button>
+		       </span>
+               </td>
+               
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">失效期预警</td>
+               <td><input type="text" name="failurePeriodWarn" class="layui-input"  lay-verify="number" maxlength="100" value="<#if entity??&&entity.failurePeriodWarn??>${entity.failurePeriodWarn?c}<#else></#if>"/></td>
+              
+         
+               <td width="10%" class="tableleft">是否允许拆箱包装</td>
+               <td>
+                 <select name="isUnpackBox">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isUnpackBox??&&entity.isUnpackBox==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">是否允许拆内箱包装</td>
+               <td>
+                 <select name="isUnpackInnerbox">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isUnpackInnerbox??&&entity.isUnpackInnerbox==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="10%" class="tableleft">库存数量</td>
+               <td><input type="text" name="quantityStock" class="layui-input" lay-verify="number"   value="<#if entity??&&entity.quantityStock??>${entity.quantityStock?c}<#else></#if>"/></td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">周数</td>
+               <td><input type="text" name="weekCode" class="layui-input" lay-verify="number"    value="<#if entity??&&entity.weekCode??>${entity.weekCode?c}<#else></#if>"/></td>
+               <td width="10%" class="tableleft">BinCode</td>
+               <td><input type="text" name="binCode" lay-verify="binCodeLength"  class="layui-input" maxlength="32" value="${(entity.binCode)!''}"/></td>
+           </tr>
+           <tr>
+         	   <td width="10%" class="tableleft">单位系数</td>
+               <td><input type="text" name="ratioUnit" class="layui-input"  lay-verify="required|doubleAndNumber" maxlength="100" value="<#if entity??&&entity.ratioUnit??>${entity.ratioUnit?c}<#else></#if>"/></td>
+               <td width="10%" class="tableleft">备注</td>
+               <td><input type="text" name="remark" lay-verify="remarkLength"  class="layui-input" maxlength="128" value="${(entity.remark)!''}"/></td>
+           </tr>
+        
+
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+ 
+	  </div>
+    </div>
+ <!-- 添加 弹出产品表格的 tool（里面的按钮）-->
+<script type="text/html" id="productSelect">
+     <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+</script>
+    <script>
+    var skuValues=parent.skuValue;
+
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','layer','layuiconfig','layuiformajax','layuitable'], function(){
+    	$ = layui.$, 
+    	admin = layui.admin, 
+    	table = layui.table, 
+    	layer = layui.layer, 
+    	laydate = layui.laydate,
+    	layuitable = layui.layuitable,
+    	form = layui.form; 
+		var layuiformajax = layui.layuiformajax;
+     	
+		   $('#skuValueSearch').on('click',function(e){
+				//选择产品后,用产品id级联skuValue
+	     		 var productId =$('#productId').val();
+	     		if(productId!=null&&productId!=""){
+	     			skuOpen('/product/productMaterial/skuOpen?productId='+productId,"skuValues");
+	     		}
+	     		e.preventDefault();//默认from表单提交时不刷新
+	     	})
+        
+     
+      	var url = $(window.parent.document).find("iframe").attr("src");
+    	var arr = url.split('?');
+    	var result=url.indexOf("?");
+    	  var strategyUpName=parent.strategyUpName;
+          var strategyDownName=parent.strategyDownName;
+         
+    	if(result>0){
+    	 $("#skuValues").val(skuValues);
+    	var  productName = arr[1].split('&&')[1].split('=')[1];
+  		$("#productName").val(productName); 
+  		
+    	var  productType = arr[1].split('&&')[2].split('=')[1];
+  		$("#productTypeDictName").val(productType); 
+  		
+       	if(productName!=null&&productName!=""){
+       		$('#productSearch').attr('disabled',true);
+       	}	 
+    		
+    	}else{
+    		skuValues="";
+    	   strategyUpName="";
+           strategyDownName= "";
+    	}
+         $('#strategyUpShelfName').val(strategyUpName);  
+         $('#strategyDownShelfName').val(strategyDownName);  
+         
+          
+        $('#productSearch').on('click',function(e){
+        	//openWinSelect('/product/productMain/productMainOpen',"productId","productName","productTypeDictId");
+        	
+        	layer.open({
+		  	type: 2, 
+		  	title :'请选择数据',
+		  	maxmin: true,
+			area: ['750px', '500px'],
+		 	btn: ['确定', '取消'],
+		  	content: '/product/productMain/productMainOpen', //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com ', 'no']
+	  		yes: function(index, layero){
+	  			var iframeWin = window[layero.find('iframe')[0]['name']];//得到iframe页的窗口对象，执行iframe页的方法：
+	            var selectData = iframeWin.selected();//调用子页面的方法，得到子页面返回的ids
+	  			if (selectData.length <= 0) {
+	  				layer.msg('请至少选择一个！');
+	  			} else {
+						var productId=selectData[0][0].id;
+						var productName=selectData[0][0].productName;
+						var productTypeId=selectData[0][0].productType.id;
+						var productTypeName=selectData[0][0].productType.dictName;
+	  					$("#productId").val(productId);
+	  					$("#productName").val(productName);
+	  					$("#productTypeDictId").val(productTypeId);
+	  					$("#productTypeDictName").val(productTypeName);
+		  				layer.close(index);
+	  			}
+	  		},
+  		 
+		}); 
+     		
+     		e.preventDefault();//默认from表单提交时不刷新
+     	})
+           $('#shelfSearch').on('click',function(e){
+        	  openWinSelect('/product/productMain/shelfOpen',"strategyDownshelfId","strategyDownShelfName");
+  	   		e.preventDefault();//默认from表单提交时不刷新
+  	   		})
+  	   	 $('#upShelfSearch').on('click',function(e){
+        	  openWinSelect('/product/productMain/upShelfOpen',"strategyUpshelfId","strategyUpShelfName");
+  	   		e.preventDefault();//默认from表单提交时不刷新
+  	   		})
+          //自定义验证规则
+          form.verify({
+        	  number : [/^[0-9]*$/, '必须输入数字啊']
+	          ,codeLength: function(value){
+	              if(value.length > 32){
+	                  return '不能超过32个字符';
+	                }
+	              }
+	       	 ,nameLength: function(value){
+	              if(value.length > 64){
+	                  return '不能超过64个字符';
+	                }
+	              }
+	       	 ,batchLength: function(value){
+	              if(value.length > 32){
+	                  return '不能超过32个字符';
+	                }
+	              }
+	       	 ,binCodeLength: function(value){
+	              if(value.length > 32){
+	                  return '不能超过32个字符';
+	                }
+	              }
+	       	 ,remarkLength: function(value){
+	              if(value.length > 128){
+	                  return '不能超过128个字符';
+	                }
+	              }
+	       	 ,doubleAndNumber: function(value){
+	       	    if(/^\d+$/.test(value)==false && /^\d+\.\d+$/.test(value)==false)
+		       	    {
+		       	     return '你输入的不是数字';
+		       	    }
+	       	 	}
+          });
+          
+      	form.on('submit(search)', function (data) {
+    		layuitable.reload(data.field);
+            return false;
+      	});
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	
+        	  var url = '/product/productMaterial/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+    
+           
+        });
+   
+    </script>
+    <script>
+	    $(function () {
+	    	//初始化
+	    	linkWarehouseLocationByWarehouse($("#warehouseId").val(),'locationId','locationName',$("#initWarehouseLocation").val(),'/product/productPackbox/linkLocationByWarehouse');
+	    		
+	    });
+    </script>
+  </body>
+
+</html>

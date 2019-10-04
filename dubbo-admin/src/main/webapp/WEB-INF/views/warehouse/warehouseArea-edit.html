@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+            <tr> 
+             <td width="10%" class="tableleft">工厂名称</td>
+               <td> 
+                    <input type="hidden"  id="factoryId" name="factoryId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.factoryId??>${entity.factoryId?c}<#else></#if>">
+	              	<input type="text" id="factoryName" name="factoryName" disabled="disabled" class="layui-input input-choiceBox-intd" value="${(structFactory.factoryName)!''}" >
+	          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="factorySearch">
+	          			<i class="layui-icon layui-icon-more"></i>
+	          		</button>
+			   </td>
+               <td width="10%" class="tableleft">所属仓库</td>
+               <td>  
+               <!-- <input type="hidden"  id="initwarehouseCode" value="<#if entity??&&entity.warehouseId??>${entity.warehouseId?c}<#else></#if>" />
+               <select id="warehouseId" name="warehouseId"> 
+			   </select> -->
+			        <input type="hidden"  id="warehouseId" name="warehouseId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.warehouseId??>${entity.warehouseId?c}<#else></#if>">
+	              	<input type="text" id="warehouseName" name="warehouseName" disabled="disabled" class="layui-input input-choiceBox-intd" value="${(structWarehouse.warehouseName)!''}" >
+	          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="warehouseSearch">
+	          			<i class="layui-icon layui-icon-more"></i>
+	          		</button>
+			   </td>
+               
+               
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">区域编码</td>
+               <td>
+                  <input type="text" name="areaCode"  class="layui-input" maxlength="100" value="${(entity.areaCode)!''}"/>
+               </td>
+               <td width="10%" class="tableleft">区域名称</td>
+               <td>
+                 <input type="text" name="areaName"   class="layui-input" maxlength="20" value="${(entity.areaName)!''}"/>
+               </td>
+           </tr>
+           
+            <tr>
+               <td width="10%" class="tableleft">上级区域ID</td>
+               <td>
+                 <select id='parent' name="parentId" > 
+                    <option value="0" >请选择</option>
+                    <#if warehouseAreaList??>
+                     <#list warehouseAreaList as item>
+			            <option value="${item.id?c}" <#if (entity.parentId??&&entity.parentId==item.id)>selected="selected"</#if>>${item.areaName}</option>
+			         </#list>
+			         </#if>
+			       </select>
+               </td>  
+
+               <td width="10%" class="tableleft">基点坐标X</td>
+               <td>
+                  <input type="text" name="baseCoordinateX"  class="layui-input" maxlength="100" value="<#if entity??&&entity.baseCoordinateX??>${entity.baseCoordinateX?c}<#else></#if>"/>
+               </td> 
+           </tr>
+            
+           <tr>
+               <td width="10%" class="tableleft">基点坐标Y</td>
+               <td>
+                 <input type="text" name="baseCoordinateY"   class="layui-input" maxlength="20" value="<#if entity??&&entity.baseCoordinateY??>${entity.baseCoordinateY?c}<#else></#if>"/>
+               </td>
+               <td width="10%" class="tableleft">基点坐标Z</td>
+               <td>
+                 <input type="text" name="baseCoordinateZ"   class="layui-input" maxlength="20" value="<#if entity??&&entity.baseCoordinateZ??>${entity.baseCoordinateZ?c}<#else></#if>"/>
+               </td>
+           </tr>    
+           <tr>      
+               <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td> 
+               <td width="10%" class="tableleft">备注</td>
+               <td>
+                 <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+ <script>
+    $('#factoryId').attr("disabled","disabled");
+    $('#warehouseId').attr("disabled","disabled");
+    $('#parent').attr("disabled","disabled");
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          $('#factorySearch').on('click',function(e){
+         		openWinSelect('/struct/structFactory/structFactoryOpen',"factoryId","factoryName");
+         		e.preventDefault();//默认from表单提交时不刷新
+         	})
+         	$('#warehouseSearch').on('click',function(e){
+  	   		openWinSelect('/struct/structWarehouse/structWarehouseOpen',"warehouseId","warehouseName");
+  	   		e.preventDefault();//默认from表单提交时不刷新
+  	   	}) 
+          
+          //选择工厂查楼层级联监听
+          form.on('select(factorySelect)', function(data){
+        	  var factoryId=0;
+        	  if(data.value != ''){
+        		  factoryId=data.value;
+        	  }
+        	  $("#warehouseId option[value!='']").remove();
+        	  linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName','','/struct/structWarehouse/linkWarehouseByFactory');
+        	  $("#warehouseId").get(0).selectedIndex=0;
+        	 
+          });
+          
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  var url = '/warehouse/warehouseArea/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function (index) {
+      	    		 	layer.close(index);
+      				  	parent.location.reload(); 
+      	            });
+      		  });
+              return false;
+          });
+          
+
+    	  	var addType = getParam('add');
+    	  	if(addType === '1'){		//新增
+    	  		$(':input','#dataForm') 
+	    	  		.not(':button, :submit, :reset, :hidden') 
+	    	  		.val('') 
+	    	  		.removeAttr('checked') 
+	    	  		.removeAttr('selected');
+    	  		$("#id").val('');	
+    	  		$("#version").val('');
+    	  		var prtID = getParam('id'),
+    	  			prtNm = getParam('prtNm');
+    	  		var addTypeq = getParam('dds');
+    	          if(addTypeq =='2'){
+    		   	  		 $("#factoryId").attr('disabled','');
+    		   	  		 $("#warehouseId").attr('disabled',''); 
+    		   	  	     $("#parent").attr('disabled',''); 
+    		   	  	     $("#parent").val(prtID);
+    	          }else if(addTypeq =='3'){
+ 		   	  		 $("#factoryId").removeAttr("disabled");
+		   	  		 $("#warehouseId").removeAttr("disabled");
+		   	  	     $("#parent").removeAttr("disabled");
+    	          }
+	    	  	if(prtID){						//新增二级菜单
+	    	  		$("#parentId").val(prtID);
+	    	  		$("#parentName").val(prtNm);
+	    	  		$("#parentName").change(function(){
+	    	  			var currentVal = $("#parentName").val();
+	    	  			if(currentVal === ''){
+	    	  				$("#parentId").val('0');
+	    	  			};
+	    	  		});
+	    	  	}else{							//新增顶级菜单	
+	    	  		$("#parentId").val('0');
+	    	  		$("#parentName").val('0');
+	    	  	};
+    	  	};
+
+          
+	  	  	/*var edited = getParam('add');		//serialLine
+	  	  	if(edited){
+	  	  	    $('input[name="serialColumn"]').attr('disabled','');
+	  	  	    $('input[name="serialLine"]').attr('disabled','');
+	  	  	} */
+      });    
+    </script>
+    <script>
+    $(function () {
+    	var factoryId=0;
+	  	  if($("#factoryId").val() != ''){
+	  		  factoryId=$("#factoryId").val();
+	  	  }
+	  	//初始化
+	  	linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName',$("#initwarehouseCode").val(),'/struct/structWarehouse/linkWarehouseByFactory');
+    });
+    </script>
+  </body>
+
+</html>

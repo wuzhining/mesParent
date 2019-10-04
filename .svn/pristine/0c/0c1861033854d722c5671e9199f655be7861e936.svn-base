@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+          <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+           <select name="id">
+          	 <option value="">请选择菜单</option>
+          	     <#if adminMenuList1??>
+          	       <#list adminMenuList1 as item>
+		            	<option value="${item.id?c}" >${item.menuName}</option>
+		         	</#list>
+		         </#if> 
+          </select>
+          <select name="systemTypeDictId">
+          	 <option value="">请选择系统类型</option>
+          	     <#if dictionaryList??>
+          	       <#list dictionaryList as item>
+		            	<option value="${item.id?c}" >${item.dictName}</option>
+		         	</#list>
+		         </#if> 
+          </select>
+          <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+          <button type="reset" class="layui-btn layui-btn-sm" id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>
+        </form>
+      </div>
+
+
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable_choiceFunct" lay-filter="tablefilter_choiceFunct"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="choice">选择</a>
+</script>
+   
+   <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+     <script type="text/html" id="systemTypeDictName">
+	{{#  if(d.configDictionary){ }}
+		{{ d.configDictionary.dictName 
+
+     }}
+  {{#  } }}
+</script> 
+<script type="text/javascript">
+
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	
+	
+	var layuiformajax = layui.layuiformajax;
+        	var curTable = layuitable.render({
+            	elem: '#listTable_choiceFunct'
+            	,id:'listTable_choiceFunct'
+            	,url:'/sys/adminMenu/list/json'
+            	,cols: [[
+            	    {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+               	    ,{field:'menuName',  title: '菜单名称',align:'center', minWidth: 120}
+               	 	,{field:'menuReg',  title: '菜单正则表达式', align:'center',minWidth: 120}
+               	    ,{field:'menuUrl',  title: '菜单URL', align:'center',minWidth: 120} 
+               	 ,{field:'systemTypeDictId',  title: '系统类型', align:'center',minWidth: 120,templet:"#systemTypeDictName"}
+               	    ,{field:'isValid',  title: '是否有效',align:'center', minWidth: 120,templet:'#isValidTpl'}
+               	    ,{field:'sortNo',  title: '排序',align:'center', minWidth: 120}
+               	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+            	]]
+          	});
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+
+
+	table.on('tool(tablefilter_choiceFunct)', function(obj) {
+		var roleId = parent.$("#ids").val();
+		var data = obj.data;
+		//alert(roleId+"-"+data.id);
+		if (obj.event === 'choice') {
+			console.log(data);
+	      //监听提交
+       	  var url = '/sys/adminRoleMenu/save';
+      	 layuiformajax.postJson(url, {"roleId":roleId,"MenuId":data.id}, function (result) {
+       		 layer.msg('添加成功!', {icon: 1, time: 1000},function () {
+     	                // 获得frame索引
+     	                var index = parent.layer.getFrameIndex(window.name);
+     	               parent.location.reload(); 
+     	              parent.layer.close(index);
+     	            });
+     		  }); 
+		}
+	});
+	
+	
+
+	
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

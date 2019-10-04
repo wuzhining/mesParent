@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.bill.BillInventoryMapper">
+<cache eviction="LRU" type="org.mybatis.caches.redis.RedisCache" flushInterval="120000" size="1024" readOnly="true"/>
+	<resultMap id="BillInventory" type="com.techsoft.entity.common.BillInventory" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="WAREHOUSE_ID" property="warehouseId" />
+		<result column="BILL_CODE" property="billCode" />
+		<result column="BILL_STATUS_DICT_ID" property="billStatusDictId" />
+		<result column="AUDIT_STATUS_DICT_ID" property="auditStatusDictId" />
+		<result column="SETTLE_STATUS_DICT_ID" property="settleStatusDictId" />
+		<result column="INVENTORY_MODE_DICT_ID" property="inventoryModeDictId" />
+		<result column="TIME_START" property="timeStart" />
+		<result column="TIME_END" property="timeEnd" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="warehouseId != null">
+			AND A.WAREHOUSE_ID= #{warehouseId}
+		</if>
+		<if test="billCode != null">
+			AND A.BILL_CODE= #{billCode}
+		</if>
+		<if test="billStatusDictId != null">
+			AND A.BILL_STATUS_DICT_ID= #{billStatusDictId}
+		</if>
+		<if test="auditStatusDictId != null">
+			AND A.AUDIT_STATUS_DICT_ID= #{auditStatusDictId}
+		</if>
+		<if test="settleStatusDictId != null">
+			AND A.SETTLE_STATUS_DICT_ID= #{settleStatusDictId}
+		</if>
+		<if test="inventoryModeDictId != null">
+			AND A.INVENTORY_MODE_DICT_ID= #{inventoryModeDictId}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<if test="notFinish != null">
+			AND A.BILL_STATUS_DICT_ID != #{notFinish}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+		<if test="timeStartBegin != null">
+		<![CDATA[
+		   AND A.TIME_START >=  #{timeStartBegin}
+		]]>
+		</if>
+		<if test="timeStartEnd != null">
+		<![CDATA[
+		   AND A.TIME_START <= #{timeStartEnd}
+		]]>
+		</if>		
+		<if test="timeEndBegin != null">
+		<![CDATA[
+		   AND A.TIME_END >=  #{timeEndBegin}
+		]]>
+		</if>
+		<if test="timeEndEnd != null">
+		<![CDATA[
+		   AND A.TIME_END <= #{timeEndEnd}
+		]]>
+		</if>		
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.WAREHOUSE_ID,
+		A.BILL_CODE,
+		A.BILL_STATUS_DICT_ID,
+		A.AUDIT_STATUS_DICT_ID,
+		A.SETTLE_STATUS_DICT_ID,
+		A.INVENTORY_MODE_DICT_ID,
+		A.TIME_START,
+		A.TIME_END,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for BILL_INVENTORY_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from BILL_INVENTORY
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.BillInventory">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_INVENTORY A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.BillInventory">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_INVENTORY A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM BILL_INVENTORY A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM BILL_INVENTORY A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.BillInventory">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM BILL_INVENTORY A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillInventory">
+		INSERT INTO BILL_INVENTORY (
+		TENANT_ID,
+		WAREHOUSE_ID,
+		BILL_CODE,
+		BILL_STATUS_DICT_ID,
+		AUDIT_STATUS_DICT_ID,
+		SETTLE_STATUS_DICT_ID,
+		INVENTORY_MODE_DICT_ID,
+		TIME_START,
+		TIME_END,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{warehouseId},
+		#{billCode},
+		#{billStatusDictId},
+		#{auditStatusDictId},
+		#{settleStatusDictId},
+		#{inventoryModeDictId},
+		#{timeStart},
+		#{timeEnd},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillInventory">
+		UPDATE BILL_INVENTORY SET
+		TENANT_ID=#{tenantId},
+		WAREHOUSE_ID=#{warehouseId},
+		BILL_CODE=#{billCode},
+		BILL_STATUS_DICT_ID=#{billStatusDictId},
+		AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		SETTLE_STATUS_DICT_ID=#{settleStatusDictId},
+		INVENTORY_MODE_DICT_ID=#{inventoryModeDictId},
+		TIME_START=#{timeStart},
+		TIME_END=#{timeEnd},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillInventory">
+		UPDATE BILL_INVENTORY SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="warehouseId != null" >
+			WAREHOUSE_ID=#{warehouseId},
+		</if>
+		<if test="billCode != null" >
+			BILL_CODE=#{billCode},
+		</if>
+		<if test="billStatusDictId != null" >
+			BILL_STATUS_DICT_ID=#{billStatusDictId},
+		</if>
+		<if test="auditStatusDictId != null" >
+			AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		</if>
+		<if test="settleStatusDictId != null" >
+			SETTLE_STATUS_DICT_ID=#{settleStatusDictId},
+		</if>
+		<if test="inventoryModeDictId != null" >
+			INVENTORY_MODE_DICT_ID=#{inventoryModeDictId},
+		</if>
+		<if test="timeStart != null" >
+			TIME_START=#{timeStart},
+		</if>
+		<if test="timeEnd != null" >
+			TIME_END=#{timeEnd},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.bill.BillInventoryParamVo"
+		      resultType="com.techsoft.entity.common.BillInventory" useCache="true">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_INVENTORY A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+<!--            <tr> -->
+
+<!--                <td width="10%" class="tableleft">单据号</td> -->
+<!--                <td colspan="3"><input type="text" name="billCode" class="layui-input" maxlength="16" value="${(entity.billCode)!''}"/></td> -->
+<!--                <td width="10%" class="tableleft">仓库出入库类型</td> -->
+<!--                <td> -->
+<!-- 	              <select name="typeStock"> -->
+<!-- 				   <#if mapYesOrNo??> -->
+<!-- 					  <#list mapYesOrNo?keys as testKey> -->
+<!-- 						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option> -->
+<!-- 					  </#list> -->
+<!-- 				   </#if>  -->
+<!-- 			      </select> -->
+<!--                </td>  -->
+               
+<!--            </tr> -->
+            <tr>
+
+               <td width="10%" class="tableleft">源单据类型</td>
+               <td>
+                 <select name="fromBillTypeDictId"> 
+                    <option value="">请选择</option>
+                    <#if fromBillTypeDictIdList??>
+                     <#list fromBillTypeDictIdList as item>
+			            <option value="${item.id?c}" <#if (entity.fromBillTypeDictId??&&entity.fromBillTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+               
+               <td width="10%" class="tableleft">源单据</td>
+                 <td><input type="text" name="fromBillId" class="layui-input" maxlength="16" value="${(entity.fromBillId)!''}"/></td>
+             
+           </tr>
+           
+            <tr>
+
+               <td width="10%" class="tableleft">源仓库</td>
+               <td>
+                 <select name="fromWarehouseId"> 
+                    <option value="">请选择</option>
+                    <#if fromWarehouseIdList??>
+                     <#list fromWarehouseIdList as item>
+			            <option value="${item.id?c}" <#if (entity.fromWarehouseId??&&entity.fromWarehouseId==item.id)>selected="selected"</#if>>${item.warehouseName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+               
+               <td width="10%" class="tableleft">目标仓库</td>
+               <td>
+                 <select name="toWarehouseId"> 
+                    <option value="">请选择</option>
+                    <#if toWarehouseIdList??>
+                     <#list toWarehouseIdList as item>
+			            <option value="${item.id?c}" <#if (entity.toWarehouseId??&&entity.toWarehouseId==item.id)>selected="selected"</#if>>${item.warehouseName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+           </tr>
+           
+            <tr>
+
+               <td width="10%" class="tableleft">源产线</td>
+               <td>
+                 <select name="fromProductionlineId"> 
+                    <option value="">请选择</option>
+                    <#if fromProductionlineIdList??>
+                     <#list fromProductionlineIdList as item>
+			            <option value="${item.id?c}" <#if (entity.fromProductionlineId??&&entity.fromProductionlineId==item.id)>selected="selected"</#if>>${item.productionlineName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+               
+               <td width="10%" class="tableleft">目标产线</td>
+               <td>
+                 <select name="toProductionlineId"> 
+                    <option value="">请选择</option>
+                    <#if toProductionlineIdList??>
+                     <#list toProductionlineIdList as item>
+			            <option value="${item.id?c}" <#if (entity.toProductionlineId??&&entity.toProductionlineId==item.id)>selected="selected"</#if>>${item.productionlineName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+           </tr>
+           
+           <tr>
+
+               <td width="10%" class="tableleft">部门</td>
+               <td>
+                 <select name="departmentId"> 
+                    <option value="">请选择</option>
+                    <#if departmentIdList??>
+                     <#list departmentIdList as item>
+			            <option value="${item.id?c}" <#if (entity.departmentId??&&entity.departmentId==item.id)>selected="selected"</#if>>${item.departmentName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+               
+               <td width="10%" class="tableleft">交易对象(合作伙伴公司)</td>
+               <td>
+                 <select name="partnerId"> 
+                    <option value="">请选择</option>
+                    <#if partnerIdList??>
+                     <#list partnerIdList as item>
+			            <option value="${item.id?c}" <#if (entity.partnerId??&&entity.partnerId==item.id)>selected="selected"</#if>>${item.companyName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+           </tr>
+     
+       </table> 
+         <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div> 
+      </form>
+    </div>
+ <script type="text/html" id="productName">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+
+ 	}}
+	{{# } }}
+</script>  
+ <script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+
+ 	}}
+	{{# } }}
+</script>
+    <script>
+
+    var ids = $('#fromBillId').val();
+    if(ids!=''){
+       layui.config({
+          base: '/static/plugins/layui/base/',
+          v: new Date().getTime()
+      }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+      	var form = layui.form, 
+      	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+      	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+      	var layuiformajax = layui.layuiformajax;
+      	
+      	var urlArr = window.location.href.toString().split("?");
+      	function getParam(urlArr,paraName){
+      		if (urlArr.length > 1) {
+    	  　　　　　　var arrPara = urlArr[1].split("&");
+    	  　　　　　　var arr;
+    	  　　　　　　for (var i = 0; i < arrPara.length; i++) {
+    	  　　　　　　　　arr = arrPara[i].split("=");
+
+    	  　　　　　　　　if (arr != null && arr[0] == paraName) {
+    	  　　　　　　　　　　return arr[1];
+    	  　　　　　　　　}
+    	  　　　　　　}
+    	  　　　　　　return "";
+    	  　　　　}
+    	  　　　　else {
+    	  　　　　　　return "";
+    	  　　　　}
+      	};
+      	var ids = getParam(urlArr,'id');		//
+      	
+      	if (ids ==null || ids==''){
+      		ids='0';
+      	}
+      	var curTable = layuitable.render({
+          	elem: '#listTable'
+          	,id:'listTable'
+          	,url:'/bill/billWarehouseAllocationItem/list/json?billId='+ids
+          	,cols: [[
+              	     /* {type: 'checkbox', fixed: 'left'}, */
+               	    {field:'billId',  title: '单据号',align:'center'}
+		    	    ,{field:'materialId',  title: '物料编码', align:'center'}
+		    	    ,{field:'billStatusDictId',  title: '单据状态', align:'center'}
+		    	    ,{field:'quantity',  title: '数量',align:'center'}
+		    	    ,{field:'quantityFinish',  title: '完成数量',align:'center'}
+		    	    ,{field:'quantityScan',  title: '扫描数量',align:'center'}
+		    	    ,{field:'createTime',  title: '创建时间', align:'center'}
+          	]]
+        	});
+      	
+      	form.on('submit(search)', function (data) {
+      		layuitable.reload(data.field);
+              return false;
+        	});
+
+      });
+      
+    };
+    
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          form.verify({
+     
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/bill/billWarehouseAllocation/save?billTypeDictId='+10268+'&typeStock='+0+'&billStatusDictId='+10488;
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

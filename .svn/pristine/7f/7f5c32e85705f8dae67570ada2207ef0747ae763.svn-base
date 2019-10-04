@@ -1,0 +1,210 @@
+package com.techsoft.controller.warehouse;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.struct.ClientStructFactoryService;
+import com.techsoft.client.service.struct.ClientStructWarehouseService;
+import com.techsoft.client.service.warehouse.ClientWarehouseAreaService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.maps.MapUserStatus;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.common.persistence.ZTreeNode;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.EquipWorkClasses;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.WarehouseArea;
+import com.techsoft.entity.equip.EquipWorkClassesParamVo;
+import com.techsoft.entity.struct.StructFactoryParamVo;
+import com.techsoft.entity.struct.StructWarehouseParamVo;
+import com.techsoft.entity.warehouse.WarehouseAreaParamVo;
+import com.techsoft.entity.warehouse.WarehouseAreaVo;
+
+@Controller
+@RequestMapping("/warehouse/warehouseArea")
+public class WarehouseAreaController extends BaseController {
+	@Autowired
+	private ClientWarehouseAreaService clientWarehouseAreaService;
+	@Autowired
+	private ClientStructFactoryService ClientStructFactoryService;
+	@Autowired
+	private ClientStructWarehouseService ClientStructWarehouseService;
+	
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		try {
+			//取工厂集合
+			StructFactoryParamVo ParamVo = new StructFactoryParamVo();
+			List<StructFactory> factoryList = ClientStructFactoryService.selectListByParamVo(ParamVo,this.getCommonParam(null));
+			modelAndView.addObject("factoryList", factoryList); 
+			
+			//取仓库集合
+			StructWarehouseParamVo ParamVowarehosue = new StructWarehouseParamVo();
+			List<StructWarehouse> warehouseList = ClientStructWarehouseService.selectListByParamVo(ParamVowarehosue,this.getCommonParam(null));
+			modelAndView.addObject("warehouseList", warehouseList);
+			
+		} catch (SQLException e) {  
+			e.printStackTrace();
+		}
+		
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());  
+		modelAndView.addObject("mapUserStatus", MapUserStatus.getMap());  
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("warehouse/warehouseArea-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("warehouse/warehouseArea-edit");
+		WarehouseAreaVo entity = new WarehouseAreaVo();
+		try {
+			WarehouseAreaParamVo warehouseAreaParamVo = new WarehouseAreaParamVo();
+			warehouseAreaParamVo.setParent(0);
+			List<WarehouseArea> warehouseAreaList = clientWarehouseAreaService.selectListByParamVo(warehouseAreaParamVo,
+					this.getCommonParam(null));
+			modelAndView.addObject("warehouseAreaList", warehouseAreaList);
+			if (id != null) {
+				entity = clientWarehouseAreaService.getVoByID(id, this.getCommonParam(request));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("entity", entity);
+		initData(modelAndView);
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			WarehouseAreaParamVo warehouseAreaParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}		
+		try {
+            if(warehouseAreaParamVo==null){
+            	warehouseAreaParamVo = new WarehouseAreaParamVo();
+            }
+			pageInfo = clientWarehouseAreaService.selectPageVoByParamVo(
+					warehouseAreaParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	/**根据仓库查区域list creater:Chenzj
+	 * @param request
+	 * @param warehouseAreaParamVo
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/linkAreaByWarehouse")
+	public List<WarehouseArea> areaLink(HttpServletRequest request, WarehouseAreaParamVo warehouseAreaParamVo) {
+			if (warehouseAreaParamVo == null) {
+				warehouseAreaParamVo = new WarehouseAreaParamVo();
+			}
+			warehouseAreaParamVo.setTenantId(getLoginTenantId(request));
+			List<WarehouseArea> areaList = new ArrayList<WarehouseArea>();
+			try {
+				areaList = clientWarehouseAreaService.selectListByParamVo(warehouseAreaParamVo, this.getCommonParam(request));
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		return areaList;
+	}
+	
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			WarehouseAreaParamVo warehouseAreaParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+	    warehouseAreaParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientWarehouseAreaService.saveOrUpdate(warehouseAreaParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	
+	@ResponseBody
+	@RequestMapping("/loadZtree")
+	public List<ZTreeNode> loadZtree(HttpServletRequest request,WarehouseAreaParamVo warehouseAreaParamVo, Integer pageIndex) {
+		List<ZTreeNode> nodeList = new ArrayList<ZTreeNode>();
+		try {
+            List<WarehouseArea> itemList= clientWarehouseAreaService.selectListByParamVo(new WarehouseAreaParamVo(), this.getCommonParam(request));
+            List<WarehouseArea> parentItemList= new ArrayList<WarehouseArea>();
+			for(WarehouseArea item : itemList){
+				   if(item.getParentId()==0){
+					  parentItemList.add(item);
+				   }
+				}	
+				for(WarehouseArea item : parentItemList){
+					ZTreeNode nodes = new ZTreeNode();
+					  
+					  List<ZTreeNode> list_sub = new ArrayList<ZTreeNode>();
+					  for(WarehouseArea item2 : itemList){
+						   if(item2.getParentId().equals(item.getId())){
+							  ZTreeNode nodes2 = new ZTreeNode();
+							  nodes2.setId(item2.getId());
+							  nodes2.setParentId(item2.getParentId());
+							  nodes2.setName(item2.getAreaName());
+							  nodes2.setOpen(false);
+							  list_sub.add(nodes2);
+
+						   } 
+						 
+					 }
+					  nodes.setChildren(list_sub);
+					  nodes.setId(item.getId());
+					  nodes.setParentId(item.getParentId());
+					  nodes.setName(item.getAreaName());
+					  nodes.setOpen(false);
+					  nodeList.add(nodes);
+	  
+				}
+				
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return  nodeList;
+	}
+
+}

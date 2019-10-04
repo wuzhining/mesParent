@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+ <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  <script type="text/html" id="locationIsEmptyNm">
+    {{#  if(d.locationIsEmpty == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  <script type="text/html" id="locationIsNotmixProductNm">
+    {{#  if(d.locationIsNotmixProduct == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  <script type="text/html" id="locationIsNotmixBatchNm">
+    {{#  if(d.locationIsNotmixBatch == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  <script type="text/html" id="locationIsSameProductNm">
+    {{#  if(d.locationIsSameProduct == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  <script type="text/html" id="locationIsSameBatchNm">
+    {{#  if(d.locationIsSameBatch == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  
+ <script type="text/html" id="warehouse">
+	{{#  if(d.structWarehouse){ }}
+		{{ d.structWarehouse.warehouseName 
+ 	}}
+	{{#  } }}
+  </script>
+ 
+ <script type="text/html" id="factory">
+	{{#  if(d.structFactory){ }}
+		{{ d.structFactory.factoryName 
+ 	}}
+	{{#  } }}
+  </script>
+  
+  <script type="text/html" id="rack">
+	{{#  if(d.warehouseRack){ }}
+		{{ d.warehouseRack.rackName 
+ 	}}
+	{{#  } }}
+  </script>
+  
+  <script type="text/html" id="area">
+	{{#  if(d.warehouseArea){ }}
+		{{ d.warehouseArea.areaName 
+ 	}}
+	{{#  } }}
+  </script>
+  
+  <script type="text/html" id="location">
+	{{#  if(d.warehouseLocation){ }}
+		{{ d.warehouseLocation.locationName 
+ 	}}
+	{{#  } }}
+  </script>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">入库管理</a> <a><cite>上架策略定义</cite></a>
+      </span>
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <input type="text" name="strategyName"  placeholder="请输入上架策略名称" autocomplete="off" class="layui-input">
+          <input type="hidden" name="factoryId" id="factoryId" placeholder="请选择工厂id" autocomplete="off" class="layui-input">
+       	  <input type="text" name="factoryName" id="factoryName" placeholder="请选择工厂名称" autocomplete="off" class="layui-input">
+          <button class="layui-btn layui-btn-sm  " id="factorySearch" style="background-color: #009688;color:#FFFFFF" >
+			 <i class="layui-icon layui-icon-more" ></i>
+		  </button>
+		  <input type="hidden" name="warehouseId" id="warehouseId" placeholder="请选择仓库id" autocomplete="off" class="layui-input">
+	      <input type="text" name="warehouseName" id="warehouseName" placeholder="请选择仓库名称" autocomplete="off" class="layui-input">
+	      <button class="layui-btn layui-btn-sm  " id="warehouseSearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+		  </button>
+		  <select name="areaId">    
+                <option value="">请选择区域</option> 
+                 <#if warehouseAreaList??>
+                     <#list warehouseAreaList as item>
+			            <option value="${item.id?c}" >${item.areaName}</option>
+			         </#list>
+			         </#if> 
+          </select> 
+		  <input type="hidden" name="rackId" id="rackId" placeholder="请选择货架id" autocomplete="off" class="layui-input">
+	      <input type="text" name="rackName" id="rackName" placeholder="请选择货架名称" autocomplete="off" class="layui-input">
+	      <button class="layui-btn layui-btn-sm  " id="rackSearch" style="background-color: #009688;color:#FFFFFF" >
+			   <i class="layui-icon layui-icon-more" ></i>
+		  </button>
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加上架策略','/warehouse/warehouseStrategyUpshelf/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script>    
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/warehouse/warehouseStrategyUpshelf/list/json'
+    	,cols: [[
+    	     {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+    	    ,{field:'factory',  title: '所属工厂',align:'center', minWidth: 120,templet:'#factory'}
+    	    ,{field:'warehouse',  title: '所属仓库',align:'center', minWidth: 120,templet:'#warehouse'}
+    	    ,{field:'strategyCode',  title: '上架策略编码', align:'center',minWidth: 120}
+    	    ,{field:'strategyName',  title: '上架策略名称',align:'center', minWidth: 120}
+    	    ,{field:'isValid',  title: '是否有效', align:'center',minWidth: 120,templet:'#isValidTpl'}
+    	    ,{field:'area',  title: '区域',align:'center', minWidth: 120,templet:'#area'}
+    	    ,{field:'rack',  title: '货架',align:'center', minWidth: 120,templet:'#rack'}
+    	    ,{field:'location',  title: '货位',align:'center', minWidth: 120,templet:'#location'}
+    	    ,{field:'locationIsEmpty',  title: '库位必须是空', align:'center',minWidth: 200,templet:'#locationIsEmptyNm'}
+    	    ,{field:'locationIsNotmixProduct',  title: '库位不允许混放产品', align:'center',minWidth: 200,templet:'#locationIsNotmixProductNm'}
+    	    ,{field:'locationIsNotmixBatch',  title: '库位不允许混放批次', align:'center',minWidth: 200,templet:'#locationIsNotmixBatchNm'}
+    	    ,{field:'locationIsSameProduct',  title: '库位必须有相同产品', align:'center',minWidth: 200,templet:'#locationIsSameProductNm'}
+    	    ,{field:'locationIsSameBatch',  title: '库位必须有相同批次', align:'center',minWidth: 200,templet:'#locationIsSameBatchNm'}
+    	    ,{field:'remark',  title: '备注', align:'center',minWidth: 200}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 120}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑上架策略','/warehouse/warehouseStrategyUpshelf/edit?id=' + data.id); 
+		}
+	});
+	
+	$('#factorySearch').on('click',function(e){
+   		openWinSelect('/struct/structFactory/structFactoryOpen',"factoryId","factoryName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+   	$('#warehouseSearch').on('click',function(e){
+   		openWinSelect('/struct/structWarehouse/structWarehouseOpen',"warehouseId","warehouseName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+   	$('#rackSearch').on('click',function(e){
+   		openWinSelect('/warehouse/warehouseRack/warehouseRackOpen',"rackId","rackName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+   	//清空
+	$("#factoryName").blur(function(){
+		if($('#factoryName').val() == ""){
+			$('#factoryId').val("");
+		}
+	});
+	$("#warehouseName").blur(function(){
+		if($('#warehouseName').val() == ""){
+			$('#warehouseId').val("");
+		}
+	});
+	$("#rackName").blur(function(){
+		if($('#rackName').val() == ""){
+			$('#rackId').val("");
+		}
+	});
+
+});	
+</script>
+ 
+  </body>
+
+</html>

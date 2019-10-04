@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.barcode.BarcodeBatchNumberMapper">
+	<resultMap id="BarcodeBatchNumber" type="com.techsoft.entity.common.BarcodeBatchNumber" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="BATCH_NUMBER" property="batchNumber" />
+		<result column="BILL_TYPE_DICT_ID" property="billTypeDictId" />
+		<result column="BILL_ID" property="billId" />
+		<result column="BILL_CODE" property="billCode" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="batchNumber != null">
+			AND A.BATCH_NUMBER= #{batchNumber}
+		</if>
+		<if test="billTypeDictId != null">
+			AND A.BILL_TYPE_DICT_ID= #{billTypeDictId}
+		</if>
+		<if test="billId != null">
+			AND A.BILL_ID= #{billId}
+		</if>
+		<if test="billCode != null">
+			AND A.BILL_CODE= #{billCode}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.BATCH_NUMBER,
+		A.BILL_TYPE_DICT_ID,
+		A.BILL_ID,
+		A.BILL_CODE,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for BARCODE_BATCH_NUMBER_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from BARCODE_BATCH_NUMBER
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.BarcodeBatchNumber">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BARCODE_BATCH_NUMBER A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.BarcodeBatchNumber">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BARCODE_BATCH_NUMBER A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM BARCODE_BATCH_NUMBER A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM BARCODE_BATCH_NUMBER  A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.BarcodeBatchNumber">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM BARCODE_BATCH_NUMBER  A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.BarcodeBatchNumber">
+		INSERT INTO BARCODE_BATCH_NUMBER (
+		TENANT_ID,
+		FACTORY_ID,
+		BATCH_NUMBER,
+		BILL_TYPE_DICT_ID,
+		BILL_ID,
+		BILL_CODE,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{batchNumber},
+		#{billTypeDictId},
+		#{billId},
+		#{billCode},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.BarcodeBatchNumber">
+		UPDATE BARCODE_BATCH_NUMBER SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		BATCH_NUMBER=#{batchNumber},
+		BILL_TYPE_DICT_ID=#{billTypeDictId},
+		BILL_ID=#{billId},
+		BILL_CODE=#{billCode},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.BarcodeBatchNumber">
+		UPDATE BARCODE_BATCH_NUMBER SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="batchNumber != null" >
+			BATCH_NUMBER=#{batchNumber},
+		</if>
+		<if test="billTypeDictId != null" >
+			BILL_TYPE_DICT_ID=#{billTypeDictId},
+		</if>
+		<if test="billId != null" >
+			BILL_ID=#{billId},
+		</if>
+		<if test="billCode != null" >
+			BILL_CODE=#{billCode},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.barcode.BarcodeBatchNumberParamVo"
+		      resultType="com.techsoft.entity.common.BarcodeBatchNumber" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BARCODE_BATCH_NUMBER A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+           <tr>
+<!--             <td width="15%" class="tableleft">策略编码</td> -->
+<!--                <td> -->
+<!--                <input type="text" name="strategyCode" class="layui-input" maxlength="16" value="${(entity.strategyCode)!''}"/> -->
+<!--                </td> -->
+            <td width="15%" class="tableleft">策略名称</td>
+               <td>
+                <input type="text" name="strategyName" class="layui-input" maxlength="20" value="${(entity.strategyName)!''}"/>
+               </td> 
+            <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select  name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           
+           <tr>
+               <td width="10%" class="tableleft">工厂名称</td>
+               <td> 
+               <select id="factoryId"  name="factoryId" lay-filter="factorySelect"> 
+                        <option value="0">请选择</option>
+                    <#if factoryList??>
+                     <#list factoryList as item>
+			            <option value="${item.id?c}" <#if (entity.factoryId??&&entity.factoryId==item.id)>selected="selected"</#if>>${item.factoryName}</option>
+			         </#list>
+			         </#if>
+			   </select>
+			   </td>
+               <td width="10%" class="tableleft">所属仓库</td>
+               <td>  <input type="hidden"  id="initwarehouseCode" value="<#if entity??&&entity.warehouseId??>${entity.warehouseId?c}<#else></#if>" />
+               <select id="warehouseId" name="warehouseId" lay-filter="warehosueSelect">
+               		<option value="0">请选择</option> 
+			   </select>
+			   </td> 
+           </tr>
+           
+            <tr>
+               <td width="10%" class="tableleft">所属区域</td>
+               <td>  <input type="hidden"  id="initareaCode" value="<#if entity??&&entity.areaId??>${entity.areaId?c}<#else></#if>" />
+               <select id="areaId" name="areaId" lay-filter="areaSelect"> 
+               		<option value="0">请选择</option>
+			   </select>
+			   </td> 
+               <td width="10%" class="tableleft">所属货架</td>
+               <td>  <input type="hidden"  id="initrackCode" value="<#if entity??&&entity.rackId??>${entity.rackId?c}<#else></#if>" />
+               <select id="rackId" name="rackId" lay-filter="rackSelect">
+               		<option value="0">请选择</option> 
+			   </select>
+			   </td> 
+           </tr>
+           
+            <tr>
+               <td width="10%" class="tableleft">所属货位</td>
+               <td>  <input type="hidden"  id="initLocationCode" value="<#if entity??&&entity.locationId??>${entity.locationId?c}<#else></#if>" />
+               <select id="locationId" name="locationId" lay-filter="locationSelect">
+               		<option value="0">请选择</option>
+			   </select>
+			   </td> 
+<!--                <td width="15%" class="tableleft">是否有效</td> -->
+<!--                <td> -->
+<!--                 <select  name="isValid"> -->
+<!-- 				   <#if mapYesOrNo??> -->
+<!-- 					  <#list mapYesOrNo?keys as testKey> -->
+<!-- 						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option> -->
+<!-- 					  </#list> -->
+<!-- 				   </#if>  -->
+<!-- 			    </select> -->
+<!--                </td> -->
+               <td width="15%" class="tableleft">备注</td>
+               <td><input type="text" name="remark" class="layui-input" maxlength="16" value="${(entity.remark)!''}"/></td>
+           </tr>
+           
+            <tr>	
+               <td width="15%" class="tableleft">库位必须是空</td>
+               <td>
+                <select  name="locationIsEmpty">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.locationIsEmpty??&&entity.locationIsEmpty==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="15%" class="tableleft">库位不允许混放物品</td>
+               <td>
+                <select  name="locationIsNotmixProduct">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.locationIsNotmixProduct??&&entity.locationIsNotmixProduct==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           
+           
+            <tr>
+               <td width="15%" class="tableleft">库位不允许混放批次</td>
+               <td>
+                <select  name="locationIsNotmixBatch">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.locationIsNotmixBatch??&&entity.locationIsNotmixBatch==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="15%" class="tableleft">库位必须有相同物品</td>
+               <td>
+                <select  name="locationIsSameProduct">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.locationIsSameProduct??&&entity.locationIsSameProduct==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           
+           
+           
+           <tr>
+               <td width="15%" class="tableleft">库位必须有相同批次</td>
+               <td>
+                <select  name="locationIsSameBatch">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.locationIsSameBatch??&&entity.locationIsSameBatch==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+<!--                <td width="15%" class="tableleft">备注</td> -->
+<!--                <td><input type="text" name="remark" class="layui-input" maxlength="16" value="${(entity.remark)!''}"/></td> -->
+           </tr>
+       </table>  
+       <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+         
+          //自定义验证规则
+          
+         //选择工厂查楼层级联监听
+          form.on('select(factorySelect)', function(data){
+        	  var factoryId=0;
+        	  if(data.value != ''){
+        		  factoryId=data.value;
+        	  }
+        	  $("#warehouseId option[value!='0']").remove();
+        	  linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName','','/struct/structWarehouse/linkWarehouseByFactory');
+        	  $("#warehouseId").get(0).selectedIndex=0;
+        	 
+        	  $("#areaId option[value!='0']").remove();
+        	  $("#rackId option[value!='0']").remove();
+        	  $("#locationId option[value!='0']").remove();
+        	  
+          });
+          //选择仓库查区域级联监听
+          form.on('select(warehosueSelect)', function(data){
+        	  var warehouseId=0;
+        	  if(data.value != ''){
+        		  warehouseId=data.value;
+        	  }
+        	  $("#areaId option[value!='0']").remove();
+        	  linkCommonMethod('warehouseId',warehouseId,'areaId','areaName','','/warehouse/warehouseArea/linkAreaByWarehouse');
+        	  $("#areaId").get(0).selectedIndex=0;
+        	  $("#rackId option[value!='0']").remove();
+        	  $("#locationId option[value!='0']").remove();
+          });
+        //选择区域查货架级联监听
+          form.on('select(areaSelect)', function(data){
+        	  var areaId=0;
+        	  if(data.value != ''){
+        		  areaId=data.value;
+        	  }
+        	  $("#rackId option[value!='0']").remove();
+        	  linkCommonMethod('areaId',areaId,'rackId','rackName','','/warehouse/warehouseRack/rackLink');
+        	  $("#rackId").get(0).selectedIndex=0;
+        	  
+        	  $("#locationId option[value!='0']").remove();
+        	 
+          });
+        //选择仓库查区域级联监听
+          form.on('select(rackSelect)', function(data){
+        	  var rackId=0;
+        	  if(data.value != ''){
+        		  rackId=data.value;
+        	  }
+        	  $("#locationId option[value!='0']").remove();
+        	  linkCommonMethod('rackId',rackId,'locationId','locationName','','/warehouse/warehouseLocation/locationLink');
+        	  $("#locationId").get(0).selectedIndex=0;
+        	 
+          });
+        
+          //所属货位选择判断是否隐藏库位相关select控件
+          form.on('select(locationSelect)', function(data){
+        	  if(data.value === '0'){	//如果所属库位选择‘请选择项’，隐藏后续五个库位相关控件
+        		  $("select[name='locationIsEmpty']").parents('tr').css('display','none');
+        		  $("select[name='locationIsNotmixProduct']").parents('tr').css('display','none');
+        		  $("select[name='locationIsNotmixBatch']").parents('tr').css('display','none');
+        		  $("select[name='locationIsSameProduct']").parents('tr').css('display','none');
+        		  $("select[name='locationIsSameBatch']").parent('td').css('display','none');
+        		  $("select[name='locationIsSameBatch']").parent('td').prev().css('display','none');
+        	  }else{
+        		  $("select[name='locationIsEmpty']").parents('tr').css('display','');
+        		  $("select[name='locationIsNotmixProduct']").parents('tr').css('display','');
+        		  $("select[name='locationIsNotmixBatch']").parents('tr').css('display','');
+        		  $("select[name='locationIsSameProduct']").parents('tr').css('display','');
+        		  $("select[name='locationIsSameBatch']").parent('td').css('display','');
+        		  $("select[name='locationIsSameBatch']").parent('td').prev().css('display','');
+        	  };
+          });
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  var url = '/warehouse/warehouseStrategyUpshelf/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+        			if (result.isSuccess) {
+           	    	   layer.alert("保存成功", {icon: 6},function () {
+         	                // 获得frame索引
+         	                var index = parent.layer.getFrameIndex(window.name);
+         				  	parent.location.reload(); 
+         	                parent.layer.close(index);
+         	            });	
+        			}else{
+        				layer.alert(result.message, {
+        					icon : 2
+        				});
+        			}
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+    <script>
+    $(function () {
+    	var factoryId=0;
+	  	  if($("#factoryId").val() != ''){
+	  		  factoryId=$("#factoryId").val();
+	  		if (factoryId ==null){
+	  			factoryId=0;
+	  		}
+	  	  }
+	  	//初始化
+	  	linkCommonMethod('factoryId',factoryId,'warehouseId','warehouseName',$("#initwarehouseCode").val(),'/struct/structWarehouse/linkWarehouseByFactory');
+    });
+    $(function () {
+    	var warehouseId=0;
+    	if($("#initwarehouseCode").val() != ''){
+	  		warehouseId=$("#initwarehouseCode").val();
+	  		if (warehouseId ==null){
+	  			warehouseId=0;
+	  		}
+	  	  }
+	  	//初始化
+	  	linkCommonMethod('warehouseId',warehouseId,'areaId','areaName',$("#initareaCode").val(),'/warehouse/warehouseArea/linkAreaByWarehouse');
+    });
+    $(function () {
+    	var areaId=0;
+    	if($("#initareaCode").val() != ''){
+	  		areaId=$("#initareaCode").val();
+	  		if (areaId ==null){
+	  			areaId=0;
+	  		}
+	  	  }
+	  	//初始化
+	  	linkCommonMethod('areaId',areaId,'rackId','rackName',$("#initrackCode").val(),'/warehouse/warehouseRack/rackLink');
+    });
+    $(function () {
+    	var rackId=0;
+    	if($("#initrackCode").val() != ''){
+	  		rackId=$("#initrackCode").val();
+	  		if (rackId ==null){
+	  			rackId=0;
+	  		}
+	  	  }
+	  	//初始化
+	  	linkCommonMethod('rackId',rackId,'locationId','locationName',$("#initLocationCode").val(),'/warehouse/warehouseLocation/locationLink');
+    });
+    
+    //初始化edit页面五个下拉框默认隐藏
+      $("select[name='locationIsEmpty']").parents('tr').css('display','none');
+	  $("select[name='locationIsNotmixProduct']").parents('tr').css('display','none');
+	  $("select[name='locationIsNotmixBatch']").parents('tr').css('display','none');
+	  $("select[name='locationIsSameProduct']").parents('tr').css('display','none');
+	  $("select[name='locationIsSameBatch']").parent('td').css('display','none');
+	  $("select[name='locationIsSameBatch']").parent('td').prev().css('display','none');
+	  
+	//初始化edit页面五个下拉框默认值为‘否’
+	  $("select[name='locationIsEmpty']").val('2');
+	  $("select[name='locationIsNotmixProduct']").val('2');
+	  $("select[name='locationIsNotmixBatch']").val('2');
+	  $("select[name='locationIsSameProduct']").val('2');
+	  $("select[name='locationIsSameBatch']").val('2');
+    </script>
+  </body>
+
+</html>

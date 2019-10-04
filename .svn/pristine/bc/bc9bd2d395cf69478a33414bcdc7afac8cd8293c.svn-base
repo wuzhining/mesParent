@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.techsoft</groupId>
+		<artifactId>mesParent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>service_impl</artifactId>
+	<name>service_impl</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>com.techsoft</groupId>
+			<artifactId>pojo</artifactId>
+			<version>${business.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.techsoft</groupId>
+			<artifactId>common</artifactId>
+			<version>${business.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.techsoft</groupId>
+			<artifactId>service_interface</artifactId>
+			<version>${business.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jcraft</groupId>
+			<artifactId>jsch</artifactId>
+			<version>0.1.44-1</version>
+		</dependency>
+		<!-- oracle依赖包 -->
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc14</artifactId>
+			<version>10.2.0.5.0</version>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,0 +1,209 @@
+package com.techsoft.controller.warehouse;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.product.ClientProductMaterialService;
+import com.techsoft.client.service.struct.ClientStructFactoryService;
+import com.techsoft.client.service.struct.ClientStructWarehouseService;
+import com.techsoft.client.service.warehouse.ClientWarehouseAreaService;
+import com.techsoft.client.service.warehouse.ClientWarehouseLocationService;
+import com.techsoft.client.service.warehouse.ClientWarehouseRackService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.enums.EnumYesOrNo;
+import com.techsoft.common.maps.MapUserStatus;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.common.WarehouseArea;
+import com.techsoft.entity.common.WarehouseRack;
+import com.techsoft.entity.struct.StructFactoryParamVo;
+import com.techsoft.entity.struct.StructWarehouseParamVo;
+import com.techsoft.entity.warehouse.WarehouseAreaParamVo;
+import com.techsoft.entity.warehouse.WarehouseLocationParamVo;
+import com.techsoft.entity.warehouse.WarehouseLocationVo;
+import com.techsoft.entity.warehouse.WarehouseRackParamVo;
+
+@Controller
+@RequestMapping("/warehouse/warehouseLocation")
+public class WarehouseLocationController extends BaseController {
+	@Autowired
+	private ClientWarehouseLocationService clientWarehouseLocationService;
+	@Autowired
+	private ClientStructFactoryService ClientStructFactoryService;
+	@Autowired
+	private ClientWarehouseRackService ClientWarehouseRackService;
+	@Autowired
+	private ClientStructWarehouseService ClientStructWarehouseService;
+	@Autowired
+	private ClientWarehouseAreaService clientWarehouseAreaService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		try {
+			//取工厂集合
+			StructFactoryParamVo ParamVo = new StructFactoryParamVo();
+			List<StructFactory> factoryList = ClientStructFactoryService.selectListByParamVo(ParamVo,this.getCommonParam(null));
+			modelAndView.addObject("factoryList", factoryList); 
+			
+			//取仓库集合
+			StructWarehouseParamVo ParamVowarehosue = new StructWarehouseParamVo();
+			List<StructWarehouse> warehouseList = ClientStructWarehouseService.selectListByParamVo(ParamVowarehosue,this.getCommonParam(null));
+			modelAndView.addObject("warehouseList", warehouseList);
+			
+			//取货架集合
+			WarehouseRackParamVo ParamVorack = new WarehouseRackParamVo();
+			List<WarehouseRack> rackList = ClientWarehouseRackService.selectListByParamVo(ParamVorack,this.getCommonParam(null));
+			modelAndView.addObject("rackList", rackList);
+			
+			//取仓库区域名称集合
+			WarehouseAreaParamVo warehouseArea = new WarehouseAreaParamVo();
+			List<WarehouseArea> warehouseAreaList = clientWarehouseAreaService.selectListByParamVo(warehouseArea,this.getCommonParam(null));
+			modelAndView.addObject("warehouseAreaList", warehouseAreaList);
+			
+			//取库位类型集合
+			List<ConfigDictionary> warehouseDicList = clientConfigDictionaryService
+					.selectListByParentId(EnumDictionary.WAREHOURE_LOCATION_TYPE.getValue());
+					modelAndView.addObject("warehouseDicList", warehouseDicList);
+			//取物品类型集合
+			List<ConfigDictionary> producDictList = clientConfigDictionaryService
+							.selectListByParentId(EnumDictionary.PRODUCT_TYPE.getValue());
+			        modelAndView.addObject("producDictList", producDictList);
+			        
+			        
+					
+		} catch (SQLException e) {  
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());  
+		modelAndView.addObject("mapUserStatus", MapUserStatus.getMap());  
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("warehouse/warehouseLocation-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		try {
+			WarehouseLocationVo entity = new WarehouseLocationVo();
+			if (id != null) {;
+				entity = clientWarehouseLocationService.getVoByID(id, this.getCommonParam(request));
+			}
+			modelAndView.addObject("entity", entity);
+			modelAndView.setViewName("warehouse/warehouseLocation-edit");
+			initData(modelAndView);
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			WarehouseLocationParamVo warehouseLocationParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}			
+		try {
+            if(warehouseLocationParamVo==null){
+            	warehouseLocationParamVo = new WarehouseLocationParamVo();
+            }
+            //warehouseLocationParamVo.setTenantId(getLoginTenantId(request)); 
+			pageInfo = clientWarehouseLocationService.selectPageVoByParamVo(
+					warehouseLocationParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			WarehouseLocationParamVo warehouseLocationParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+		warehouseLocationParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientWarehouseLocationService.saveOrUpdate(warehouseLocationParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	/**
+	*@auther:Wang
+	*@version:2019年6月6日上午9:20:30
+	*@param:
+	*@description 货位下拉级联接口
+	*/
+	@ResponseBody
+	@RequestMapping("/locationLink")
+	public List<WarehouseLocation> locationLink(HttpServletRequest request, WarehouseLocationParamVo warehouseLocationParamVo) {
+		if (warehouseLocationParamVo == null) {
+			warehouseLocationParamVo = new WarehouseLocationParamVo();
+		}
+		warehouseLocationParamVo.setTenantId(getLoginTenantId(request));
+		warehouseLocationParamVo.setIsValid(EnumYesOrNo.YES.getValue());
+		List<WarehouseLocation> locationList = new ArrayList<WarehouseLocation>();
+		try {
+			locationList = clientWarehouseLocationService.selectListByParamVo(warehouseLocationParamVo, this.getCommonParam(request));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return locationList;
+	}
+
+	@RequestMapping("/warehouseLocationOpen")
+	public ModelAndView warehouseLocationWinlist(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("warehouse/warehouseLocationOpen");
+		return modelAndView;
+	}
+	
+}

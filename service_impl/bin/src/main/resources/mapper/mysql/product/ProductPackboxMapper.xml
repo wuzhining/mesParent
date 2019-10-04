@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.product.ProductPackboxMapper">
+	<resultMap id="ProductPackbox" type="com.techsoft.entity.common.ProductPackbox" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="PACKBOX_NAME" property="packboxName" />
+		<result column="PACKBOX_CODE" property="packboxCode" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="IS_INNER" property="isInner" />
+		<result column="MEASURE_TYPE_DICT_ID" property="measureTypeDictId" />
+		<result column="MAIN_MEASURE_TYPE_DICT_ID" property="mainMeasureTypeDictId" />
+		<result column="QUANTITY_MAIN" property="quantityMain" />
+		<result column="QUANTITY_PACK" property="quantityPack" />
+		<result column="QUANTITY_INNER" property="quantityInner" />
+		<result column="REMARK" property="remark" />
+		<result column="UNTITLED" property="untitled" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="packboxName != null">
+			AND A.PACKBOX_NAME= #{packboxName}
+		</if>
+		<if test="packboxCode != null">
+			AND A.PACKBOX_CODE= #{packboxCode}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="isInner != null">
+			AND A.IS_INNER= #{isInner}
+		</if>
+		<if test="measureTypeDictId != null">
+			AND A.MEASURE_TYPE_DICT_ID= #{measureTypeDictId}
+		</if>
+		<if test="mainMeasureTypeDictId != null">
+			AND A.MAIN_MEASURE_TYPE_DICT_ID= #{mainMeasureTypeDictId}
+		</if>
+		<if test="quantityMain != null">
+			AND A.QUANTITY_MAIN= #{quantityMain}
+		</if>
+		<if test="quantityPack != null">
+			AND A.QUANTITY_PACK= #{quantityPack}
+		</if>
+		<if test="quantityInner != null">
+			AND A.QUANTITY_INNER= #{quantityInner}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<if test="untitled != null">
+			AND A.UNTITLED= #{untitled}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.PACKBOX_NAME,
+		A.PACKBOX_CODE,
+		A.PRODUCT_ID,
+		A.MATERIAL_ID,
+		A.IS_INNER,
+		A.MEASURE_TYPE_DICT_ID,
+		A.MAIN_MEASURE_TYPE_DICT_ID,
+		A.QUANTITY_MAIN,
+		A.QUANTITY_PACK,
+		A.QUANTITY_INNER,
+		A.REMARK,
+		A.UNTITLED
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_PRODUCT_PACKBOX_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from PRODUCT_PACKBOX
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.ProductPackbox">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_PACKBOX A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.ProductPackbox">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_PACKBOX A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE PRODUCT_PACKBOX A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE PRODUCT_PACKBOX  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.ProductPackbox">
+		UPDATE PRODUCT_PACKBOX A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.ProductPackbox">
+		INSERT INTO PRODUCT_PACKBOX (
+		TENANT_ID,
+		PACKBOX_NAME,
+		PACKBOX_CODE,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		IS_INNER,
+		MEASURE_TYPE_DICT_ID,
+		MAIN_MEASURE_TYPE_DICT_ID,
+		QUANTITY_MAIN,
+		QUANTITY_PACK,
+		QUANTITY_INNER,
+		REMARK,
+		UNTITLED
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{packboxName},
+		#{packboxCode},
+		#{productId},
+		#{materialId},
+		#{isInner},
+		#{measureTypeDictId},
+		#{mainMeasureTypeDictId},
+		#{quantityMain},
+		#{quantityPack},
+		#{quantityInner},
+		#{remark},
+		#{untitled}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.ProductPackbox">
+		UPDATE PRODUCT_PACKBOX SET
+		TENANT_ID=#{tenantId},
+		PACKBOX_NAME=#{packboxName},
+		PACKBOX_CODE=#{packboxCode},
+		PRODUCT_ID=#{productId},
+		MATERIAL_ID=#{materialId},
+		IS_INNER=#{isInner},
+		MEASURE_TYPE_DICT_ID=#{measureTypeDictId},
+		MAIN_MEASURE_TYPE_DICT_ID=#{mainMeasureTypeDictId},
+		QUANTITY_MAIN=#{quantityMain},
+		QUANTITY_PACK=#{quantityPack},
+		QUANTITY_INNER=#{quantityInner},
+		REMARK=#{remark},
+		UNTITLED=#{untitled},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.ProductPackbox">
+		UPDATE PRODUCT_PACKBOX SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="packboxName != null" >
+			PACKBOX_NAME=#{packboxName},
+		</if>
+		<if test="packboxCode != null" >
+			PACKBOX_CODE=#{packboxCode},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="isInner != null" >
+			IS_INNER=#{isInner},
+		</if>
+		<if test="measureTypeDictId != null" >
+			MEASURE_TYPE_DICT_ID=#{measureTypeDictId},
+		</if>
+		<if test="mainMeasureTypeDictId != null" >
+			MAIN_MEASURE_TYPE_DICT_ID=#{mainMeasureTypeDictId},
+		</if>
+		<if test="quantityMain != null" >
+			QUANTITY_MAIN=#{quantityMain},
+		</if>
+		<if test="quantityPack != null" >
+			QUANTITY_PACK=#{quantityPack},
+		</if>
+		<if test="quantityInner != null" >
+			QUANTITY_INNER=#{quantityInner},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<if test="untitled != null" >
+			UNTITLED=#{untitled},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.product.ProductPackboxParamVo"
+		      resultType="com.techsoft.entity.common.ProductPackbox" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_PACKBOX A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

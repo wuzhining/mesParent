@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+           <tr>
+           <td width="15%" class="tableleft">仓库编码</td>
+               <td>
+               <input type="text" name="warehouseCode" class="layui-input" maxlength="16" value="${(entity.warehouseCode)!''}"/>
+               </td>
+             
+            <td width="15%" class="tableleft">仓库名称</td>
+               <td>
+                <input type="text" name="warehouseName" class="layui-input" maxlength="20" value="${(entity.warehouseName)!''}"/>
+               </td> 
+               
+               
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">仓库类型</td>
+               <td>
+               <select id="warehouseTypeDictId" name="warehouseTypeDictId">> 
+                    <#if warehouseDicList??>
+                     <#list warehouseDicList as item>
+			            <option value="${item.id?c}" <#if (entity.warehouseTypeDictId??&&entity.warehouseTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			   </select>
+			   </td>
+               <td width="15%" class="tableleft">产品类型</td>
+               <td>
+               <select id="productTypeDictId" name="productTypeDictId">> 
+                    <#if producDictList??>
+                     <#list producDictList as item>
+			            <option value="${item.id?c}" <#if (entity.productTypeDictId??&&entity.productTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			   </select>
+               </td>
+           </tr>
+           <tr>
+                <td width="15%" class="tableleft">所属楼层</td>
+                <td>
+                	<div class="div-choiceBox-intd ">   
+                		<input type="hidden"  id="floorId" name="floorId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.floorId??>${entity.floorId?c}<#else></#if>">
+                		<input type="text" id="floorName" name="floorName" value="${(structFloor.floorName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd"/>
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="structFloorSearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div>
+                </td> 
+                <td width="15%" class="tableleft">所属工厂</td>
+                <td>
+                     <input tuype ="text"  id="factoryName" name="factoryName" value="${(structFactory.factoryName)!''}" disabled="disabled" class="layui-input"/>  
+                     <input type="hidden"  id="factoryId" name="factoryId"  disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.factoryId??>${entity.factoryId?c}<#else></#if>">
+                </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="15%" class="tableleft">备注</td>
+               <td>
+               <input type="text" name="remark" class="layui-input" maxlength="16" value="${(entity.remark)!''}"/>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn layui-btn-sm" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+
+          //打开楼层信息列表
+          $('#structFloorSearch').on('click',function(e){
+        	   openWinSelectCurrency('/struct/structFloor/structFloorOpen',"floorId","floorName","structFactory","factoryId","factoryName","","","");
+         	   e.preventDefault();//默认from表单提交时不刷新
+          })
+        
+          //自定义验证规则
+          
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/struct/structWarehouse/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+        		  if (result.isSuccess) {
+          	    	   layer.alert("保存成功", {icon: 6},function () {
+        	                // 获得frame索引
+        	                var index = parent.layer.getFrameIndex(window.name);
+        				  	parent.location.reload(); 
+        	                parent.layer.close(index);
+        	            });	
+       			}else{
+       				layer.alert(result.message, {
+       					icon : 2
+       				});
+       			}
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    </script>
+  </body>
+
+</html>

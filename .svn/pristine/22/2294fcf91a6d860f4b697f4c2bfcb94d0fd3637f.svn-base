@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.common.mapper.MycatSequenceMapper">
+	<resultMap id="MycatSequence" type="com.techsoft.common.MycatSequence" > 
+		<result column="NAME" property="name" />
+		<result column="CURRENT_VALUE" property="currentValue" />
+		<result column="INCREMENT" property="increment" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Base_Column_List">    
+
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.common.MycatSequence">
+
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.common.MycatSequence">
+
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.common.MycatSequence">
+
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.common.MycatSequence">
+
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.common.MycatSequence">
+		UPDATE MYCAT_SEQUENCE SET
+		CURRENT_VALUE=#{currentValue}
+		WHERE (NAME=#{name}) 		
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.common.MycatSequence">
+		UPDATE MYCAT_SEQUENCE SET
+		CURRENT_VALUE=#{currentValue}
+		WHERE (NAME=#{name})			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.common.MycatSequenceParamVo"
+		      resultType="com.techsoft.common.MycatSequence" useCache="false">
+
+	</select>
+</mapper>

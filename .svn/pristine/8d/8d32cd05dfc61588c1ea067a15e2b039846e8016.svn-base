@@ -1,0 +1,148 @@
+package com.techsoft.controller.alarm;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.alarm.ClientAlarmProblemService;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.alarm.AlarmProblemParamVo;
+import com.techsoft.entity.alarm.AlarmProblemVo;
+import com.techsoft.entity.common.AlarmProblem;
+import com.techsoft.entity.common.ConfigDictionary;
+
+@Controller
+@RequestMapping("/alarm/alarmProblem")
+public class AlarmProblemController extends BaseController {
+	@Autowired
+	private ClientAlarmProblemService clientAlarmProblemService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		try {
+		//取报警类型集合
+		List<ConfigDictionary> classList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.ALARM_TYPE.getValue());
+		modelAndView.addObject("classList", classList);
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());
+		} catch (SQLException e) {  
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("alarm/alarmProblem-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("alarm/alarmProblem-edit");
+		AlarmProblemVo entity = new AlarmProblemVo();
+		try {
+			if (id != null) {
+				entity = clientAlarmProblemService.getVoByID(id, this.getCommonParam(request));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("entity", entity);
+		initData(modelAndView);
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			AlarmProblemParamVo alarmProblemParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}
+		try {
+            if(alarmProblemParamVo==null){
+            	alarmProblemParamVo = new AlarmProblemParamVo();
+            }
+			pageInfo = clientAlarmProblemService.selectPageVoByParamVo(
+					alarmProblemParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			AlarmProblemParamVo alarmProblemParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+	    alarmProblemParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientAlarmProblemService.saveOrUpdate(alarmProblemParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+	
+	
+	/**
+	 * @param request
+	 * @param structFloorParamVo
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/linkFloorByAlarml", method = RequestMethod.POST)
+	public ConfigDictionary linkFloorByAlarml(HttpServletRequest request, AlarmProblemParamVo alarmProblemParamVo) {
+		if (alarmProblemParamVo == null) {
+			alarmProblemParamVo = new AlarmProblemParamVo();
+		}
+		alarmProblemParamVo.setTenantId(getLoginTenantId(request));
+		AlarmProblem alarmProblemList = new  AlarmProblem();
+		ConfigDictionary parentList=null;
+			try {
+				alarmProblemList = clientAlarmProblemService.selectById(alarmProblemParamVo.getId() , this.getCommonParam(request));
+				parentList = clientConfigDictionaryService.selectById(alarmProblemList.getAlarmTypeDictId(), this.getCommonParam(request));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		return parentList;
+	}
+
+
+
+}

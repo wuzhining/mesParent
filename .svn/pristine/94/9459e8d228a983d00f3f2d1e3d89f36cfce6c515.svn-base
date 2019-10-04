@@ -1,0 +1,286 @@
+package com.techsoft.client.service.bill;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumAuditStatus;
+import com.techsoft.common.enums.EnumDictBillStatus;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.enums.EnumSettleStatus;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.entity.bill.BillInventoryVo;
+import com.techsoft.entity.bill.BillInventoryParamVo;
+import com.techsoft.service.bill.BillInventoryService;
+import com.techsoft.service.config.ConfigCodeRuleService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.history.HistoryBillStatusService;
+import com.techsoft.service.struct.StructWarehouseService;
+
+@org.springframework.stereotype.Service
+public class ClientBillInventoryServiceImpl extends BaseClientServiceImpl<BillInventory> implements ClientBillInventoryService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillInventoryService billInventoryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigCodeRuleService configCodeRuleService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWarehouseService structWarehouseService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private HistoryBillStatusService historyBillStatusService;
+	
+	@Override
+	public BaseService<BillInventory> getBaseService() {
+		return billInventoryService;
+	}	    	
+    
+	private BillInventoryVo getVo(BillInventory billInventory, CommonParam commonParam) throws BusinessException, SQLException {
+		BillInventoryVo vo = new BillInventoryVo(billInventory);
+		if (vo.getBillStatusDictId() != null && vo.getBillStatusDictId() > 0L) {
+			ConfigDictionary billStatus = configDictionaryService.selectById(vo.getBillStatusDictId(), commonParam);
+			if (billStatus != null) {
+				vo.setBillStatusDic(billStatus);
+			}
+		}
+		if (vo.getWarehouseId() != null && vo.getWarehouseId() > 0L) {
+			StructWarehouse fromWarehouse = structWarehouseService.selectById(vo.getWarehouseId(), commonParam);
+			if (fromWarehouse != null) {
+				vo.setFromWarehouse(fromWarehouse);
+			}
+		}
+		if (vo.getInventoryModeDictId() != null && vo.getInventoryModeDictId() > 0L) {
+			ConfigDictionary inventoryMode = configDictionaryService.selectById(vo.getInventoryModeDictId(), commonParam);
+			if (inventoryMode != null) {
+				vo.setInventoryMode(inventoryMode);
+			}
+		}
+		
+		if (vo.getAuditStatusDictId() != null && vo.getAuditStatusDictId() > 0L) {
+			ConfigDictionary auditStatus = configDictionaryService.selectById(vo.getAuditStatusDictId(), commonParam);
+			if (auditStatus != null) {
+				vo.setAuditStatus(auditStatus);
+			}
+		}
+		
+		if (vo.getSettleStatusDictId() != null && vo.getSettleStatusDictId() > 0L) {
+			ConfigDictionary settleStatus = configDictionaryService.selectById(vo.getSettleStatusDictId(), commonParam);
+			if (settleStatus != null) {
+				vo.setSettleStatus(settleStatus);
+			}
+		}
+		return vo;
+	} 
+	
+	private BillInventoryVo getExtendVo(BillInventory billInventory, CommonParam commonParam) throws BusinessException, SQLException {
+		BillInventoryVo vo = this.getVo(billInventory, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<BillInventoryVo> getVoList(List<BillInventory> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<BillInventoryVo> voList = new ArrayList<BillInventoryVo>();
+		for (BillInventory entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<BillInventoryVo> getExtendVoList(List<BillInventory> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<BillInventoryVo> voList = new ArrayList<BillInventoryVo>();
+		for (BillInventory entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public BillInventoryVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillInventory entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<BillInventoryVo>  selectListVoByParamVo(BillInventoryParamVo billInventory, CommonParam commonParam) throws BusinessException, SQLException {
+		if(billInventory==null){
+			billInventory = new BillInventoryParamVo();
+		}
+		billInventory.setTenantId(commonParam.getTenantId());	
+	
+		List<BillInventory> list = (List<BillInventory>) this.getBaseService().selectListByParamVo(billInventory, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<BillInventoryVo> selectPageVoByParamVo(BillInventoryParamVo billInventory, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(billInventory==null){
+			billInventory = new BillInventoryParamVo();
+		}
+		billInventory.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<BillInventory> list  = (PageInfo<BillInventory>) this.getBaseService().selectPageByParamVo(billInventory, commonParam, pageNo, pageSize);
+		List<BillInventoryVo> volist = new ArrayList<BillInventoryVo>();
+		
+		Iterator<BillInventory> iter = list.getList().iterator();
+		BillInventoryVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<BillInventoryVo> vpage = new Page<BillInventoryVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public BillInventoryVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillInventory entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<BillInventoryVo>  selectListExtendVoByParamVo(BillInventoryParamVo billInventory, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(billInventory==null){
+			billInventory = new BillInventoryParamVo();
+		}
+		billInventory.setTenantId(commonParam.getTenantId());	
+					
+		List<BillInventory> list = (List<BillInventory>) this.getBaseService().selectListByParamVo(billInventory, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<BillInventoryVo> selectPageExtendVoByParamVo(BillInventoryParamVo billInventory, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(billInventory==null){
+			billInventory = new BillInventoryParamVo();
+		}
+		billInventory.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<BillInventory> list  = (PageInfo<BillInventory>) this.getBaseService().selectPageByParamVo(billInventory, commonParam, pageNo, pageSize);
+		List<BillInventoryVo> volist = new ArrayList<BillInventoryVo>();
+		
+		Iterator<BillInventory> iter = list.getList().iterator();
+		BillInventoryVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<BillInventoryVo> vpage = new Page<BillInventoryVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(BillInventoryParamVo billInventoryParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		BillInventory billInventory = null;
+		try {
+			if (billInventoryParamVo.getId() == null) {//新增
+			 
+				billInventoryParamVo.setTenantId(commonParam.getTenantId());
+				
+				String createCode = configCodeRuleService.createCode(BillInventory.class.getName(),
+						null, null, commonParam);
+				
+				billInventoryParamVo.setBillCode(createCode);
+				billInventoryParamVo.setBillStatusDictId(EnumDictBillStatus.NEW.getValue());
+				billInventoryParamVo.setAuditStatusDictId(EnumAuditStatus.UNAUDITED.getValue());
+				billInventoryParamVo.setSettleStatusDictId(EnumSettleStatus.NEW.getValue());
+				billInventory = billInventoryService.saveOrUpdate(billInventoryParamVo,
+						commonParam);
+				
+				//新增历史表
+				historyBillStatusService.billHistoryInsert(EnumDictBillType.BILL_TYPE_INVENTORY.getValue(), EnumDictBillStatus.NEW.getValue(), billInventory.getId(),createCode, commonParam);
+				
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				BillInventory billInventoryVoTemp = this.selectById(billInventoryParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(billInventoryVoTemp,
+						billInventoryParamVo);
+  
+				billInventory = billInventoryService.saveOrUpdate(
+						billInventoryVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(billInventory);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+	
+	@Override
+	public ResultMessage updateAuditStatus(Long id, Long auditStatusDictId, CommonParam commonParam) {
+		
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			
+			resultMessage=billInventoryService.updateAuditStatus(id, auditStatusDictId, commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage settle(Long id, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			
+			resultMessage=billInventoryService.settle(id,commonParam);
+
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}
+}

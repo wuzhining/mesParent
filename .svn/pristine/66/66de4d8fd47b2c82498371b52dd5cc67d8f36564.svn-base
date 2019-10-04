@@ -1,0 +1,9 @@
+﻿<Location>
+  <CountryRegion Name="中国" Code="1">   
+    <State Name="广东" Code="1">
+      <City Name="深圳" Code="1">
+        <Region Name="宝安区" Code="1" />
+      </City>
+    </State>
+  </CountryRegion>
+</Location>

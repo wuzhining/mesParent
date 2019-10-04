@@ -1,0 +1,260 @@
+package com.techsoft.client.service.equip;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.entity.common.EquipWorkClasses;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.entity.common.StructProductionline;
+import com.techsoft.entity.common.StructWorkshop;
+import com.techsoft.entity.common.StructWorkshopArea;
+import com.techsoft.entity.equip.EquipWorkParamVo;
+import com.techsoft.entity.equip.EquipWorkVo;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.equip.EquipWorkClassesService;
+import com.techsoft.service.equip.EquipWorkService;
+import com.techsoft.service.struct.StructFactoryService;
+import com.techsoft.service.struct.StructProcessNodeService;
+import com.techsoft.service.struct.StructProductionlineService;
+import com.techsoft.service.struct.StructWorkshopAreaService;
+import com.techsoft.service.struct.StructWorkshopService;
+
+@org.springframework.stereotype.Service
+public class ClientEquipWorkServiceImpl extends BaseClientServiceImpl<EquipWork> implements ClientEquipWorkService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipWorkService equipWorkService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructFactoryService structFactoryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopAreaService structWorkshopAreaService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProductionlineService structProductionlineService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipWorkClassesService equipWorkClassesService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcessNodeService structProcessNodeService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopService structWorkshopService;
+	@Override
+	public BaseService<EquipWork> getBaseService() {
+		return equipWorkService;
+	}
+
+	private EquipWorkVo getVo(EquipWork equipWork, CommonParam commonParam) throws BusinessException, SQLException {
+		EquipWorkVo vo = new EquipWorkVo(equipWork);
+		if (vo.getFactoryId() != null && vo.getFactoryId() > 0L) {
+			StructFactory structFactory = structFactoryService.selectById(vo.getFactoryId(), commonParam);
+			if (structFactory != null) {
+				vo.setStructFactory(structFactory);
+			}
+		}
+		if (vo.getClassesId() != null && vo.getClassesId() > 0L) {
+			EquipWorkClasses equipWorkClasses = equipWorkClassesService.selectById(vo.getClassesId(), commonParam);
+			if (equipWorkClasses != null) {
+				vo.setEquipWorkClasses(equipWorkClasses);
+			}
+		}
+		if (vo.getEquipStatusDictId() != null && vo.getEquipStatusDictId() > 0L) {
+			ConfigDictionary ConfigDictionaryS = configDictionaryService.selectById(vo.getEquipStatusDictId(),
+					commonParam);
+			if (ConfigDictionaryS != null) {
+				vo.setConfigDictionaryStatus(ConfigDictionaryS);
+			}
+		}
+		if (vo.getWorkshopAreaId() != null && vo.getWorkshopAreaId() > 0L) {
+			StructWorkshopArea structWorkshopArea = structWorkshopAreaService.selectById(vo.getWorkshopAreaId(),
+					commonParam);
+			if (structWorkshopArea != null) {
+				vo.setStructWorkshopArea(structWorkshopArea);
+			}
+		}
+		if (vo.getProductionlineId() != null && vo.getProductionlineId() > 0L) {
+			StructProductionline structProductionline = structProductionlineService.selectById(vo.getProductionlineId(),
+					commonParam);
+			if (structProductionline != null) {
+				vo.setStructProductionline(structProductionline);
+			}
+		}
+		if (vo.getProcessNodeId() != null && vo.getProcessNodeId() > 0L) {
+			StructProcessNode structProcessNode = structProcessNodeService.selectById(vo.getProcessNodeId(),
+					commonParam);
+			if (structProcessNode != null) {
+				vo.setStructProcessNode(structProcessNode);
+			}
+		}
+		//车间
+		if (vo.getWorkshopId() != null && vo.getWorkshopId() > 0L) {
+			StructWorkshop structWorkshop = structWorkshopService.selectById(vo.getWorkshopId(), commonParam);
+			if (structWorkshop != null) {
+				vo.setStructWorkshop(structWorkshop);
+			}
+		}
+
+		return vo;
+	}
+
+	private EquipWorkVo getExtendVo(EquipWork equipWork, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		EquipWorkVo vo = this.getVo(equipWork, commonParam);
+
+		return vo;
+	}
+
+	private List<EquipWorkVo> getVoList(List<EquipWork> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<EquipWorkVo> voList = new ArrayList<EquipWorkVo>();
+		for (EquipWork entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<EquipWorkVo> getExtendVoList(List<EquipWork> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<EquipWorkVo> voList = new ArrayList<EquipWorkVo>();
+		for (EquipWork entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public EquipWorkVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		EquipWork entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<EquipWorkVo> selectListVoByParamVo(EquipWorkParamVo equipWork, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (equipWork == null) {
+			equipWork = new EquipWorkParamVo();
+		}
+		equipWork.setTenantId(commonParam.getTenantId());
+
+		List<EquipWork> list = (List<EquipWork>) this.getBaseService().selectListByParamVo(equipWork, commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<EquipWorkVo> selectPageVoByParamVo(EquipWorkParamVo equipWork, CommonParam commonParam, int pageNo,
+			int pageSize) throws BusinessException, SQLException {
+		if (equipWork == null) {
+			equipWork = new EquipWorkParamVo();
+		}
+		equipWork.setTenantId(commonParam.getTenantId());
+
+		PageInfo<EquipWork> list = (PageInfo<EquipWork>) this.getBaseService().selectPageByParamVo(equipWork,
+				commonParam, pageNo, pageSize);
+		List<EquipWorkVo> volist = new ArrayList<EquipWorkVo>();
+
+		Iterator<EquipWork> iter = list.getList().iterator();
+		EquipWorkVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<EquipWorkVo> vpage = new Page<EquipWorkVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public EquipWorkVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		EquipWork entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<EquipWorkVo> selectListExtendVoByParamVo(EquipWorkParamVo equipWork, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (equipWork == null) {
+			equipWork = new EquipWorkParamVo();
+		}
+		equipWork.setTenantId(commonParam.getTenantId());
+
+		List<EquipWork> list = (List<EquipWork>) this.getBaseService().selectListByParamVo(equipWork, commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<EquipWorkVo> selectPageExtendVoByParamVo(EquipWorkParamVo equipWork, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (equipWork == null) {
+			equipWork = new EquipWorkParamVo();
+		}
+		equipWork.setTenantId(commonParam.getTenantId());
+
+		PageInfo<EquipWork> list = (PageInfo<EquipWork>) this.getBaseService().selectPageByParamVo(equipWork,
+				commonParam, pageNo, pageSize);
+		List<EquipWorkVo> volist = new ArrayList<EquipWorkVo>();
+
+		Iterator<EquipWork> iter = list.getList().iterator();
+		EquipWorkVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<EquipWorkVo> vpage = new Page<EquipWorkVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(EquipWorkParamVo equipWorkParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		EquipWork equipWork = null;
+		try {
+			if (equipWorkParamVo.getId() == null) {// 新增
+
+				equipWorkParamVo.setTenantId(commonParam.getTenantId());
+				equipWork = equipWorkService.saveOrUpdate(equipWorkParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				EquipWork equipWorkVoTemp = this.selectById(equipWorkParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(equipWorkVoTemp, equipWorkParamVo);
+
+				equipWork = equipWorkService.saveOrUpdate(equipWorkVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(equipWork);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

@@ -1,0 +1,72 @@
+package com.techsoft.entity.common;
+
+import com.techsoft.common.BaseEntity;
+
+public class BillFixtureItem extends BaseEntity {
+	private static final long serialVersionUID = 8897213883695925439L;
+
+
+	public BillFixtureItem(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private Long billFixtureId;	
+	   
+	private Long fixtureId;	
+	   
+	private Double quantity;	
+	   
+	private Double numberUsed;	
+	   
+	private String remark;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public Long getBillFixtureId() {
+		return billFixtureId;
+	}
+
+	public void setBillFixtureId(Long billFixtureId) {
+		this.billFixtureId = billFixtureId;
+	}
+                		
+	public Long getFixtureId() {
+		return fixtureId;
+	}
+
+	public void setFixtureId(Long fixtureId) {
+		this.fixtureId = fixtureId;
+	}
+                		
+	public Double getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Double quantity) {
+		this.quantity = quantity;
+	}
+                		
+	public Double getNumberUsed() {
+		return numberUsed;
+	}
+
+	public void setNumberUsed(Double numberUsed) {
+		this.numberUsed = numberUsed;
+	}
+                		
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

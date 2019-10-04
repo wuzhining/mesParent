@@ -1,0 +1,14 @@
+package com.techsoft.entity.bill;
+
+import com.techsoft.entity.common.BillEquip;
+
+public class BillEquipVo extends BillEquip {
+	private static final long serialVersionUID = 4221959119799158698L;
+
+	public BillEquipVo() {	
+	}
+	
+	public BillEquipVo(BillEquip value) {
+		value.cloneProperties(this);
+	}		
+}

@@ -1,0 +1,62 @@
+package com.techsoft.service.bill;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import com.alibaba.dubbo.config.annotation.Service;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.BillInventoryItem;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.track.TrackBarcodeParamVo;
+import com.techsoft.dao.bill.BillInventoryDao;
+
+@Service
+public class BillInventoryServiceImpl extends BaseServiceImpl<BillInventory> implements BillInventoryService {
+	@Autowired
+	private BillInventoryDao billInventoryDao;
+	
+	@Override
+	public BaseDao<BillInventory> getBaseDao() {
+		return billInventoryDao;
+	}	
+	
+	@Override
+	public Class<BillInventory> getEntityClass() {
+		return BillInventory.class;
+	}
+	
+	@Override
+	protected BillInventory insertEntity(BillInventory entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.insertEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillInventory updatePartEntity(BillInventory entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updatePartEntity(entity, commonParam);
+	}
+
+	@Override
+	protected BillInventory updateEntity(BillInventory entity, CommonParam commonParam) throws BusinessException, SQLException {
+		return super.updateEntity(entity, commonParam);
+	}	
+	
+	@Override
+	public ResultMessage updateAuditStatus(Long id, Long auditStatusDictId, CommonParam commonParam) throws BusinessException, SQLException{
+		ResultMessage resultMessage = new ResultMessage();
+			//更新审核状态
+			billInventoryDao.updateAuditStatus(id, auditStatusDictId, commonParam);
+	
+			
+			resultMessage.setIsSuccess(true);
+		    return resultMessage;
+	}
+}

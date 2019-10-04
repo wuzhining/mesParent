@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.struct.StructWorkstationMapper">
+	<resultMap id="StructWorkstation" type="com.techsoft.entity.common.StructWorkstation" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="WORKSHOP_ID" property="workshopId" />
+		<result column="WORKSHOP_AREA_ID" property="workshopAreaId" />
+		<result column="EXECUTIVE_TYPE_DICT_ID" property="executiveTypeDictId" />
+		<result column="WORKSTATION_NAME" property="workstationName" />
+		<result column="WORKSTATION_CODE" property="workstationCode" />
+		<result column="COORDINATE_X" property="coordinateX" />
+		<result column="COORDINATE_Y" property="coordinateY" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="workshopId != null">
+			AND A.WORKSHOP_ID= #{workshopId}
+		</if>
+		<if test="workshopAreaId != null">
+			AND A.WORKSHOP_AREA_ID= #{workshopAreaId}
+		</if>
+		<if test="executiveTypeDictId != null">
+			AND A.EXECUTIVE_TYPE_DICT_ID= #{executiveTypeDictId}
+		</if>
+		<if test="workstationName != null">
+			AND A.WORKSTATION_NAME= #{workstationName}
+		</if>
+		<if test="workstationCode != null">
+			AND A.WORKSTATION_CODE= #{workstationCode}
+		</if>
+		<if test="coordinateX != null">
+			AND A.COORDINATE_X= #{coordinateX}
+		</if>
+		<if test="coordinateY != null">
+			AND A.COORDINATE_Y= #{coordinateY}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+		<if test="likeWorkStationCode != null">
+		  <bind name="code" value="'%' + _parameter.likeWorkStationCode + '%'" />
+		  AND A.WORKSTATION_CODE LIKE #{likeWorkStationCode}
+		</if>
+		<if test="likeWorkStationName != null">
+		  <bind name="code" value="'%' + _parameter.likeWorkStationName + '%'" />
+		  AND A.WORKSTATION_NAME LIKE #{likeWorkStationName}
+		</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.WORKSHOP_ID,
+		A.WORKSHOP_AREA_ID,
+		A.EXECUTIVE_TYPE_DICT_ID,
+		A.WORKSTATION_NAME,
+		A.WORKSTATION_CODE,
+		A.COORDINATE_X,
+		A.COORDINATE_Y,
+		A.IS_VALID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_STRUCT_WORKSTATION_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STRUCT_WORKSTATION
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StructWorkstation">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_WORKSTATION A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StructWorkstation">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_WORKSTATION A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE STRUCT_WORKSTATION A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE STRUCT_WORKSTATION  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StructWorkstation">
+		UPDATE STRUCT_WORKSTATION A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructWorkstation">
+		INSERT INTO STRUCT_WORKSTATION (
+		TENANT_ID,
+		FACTORY_ID,
+		WORKSHOP_ID,
+		WORKSHOP_AREA_ID,
+		EXECUTIVE_TYPE_DICT_ID,
+		WORKSTATION_NAME,
+		WORKSTATION_CODE,
+		COORDINATE_X,
+		COORDINATE_Y,
+		IS_VALID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{workshopId},
+		#{workshopAreaId},
+		#{executiveTypeDictId},
+		#{workstationName},
+		#{workstationCode},
+		#{coordinateX},
+		#{coordinateY},
+		#{isValid},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructWorkstation">
+		UPDATE STRUCT_WORKSTATION SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		WORKSHOP_ID=#{workshopId},
+		WORKSHOP_AREA_ID=#{workshopAreaId},
+		EXECUTIVE_TYPE_DICT_ID=#{executiveTypeDictId},
+		WORKSTATION_NAME=#{workstationName},
+		WORKSTATION_CODE=#{workstationCode},
+		COORDINATE_X=#{coordinateX},
+		COORDINATE_Y=#{coordinateY},
+		IS_VALID=#{isValid},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructWorkstation">
+		UPDATE STRUCT_WORKSTATION SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="workshopId != null" >
+			WORKSHOP_ID=#{workshopId},
+		</if>
+		<if test="workshopAreaId != null" >
+			WORKSHOP_AREA_ID=#{workshopAreaId},
+		</if>
+		<if test="executiveTypeDictId != null" >
+			EXECUTIVE_TYPE_DICT_ID=#{executiveTypeDictId},
+		</if>
+		<if test="workstationName != null" >
+			WORKSTATION_NAME=#{workstationName},
+		</if>
+		<if test="workstationCode != null" >
+			WORKSTATION_CODE=#{workstationCode},
+		</if>
+		<if test="coordinateX != null" >
+			COORDINATE_X=#{coordinateX},
+		</if>
+		<if test="coordinateY != null" >
+			COORDINATE_Y=#{coordinateY},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.struct.StructWorkstationParamVo"
+		      resultType="com.techsoft.entity.common.StructWorkstation" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_WORKSTATION A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

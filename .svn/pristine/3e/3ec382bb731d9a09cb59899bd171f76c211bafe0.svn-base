@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+      <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+      <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+      
+      <table  class="layui-table ">
+        <tr>
+            <td width="15%" class="tableleft">菜单</td>
+                <td colspan='2'>		
+	          		<div class="div-choiceBox-intd ">
+	             		<input type="hidden"  id="menuId"  name="menuId" value="<#if entity??&&entity.menuId??>${entity.menuId?c}<#else></#if>" />  
+		          		<input type="text" id="menuName" name="menuName" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if adminMenu2??&&adminMenu2.menuName??>${adminMenu2.menuName}<#else></#if>">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="search1">
+	          			   <i class="layui-icon layui-icon-more"></i>
+	          		    </button>
+         		    </div>  
+                 </td>   
+               <td width="15%" class="tableleft">功能编码</td>
+               <td><input type="text" name="functionCode" lay-verify="functionCode" class="layui-input" maxlength="32" value="${(entity.functionCode)!''}"/></td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">功能名称</td>
+               <td colspan='2'>
+                 <input type="text" name="functionName" lay-verify="functionName" class="layui-input" maxlength="20" value="${(entity.functionName)!''}"/>
+               </td>
+               <td width="15%" class="tableleft">功能URL</td>
+               <td>
+                <input type="text" lay-verify="menuUrl" name="menuUrl"  class="layui-input" maxlength="30" value="${(entity.menuUrl)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">
+                                   排序
+                </td> 
+                  <td colspan='2'>
+                <input type="text"  lay-verify="sortNo" name="sortNo"  class="layui-input" maxlength="20"
+                 value="<#if entity??&&entity.sortNo??>${entity.sortNo?c}<#else></#if>"/>
+               </td>
+               <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="5"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+        <div id="hidden1" lay-filter="hidden1" style="display: none">
+      	<div class="layui-row">
+	        <form class="layui-form layui-col-md12 x-so">
+	          <input type="text" name="menuName"  placeholder="菜单名称" autocomplete="off" class="layui-input">
+	          <button class="layui-btn"  lay-submit lay-filter="search1"><i class="layui-icon">&#xe615;</i></button>
+	        </form>
+        </div>
+        <table id="material_result" lay-filter="material_result"></table>
+	  </div>
+    </div>
+    
+     <!-- 添加 弹出物料表格的 tool（里面的按钮）-->
+	<script type="text/html" id="menuSelect">
+     <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+	</script>
+	
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([  'form','table','layer','layuiconfig','layuiformajax','layuitable'], function(){
+          $ = layui.jquery,  laydate = layui.laydate , table = layui.table , layuitable = layui.layuitable, layuitableObj = layui.layuitable, layuitableField = layui.layuitable;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //菜单
+          layuitable.render(menu_result_table_options); //渲染数据给弹窗框表格， 
+          table.on('tool(material_result)', menu_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+          $('#search1').focus(menu_input_focus_handler);//点击触发弹窗按钮
+          
+          form.on('submit(search1)', function (data) {
+      		  layuitable.reload(data.field);
+              return false;
+          }); 
+          
+          //自定义验证规则
+          form.verify({
+        	  functionName: function(value){
+              if(value.length == 0 || $.trim(value) == ''){
+                return '功能名称不能为空';
+              }
+            }
+          ,functionCode: function(value){
+              if(value.length == 0 || $.trim(value) == ''){
+                  return '功能编码不能为空';
+                }
+              }
+          ,menuUrl: function(value){
+              if(value.length == 0 || $.trim(value) == ''){
+                  return '功能URL不能为空';
+                }
+              }
+          ,menuName: function(value){
+              if(value.length == 0 || $.trim(value) == ''){
+                  return '菜单不能为空';
+                }
+              }
+      //    ,menuId:[/^[0-9]+$/, '菜单ID必须是整数且不能为空']
+          ,sortNo:[/^[0-9]+$/, '排序ID必须是整数且不能为空']
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/sys/adminFunction/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+    
+    //页面上隐藏的用于弹层的所有菜单列表的相关设置
+    var menu_result_table_options = {
+    		elem: '#material_result'
+   	    	,id:'material_result'
+   	    	,url:'/sys/adminMenu/list/json'
+	    	,cols: [[
+	    	     {field:'id', width:120, title: 'ID',align:'center'}
+	    	    ,{field:'menuName',  title: '菜单名称',align:'center',width:190}
+	    	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#menuSelect', fixed: 'right'}
+	    	]]
+    };
+    //点击查询菜单触发该函数
+	function menu_input_focus_handler(){
+		layer.open({
+			type : 1
+			, area : [ '650px', '500px' ]
+			, content : $('#hidden1')
+			, success : function () {
+				// 重新加载表格中的数据
+				table.reload('material_result', menu_result_table_options);
+				$('#hidden1').css('display', 'block');
+			}
+		});
+
+	}
+	//点击弹出的“菜单信息”弹层上的表格中“选中”按钮的触发函数，回填input框
+	function menu_tool_event_handler(obj) {
+		var data = obj.data;
+		switch (obj.event) {
+			case 'select':
+				$('#menuId').val(data.id);
+				$('#menuName').val(data.menuName);
+				layer.close(layer.index);
+					break;
+		}
+	}
+	
+    </script>
+    <script></script>
+  </body>
+
+</html>

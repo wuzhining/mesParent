@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">安灯管理</a> <a><cite>接警</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="hidden" name="problemId" id="problemId" placeholder="请选择报警问题名称" autocomplete="off" class="layui-input">
+       	  <input type="text" name="problem" id="problem" placeholder="请选择报警问题名称" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="alarmProblemSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		   </button>
+          <input type="hidden" name="equipWorkId" id="equipWorkId" placeholder="请选择设备名称" autocomplete="off" class="layui-input">
+       	  <input type="text" name="equipName" id="equipName" placeholder="请选择设备名称" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="equipWorkSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		   </button>
+          <select name="alarmTypeDictId">    
+          	<option value="">请选择报警类型</option> 
+            	<#if classList??>
+                     <#list classList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			    </#if> 
+          </select>
+          <!--<select name="statusDictId">    
+          	<option value="">请选择报警状态</option> 
+          	<option value="10448">报警</option> 
+            	 <#if alarmstatusList??>
+                     <#list alarmstatusList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			    </#if> 
+          </select>--> 
+          
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button> 
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <!-- <xblock>
+        <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button>
+        <button class="layui-btn" onclick="layer_window_show('添加安灯信息','/alarm/alarmInforFlow/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock> -->
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="confirm">确认</a>
+</script>    
+<script type="text/html" id="equipNameTpl">
+	{{#  if(d.equipWork){ }}
+		{{ d.equipWork.equipName 
+    }}
+    {{#  } }}
+</script>
+
+<script type="text/html" id="problemName">
+	{{#  if(d.alarmProblem){ }}
+		{{ d.alarmProblem.problem 
+ }}
+{{#  } }}
+</script>
+<script type="text/html" id="alarmTypeDictName">
+	{{#  if(d.classconfigDictionary){ }}
+		{{ d.classconfigDictionary.dictName 
+ }}
+{{#  } }}
+</script>
+<script type="text/html" id="statusDictName">
+	{{#  if(d.statusconfigDictionary){ }}
+		{{ d.statusconfigDictionary.dictName 
+ }}
+{{#  } }}
+</script>
+<script type="text/html" id="userName">
+	{{#  if(d.respondUser){ }}
+		{{ d.respondUser.realName 
+ }}
+{{#  } }}
+</script>
+
+
+<script type="text/html" id="pqeName">
+	{{#  if(d.confirmUser){ }}
+		{{ d.confirmUser.realName 
+ }}
+{{#  } }}
+</script>
+
+<script type="text/html" id="dealName">
+	{{#  if(d.dealUser){ }}
+		{{ d.dealUser.realName 
+ }}
+{{#  } }}
+</script>
+<script type="text/html" id="alarmUserIdTpl">
+	{{#  if(d.alarmUser){ }}
+		{{ d.alarmUser.realName 
+ }}
+{{#  } }}
+</script>
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime() 
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/alarm/alarmInforFlow/list/json?statusDictId='+10448
+    	,cols: [[
+   	    	     {field:'id', width:120, title: 'ID',align:'center', fixed: 'left'}
+   	    	     ,{field:'equipWorkId', width:150, title: '设备名称', align:'center',templet: '#equipNameTpl', fixed: 'left'}
+   	    	    ,{field:'problemName', width:150, title: '报警问题', align:'center',templet: '#problemName'}
+   	    	    ,{field:'alarmLevelId',  title: '报警等级', align:'center',minWidth: 100}
+   	    	    ,{field:'alarmTypeDictName', width:150, title: '报警类型', align:'center',templet: '#alarmTypeDictName'}
+   	    	    ,{field:'statusDictName', width:150, title: '状态', align:'center',templet: '#statusDictName'}
+   	    	    ,{field:'alarmUserId',  title: '报警人', align:'center',minWidth: 100,templet: '#alarmUserIdTpl'}
+   	    	    ,{field:'alarmTime',  title: '报警时间', align:'center',minWidth: 165}
+   	    	    ,{field:'respondUserId',  title: '响应人', align:'center',minWidth: 100,templet: '#userName'}
+   	    	    ,{field:'respondTime',  title: '响应时间', align:'center',minWidth: 165}
+   	    	    ,{field:'confirmUserId',  title: 'PQE确认人', align:'center',minWidth: 100,templet: '#pqeName'}
+   	    	    ,{field:'confirmTime',  title: 'PQE确认时间', align:'center',minWidth: 165}
+   	    	    ,{field:'dealUserId',  title: '完成人', align:'center',minWidth: 100,templet: '#dealName'}
+   	    	    ,{field:'dealTime',  title: '完成时间', align:'center',minWidth: 165}
+   	    	    ,{field:'remark',  title: '备注', align:'center',minWidth: 100}
+   	    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 165}
+   	      		,{field:'', width:'10%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+   	    	]]
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+    $('#alarmProblemSearch').on('click',function(e){
+		openWinSelect('/alarm/alarmProblem/alarmProblemOpen',"problemId","problem");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+	$('#equipWorkSearch').on('click',function(e){
+    	openWinSelect('/equip/equipWork/equipWorkOpen',"equipWorkId","equipName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	}) 	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+	       	if (obj.event === 'confirm') {
+		          //监听提交
+	       	   var url = '/alarm/alarmInforFlow/alarmSave?id='+ data.id+'&statusDictId='+data.statusDictId ;
+	       	  layuiformajax.postJson(url, '', function (result) {
+	       		parent.layer.msg('确认成功!', {icon: 1, time: 1000},function () {
+	     				  	location.reload(); 
+	     	            });
+	       		 
+	     		  });
+		
+			} 	  
+	});
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	})
+});	
+</script>
+  </body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <input type="text" name="fixtureNameLike"  placeholder="请输入工具品种规格名" autocomplete="off" class="layui-input">
+          <select name="fixtureStatusDictId">    
+                <option value="">请选择工具状态</option> 
+                 <#if fixtureStatus??>
+                     <#list fixtureStatus as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <select name="supplierId">    
+                <option value="">供应商</option> 
+                 <#if firmPartner??>
+                     <#list firmPartner as item>
+			            <option value="${item.id?c}" >${item.companyName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button> 
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="choice">选择</a>
+</script> 
+
+<script type="text/html" id="firmPartner">
+	{{#  if(d.firmPartner){ }}
+		{{ d.firmPartner.companyName
+
+ }}
+	{{#  } }}
+</script>
+
+<script type="text/html" id="realName">
+	{{#  if(d.firmEmployee){ }}
+		{{ d.firmEmployee.realName 
+
+ }}
+{{#  } }}
+</script>
+ 
+<script type="text/html" id="fixtureTypeDictId">
+	{{#  if(d.equipClassesFixture){ }}
+		{{ d.equipClassesFixture.classesName 
+
+ }}
+{{#  } }}
+</script>  
+<script type="text/html" id="fixtureStatusDictName">
+	{{#  if(d.configDictionaryStatus){ }}
+		{{ d.configDictionaryStatus.dictName 
+
+ }}
+{{#  } }}
+</script> 
+
+<script type="text/javascript">
+var statusDictId="10313";
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/equip/equipSpecsFixture/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center'}
+    	    ,{field:'fixtureSpecsCode', width:120, title: '工具品种规格编码',align:'center'}
+    	    ,{field:'fixtureSpecsName', width:150, title: '工具品种规格名称', align:'center'}
+    	    ,{field:'classesId',  title: '工具类型名称',align:'center', minWidth: 120,templet: '#fixtureTypeDictId'}
+    	    ,{field:'fixtureStatusDictName',  title: '工具状态',align:'center', minWidth: 120,templet: '#fixtureStatusDictName'}
+    	    /* ,{field:'fixtureStatusDictId',  title: '工具状态编码',align:'center', minWidth: 120}
+    	    ,{field:'supplierId',  title: '供应商编码', align:'center',minWidth: 120} */
+    	    ,{field:'companyName',  title: '供应商名称', align:'center',minWidth: 120,templet: '#firmPartner'}
+    	    ,{field:'standarlive', width:150, title: '标准寿命', align:'center'}
+    	    ,{field:'quantity',  title: '数量',align:'center', minWidth: 120}
+    	    ,{field:'remark',  title: '描述',align:'center', minWidth: 120}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	})
+   	
+	table.on('tool(tablefilter)', function(obj) {
+		var instructId = parent.$("#ids").val();
+		var processNodeId = parent.$("#idss").val();
+		var number = "0";
+		var data = obj.data;
+		if (obj.event === 'choice') {
+			console.log(data);
+	        //监听提交
+       	   var url = '/struct/structProcedureEquipFixture/save';
+       	    layuiformajax.postJson(url, {"processNodeId":processNodeId,"instructId":instructId,"equipSpecsFixtureId":data.id,"quantity":"1","quantityBase":number,"wastageRatio":number}, function (result) {
+       		    layer.msg('添加成功!', {icon: 1, time: 1000},function () {
+     	            // 获得frame索引
+     	            var index = parent.layer.getFrameIndex(window.name);
+     	            parent.location.reload(); 
+     	            parent.layer.close(index);
+    	        });
+       		  
+   		    });  
+		}
+	});
+});	
+</script>
+ 
+  </body>
+
+</html>

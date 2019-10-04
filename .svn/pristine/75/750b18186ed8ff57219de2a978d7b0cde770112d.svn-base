@@ -1,0 +1,225 @@
+package com.techsoft.client.service.struct;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructFloor;
+import com.techsoft.entity.common.StructWorkshop;
+import com.techsoft.entity.struct.StructWorkshopParamVo;
+import com.techsoft.entity.struct.StructWorkshopVo;
+import com.techsoft.service.struct.StructFactoryService;
+import com.techsoft.service.struct.StructFloorService;
+import com.techsoft.service.struct.StructWorkshopService;
+
+@org.springframework.stereotype.Service
+public class ClientStructWorkshopServiceImpl extends BaseClientServiceImpl<StructWorkshop>
+		implements ClientStructWorkshopService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopService structWorkshopService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructFactoryService structFactoryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructFloorService structFloorService;
+
+	@Override
+	public BaseService<StructWorkshop> getBaseService() {
+		return structWorkshopService;
+	}
+
+	private StructWorkshopVo getVo(StructWorkshop structWorkshop, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		StructWorkshopVo vo = new StructWorkshopVo(structWorkshop);
+		if (vo.getFactoryId() != null && vo.getFactoryId() > 0L) {
+			StructFactory structFactory = structFactoryService.selectById(vo.getFactoryId(), commonParam);
+			if (structFactory != null) {
+				vo.setStructFactory(structFactory);
+			}
+		}
+		if (vo.getFloorId() != null && vo.getFloorId() > 0L) {
+			StructFloor structFloor = structFloorService.selectById(vo.getFloorId(), commonParam);
+			if (structFloor != null) {
+				vo.setStructFloor(structFloor);
+			}
+		}
+
+		return vo;
+	}
+
+	private StructWorkshopVo getExtendVo(StructWorkshop structWorkshop, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		StructWorkshopVo vo = this.getVo(structWorkshop, commonParam);
+
+		return vo;
+	}
+
+	private List<StructWorkshopVo> getVoList(List<StructWorkshop> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<StructWorkshopVo> voList = new ArrayList<StructWorkshopVo>();
+		for (StructWorkshop entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<StructWorkshopVo> getExtendVoList(List<StructWorkshop> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<StructWorkshopVo> voList = new ArrayList<StructWorkshopVo>();
+		for (StructWorkshop entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public StructWorkshopVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StructWorkshop entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<StructWorkshopVo> selectListVoByParamVo(StructWorkshopParamVo structWorkshop, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (structWorkshop == null) {
+			structWorkshop = new StructWorkshopParamVo();
+		}
+		structWorkshop.setTenantId(commonParam.getTenantId());
+
+		List<StructWorkshop> list = (List<StructWorkshop>) this.getBaseService().selectListByParamVo(structWorkshop,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<StructWorkshopVo> selectPageVoByParamVo(StructWorkshopParamVo structWorkshop,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (structWorkshop == null) {
+			structWorkshop = new StructWorkshopParamVo();
+		}
+		structWorkshop.setTenantId(commonParam.getTenantId());
+
+		PageInfo<StructWorkshop> list = (PageInfo<StructWorkshop>) this.getBaseService()
+				.selectPageByParamVo(structWorkshop, commonParam, pageNo, pageSize);
+		List<StructWorkshopVo> volist = new ArrayList<StructWorkshopVo>();
+
+		Iterator<StructWorkshop> iter = list.getList().iterator();
+		StructWorkshopVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<StructWorkshopVo> vpage = new Page<StructWorkshopVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public StructWorkshopVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		StructWorkshop entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<StructWorkshopVo> selectListExtendVoByParamVo(StructWorkshopParamVo structWorkshop,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (structWorkshop == null) {
+			structWorkshop = new StructWorkshopParamVo();
+		}
+		structWorkshop.setTenantId(commonParam.getTenantId());
+
+		List<StructWorkshop> list = (List<StructWorkshop>) this.getBaseService().selectListByParamVo(structWorkshop,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<StructWorkshopVo> selectPageExtendVoByParamVo(StructWorkshopParamVo structWorkshop,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (structWorkshop == null) {
+			structWorkshop = new StructWorkshopParamVo();
+		}
+		structWorkshop.setTenantId(commonParam.getTenantId());
+
+		PageInfo<StructWorkshop> list = (PageInfo<StructWorkshop>) this.getBaseService()
+				.selectPageByParamVo(structWorkshop, commonParam, pageNo, pageSize);
+		List<StructWorkshopVo> volist = new ArrayList<StructWorkshopVo>();
+
+		Iterator<StructWorkshop> iter = list.getList().iterator();
+		StructWorkshopVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<StructWorkshopVo> vpage = new Page<StructWorkshopVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(StructWorkshopParamVo structWorkshopParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		StructWorkshop structWorkshop = null;
+
+		if (structWorkshopParamVo.getWorkshopCode() == null) {
+			resultMessage.addErr("车间编码不能为空");
+			return resultMessage;
+		}
+		if (structWorkshopParamVo.getWorkshopName() == null) {
+			resultMessage.addErr("车间名称不能为空");
+			return resultMessage;
+		}
+		if (structWorkshopParamVo.getFloorId() == null) {
+			resultMessage.addErr("请选择所属楼层");
+			return resultMessage;
+		}
+		if (structWorkshopParamVo.getFactoryId() == null) {
+			resultMessage.addErr("所属工厂不能为空");
+			return resultMessage;
+		}
+		try {
+			if (structWorkshopParamVo.getId() == null) {// 新增
+
+				structWorkshopParamVo.setTenantId(commonParam.getTenantId());
+				structWorkshop = structWorkshopService.saveOrUpdate(structWorkshopParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+
+			} else { // 修改
+				StructWorkshop structWorkshopVoTemp = this.selectById(structWorkshopParamVo.getId(), commonParam);
+				BeanUtil.copyNotNullProperties(structWorkshopVoTemp, structWorkshopParamVo);
+				structWorkshop = structWorkshopService.saveOrUpdate(structWorkshopVoTemp, commonParam);
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(structWorkshop);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

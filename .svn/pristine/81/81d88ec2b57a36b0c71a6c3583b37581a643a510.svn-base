@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">公司资料</a> <a><cite>采购单</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+        <input class="layui-input" placeholder="预计到货开始日期" name="deliveryTimeBegin" id="deliveryTimeBegin">
+           <input class="layui-input" placeholder="预计到货结束日期" name="deliveryTimeEnd" id="deliveryTimeEnd">
+           <input class="layui-input" placeholder="创建开始日期" name="createTimeBegin" id="createTimeBegin">
+           <input class="layui-input" placeholder="创建结束日期" name="createTimeEnd" id="createTimeEnd">
+          <input type="text" name="billCodeLike"  placeholder="请输入采购单编码" autocomplete="off" class="layui-input">
+          <input type="hidden" name="supplierId" id="supplierId" placeholder="请选择供应商" autocomplete="off" class="layui-input">
+       	  <input type="text" name="companyName" id="companyName" placeholder="请选择供应商" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="supplierSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		   </button>
+          <select name="auditStatusDictId">    
+                <option value="">请选择审批状态</option> 
+                 <#if auditStatusDictList??>
+                     <#list auditStatusDictList as item>
+			            <option value="${item.id?c}">${item.dictName}</option>
+			         </#list>
+			      </#if>
+		  </select>
+      	  <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>  
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加采购单','/bill/billPurchase/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+ <script type="text/html" id="supplierName">
+	{{#  if(d.firmPartnerLiat){}}
+		{{ d.firmPartnerLiat.companyName 
+ 	}}
+	{{# } }}
+ </script>
+ <script type="text/html" id="billStatusName">
+	{{#  if(d.billStatusDic){}}
+		{{ d.billStatusDic.dictName 
+ 	}}
+	{{# } }}
+ </script>  
+ <script type="text/html" id="auditStatusDictName">
+	{{#  if(d.auditStatusDict){}}
+		{{ d.auditStatusDict.dictName 
+ 	}}
+	{{# } }}
+ </script> 
+ 
+ <script type="text/html" id="barDemo">	
+    <a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="lookOver">查看</a>
+	{{#  if(d.billStatusDictId==10488){}}
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="add_detail">维护采购单明细</a>
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="audit">审核</a>
+	{{# } }}
+</script>  
+<script type="text/javascript">
+var statusDictId="10313";
+var url="";//用于保存审核状态的url
+var billStatusDictId="";
+var auditStatusDictId="";
+var id="";
+var remark="";
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/bill/billPurchase/list/json'
+    	,cols: [[
+    	     {field:'id', width:120, title: 'ID',align:'center'}
+    	    ,{field:'supplierId',  title: '供应商',align:'center', width: 220,templet:'#supplierName'}
+    	   /*  ,{field:'supplierName',  title: '供应商',align:'center',templet:'#supplierName'} */
+    	    ,{field:'billCode',  title: '采购单编码',align:'center',width: 200}
+    	    ,{field:'billStatusName',  title: '采购单状态',align:'center',templet:'#billStatusName'}
+    	    ,{field:'auditStatusDictName',  title: '审核状态',align:'center',templet:'#auditStatusDictName'}
+    	    ,{field:'dateArrival',  title: '预计到货日期', align:'center'}
+    	    ,{field:'remark',  title: '备注', align:'center',width: 200}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',width: 200}
+      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+		 ,done: function () {
+	        $("[data-field='id']").css('display','none');
+	    } 
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+  	$('#supplierSearch').on('click',function(e){
+		openWinSelect('/firm/firmPartner/firmPartnerOpen',"supplierId","companyName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		var str='';
+		billStatusDictId=data.billStatusDictId;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑采购单','/bill/billPurchase/edit?id=' + data.id); 
+		}else if(obj.event === 'lookOver'){
+			layer_window_show('查看采购单','/bill/billPurchase/lookOver?id=' + data.id); 
+		}else if(obj.event === 'audit'){
+		  var statusD;
+      	  $.ajax({
+     		  url:'/bill/billPurchaseItem/checkData',
+     	      type: "POST",
+     	      async: false,
+     	      data: {billPurchaseId:data.id},
+     	      success: function (result) {
+     	    	  json = eval("("+result+")");//将json类型字符串转换为json对象
+     	    	 statusD = json.isSuccess;
+     	      }
+     	  });
+			if(statusD){
+			    url='/bill/billPurchase/save?SP='+'SP';//用于保存审核状态的url
+				auditStatusDictId=data.auditStatusDictId;
+				remark=data.remark;
+				id=data.id;
+				layer_window_show('单据审核','/bill/billPurchase/audit?id=' + data.id,"900","500"); 
+			}else{
+				str='采购单,请到维护采购单明细添加数据再审核！';
+				layer.alert("【"+data.billCode+"】"+str);
+			}
+		}else{
+			layer_window_show('维护采购单明细','/bill/billPurchaseItem/list?id=' + data.id+'&&billCode='+data.billCode);
+		}
+	});
+
+
+	laydate.render({
+		elem: '#deliveryTimeBegin' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+	});
+	
+	laydate.render({
+		elem: '#deliveryTimeEnd' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+	});
+	
+	laydate.render({
+		elem: '#createTimeBegin' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+	});
+	
+	laydate.render({
+		elem: '#createTimeEnd' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+	});
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	})
+});	
+</script>
+ 
+  </body>
+
+</html>

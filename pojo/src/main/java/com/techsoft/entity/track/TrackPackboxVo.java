@@ -1,0 +1,54 @@
+package com.techsoft.entity.track;
+
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.TrackPackbox;
+
+public class TrackPackboxVo extends TrackPackbox {
+	private static final long serialVersionUID = 4552522968456920303L;
+	private ConfigDictionary configDictionary;
+	private ConfigDictionary configDictionaryStatus;//状态
+	private ProductMain productMain;//物品
+	private ConfigDictionary productType;//物品类型
+	
+	public TrackPackboxVo() {	
+	}
+	
+	public TrackPackboxVo(TrackPackbox value) {
+		value.cloneProperties(this);
+	}
+
+	public ConfigDictionary getConfigDictionary() {
+		return configDictionary;
+	}
+
+	public void setConfigDictionary(ConfigDictionary configDictionary) {
+		this.configDictionary = configDictionary;
+	}
+
+	public ConfigDictionary getConfigDictionaryStatus() {
+		return configDictionaryStatus;
+	}
+
+	public void setConfigDictionaryStatus(ConfigDictionary configDictionaryStatus) {
+		this.configDictionaryStatus = configDictionaryStatus;
+	}
+
+	public ProductMain getProductMain() {
+		return productMain;
+	}
+
+	public void setProductMain(ProductMain productMain) {
+		this.productMain = productMain;
+	}
+
+	public ConfigDictionary getProductType() {
+		return productType;
+	}
+
+	public void setProductType(ConfigDictionary productType) {
+		this.productType = productType;
+	}		
+	
+	
+}

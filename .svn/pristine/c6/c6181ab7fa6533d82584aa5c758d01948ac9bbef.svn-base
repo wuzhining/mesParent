@@ -1,0 +1,272 @@
+package com.techsoft.controller.sys;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.sys.ClientAdminMenuService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumSystemType;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapUserStatus;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.common.persistence.ZTreeNode;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.AdminMenu;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.sys.AdminMenuParamVo;
+import com.techsoft.entity.sys.AdminMenuVo;
+
+@Controller
+@RequestMapping("/sys/adminMenu")
+public class AdminMenuController extends BaseController {
+	@Autowired
+	private ClientAdminMenuService clientAdminMenuService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		try{
+			//获取系统类型id
+			List<ConfigDictionary> dictionaryList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.SYSTEM_TYPE.getValue());
+			modelAndView.addObject("dictionaryList",dictionaryList);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());  
+		modelAndView.addObject("mapUserStatus", MapUserStatus.getMap());  
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("sys/adminMenu-list");
+		return modelAndView;
+	}
+	
+	@RequestMapping("/listPda")
+	public ModelAndView listPda(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("sys/adminMenu-listPda");
+		return modelAndView;
+	}
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		try {
+			//取后台数据
+			List<ConfigDictionary> dictionaryList = clientConfigDictionaryService
+					.selectListByParentId(EnumSystemType.SYSYTEM_TYPE_WEB.getValue());
+			modelAndView.addObject("dictionaryList", dictionaryList);
+			//取上级菜单集合
+			AdminMenuParamVo menuParamVo = new AdminMenuParamVo();
+			menuParamVo.setParent(0);
+			List<AdminMenu> adminMenu = clientAdminMenuService.selectListByParamVo(menuParamVo, this.getCommonParam(null));
+			modelAndView.addObject("adminMenu", adminMenu);
+			AdminMenuVo entity = new AdminMenuVo();
+			
+			if (id != null) {
+				entity = clientAdminMenuService.getVoByID(id, this.getCommonParam(request));
+				/*if(entity.getParentId() != null && entity.getParentId() > 0L){
+					menu = clientAdminMenuService.getVoByID(entity.getParentId(), this.getCommonParam(request));
+				}*/
+			}
+			modelAndView.addObject("entity", entity);
+			//modelAndView.addObject("menu", menu);
+			modelAndView.setViewName("sys/adminMenu-edit");
+			initData(modelAndView);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return modelAndView;
+	}
+
+	@RequestMapping("/editPda")
+	public ModelAndView editPda(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		try {
+			//取Pda数据
+			List<ConfigDictionary> dictionaryList = clientConfigDictionaryService
+					.selectListByParentId(EnumSystemType.SYSTEM_TYPE_PDA.getValue());
+			modelAndView.addObject("dictionaryList", dictionaryList);
+			//取上级菜单集合
+			AdminMenuParamVo menuParamVo = new AdminMenuParamVo();
+			menuParamVo.setParent(0);
+			List<AdminMenu> adminMenu = clientAdminMenuService.selectListByParamVo(menuParamVo, this.getCommonParam(null));
+			modelAndView.addObject("adminMenu", adminMenu);
+			AdminMenuVo entity = new AdminMenuVo();
+		
+			if (id != null) {
+				entity = clientAdminMenuService.getVoByID(id, this.getCommonParam(request));
+				/*if(entity.getParentId() != null && entity.getParentId() > 0L){
+					menu = clientAdminMenuService.getVoByID(entity.getParentId(), this.getCommonParam(request));
+				}*/
+			}
+			modelAndView.addObject("entity", entity);
+			//modelAndView.addObject("menu", menu);
+			modelAndView.setViewName("sys/adminMenu-edit");
+			initData(modelAndView);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return modelAndView;
+	}
+
+	
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			AdminMenuParamVo adminMenuParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}
+		try {
+            if(adminMenuParamVo==null){
+            	adminMenuParamVo = new AdminMenuParamVo();
+            }
+			pageInfo = clientAdminMenuService.selectPageVoByParamVo(
+					adminMenuParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			AdminMenuParamVo adminMenuParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+	    adminMenuParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientAdminMenuService.saveOrUpdate(adminMenuParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	@ResponseBody
+	@RequestMapping("/loadZtree")
+	public List<ZTreeNode> loadZtree(HttpServletRequest request,AdminMenuParamVo adminMenuParamVo, Integer pageIndex) {
+		List<ZTreeNode> nodeList = new ArrayList<ZTreeNode>();
+		try {
+			adminMenuParamVo.setSystemTypeDictId(EnumSystemType.SYSYTEM_TYPE_WEB.getValue());
+            List<AdminMenu> itemList= clientAdminMenuService.selectListByParamVo(adminMenuParamVo, this.getCommonParam(request));
+            List<AdminMenu> parentItemList= new ArrayList<AdminMenu>();
+			for(AdminMenu item : itemList){
+				   if(item.getParentId() == 0){
+					  parentItemList.add(item);
+				   }
+				}	
+				for(AdminMenu item : parentItemList){
+					ZTreeNode nodes = new ZTreeNode();
+					  
+					  List<ZTreeNode> list_sub = new ArrayList<ZTreeNode>();
+					  for(AdminMenu item2 : itemList){
+						   if(item2.getParentId().equals(item.getId())){
+							  ZTreeNode nodes2 = new ZTreeNode();
+							  nodes2.setId(item2.getId());
+							  nodes2.setParentId(item2.getParentId());
+							  nodes2.setName(item2.getMenuName());
+							  nodes2.setOpen(false);
+							  list_sub.add(nodes2);
+
+						   } 
+						 
+					 }
+					  nodes.setChildren(list_sub);
+					  nodes.setId(item.getId());
+					  nodes.setParentId(item.getParentId());
+					  nodes.setName(item.getMenuName());
+					  nodes.setOpen(false);
+					  nodeList.add(nodes);
+	  
+				}
+				
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return  nodeList;
+	}
+
+	@ResponseBody
+	@RequestMapping("/loadZtreePda")
+	public List<ZTreeNode> loadZtreePda(HttpServletRequest request,AdminMenuParamVo adminMenuParamVo, Integer pageIndex) {
+		List<ZTreeNode> nodeList = new ArrayList<ZTreeNode>();
+		try {
+			adminMenuParamVo.setSystemTypeDictId(EnumSystemType.SYSTEM_TYPE_PDA.getValue());
+            List<AdminMenu> itemList= clientAdminMenuService.selectListByParamVo(adminMenuParamVo, this.getCommonParam(request));
+            List<AdminMenu> parentItemList= new ArrayList<AdminMenu>();
+			for(AdminMenu item : itemList){
+				   if(item.getParentId() == 0){
+					  parentItemList.add(item);
+				   }
+				}	
+				for(AdminMenu item : parentItemList){
+					ZTreeNode nodes = new ZTreeNode();
+					  
+					  List<ZTreeNode> list_sub = new ArrayList<ZTreeNode>();
+					  for(AdminMenu item2 : itemList){
+						   if(item2.getParentId().equals(item.getId())){
+							  ZTreeNode nodes2 = new ZTreeNode();
+							  nodes2.setId(item2.getId());
+							  nodes2.setParentId(item2.getParentId());
+							  nodes2.setName(item2.getMenuName());
+							  nodes2.setOpen(false);
+							  list_sub.add(nodes2);
+
+						   } 
+						 
+					 }
+					  nodes.setChildren(list_sub);
+					  nodes.setId(item.getId());
+					  nodes.setParentId(item.getParentId());
+					  nodes.setName(item.getMenuName());
+					  nodes.setOpen(false);
+					  nodeList.add(nodes);
+	  
+				}
+				
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return  nodeList;
+	}
+
+
+}
+

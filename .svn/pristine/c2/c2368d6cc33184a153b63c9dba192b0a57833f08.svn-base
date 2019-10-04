@@ -1,0 +1,264 @@
+package com.techsoft.client.service.bill;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.bill.BillWarehouseItemParamVo;
+import com.techsoft.entity.bill.BillWarehouseItemVo;
+import com.techsoft.entity.common.BillWarehouseItem;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.service.bill.BillWarehouseItemService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.track.TrackBarcodeService;
+
+@org.springframework.stereotype.Service
+public class ClientBillWarehouseItemServiceImpl extends BaseClientServiceImpl<BillWarehouseItem>
+		implements ClientBillWarehouseItemService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseItemService billWarehouseItemService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService; 
+	@com.alibaba.dubbo.config.annotation.Reference
+	private TrackBarcodeService trackBarcodeService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+	
+	@Override
+	public BaseService<BillWarehouseItem> getBaseService() {
+		return billWarehouseItemService;
+	}
+
+	private BillWarehouseItemVo getVo(BillWarehouseItem billWarehouseItem, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillWarehouseItemVo vo = new BillWarehouseItemVo(billWarehouseItem);
+		if (vo.getBillStatusDictId() != null && vo.getBillStatusDictId() > 0L) {
+			ConfigDictionary billStatus = configDictionaryService.selectById(vo.getBillStatusDictId(), commonParam);
+			if (billStatus != null) {
+				vo.setBillStatus(billStatus);
+			}
+		}
+		if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+			ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(), commonParam);
+			if (productMaterial != null) {
+				if(productMaterial.getSkuValue()!=null&&productMaterial.getSkuValue()!=""){
+					ProductMaterialVo productMateriaVo=new ProductMaterialVo();
+					productMateriaVo.setSkuValue(productMaterial.getSkuValue());
+					vo.setProductMaterialVo(productMateriaVo);
+					
+				}
+				
+				if(productMaterial.getProductTypeDictId() !=null && productMaterial.getProductTypeDictId() > 0L){
+					ConfigDictionary productType = configDictionaryService.selectById(productMaterial.getProductTypeDictId(), commonParam);
+					if (productType != null) {
+							vo.setProductType(productType);
+					}
+				}
+				vo.setProductMaterial(productMaterial);
+			}
+		}
+		
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productMain = productMainService.selectById(vo.getProductId(), commonParam);
+			if (productMain != null) {
+				vo.setProductMain(productMain);
+			}
+		}
+		return vo;
+	}
+
+	private BillWarehouseItemVo getExtendVo(BillWarehouseItem billWarehouseItem, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillWarehouseItemVo vo = this.getVo(billWarehouseItem, commonParam);
+
+		return vo;
+	}
+
+	private List<BillWarehouseItemVo> getVoList(List<BillWarehouseItem> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWarehouseItemVo> voList = new ArrayList<BillWarehouseItemVo>();
+		for (BillWarehouseItem entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<BillWarehouseItemVo> getExtendVoList(List<BillWarehouseItem> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWarehouseItemVo> voList = new ArrayList<BillWarehouseItemVo>();
+		for (BillWarehouseItem entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public BillWarehouseItemVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillWarehouseItem entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<BillWarehouseItemVo> selectListVoByParamVo(BillWarehouseItemParamVo billWarehouseItem,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (billWarehouseItem == null) {
+			billWarehouseItem = new BillWarehouseItemParamVo();
+		}
+		billWarehouseItem.setTenantId(commonParam.getTenantId());
+
+		List<BillWarehouseItem> list = (List<BillWarehouseItem>) this.getBaseService()
+				.selectListByParamVo(billWarehouseItem, commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<BillWarehouseItemVo> selectPageVoByParamVo(BillWarehouseItemParamVo billWarehouseItem,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (billWarehouseItem == null) {
+			billWarehouseItem = new BillWarehouseItemParamVo();
+		}
+		billWarehouseItem.setTenantId(commonParam.getTenantId());
+
+		PageInfo<BillWarehouseItem> list = (PageInfo<BillWarehouseItem>) this.getBaseService()
+				.selectPageByParamVo(billWarehouseItem, commonParam, pageNo, pageSize);
+		List<BillWarehouseItemVo> volist = new ArrayList<BillWarehouseItemVo>();
+
+		Iterator<BillWarehouseItem> iter = list.getList().iterator();
+		BillWarehouseItemVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<BillWarehouseItemVo> vpage = new Page<BillWarehouseItemVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public BillWarehouseItemVo getExtendVoByID(Long id, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillWarehouseItem entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<BillWarehouseItemVo> selectListExtendVoByParamVo(BillWarehouseItemParamVo billWarehouseItem,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (billWarehouseItem == null) {
+			billWarehouseItem = new BillWarehouseItemParamVo();
+		}
+		billWarehouseItem.setTenantId(commonParam.getTenantId());
+
+		List<BillWarehouseItem> list = (List<BillWarehouseItem>) this.getBaseService()
+				.selectListByParamVo(billWarehouseItem, commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<BillWarehouseItemVo> selectPageExtendVoByParamVo(BillWarehouseItemParamVo billWarehouseItem,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (billWarehouseItem == null) {
+			billWarehouseItem = new BillWarehouseItemParamVo();
+		}
+		billWarehouseItem.setTenantId(commonParam.getTenantId());
+
+		PageInfo<BillWarehouseItem> list = (PageInfo<BillWarehouseItem>) this.getBaseService()
+				.selectPageByParamVo(billWarehouseItem, commonParam, pageNo, pageSize);
+		List<BillWarehouseItemVo> volist = new ArrayList<BillWarehouseItemVo>();
+
+		Iterator<BillWarehouseItem> iter = list.getList().iterator();
+		BillWarehouseItemVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<BillWarehouseItemVo> vpage = new Page<BillWarehouseItemVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(BillWarehouseItemParamVo billWarehouseItemParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		BillWarehouseItem billWarehouseItem = null;
+		try {
+			//查询产品
+			if (billWarehouseItemParamVo.getMaterialId()!=null) {
+				ProductMaterial productMaterial=productMaterialService.selectById(billWarehouseItemParamVo.getMaterialId(), commonParam);
+			    if(productMaterial!=null){
+			    	billWarehouseItemParamVo.setProductId(productMaterial.getProductId());
+			    }
+			}
+			
+			if (billWarehouseItemParamVo.getId() == null) {// 新增
+
+				billWarehouseItemParamVo.setTenantId(commonParam.getTenantId());
+				billWarehouseItem = billWarehouseItemService.saveOrUpdate(billWarehouseItemParamVo, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				BillWarehouseItem billWarehouseItemVoTemp = this.selectById(billWarehouseItemParamVo.getId(),
+						commonParam);
+
+				BeanUtil.copyNotNullProperties(billWarehouseItemVoTemp, billWarehouseItemParamVo);
+
+				billWarehouseItem = billWarehouseItemService.saveOrUpdate(billWarehouseItemVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(billWarehouseItem);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage updateBillStatus(BillWarehouseItemVo billWarehouseItemVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		try {
+			billWarehouseItemService.updateBillItemStatus(billWarehouseItemVo.getBillId(),
+					billWarehouseItemVo.getBillStatusDictId(), commonParam);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+}

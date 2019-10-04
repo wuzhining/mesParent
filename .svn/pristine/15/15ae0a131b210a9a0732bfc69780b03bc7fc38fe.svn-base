@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">设备管理</a> <a><cite>生产设备维护</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+         <!--  <input type="text" name="departmentName"  placeholder="请输入部门名" autocomplete="off" class="layui-input"> -->
+            <input type="hidden" name="factoryId" id="factoryId" placeholder="请选择工厂id" autocomplete="off" class="layui-input">
+	       	<input type="text" name="factoryName" id="factoryName" placeholder="请选择工厂名称" autocomplete="off" class="layui-input">
+	           <button class="layui-btn layui-btn-sm  " id="factorySearch" style="background-color: #009688;color:#FFFFFF" >
+				<i class="layui-icon layui-icon-more" ></i>
+			</button>
+           <input type="hidden" name="workshopAreaId" id="workshopAreaId" placeholder="请选择车间区域" autocomplete="off" class="layui-input">
+       	   <input type="text" name="areaName" id="areaName" placeholder="请选择车间区域" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="workshopAreaSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		   </button> 
+		  <input type="text" name="equipCodeLike"  placeholder="请输入设备编码" autocomplete="off" class="layui-input">
+          <input type="text" name="equipLabelLike"  placeholder="请输入设备标签" autocomplete="off" class="layui-input">
+          <input type="text" name="equipNameLike"  placeholder="请输入备名称" autocomplete="off" class="layui-input">
+          <input type="text" name="equipPatternLike"  placeholder="请输入备型号" autocomplete="off" class="layui-input">
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button> 
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加生产设备','/equip/equipWork/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script> 
+
+<script type="text/html" id="classesName">
+	{{#  if(d.equipClassesWork){}}
+		{{ d.equipClassesWork.classesName 
+
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="equipStatusDictName">
+	{{#  if(d.configDictionaryStatus){}}
+		{{ d.configDictionaryStatus.dictName 
+
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="factoryName2">
+	{{#  if(d.structFactory){}}
+		{{ d.structFactory.factoryName 
+ 	}}
+	{{# } }}
+</script>
+<!-- 车间 -->
+<script type="text/html" id="workshopNameTpl">
+	{{#  if(d.structWorkshop){}}
+		{{ d.structWorkshop.workshopName 
+ 	}}
+	{{# } }}
+</script>
+<!-- 车间区域 -->
+<script type="text/html" id="areaNameTpl">
+	{{#  if(d.structWorkshopArea){}}
+		{{ d.structWorkshopArea.areaName 
+ 	}}
+	{{# } }}
+</script>
+<!-- 工位编码 -->
+<script type="text/html" id="workstationCode">
+	{{#  if(d.structWorkstation){}}
+		{{ d.structWorkstation.workstationCode 
+ 	}}
+	{{# } }}
+</script>
+<!-- 工位名称 -->
+<script type="text/html" id="workstationName">
+	{{#  if(d.structWorkstation){}}
+		{{ d.structWorkstation.workstationName 
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="productionlineName">
+	{{#  if(d.structProductionline){}}
+		{{ d.structProductionline.productionlineName 
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="nodeNames">
+	{{#  if(d.structProcessNode){}}
+		{{ d.structProcessNode.nodeNames
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/equip/equipWork/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: 'ID',align:'center'}
+    	    ,{field:'equipCode', width:160, title: '生产设备编码',align:'center'}
+    	    ,{field:'equipName',  title: '生产设备名称',align:'center', minWidth: 160}
+    	    ,{field:'equipLabel', width:150, title: '设备标签', align:'center'}
+    	    ,{field:'equipPattern',  title: '设备型号',align:'center'}
+    	    ,{field:'classesId',  title: '设备分类', align:'center',templet:'#classesName'}
+    	    ,{field:'equipStatusDictId',  title: '设备状态id', align:'center'}
+    	    ,{field:'equipStatusDictName',  title: '设备状态', align:'center',templet:'#equipStatusDictName'}
+    	    ,{field:'factoryId', width:150, title: '工厂名称id', align:'center'}
+    	    ,{field:'factoryName', width:150, title: '工厂名称', align:'center',templet: '#factoryName2'}
+    	    ,{field:'workshopId',  title: '车间', align:'center',templet:'#workshopNameTpl'}
+    	    ,{field:'workshopAreaId',  title: '车间区域', align:'center',templet:'#areaNameTpl'}
+    	    ,{field:'workstationId', width:150, title: '工位编码', align:'center',templet:'#workstationCode'}
+    	    ,{field:'workstationName', width:150, title: '工位名称', align:'center',templet:'#workstationName'}
+    	    ,{field:'speedWorktime',  title: '生产速度-工时（毫秒）',align:'center', minWidth: 175}
+    	    ,{field:'speedQuantity',  title: '生产速度-数量',align:'center'}
+    	    /* ,{field:'productionlineId',  title: '产线',align:'center'} */
+    	    /* ,{field:'productionlineName',  title: '产线',align:'center',templet: '#productionlineName'} */
+    	   /*  ,{field:'processNodeId',  title: '节点编码',align:'center'}
+    	    ,{field:'nodeNames',  title: '节点名称',align:'center',templet: '#nodeNames'} */
+    	    ,{field:'ipaddress',  title: 'ip地址', align:'center'}
+    	    ,{field:'hoursMaintain',  title: '保养时长', align:'center'}
+    	    ,{field:'standarlive',  title: '标准寿命',align:'center'}
+    	    ,{field:'dateMake',  title: '制造日期', align:'center'}
+    	    ,{field:'dateEnter',  title: '入厂日期', align:'center'}
+    	    ,{field:'macaddress',  title: 'MAC地址',align:'center'}
+    	    ,{field:'remark',  title: '描述', align:'center'}
+      		,{field:'', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+		,done: function () {
+	        $("[data-field='equipStatusDictId']").css('display','none');
+	        $("[data-field='factoryId']").css('display','none');
+	        $("[data-field='id']").css('display','none');
+	    }
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+   $('#workshopAreaSearch').on('click',function(e){
+	   openWinSelect('/struct/structWorkshopArea/structWorkshopAreaOpen',"workshopAreaId","areaName");
+  		e.preventDefault();//默认from表单提交时不刷新
+   })
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		//var workstationName = data.structWorkstation.workstationName;//投板
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑生产设备维护','/equip/equipWork/edit?id=' + data.id/*  /* +'&&nodeNames='+data.structProcessNode.nodeNames +'&&workstationName='+workstationName */);
+		}
+	});
+	
+	$('#factorySearch').on('click',function(e){
+   		openWinSelect('/struct/structFactory/structFactoryOpen',"factoryId","factoryName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+    $('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	})
+   	//清空
+	$("#factoryName").blur(function(){
+		if($('#factoryName').val() == ""){
+			$('#factoryId').val("");
+		}
+	});
+});	
+</script>
+ 
+  </body>
+
+</html>      

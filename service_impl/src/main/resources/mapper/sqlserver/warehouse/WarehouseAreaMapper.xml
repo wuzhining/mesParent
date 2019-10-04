@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.warehouse.WarehouseAreaMapper">
+	<resultMap id="WarehouseArea" type="com.techsoft.entity.common.WarehouseArea" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="WAREHOUSE_ID" property="warehouseId" />
+		<result column="AREA_CODE" property="areaCode" />
+		<result column="AREA_NAME" property="areaName" />
+		<result column="PARENT_ID" property="parentId" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="BASE_COORDINATE_X" property="baseCoordinateX" />
+		<result column="BASE_COORDINATE_Y" property="baseCoordinateY" />
+		<result column="BASE_COORDINATE_Z" property="baseCoordinateZ" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="warehouseId != null">
+			AND A.WAREHOUSE_ID= #{warehouseId}
+		</if>
+		<if test="areaCode != null">
+			AND A.AREA_CODE= #{areaCode}
+		</if>
+		<if test="areaName != null">
+			AND A.AREA_NAME= #{areaName}
+		</if>
+		<if test="parentId != null">
+			AND A.PARENT_ID= #{parentId}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="baseCoordinateX != null">
+			AND A.BASE_COORDINATE_X= #{baseCoordinateX}
+		</if>
+		<if test="baseCoordinateY != null">
+			AND A.BASE_COORDINATE_Y= #{baseCoordinateY}
+		</if>
+		<if test="baseCoordinateZ != null">
+			AND A.BASE_COORDINATE_Z= #{baseCoordinateZ}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<if test="parent != null">
+			AND A.PARENT_ID= #{parent}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.WAREHOUSE_ID,
+		A.AREA_CODE,
+		A.AREA_NAME,
+		A.PARENT_ID,
+		A.IS_VALID,
+		A.BASE_COORDINATE_X,
+		A.BASE_COORDINATE_Y,
+		A.BASE_COORDINATE_Z,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for WAREHOUSE_AREA_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from WAREHOUSE_AREA
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.WarehouseArea">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_AREA A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.WarehouseArea">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_AREA A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM WAREHOUSE_AREA A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE   A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM WAREHOUSE_AREA A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseArea">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM WAREHOUSE_AREA A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseArea">
+		INSERT INTO WAREHOUSE_AREA (
+		TENANT_ID,
+		FACTORY_ID,
+		WAREHOUSE_ID,
+		AREA_CODE,
+		AREA_NAME,
+		PARENT_ID,
+		IS_VALID,
+		BASE_COORDINATE_X,
+		BASE_COORDINATE_Y,
+		BASE_COORDINATE_Z,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{warehouseId},
+		#{areaCode},
+		#{areaName},
+		#{parentId},
+		#{isValid},
+		#{baseCoordinateX},
+		#{baseCoordinateY},
+		#{baseCoordinateZ},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseArea">
+		UPDATE WAREHOUSE_AREA SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		WAREHOUSE_ID=#{warehouseId},
+		AREA_CODE=#{areaCode},
+		AREA_NAME=#{areaName},
+		PARENT_ID=#{parentId},
+		IS_VALID=#{isValid},
+		BASE_COORDINATE_X=#{baseCoordinateX},
+		BASE_COORDINATE_Y=#{baseCoordinateY},
+		BASE_COORDINATE_Z=#{baseCoordinateZ},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseArea">
+		UPDATE WAREHOUSE_AREA SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="warehouseId != null" >
+			WAREHOUSE_ID=#{warehouseId},
+		</if>
+		<if test="areaCode != null" >
+			AREA_CODE=#{areaCode},
+		</if>
+		<if test="areaName != null" >
+			AREA_NAME=#{areaName},
+		</if>
+		<if test="parentId != null" >
+			PARENT_ID=#{parentId},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="baseCoordinateX != null" >
+			BASE_COORDINATE_X=#{baseCoordinateX},
+		</if>
+		<if test="baseCoordinateY != null" >
+			BASE_COORDINATE_Y=#{baseCoordinateY},
+		</if>
+		<if test="baseCoordinateZ != null" >
+			BASE_COORDINATE_Z=#{baseCoordinateZ},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.warehouse.WarehouseAreaParamVo"
+		      resultType="com.techsoft.entity.common.WarehouseArea" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_AREA A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

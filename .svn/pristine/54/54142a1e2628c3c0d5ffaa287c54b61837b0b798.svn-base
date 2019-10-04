@@ -1,0 +1,5 @@
+#Created by XuGuoJun 
+
+#dubbo
+dubbo.address=127.0.0.1:2181
+dubbo.timeout=10000000

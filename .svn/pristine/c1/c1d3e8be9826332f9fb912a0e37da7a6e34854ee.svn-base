@@ -1,0 +1,304 @@
+package com.techsoft.client.service.history;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.BillInventory;
+import com.techsoft.entity.common.BillInventoryItem;
+import com.techsoft.entity.common.HistoryInventoryLocation;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.common.StructWorkshopArea;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.entity.common.WarehouseLocation;
+import com.techsoft.entity.common.WarehouseRack;
+import com.techsoft.entity.history.HistoryInventoryLocationParamVo;
+import com.techsoft.entity.history.HistoryInventoryLocationVo;
+import com.techsoft.service.bill.BillInventoryItemService;
+import com.techsoft.service.bill.BillInventoryService;
+import com.techsoft.service.history.HistoryInventoryLocationService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.struct.StructWarehouseService;
+import com.techsoft.service.struct.StructWorkshopAreaService;
+import com.techsoft.service.sys.UserPassportService;
+import com.techsoft.service.warehouse.WarehouseLocationService;
+import com.techsoft.service.warehouse.WarehouseRackService;
+
+@org.springframework.stereotype.Service
+public class ClientHistoryInventoryLocationServiceImpl extends BaseClientServiceImpl<HistoryInventoryLocation> implements ClientHistoryInventoryLocationService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private HistoryInventoryLocationService historyInventoryLocationService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private UserPassportService userPassportService;//创建人
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillInventoryService billInventoryService;//单据
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillInventoryItemService billInventoryItemService;//单据明细
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;//产品
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService;//产品规格
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWarehouseService structWarehouseService;//仓库
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopAreaService structWorkshopAreaService;//仓库区域
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WarehouseRackService warehouseRackService;//仓库库位组(货架)
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WarehouseLocationService warehouseLocationService;//仓库库位
+	
+	@Override
+	public BaseService<HistoryInventoryLocation> getBaseService() {
+		return historyInventoryLocationService;
+	}	    	
+    
+	private HistoryInventoryLocationVo getVo(HistoryInventoryLocation historyInventoryLocation, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryInventoryLocationVo vo = new HistoryInventoryLocationVo(historyInventoryLocation);
+		// TODO 此处填充其它关联字段的处理代码
+		//单据
+		if (vo.getBillId() != null && vo.getBillId() > 0L) {
+			BillInventory billinventory = billInventoryService.selectById(vo.getBillId(),commonParam);
+			if (billinventory != null) {
+				vo.setBillInventory(billinventory);
+			}
+		}
+		
+		//单据明细
+		if (vo.getBillItemId() != null && vo.getBillItemId() > 0L) {
+			BillInventoryItem billinventoryItem = billInventoryItemService.selectById(vo.getBillItemId(),commonParam);
+			if (billinventoryItem != null) {
+				vo.setBillInventoryItem(billinventoryItem);
+			}
+		}
+		//产品
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productMain = productMainService.selectById(vo.getProductId(),commonParam);
+			if (productMain != null) {
+				vo.setProductMain(productMain);
+			}
+		}
+		//产品规格
+		if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+			ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(),commonParam);
+			if (productMaterial != null) {
+				vo.setProductMaterial(productMaterial);
+			}
+		}
+		
+		
+		//仓库
+		if (vo.getWarehouseId() != null && vo.getWarehouseId() > 0L) {
+			StructWarehouse structWarehouse = structWarehouseService.selectById(vo.getWarehouseId(),commonParam);
+			if (structWarehouse != null) {
+				vo.setStructWarehouse(structWarehouse);
+			}
+		}
+		
+		
+		//仓库区域
+		if (vo.getAreaId() != null && vo.getAreaId() > 0L) {
+			StructWorkshopArea structWorkshopArea = structWorkshopAreaService.selectById(vo.getAreaId(),commonParam);
+			if (structWorkshopArea != null) {
+				vo.setStructWorkshopArea(structWorkshopArea);
+			}
+		}
+		
+		
+		//仓库库位组(货架)
+		if (vo.getRackId() != null && vo.getRackId() > 0L) {
+			WarehouseRack structWorkshopArea = warehouseRackService.selectById(vo.getRackId(),commonParam);
+			if (structWorkshopArea != null) {
+				vo.setWarehouseRack(structWorkshopArea);
+			}
+		}
+		
+		
+		//仓库库位
+		if (vo.getLocationId() != null && vo.getLocationId() > 0L) {
+			WarehouseLocation structWorkshopArea = warehouseLocationService.selectById(vo.getLocationId(),commonParam);
+			if (structWorkshopArea != null) {
+				vo.setWarehouseLocation(structWorkshopArea);
+			}
+		}
+		
+		
+		
+		//创建人
+		if (vo.getCreateUserId() != null && vo.getCreateUserId() > 0L) {
+			UserPassport userPassport =userPassportService.selectById(vo.getCreateUserId(),
+					commonParam);
+			if (userPassport != null) {
+				vo.setCaretUserPassport(userPassport);
+			}
+		}	
+		//修改人
+		if (vo.getModifyUserId() != null && vo.getModifyUserId() > 0L) {
+			UserPassport userPassport =userPassportService.selectById(vo.getModifyUserId(),
+					commonParam);
+			if (userPassport != null) {
+				vo.setModifyUserPassport(userPassport);
+			}
+		}
+		return vo;
+	} 
+	
+	private HistoryInventoryLocationVo getExtendVo(HistoryInventoryLocation historyInventoryLocation, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryInventoryLocationVo vo = this.getVo(historyInventoryLocation, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	} 
+		
+	private List<HistoryInventoryLocationVo> getVoList(List<HistoryInventoryLocation> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<HistoryInventoryLocationVo> voList = new ArrayList<HistoryInventoryLocationVo>();
+		for (HistoryInventoryLocation entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	private List<HistoryInventoryLocationVo> getExtendVoList(List<HistoryInventoryLocation> list, CommonParam commonParam) throws BusinessException, SQLException {
+		List<HistoryInventoryLocationVo> voList = new ArrayList<HistoryInventoryLocationVo>();
+		for (HistoryInventoryLocation entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+		
+		return voList;
+	}	
+	
+	public HistoryInventoryLocationVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryInventoryLocation entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getVo(entity, commonParam);
+	}
+	
+	public List<HistoryInventoryLocationVo>  selectListVoByParamVo(HistoryInventoryLocationParamVo historyInventoryLocation, CommonParam commonParam) throws BusinessException, SQLException {
+		if(historyInventoryLocation==null){
+			historyInventoryLocation = new HistoryInventoryLocationParamVo();
+		}
+		historyInventoryLocation.setTenantId(commonParam.getTenantId());	
+	
+		List<HistoryInventoryLocation> list = (List<HistoryInventoryLocation>) this.getBaseService().selectListByParamVo(historyInventoryLocation, commonParam);
+		
+		return getVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<HistoryInventoryLocationVo> selectPageVoByParamVo(HistoryInventoryLocationParamVo historyInventoryLocation, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(historyInventoryLocation==null){
+			historyInventoryLocation = new HistoryInventoryLocationParamVo();
+		}
+		historyInventoryLocation.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<HistoryInventoryLocation> list  = (PageInfo<HistoryInventoryLocation>) this.getBaseService().selectPageByParamVo(historyInventoryLocation, commonParam, pageNo, pageSize);
+		List<HistoryInventoryLocationVo> volist = new ArrayList<HistoryInventoryLocationVo>();
+		
+		Iterator<HistoryInventoryLocation> iter = list.getList().iterator();
+		HistoryInventoryLocationVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<HistoryInventoryLocationVo> vpage = new Page<HistoryInventoryLocationVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public HistoryInventoryLocationVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		HistoryInventoryLocation entity = this.getBaseService().selectById(id, commonParam);
+		
+		return this.getExtendVo(entity, commonParam);
+	}
+	
+	public List<HistoryInventoryLocationVo>  selectListExtendVoByParamVo(HistoryInventoryLocationParamVo historyInventoryLocation, CommonParam commonParam) 
+			throws BusinessException, SQLException {
+		if(historyInventoryLocation==null){
+			historyInventoryLocation = new HistoryInventoryLocationParamVo();
+		}
+		historyInventoryLocation.setTenantId(commonParam.getTenantId());	
+					
+		List<HistoryInventoryLocation> list = (List<HistoryInventoryLocation>) this.getBaseService().selectListByParamVo(historyInventoryLocation, commonParam);
+		
+		return this.getExtendVoList(list, commonParam);
+	}
+	
+	@SuppressWarnings({"unchecked", "rawtypes" })
+	public PageInfo<HistoryInventoryLocationVo> selectPageExtendVoByParamVo(HistoryInventoryLocationParamVo historyInventoryLocation, CommonParam commonParam, int pageNo, int pageSize) 
+			throws BusinessException, SQLException {
+		if(historyInventoryLocation==null){
+			historyInventoryLocation = new HistoryInventoryLocationParamVo();
+		}
+		historyInventoryLocation.setTenantId(commonParam.getTenantId());	
+					
+		PageInfo<HistoryInventoryLocation> list  = (PageInfo<HistoryInventoryLocation>) this.getBaseService().selectPageByParamVo(historyInventoryLocation, commonParam, pageNo, pageSize);
+		List<HistoryInventoryLocationVo> volist = new ArrayList<HistoryInventoryLocationVo>();
+		
+		Iterator<HistoryInventoryLocation> iter = list.getList().iterator();
+		HistoryInventoryLocationVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+		
+		Page<HistoryInventoryLocationVo> vpage = new Page<HistoryInventoryLocationVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+		
+		return new PageInfo(vpage);
+	}	
+	
+	public ResultMessage saveOrUpdate(HistoryInventoryLocationParamVo historyInventoryLocationParamVo, CommonParam commonParam) { 
+		ResultMessage resultMessage = new ResultMessage(); 
+		HistoryInventoryLocation historyInventoryLocation = null;
+		try {
+			if (historyInventoryLocationParamVo.getId() == null) {//新增
+			 
+				historyInventoryLocationParamVo.setTenantId(commonParam.getTenantId());
+				historyInventoryLocation = historyInventoryLocationService.saveOrUpdate(historyInventoryLocationParamVo,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			} else {  //修改
+				HistoryInventoryLocation historyInventoryLocationVoTemp = this.selectById(historyInventoryLocationParamVo
+						.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(historyInventoryLocationVoTemp,
+						historyInventoryLocationParamVo);
+  
+				historyInventoryLocation = historyInventoryLocationService.saveOrUpdate(
+						historyInventoryLocationVoTemp, commonParam); 
+  
+				resultMessage.setIsSuccess(true);
+			}
+			
+			resultMessage.setBaseEntity(historyInventoryLocation);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultMessage;
+	}	
+}

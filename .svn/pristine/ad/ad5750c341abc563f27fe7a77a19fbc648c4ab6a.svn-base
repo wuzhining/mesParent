@@ -1,0 +1,24 @@
+package com.techsoft.entity.work;
+
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.entity.common.WorkTaskProcedure;
+
+public class WorkTaskProcedureVo extends WorkTaskProcedure {
+	private static final long serialVersionUID = -880453199314542426L;
+	private StructProcessNode structProcessNode;
+
+	public WorkTaskProcedureVo() {
+	}
+
+	public WorkTaskProcedureVo(WorkTaskProcedure value) {
+		value.cloneProperties(this);
+	}
+
+	public StructProcessNode getStructProcessNode() {
+		return structProcessNode;
+	}
+
+	public void setStructProcessNode(StructProcessNode structProcessNode) {
+		this.structProcessNode = structProcessNode;
+	}
+}

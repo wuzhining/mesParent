@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+            <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+			     	 <form  id="skuVules" method="post" class="layui-form">
+				     	 <table id="tableSku">
+				     	  <#if skuNameList??>
+		                 	<#list skuNameList as item>
+				     	 	<tr>
+				     	 		<td>
+					              <div class="layui-form-item">
+								    <label class="layui-form-label">规格名称</label>
+								    <div class="layui-input-inline">
+								      <input type="text" id="skuname" name="skuname" disabled="disabled" value="${item.skuName}"  autocomplete="off" class="layui-input">
+								    </div>
+								  </div>
+				     	 		</td>
+				     	 		<td >
+					              <div class="layui-form-item">
+								    <label class="layui-form-label">规格值</label>
+								    <div class="layui-input-inline">
+								      <input type="text"  id="skuvlue" name="skuvalue" lay-verify="required"   placeholder="请输入" autocomplete="off" class="layui-input">
+								    </div>
+				                  
+								  </div>
+								 </td>
+				     	 	</tr>
+				     	 	  </#list>
+					         </#if>
+				     	 	<tr>
+				     	 		<td style="float: right"><button class="layui-btn" lay-submit="" lay-filter="addSelect">确定</button>	</td>
+				     	 		<td style="padding-left: 60px"><button class="layui-btn" id="resultOpen" >取消</button>	</td>
+				     	 	</tr>
+				     	 </table>
+			     	 </form>
+        		</div>
+        	</div>
+        
+        </div>
+    </div>
+</div>   
+</body>
+
+ 
+<script type="text/javascript">
+var returnData = [];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use(['form','table','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery,  table = layui.table,layuitable = layui.layuitable
+	layer = layui.layer;
+	
+	
+	var skuValues=parent.skuValues;
+		if(skuValues!=null&&skuValues!=""){
+			skuValues=JSON.parse(skuValues);
+		 var skuNames =document.getElementsByName("skuname");//拿所有相同的name的值
+		 var skuvalues =document.getElementsByName("skuvalue");
+		 if(skuValues!="undefined"&&skuValues!=""&&skuValues!=null&&skuNames.length>0&&skuvalues.length>0){
+			 var str="";
+	   	 for (var i = 0; i < skuValues.length; i++) {
+				if(skuNames[i].value==skuValues[i].name){
+					skuvalues[i].value=skuValues[i].value;
+				}
+	   	 	str+=skuValues[i].name+":"+skuValues[i].value;
+				if(skuValues.length>0&&i!=skuValues.length-1){
+	   			str+=","; 
+	   		 }
+			}
+			
+		}
+   	 
+   	 $("#skuValues").val(str);
+	 }
+	
+	 
+	  //弹窗取消按钮
+     $('#resultOpen').on('click',function(e){
+			// layer.close(layer.index);
+			var index=parent.layer.getFrameIndex(window.name); //获取当前窗口的name
+               parent.layer.close(index);
+  		e.preventDefault();//默认from表单提交时不刷新
+  	 
+  	})
+	 form.on('submit(addSelect)', function(data){
+   	  var skuVuleData=data.field;
+			var skuNames =document.getElementsByName("skuname");//拿所有相同的name的值
+			var skuvalues =document.getElementsByName("skuvalue");
+   	 var skuJson={};
+   	 var str="[";
+   	 for (var i = 0; i < skuNames.length; i++) {
+   		 var skuName=skuNames[i].value;
+   		 var skuValue=skuvalues[i].value;
+   		 
+   		 str+='{"name":"'+skuName+'","value":"'+skuValue+'"}';
+   		 if(skuNames.length>0&&i!=skuNames.length-1){
+   			str+=","; 
+   		 }
+		}
+   	 str+="]";
+   	 parent.$("#skuValues").val(str);
+   	var index=parent.layer.getFrameIndex(window.name); //获取当前窗口的name
+    parent.layer.close(index); 
+   	//  layer.close(layer.index);
+     return false;
+   });
+	 
+	 
+
+ 
+});	
+function selected() {
+	return returnData;
+}
+</script>
+ 
+  
+
+</html>

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.struct.StructWarehouseMapper">
+	<resultMap id="StructWarehouse" type="com.techsoft.entity.common.StructWarehouse" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="FLOOR_ID" property="floorId" />
+		<result column="WAREHOUSE_NAME" property="warehouseName" />
+		<result column="WAREHOUSE_CODE" property="warehouseCode" />
+		<result column="WAREHOUSE_TYPE_DICT_ID" property="warehouseTypeDictId" />
+		<result column="PRODUCT_TYPE_DICT_ID" property="productTypeDictId" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="floorId != null">
+			AND A.FLOOR_ID= #{floorId}
+		</if>
+		<if test="warehouseName != null">
+			AND A.WAREHOUSE_NAME= #{warehouseName}
+		</if>
+		<if test="warehouseCode != null">
+			AND A.WAREHOUSE_CODE= #{warehouseCode}
+		</if>
+		<if test="warehouseTypeDictId != null">
+			AND A.WAREHOUSE_TYPE_DICT_ID= #{warehouseTypeDictId}
+		</if>
+		<if test="productTypeDictId != null">
+			AND A.PRODUCT_TYPE_DICT_ID= #{productTypeDictId}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<if test="npstoreId != null">
+			AND A.ID != #{npstoreId}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	    <if test="likeId != null">
+		  <bind name="ID" value="'%' + _parameter.likeId + '%'" />
+		  AND A.ID LIKE #{ID}
+		</if>
+		<if test="likeWarehouseName != null">
+		  <bind name="likeWarehouseName" value="'%' + _parameter.likeWarehouseName + '%'" />
+		  AND A.WAREHOUSE_NAME LIKE #{likeWarehouseName}
+		</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.FLOOR_ID,
+		A.WAREHOUSE_NAME,
+		A.WAREHOUSE_CODE,
+		A.WAREHOUSE_TYPE_DICT_ID,
+		A.PRODUCT_TYPE_DICT_ID,
+		A.IS_VALID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for STRUCT_WAREHOUSE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from STRUCT_WAREHOUSE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.StructWarehouse">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_WAREHOUSE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.StructWarehouse">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_WAREHOUSE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_WAREHOUSE A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE   A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_WAREHOUSE A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.StructWarehouse">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM STRUCT_WAREHOUSE A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructWarehouse">
+		INSERT INTO STRUCT_WAREHOUSE (
+		TENANT_ID,
+		FACTORY_ID,
+		FLOOR_ID,
+		WAREHOUSE_NAME,
+		WAREHOUSE_CODE,
+		WAREHOUSE_TYPE_DICT_ID,
+		PRODUCT_TYPE_DICT_ID,
+		IS_VALID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{floorId},
+		#{warehouseName},
+		#{warehouseCode},
+		#{warehouseTypeDictId},
+		#{productTypeDictId},
+		#{isValid},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructWarehouse">
+		UPDATE STRUCT_WAREHOUSE SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		FLOOR_ID=#{floorId},
+		WAREHOUSE_NAME=#{warehouseName},
+		WAREHOUSE_CODE=#{warehouseCode},
+		WAREHOUSE_TYPE_DICT_ID=#{warehouseTypeDictId},
+		PRODUCT_TYPE_DICT_ID=#{productTypeDictId},
+		IS_VALID=#{isValid},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.StructWarehouse">
+		UPDATE STRUCT_WAREHOUSE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="floorId != null" >
+			FLOOR_ID=#{floorId},
+		</if>
+		<if test="warehouseName != null" >
+			WAREHOUSE_NAME=#{warehouseName},
+		</if>
+		<if test="warehouseCode != null" >
+			WAREHOUSE_CODE=#{warehouseCode},
+		</if>
+		<if test="warehouseTypeDictId != null" >
+			WAREHOUSE_TYPE_DICT_ID=#{warehouseTypeDictId},
+		</if>
+		<if test="productTypeDictId != null" >
+			PRODUCT_TYPE_DICT_ID=#{productTypeDictId},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.struct.StructWarehouseParamVo"
+		      resultType="com.techsoft.entity.common.StructWarehouse" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM STRUCT_WAREHOUSE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

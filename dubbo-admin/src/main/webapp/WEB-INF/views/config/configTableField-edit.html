@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+             <td width="15%" class="tableleft">数据表对象</td>
+             <td>
+                <select name="tableObjectId"> 
+                    <#if CTOList??>
+                     <#list CTOList as item>
+			            <option value="${item.id?c}" <#if (entity.tableObjectId??&&entity.tableObjectId==item.id)>selected="selected"</#if>>${item.tableObjectName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+             </td>
+           	 <td width="15%" class="tableleft">数据表属性名称</td>
+               <td>
+               	<input type="text" name="tableObjectField" class="layui-input" maxlength="20" value="${(entity.tableObjectField)!''}"/>
+             </td> 
+           </tr>
+           <tr>
+           	 <td width="15%" class="tableleft">数据表属性中文名称</td>
+               <td>
+               	<input type="text" name=tableObjectFieldCn class="layui-input" maxlength="20" value="${(entity.tableObjectFieldCn)!''}"/>
+             </td>
+             <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+              </td>
+           </tr>
+           <tr>
+             <td width="15%" class="tableleft">描述</td>
+               <td>
+               	<input type="text" name="remark" class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+             </td> 
+           </tr>
+           
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery,  laydate = layui.laydate;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/config/configTableField/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+	      	    	 if (result.isSuccess) {
+	         	    	   layer.alert("保存成功", {icon: 6},function () {
+	       	                // 获得frame索引
+	       	                var index = parent.layer.getFrameIndex(window.name);
+	       				  	parent.location.reload(); 
+	       	                parent.layer.close(index);
+	       	            });	
+	      			}else{
+	      				layer.alert(result.message, {
+	      					icon : 2
+	      				});
+	      			}
+      		  });
+      		  
+            return false;
+          });
+          
+        });
+    </script>
+  </body>
+
+</html>

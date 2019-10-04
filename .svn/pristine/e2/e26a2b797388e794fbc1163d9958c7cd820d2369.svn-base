@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<#include "../default-screen.html"/>
+	<style type="text/css">
+		.layui-hide tr:nth-child(even){
+			background-color:green;
+		}
+	</style>
+</head>
+
+<body style='font-size: 62.5%; width: 100%; height: 100%'>
+	<!-- 看板导航栏 -->
+	<nav class="navbar navbar-default" style='margin-bottom: 0px'>
+		<div class="container-fluid">
+			<div class='container title'>
+				<p class="navbar-text title-p">呆滞料即时看板</p>
+			</div>
+		</div>
+	</nav>
+
+	<!-- 看板主体 -->
+	<div class="layui-col-md12" id='topTab'>
+		<div class="layui-row grid-demo" >
+			<div class="layui-col-md12"
+				style="text-align: center; line-height: 30px; font-size: 14px;">
+				<table class="layui-hide" id="listTable" lay-filter="tablefilter" ></table>
+			</div>
+		</div>
+	</div>
+
+                            
+     <!-- 物料 -->      
+	<script type="text/html" id="materialCode">
+		{{#  if(d.productMaterial){}}
+			{{ d.productMaterial.materialCode 
+		}}
+		{{# } }}
+	</script>
+	<script type="text/html" id="materialName">
+		{{#  if(d.productMaterial){}}
+			{{ d.productMaterial.materialName 
+		}}
+		{{# } }}
+	</script>
+	<!-- 供应商 --> 
+	<script type="text/html" id=companyName>
+		{{#  if(d.firmPartner){}}
+			{{ d.firmPartner.companyName 
+		}}
+		{{# } }}
+	</script>
+	<!-- 仓库货位 --> 
+	<script type="text/html" id=locationName>
+		{{#  if(d.warehouseLocation){}}
+			{{ d.warehouseLocation.locationName 
+		}}
+		{{# } }}
+	</script>
+
+	<script type="text/javascript">
+	layui.config({
+    	base: '/static/plugins/layui/base/',
+    	v: new Date().getTime()
+		}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+			var form = layui.form, $ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+			layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+			var layuiformajax = layui.layuiformajax;
+			
+			var curTable = layuitable.render({
+    		elem: '#listTable'
+    		,id:'listTable'
+    		,url:'/screen/screenSluggishMaterials/list/json' 
+    		,cols: [[
+    	    	{field:'materialCode',  title: '物料编码',align:'center', width: '11%',style:'color:red;font-size:14px;',templet: '#materialCode'}
+    	    	,{field:'materialName',  title: '物料名称',align:'center', width: '11%',style:'color:red;font-size:14px;',templet: '#materialName'}    	    
+    	    	,{field:'null',  title: '规格', align:'center',width: '11%',style:'color:red;font-size:14px;'}
+    	    	,{field:'companyName',  title: '供应商', align:'center',width: '13%',style:'color:red;font-size:14px;',templet: '#companyName'}
+    	    	,{field:'outstoreTime',  title: '入库日期', align:'center',width: '12%',style:'color:red;font-size:14px;'}
+    	    	,{field:'quantity',  title: '呆滞数量', align:'center',width: '9%',style:'color:red;font-size:14px;'}    	    
+    	    	,{field:'locationName',  title: '发货货位', align:'center',width: '11%',style:'color:red;font-size:14px;',templet: '#locationName'}
+    	    	,{field:'null',  title: '批次', align:'center',width: '11%',style:'color:red;font-size:14px;'}   	    	
+    	    	,{field:'null',  title: '呆滞时长', align:'center',width: '11%',style:'color:red;font-size:14px;'}
+    		]] 
+        	,page:false
+  		});
+
+		form.on('submit(search)', function (data) {
+		   	console.log(data);
+			layuitable.reload(data.field);			
+        	return false;
+  		});
+		
+ 	
+});	
+</script>
+</body>
+</html>

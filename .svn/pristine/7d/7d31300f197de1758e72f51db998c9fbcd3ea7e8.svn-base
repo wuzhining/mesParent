@@ -1,0 +1,80 @@
+package com.techsoft.dao.struct;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.mapper.struct.StructProcessNodeMapper;
+
+@Repository
+public class StructProcessNodeDaoImpl extends BaseDaoImpl<StructProcessNode> implements StructProcessNodeDao {
+	@Resource
+	protected StructProcessNodeMapper structProcessNodeMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<StructProcessNode> getEntityClass() {
+		return StructProcessNode.class;
+	}	
+	
+	@Override
+	public BaseMapper<StructProcessNode> getBaseMapper() {
+		return this.structProcessNodeMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "STRUCT_PROCESS_NODE";
+	}
+	
+	@Override
+	public void insertSaveCheck(StructProcessNode value) throws BusinessException, SQLException {
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("所属工厂不能为空");
+		}
+		if (value.getNodeCode() == null || value.getNodeCode().equals(0L)) {
+			throw new BusinessException("工序节点编码不能为空");
+		}
+		if (value.getExecutiveTypeDictId() == null || value.getExecutiveTypeDictId().equals(0L)) {
+			throw new BusinessException("执行方式类型不能为空");
+		}
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("创建人不能为空");
+		}
+	}
+	
+	@Override
+	public void updateSaveCheck(StructProcessNode value) throws BusinessException, SQLException {
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("所属工厂不能为空");
+		}
+		if (value.getNodeCode() == null || value.getNodeCode().equals(0L)) {
+			throw new BusinessException("工序节点编码不能为空");
+		}
+		if (value.getExecutiveTypeDictId() == null || value.getExecutiveTypeDictId().equals(0L)) {
+			throw new BusinessException("执行方式类型不能为空");
+		}
+		if (value.getModifyUserId() == null || value.getModifyUserId().equals(0L)) {
+			throw new BusinessException("修改人不能为空");
+		}
+	}
+	
+	@Override
+	public void deleteSaveCheck(StructProcessNode value) throws BusinessException, SQLException {
+		throw new BusinessException("工序流程节点不能删除");
+	}
+			
+}

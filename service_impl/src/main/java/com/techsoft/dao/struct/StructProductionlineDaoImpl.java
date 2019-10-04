@@ -1,0 +1,88 @@
+package com.techsoft.dao.struct;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.techsoft.common.BaseDaoImpl;
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.mapper.sys.MycatSequenceMapper;
+import com.techsoft.entity.common.StructProductionline;
+import com.techsoft.mapper.struct.StructProductionlineMapper;
+
+@Repository
+public class StructProductionlineDaoImpl extends BaseDaoImpl<StructProductionline> implements StructProductionlineDao {
+	@Resource
+	protected StructProductionlineMapper structProductionlineMapper;
+	@Resource
+	protected MycatSequenceMapper mycatSequenceMapper;	
+	
+	@Override
+	public Class<StructProductionline> getEntityClass() {
+		return StructProductionline.class;
+	}	
+	
+	@Override
+	public BaseMapper<StructProductionline> getBaseMapper() {
+		return this.structProductionlineMapper;
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public BaseMapper getSeqMapper() {
+		return mycatSequenceMapper;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "STRUCT_PRODUCTIONLINE";
+	}
+	
+	@Override
+	public void insertSaveCheck(StructProductionline value) throws BusinessException, SQLException {
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("工厂名称不能为空");
+		}
+		if (value.getWorkshopId() == null || value.getWorkshopId().equals(0L)) {
+			throw new BusinessException("所属车间不能为空");
+		}
+	 
+		if (value.getProductionlineCode() == null || value.getProductionlineCode().equals(0L)) {
+			throw new BusinessException("产线编码不能为空");
+		}
+		if (value.getProductionlineName() == null || value.getProductionlineName().equals(0L)) {
+			throw new BusinessException("产线名称不能为空");
+		}
+		if (value.getCreateUserId() == null || value.getCreateUserId().equals(0L)) {
+			throw new BusinessException("创建人不能为空");
+		}
+	}
+	
+	@Override
+	public void updateSaveCheck(StructProductionline value) throws BusinessException, SQLException {
+		if (value.getFactoryId() == null || value.getFactoryId().equals(0L)) {
+			throw new BusinessException("工厂名称不能为空");
+		}
+		if (value.getWorkshopId() == null || value.getWorkshopId().equals(0L)) {
+			throw new BusinessException("所属车间不能为空");
+		}
+	 
+		if (value.getProductionlineCode() == null || value.getProductionlineCode().equals(0L)) {
+			throw new BusinessException("产线编码不能为空");
+		}
+		if (value.getProductionlineName() == null || value.getProductionlineName().equals(0L)) {
+			throw new BusinessException("产线名称不能为空");
+		}
+		if (value.getModifyUserId() == null || value.getModifyUserId().equals(0L)) {
+			throw new BusinessException("修改人不能为空");
+		}
+	}
+	
+	@Override
+	public void deleteSaveCheck(StructProductionline value) throws BusinessException, SQLException {
+		throw new BusinessException("产线基础信息不能删除");
+	}
+			
+}

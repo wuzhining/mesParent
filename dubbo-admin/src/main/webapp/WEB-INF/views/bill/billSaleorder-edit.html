@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+            <tr>
+                <td width="15%" class="tableleft">客户公司<span style="color:red;">*</span></td>
+                <td>
+                	<div class="div-choiceBox-intd ">  
+                		<input type="hidden"  id="customerId" name="customerId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.customerId??>${entity.customerId?c}<#else></#if>">
+                		<input type="text" id="companyName" lay-verify="required" name="companyName" value="${(customer.companyName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd"/>
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="customerSearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div> 
+                </td>
+              <td width="10%" class="tableleft" >销售单状态</td>
+               <td>
+                 <select id="billStatusDictId" name="billStatusDictId"  disabled="true" > 
+                    <#if saleorderStatusList??>
+                     <#list saleorderStatusList as item>
+			            <option id="statusId" value="${item.id?c}" 
+			            <#if (entity.billStatusDictId??&&entity.billStatusDictId==item.id)>
+			            	selected="selected"
+			            </#if>
+			            >${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+            </tr>
+            <tr>
+              <td width="10%" class="tableleft" >审核状态</td>
+               <td>
+                 <select id="auditStatusDictId" name="auditStatusDictId"  disabled="true" > 
+                    <#if auditStatusDictList??>
+                     <#list auditStatusDictList as item>
+			            <option value="${item.id?c}" <#if (entity.auditStatusDictId??&&entity.auditStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+                <td width="15%" class="tableleft">计划生产时间<span style="color:red;">*</span></td>
+                <td>
+                    <input class="layui-input" autocomplete="off" placeholder="计划生产时间" name="planTime" id="planTime"  lay-verify="planTime"   maxlength="20" value="${(entity.planTime?datetime)!''}"/>
+                </td>
+            </tr>
+            <tr>
+            	<td width="15%" class="tableleft">预估发货时间<span style="color:red;">*</span></td>
+                <td>
+                    <input class="layui-input" autocomplete="off" placeholder="预估发货时间" name="deliveryTime" id="deliveryTime" lay-verify="deliveryTime" maxlength="20" value="${(entity.deliveryTime?datetime)!''}"/>
+                </td>
+                <td width="15%" class="tableleft">备注</td>
+                <td>
+                    <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+                </td> 
+            </tr>
+            
+       </table>  
+       
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>
+      </form>
+    </div>
+
+  <script>
+  var ids = $("#id").val();
+  var statusDictId="10311";
+  var statuId=window.parent.billStatusDictId;
+  if (ids!=null&&ids!=""){
+	/* if(statuId=='10488'){
+		$('#billStatusDictId').attr("disabled", false);
+	} */
+  }else{
+	    ids="0";
+		$('#billStatusDictId').val(10488);
+		$('#auditStatusDictId').val(10585);
+  }
+
+     layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+    	var form = layui.form, 
+    	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+    	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+    	var layuiformajax = layui.layuiformajax;
+
+      	$('#customerSearch').on('click',function(e){
+    		openWinSelect('/firm/firmPartner/firmPartnerOpen',"customerId","companyName");
+       		e.preventDefault();//默认from表单提交时不刷新
+       	})
+    	
+    	
+    	form.on('submit(search)', function (data) {
+    		layuitable.reload(data.field);
+            return false;
+      	});
+
+  
+
+          //自定义验证规则
+           form.verify({
+        	   planTime: function(valueTy){
+	         	 if(valueTy =='' ||valueTy==null){
+	                 return '计划生产时间不能为空!';
+	             }
+	           }
+	            ,deliveryTime: function(valueTy){
+	         	 if(valueTy =='' ||valueTy==null){
+	                 return '预估发货时间不能为空!';
+	             }
+	           }
+	            
+
+        	}); 
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/bill/billSaleorder/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+      
+          
+          var nowTime = new Date().valueOf();
+          //日期
+           var start = laydate.render({
+       		     elem: '#planTime' //指定元素  计划开始时间
+          		,type: 'datetime'
+          		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+                ,min:nowTime,
+                done:function(value,datetime){
+                      endMax = timePlanEnd.config.max;
+                      timePlanEnd.config.min = datetime;
+                      timePlanEnd.config.min.month = datetime.month -1;
+                  }
+              });
+           var timePlanEnd = laydate.render({
+       		     elem: '#deliveryTime' //指定元素  计划结束时间
+          		,type: 'datetime'
+          		,format: 'yyyy-MM-dd HH:mm:ss' //可任意组合
+                ,min:nowTime,
+                  done:function(value,datetime){
+                  }
+              });
+ 	
+  });
+  
+
+    </script>
+    <script></script>
+  </body>
+
+</html>

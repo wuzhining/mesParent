@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+           	 <td width="15%" class="tableleft">治具品种规格编码</td>
+               <td>
+               	<input type="text" name="fixtureSpecsCode" class="layui-input" maxlength="20" value="${(entity.fixtureSpecsCode)!''}"/>
+               </td> 
+               <td width="15%" class="tableleft">治具品种规格名称</td>
+              	<td>
+               	<input type="text" name="fixtureSpecsName" class="layui-input" maxlength="16" value="${(entity.fixtureSpecsName)!''}"/>
+             </td>
+           </tr>
+           <tr>
+           	 <td width="15%" class="tableleft">治具类型</td>
+               <td>
+               	<select name="classesId"> 
+                   <#if fixtureTypeDict??>
+                    <#list fixtureTypeDict as item>
+		            <option value="${item.id?c}" <#if (entity.classesId??&&entity.classesId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+		         </#list>
+		         </#if>
+		        </select>
+               </td>               
+               <td width="15%" class="tableleft">治具状态</td>
+              	<td>
+               	<select name="fixtureStatusDictId"> 
+                   <#if fixtureStatus??>
+                    <#list fixtureStatus as item>
+		            <option value="${item.id?c}" <#if (entity.fixtureStatusDictId??&&entity.fixtureStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+		         </#list>
+		         </#if>
+		        </select>
+             </td>
+           </tr>
+           <tr>
+           	 <td width="15%" class="tableleft">标准寿命</td>
+               <td>
+               	<input type="text" name="standarlive" class="layui-input" maxlength="20" value="<#if entity??&&entity.standarlive??>${entity.standarlive?c}<#else></#if>"/>
+               </td> 
+               <td width="15%" class="tableleft">数量</td>
+              	<td>
+               	<input type="text" name="quantity" class="layui-input" maxlength="16" value="<#if entity??&&entity.quantity??>${entity.quantity?c}<#else></#if>"/>
+             </td>
+           </tr>
+           <tr>
+           	 <td width="15%" class="tableleft">供应商</td>
+               <td>
+               	 <select name="supplierId"> 
+                    <#if firmPartner??>
+                     <#list firmPartner as item>
+			            <option value="${item.id?c}" <#if (entity.supplierId??&&entity.supplierId==item.id)>selected="selected"</#if>>${item.companyName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td> 
+               <td width="15%" class="tableleft">描述</td>
+               <td>
+               	<input type="text" name="remark" class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+             </td> 
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery,  laydate = layui.laydate;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax,layuitable = layui.layuitable;
+          var ids = $("#id").val();
+          var url = $(window.parent.document).find("iframe").attr("src");
+      	  
+	      	 
+           
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/equip/equipSpecsFixture/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+	      	    	 if (result.isSuccess) {
+	         	    	   layer.alert("保存成功", {icon: 6},function () {
+	       	                // 获得frame索引
+	       	                var index = parent.layer.getFrameIndex(window.name);
+	       				  	parent.location.reload(); 
+	       	                parent.layer.close(index);
+	       	            });	
+	      			}else{
+	      				layer.alert(result.message, {
+	      					icon : 2
+	      				});
+	      			}
+      		  });
+      		  
+            return false;
+          });
+          
+            laydate.render({
+	      		elem: '#dateConfirm' //指定元素
+	      		,type: 'date'
+	      		,format: 'yyyy-MM-dd' //可任意组合
+	      	});
+	      	
+	      	laydate.render({
+	      		elem: '#dateExpire' //指定元素
+	      		,type: 'date'
+	      		,format: 'yyyy-MM-dd' //可任意组合
+	      	});
+	      	laydate.render({
+	      		elem: '#confirmTime' //指定元素
+	      		,type: 'date'
+	      		,format: 'yyyy-MM-dd' //可任意组合
+	      	});
+          
+        });
+    </script>
+  </body>
+
+</html>

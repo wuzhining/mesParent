@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body style='width:100%;height:100%'>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">公司资料</a> <a><cite>部门</cite></a>
+      </span>
+    </div>
+    <div class="x-body">
+      <xblock>
+        <button class="layui-btn layui-btn-sm" id="add"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+    </div>
+    <div style="width: 100%;height:80%">
+      <div style='width: 13%;float: left;border:1px solid #ddd;margin-left:2%;height:100%'>
+        <div id="demo" class="layui-tree layui-tree-line" style='margin:20px 0 0 20px' lay-filter="tablefilter"></div>
+      </div>
+      <div style='width: 70%;float: left;margin-left: 50px;height:100%'>
+      	<div style='width:100%;height:30px;padding-left:10px'>
+      		<span>当前选中的ID：</span>
+      		<span class="layui-badge layui-bg-blue" id='currentID'></span>
+      		<input id='parentID' style='display:none'/>
+      	</div>
+      	<iframe id='edited' height='90%' width="100%" frameborder='0'></iframe>
+      </div>
+    </div>
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable','tree'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax,tree = layui.tree;
+	/* 给当前选中ID徽章赋值并刷新右侧iframe内容的方法 */
+	var assign = function(currentID,parentID){
+		$("#edited").attr('src','/firm/firmDepartment/edit?id=' + currentID);
+		$("#currentID").text(currentID);
+		$("#parentID").val(parentID);
+	};
+	$.ajax({
+	    type: "post",
+	    url:"/firm/firmDepartment/loadZtree",
+	    dataType: 'json',
+	    success: function (result) {
+	    	if(result.length > 0){
+	    		assign(result[0].id,result[0].parentId);
+	    		tree({
+				    elem: '#demo' //传入元素选择器
+				    ,click: function(node){
+			    	     assign(node.id,node.parentId);
+				    } 
+				   ,nodes:result
+			  	});
+	    	}else{
+	    		//后台无数据弹框提示
+	    		layer.open({
+	    			  type: 0, 
+	    			  content: '暂无相关数据',
+	    			  title:'提示'
+	    		});
+	    	};
+	    }
+    });
+	/* 点击添加按钮执行的逻辑 */
+	$("#add").click(function(){
+		var currentID = $("#currentID").html(),		//获取当前选中的节点ID
+			prtID = $("#parentID").val();			//获取当前选中的节点父ID
+		if(!currentID){								//左侧树形无数据
+			layer_window_show('编辑部门','/firm/firmDepartment/edit?add=1');	//新增页面url无参数
+		}else{
+			if(prtID === '0'){						//选中的节点为一级节点
+				layer_window_show('编辑部门','/firm/firmDepartment/edit?id='+currentID+'&add=1');	//新增页面url将当前选中的节点ID传过去
+			}else{									//选中的为二级节点不能新增
+				layer.open({
+	    			  type: 0, 
+	    			  content: '当前最多只支持新增二级目录',
+	    			  title:'提示'
+	    		});
+			}
+		};
+	});
+});	
+</script>
+ 
+  </body>
+
+</html>

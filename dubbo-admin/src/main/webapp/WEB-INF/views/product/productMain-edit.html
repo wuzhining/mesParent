@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+
+             <!--   <td width="10%" class="tableleft">物品编码</td>
+               <td><input type="text" name="productCode" lay-verify="productLength" class="layui-input"  value="${(entity.productCode)!''}"/></td>
+                -->
+                <td width="10%" class="tableleft">物品编码</td>
+              <td>
+               <#if entity??&&entity.id??>${(entity.productCode)!''}
+               <#else>
+                <input type="text" name="productCode" class="layui-input"   maxlength="20"  />
+               </#if>
+               </td> 
+               <td width="10%" class="tableleft">物品名称</td>
+               <td><input type="text" name="productName" lay-verify="productLength" class="layui-input"  value="${(entity.productName)!''}"/></td>
+             
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">物品分类</td>
+               <td>
+              	 <select name="classesId" <#if (isEdit??&&isEdit==false)>disabled="disabled"</#if>> 
+                    <#if classesList??>
+                     <#list classesList as item>
+			            <option value="${item.id?c}" <#if (entity.classesId??&&entity.classesId==item.id)>selected="selected"</#if>>${item.classesName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td> 
+
+               <td width="10%" class="tableleft">物品型号</td>
+               <td>
+                <input type="text" name="specification"  lay-verify="remarkLength" class="layui-input" maxlength="20" value="${(entity.specification)!''}" <#if (isEdit??&&isEdit==false)>disabled="disabled"</#if>/>
+               </td> 
+
+           </tr>
+          
+           <tr>
+               <td width="10%" class="tableleft">物品类型</td>
+               <td>
+                <select name="productTypeDictId"  lay-filter="productTypeDict"  <#if (isEdit??&&isEdit==false)>disabled="disabled"</#if>> 
+                    <#if productTypeList??>
+                     <#list productTypeList as item>
+			            <option value="${item.id?c}" <#if (entity.productTypeDictId??&&entity.productTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+               <td width="10%" class="tableleft">物品状态</td>
+               <td>
+                <!-- <select name="productStatusDictId" lay-filter='productStatus'<#if (isEdit??&&isEdit==false)>disabled="disabled"</#if>>  -->
+                <select name="productStatusDictId" lay-filter='productStatus' disabled="disabled"> 
+                    <#if productStatusList??>
+                     <#list productStatusList as item>
+			            <option value="${item.id?c}" <#if (entity.productStatusDictId??&&entity.productStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+             
+           </tr>
+            <tr id="trValue"  <#if (isOpen??&&isOpen==false)>hidden=true</#if>>
+            <td width="10%" class="tableleft" id="t3" >半成品类型</td>
+               <td id="t4">
+              	 <select name="semiProductTypeDictId" <#if (isEdit??&&isEdit==false)>disabled="disabled"</#if>> 
+                     <#if semiProductTypeList??>
+                     <#list semiProductTypeList as item>
+			            <option value="${item.id?c}" <#if (entity.semiProductTypeList??&&entity.semiProductTypeList==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			     </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">物品来源</td>
+               <td>
+                 <select name="productSourceDictId"> 
+                    <#if productSourceList??>
+                     <#list productSourceList as item>
+			            <option value="${item.id?c}" <#if (entity.productSourceDictId??&&entity.productSourceDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+              
+               <td width="10%" class="tableleft">体积限制</td>
+               <td><input type="text" name="volume" class="layui-input"  lay-verify="doubleAndNumber" maxlength="16" value="<#if entity??&&entity.volume??>${entity.volume?c}<#else></#if>"/></td>
+             
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">重量限制</td>
+               <td><input type="text" id="weight" name="weight" class="layui-input" lay-verify="doubleAndNumber" maxlength="16" value="<#if entity??&&entity.weight??>${entity.weight?c}<#else></#if>"/></td>
+               
+               <td width="10%" class="tableleft">尺寸-长</td>
+               <td><input type="text" name="sizeLength" class="layui-input"  lay-verify="doubleAndNumber" maxlength="100" value="<#if entity??&&entity.sizeLength??>${entity.sizeLength?c}<#else></#if>"/></td>
+             
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">尺寸-高</td>
+               <td><input type="text" name="sizeHeight" class="layui-input"  lay-verify="doubleAndNumber" maxlength="100" value="<#if entity??&&entity.sizeHeight??>${entity.sizeHeight?c}<#else></#if>"/></td>
+               <td width="10%" class="tableleft">尺寸-宽</td>
+               <td><input type="text" name="sizeWidth" class="layui-input"  lay-verify="doubleAndNumber" maxlength="100" value="<#if entity??&&entity.sizeWidth??>${entity.sizeWidth?c}<#else></#if>"/></td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">是否有效期控制</td>
+               <td>
+                 <select name="isPeriodControl">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isPeriodControl??&&entity.isPeriodControl==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="10%" class="tableleft">生产有效期</td>
+               <td><input type="text" name="periodManufacture" class="layui-input"  lay-verify="doubleAndNumber|number" maxlength="100" value="<#if entity??&&entity.periodManufacture??>${entity.periodManufacture?c}<#else></#if>"/></td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">出库有效期</td>
+               <td><input type="text" name="periodWarehouseOut" class="layui-input" lay-verify="doubleAndNumber|number" maxlength="100" value="<#if entity??&&entity.periodWarehouseOut??>${entity.periodWarehouseOut?c}<#else></#if>"/></td>
+               <td width="10%" class="tableleft">失效期预警</td>
+               <td><input type="text" name="failurePeriodWarn" class="layui-input" lay-verify="doubleAndNumber|number" maxlength="100" value="<#if entity??&&entity.failurePeriodWarn??>${entity.failurePeriodWarn?c}<#else></#if>"/></td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">默认上架策略ID</td>
+               <td>
+               <span class="div-choiceBox-intd " >  
+               <input type="text" id="strategyUpShelfName" name="strategyUpShelfName" class="layui-input input-choiceBox-intd"/>
+               <input type="hidden" id="strategyUpshelfId" name="strategyUpshelfId" class="layui-input input-choiceBox-intd"  value="<#if entity??&&entity.strategyUpshelfId??>${entity.strategyUpshelfId?c}<#else></#if>"/>
+               <button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="upShelfSearch" style="width:50px;height:32px">
+		         			<i class="layui-icon layui-icon-more" ></i>
+		       </button>
+		       </span>
+               </td>
+               
+               <td width="10%" class="tableleft">默认下架策略ID</td>
+               
+               <td>
+               <span class="div-choiceBox-intd " >  
+               <input type="text" id="strategyDownShelfName" name="strategyDownShelfName" class="layui-input input-choiceBox-intd"/>
+               <input type="hidden" id="strategyDownshelfId" name="strategyDownshelfId" class="layui-input input-choiceBox-intd"  value="<#if entity??&&entity.strategyDownshelfId??>${entity.strategyDownshelfId?c}<#else></#if>"/>
+               <button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="shelfSearch" style="width:50px;height:32px">
+		         			<i class="layui-icon layui-icon-more" ></i>
+		       </button>
+		       </span>
+               </td>
+               
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">是否允许拆箱包装</td>
+               <td>
+                 <select name="isUnpackBox">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isUnpackBox??&&entity.isUnpackBox==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="10%" class="tableleft">是否允许拆内箱包装</td>
+               <td>
+                 <select name="isUnpackInnerbox">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isUnpackInnerbox??&&entity.isUnpackInnerbox==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="10%"  class="tableleft">sku规格类型</td>
+            	 <td>
+                	<div class="div-choiceBox-intd ">   
+                		<input type="text" id="skuValues" name="skuName" disabled="disabled" class="layui-input input-choiceBox-intd" value="${(entity.skuName)!''}">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="skuValueSearch">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	 	</div>
+               </td>
+               <td width="10%"  class="tableleft">备注</td>
+               <td ><input type="text"lay-verify="remarkLength" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+             
+           </tr>
+           <tr>
+
+           </tr>
+        
+
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+         <div  id="hidden" lay-filter="hidden"  style="display: none">
+	         <xblock>
+		        <button class="layui-btn" id="addSkuValue" ><i class="layui-icon"></i>添加规格</button>
+		        <span class="x-right" style="line-height:40px"></span>
+	     	 </xblock>
+	     	 <form  id="skuVules" method="post" class="layui-form">
+		     	 <table id="tableSku">
+		     	  <#if skuNameList??>
+		             <#list skuNameList as item>
+		     	 	<tr>
+		     	 		<td>
+			              <div class="layui-form-item">
+						    <label class="layui-form-label">规格名称</label>
+						    <div class="layui-input-inline">
+						      <input type="text" name="skuName"   value="${item.skuName}" autocomplete="off" class="layui-input">
+						    </div>
+		                    <div class="layui-input-inline"  >
+		                      <button type="button" class="layui-btn layui-btn-sm layui-btn-xs del" id="deleteSkuVule"><i class="layui-icon"></i></button>
+		                    </div>
+						  </div>
+		     	 		</td>
+		     	 	</tr>
+		     	 	  </#list>
+					 </#if>
+		     	 	<tr>
+		     	 		<td style="float: right">
+			     	 		<button class="layui-btn" lay-submit="" lay-filter="addSelect">确定</button>
+			     	 		<button class="layui-btn" id="resultOpen" >取消</button>	 
+		     	 			
+		     	 		</td>
+		     	 	</tr>
+		     	 </table>
+	     	 </form>
+        </div>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+          var sku=[];
+    	  var count=1;
+            var url = $(window.parent.document).find("iframe").attr("src");
+        	var arr = url.split('?');
+        	var result=url.indexOf("?");
+        	if(result>0){
+    	    	var upStrategyName = arr[1].split('&&')[1].split('=')[1];
+    	    	var downStrategyName = arr[1].split('&&')[2].split('=')[1];
+    	    	$("#strategyUpShelfName").val(upStrategyName);
+    	    	$("#strategyDownShelfName").val(downStrategyName);
+        	}
+        	
+        	$('#skuValueSearch').focus(label_input_focus_handler);//点击触发弹窗按钮	
+         	
+         	//点击添加input框
+            $('#addSkuValue').on('click',function(e){
+         		 var html="<tr><td><div class='layui-form-item'><label class='layui-form-label'>规格名称</label><div class='layui-input-inline'>"
+    			      +"<input type='text' name='skuName"+count+"'  placeholder='请输入' autocomplete='off' class='layui-input'>"
+    			   +"</div><div class='layui-input-inline'><button type='button' class='layui-btn layui-btn-sm layui-btn-xs del' id='deleteSkuVule"+count+"'><i class='layui-icon'></i></button>"
+                   +"</div></div></td></tr>";
+                   var $tr=$("#tableSku tr").eq(-2);
+                 	$tr.after(html);   
+                 count++;
+         	})
+         	
+         	$('body').on('click', '.del', function() {
+    			if ($('#tableSku tr').length === 2) {
+    				layer.msg('只有一条不允许删除。', {
+    					time : 2000
+    				});
+    				layer.index--;
+    			} else {
+    		        //删除当前按钮所在的tr
+    				$(this).closest('tr').remove();
+    			}
+    		});
+         	
+            form.on('submit(addSelect)', function(data){
+            	 var skuVuleData=data.field;
+            	 var skuJson={};
+            	 var str="";
+            	 for (var i = 0; i < count; i++) {
+            		 var skuName="";
+            		 if(i==0){
+            		  skuName=skuVuleData['skuName'];
+            		 }else{
+	            		skuName=skuVuleData['skuName'+i];
+            		 }
+            		  
+            		 skuJson={"skuName":skuName};
+            		 sku.push(skuJson);
+            		 str+= skuName ;
+            		 if(count>0&&i!=count-1){
+            			str+=","; 
+            		 }
+    			}
+            	
+            	 console.log(sku);
+            	 $("#skuValues").val(str);
+            	  layer.close(layer.index);
+              return false;
+            });
+            
+            //弹窗取消按钮
+            $('#resultOpen').on('click',function(e){
+    			 layer.close(layer.index);
+         		e.preventDefault();//默认from表单提交时不刷新
+         	 
+         	})
+         	
+          $('#shelfSearch').on('click',function(e){
+        	  openWinSelect('/product/productMain/shelfOpen',"strategyDownshelfId","strategyDownShelfName");
+  	   		  e.preventDefault();//默认from表单提交时不刷新
+  	   		})
+  	   	 $('#upShelfSearch').on('click',function(e){
+        	  openWinSelect('/product/productMain/upShelfOpen',"strategyUpshelfId","strategyUpShelfName");
+  	   		  e.preventDefault();//默认from表单提交时不刷新
+  	   		})
+        
+          //自定义验证规则
+          form.verify({
+        	  number :function(value){
+        		  if(value != ""){
+        		  if( /^(([1-9]\d*)(\.\d{1,3})?|0\.([1-9]|\d[1-9])|0)$/.test(value)==false )
+        			  {
+        		  		return '小数位不能超过3位';
+        			  }
+        		  }
+        		 }
+	     	 ,remarkLength: function(value){
+	             if(value.length > 128){
+	                 return '不能超过128个字符';
+	               }
+	             }
+	     	 ,productLength: function(value){
+	             if(value.length > 32){
+	                 return '不能超过32个字符';
+	               }
+	             }
+	     	 ,doubleAndNumber: function(value){
+	     		 if(value != ""){
+		       	    if(/^\d+$/.test(value)==false && /^\d+\.\d+$/.test(value)==false)
+		       	    {
+		       	     return '你输入的不是数字';
+		       	    }
+	     		 }
+	     	} 
+          }); 
+            
+            //监听 物品类型 下拉框值发生变化时触发
+            form.on('select(productTypeDict)', function(data){
+		 		if(data.value=='10320'){//物品类型，“10320”是半成品的id
+		     		$("#trValue,#td3,#td4").show();
+		     	}else {
+		     		$("#trValue,#td3,#td4").hide();   		
+		     	}
+            });
+            
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  if (data.field.productTypeDictId!='10320') {//只有半成品才需要提交半成品类型id，“10320”是半成品的id
+        		  data.field.semiProductTypeDictId='';
+			}
+        	  
+        	  var url = '/product/productMain/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          function label_input_focus_handler(){
+        		layer.open({
+        			type : 1
+        			,title:'添加物料规格'
+        			, area : [ '850px', '500px' ]
+        			//, btn: ['确定', '取消']
+        			, content : $('#hidden')
+        			, success : function () {
+        				$('#hidden').css('display', 'block');
+        			}
+        		});
+        	}
+          
+          function verNumber(){
+        	  var v = $('#weight').val();
+        	  if($('#weight').val() != ""){
+        		  if(/^\d+$/.test($('#weight').val())==false && /^\d+\.\d+$/.test($('#weight').val())==false)
+  	       	    {
+  	       	       return layer.msg('你输入的不是数字',{icon: 1,time: 2000});
+  	       	    }
+        	  }
+          }
+        });
+   
+    </script>
+  </body>
+
+</html>

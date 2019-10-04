@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+          <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+              <select name="labelFunctionTypeDictId">    
+                <option value="">请选择功能定义类型</option> 
+                 <#if dictionaryListType1??>
+                    <#list dictionaryListType1 as item>
+		            	<option value="${item.id?c}" >${item.dictName}</option>
+		         	</#list>
+		         </#if> 
+          </select>
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+
+
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable_choiceFunct" lay-filter="tablefilter_choiceFunct"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="choice">选择</a>
+</script>
+
+<script type="text/html" id="labelFieldName">
+	{{#  if(d.configLabelField){ }}
+		{{ d.configLabelField.labelFieldName
+
+ }}
+	{{#  } }}
+</script>
+
+<script type="text/html" id="labelFunctionTypeDictName">
+	{{#  if(d.configDictionaryType){ }}
+		{{ d.configDictionaryType.dictName 
+
+ }}
+{{#  } }}
+</script>
+
+<script type="text/html" id="datatableDictName">
+	{{#  if(d.configTableObject){ }}
+		{{ d.configTableObject.tableObjectNameCn 
+
+ }}
+{{#  } }}
+</script>
+
+<script type="text/html" id="datatableFieldDictName">
+	{{#  if(d.configTableField){ }}
+		{{ d.configTableField.tableObjectFieldCn 
+
+ }}
+{{#  } }}
+</script>
+   <script type="text/html" id="serialName">
+	{{#  if(d.configSerialNumber){ }}
+		{{ d.configSerialNumber.serialName 
+
+ }}
+{{#  } }}
+</script>
+<script type="text/javascript">
+
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	
+	var layuiformajax = layui.layuiformajax;
+        	var curTable = layuitable.render({
+            	elem: '#listTable_choiceFunct'
+            	,id:'listTable_choiceFunct'
+            	,url:'/config/configLabelFunction/list/json'
+            	,cols: [[
+            	    /*  {type: 'checkbox', fixed: 'left'}, */
+            	    {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+		    	    ,{field:'labelFunctionTypeDictId', width:120, title: '功能定义类型',align:'center'}
+		    	    ,{field:'labelFunctionTypeDictName', width:160, title: '功能定义类型',align:'center',templet: '#labelFunctionTypeDictName'}
+		    	    ,{field:'tableObjectId', width:150, title: '数据表', align:'center'}
+		    	    ,{field:'tableObjectNameCn', width:150, title: '数据表', align:'center',templet: '#datatableDictName'}
+		    	    ,{field:'tableFieldId',  title: '数据表字段名称',align:'center', minWidth: 120}
+		    	    ,{field:'tableObjectFieldCn',  title: '数据表字段名称',align:'center', minWidth: 160,templet: '#datatableFieldDictName'}
+		    	    ,{field:'value',  title: '值',align:'center', minWidth: 160}
+		    	    ,{field:'serialId',  title: '序列号',align:'center', minWidth: 160}
+		    	    ,{field:'serialName',  title: '序列号',align:'center', minWidth: 160,templet:'#serialName'}
+            	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+            	]]
+	        	,done: function () {
+	    	        $("[data-field='tableObjectId']").css('display','none');
+	    	        $("[data-field='tableFieldId']").css('display','none');
+	    	        $("[data-field='labelFunctionTypeDictId']").css('display','none');
+	    	        $("[data-field='serialId']").css('display','none');
+	    	    }
+          	});
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+
+
+	table.on('tool(tablefilter_choiceFunct)', function(obj) {
+		var labelFunctionId = parent.$("#ids").val();
+		var data = obj.data;
+		if (obj.event === 'choice') {
+			console.log(data);
+	        //监听提交
+       	    var url = '/config/configCodeRuleItem/save';
+       	    layuiformajax.postJson(url, {"codeRuleId":labelFunctionId,"value":"0","labelFunctionId":data.id,"sortNo":1}, function (result) {
+       		    layer.msg('添加成功!', {icon: 1, time: 1000},function () {
+     	            // 获得frame索引
+     	            var index = parent.layer.getFrameIndex(window.name);
+     	            parent.location.reload(); 
+     	            parent.layer.close(index);
+    	        });
+       		  
+   		    }); 
+		}
+	});
+	
+	
+
+	
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

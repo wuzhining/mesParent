@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+        <tr>
+              <td width="10%" class="tableleft">产品bom编码</td>
+              <td>
+	               <#if entity??&&entity.id??>${(entity.bomCode)!''}
+	               <#else>
+	                <input type="text" name="bomCode" class="layui-input"   maxlength="20"  />
+	               </#if>
+               </td> 
+               <td width="10%" class="tableleft">上级bom</td>
+               <td>
+	                <select id="parentId"  name="parentId"> 
+	                <option value="0" selected="selected">请选择</option> 
+	                    <#if productBomMainList??>
+	                     <#list productBomMainList as item>
+	                     	 <option value="${item.id?c}" <#if (entity.parentId??&&entity.parentId==item.id)>selected="selected"</#if>>${item.bomCode}</option>
+				         </#list>
+				         </#if>
+				    </select>
+               </td> 
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">产品规格</td>
+               <td>
+               	   <div class="div-choiceBox-intd ">   
+                		<input type="hidden"  id="materialId" name="materialId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.materialId??>${entity.materialId?c}<#else></#if>">
+                		<input type="text" id="materialName" name="materialName" disabled="disabled" class="layui-input input-choiceBox-intd">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="search">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	  </div>
+               </td> 
+               <td width="10%" class="tableleft">产品</td>
+               <td>
+              		<input type="hidden"  id="productId" name="productId" disabled="disabled"  value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>">
+              		<input type="text" id="productName" name="productName" disabled="disabled" class="layui-input">
+               </td>
+           </tr>
+            
+           <tr>
+           	   <td width="10%" class="tableleft">层级</td>
+               <td>
+                 <input type="text" id="level" name="numberLevel" lay-verify="numberOrEmpty" class="layui-input" maxlength="20" onChange="chg()" value="<#if entity??&&entity.numberLevel??>${entity.numberLevel?c}<#else></#if>"/>
+               </td>
+               <td width="10%" class="tableleft">BOM状态</td>
+               <td>
+                 <select name="bomStatusDictId"> 
+                    <#if bomStatusDictIdList??>
+                     <#list bomStatusDictIdList as item>
+			            <option value="${item.id?c}" <#if (entity.bomStatusDictId??&&entity.bomStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+           </tr>
+               <td width="10%" class="tableleft">排序号</td>
+               <td>
+                <input type="text" name="sortNo" lay-verify="numberOrEmpty" class="layui-input" maxlength="20" value="<#if entity??&&entity.sortNo??>${entity.sortNo?c}<#else></#if>"/>
+               </td> 
+               <td width="10%" class="tableleft">单位用量</td>
+               <td>
+                 <input type="text" name="quantity" lay-verify="ratioAllowover" class="layui-input" maxlength="20" value="<#if entity??&&entity.quantity??>${entity.quantity?c}<#else></#if>"/>
+               </td> 
+     		<tr>
+     	    <tr>
+               <td width="10%" class="tableleft">基数</td>
+               <td>
+                <input type="text" name="quantityBase" lay-verify="ratioAllowover" class="layui-input" maxlength="20" value="<#if entity??&&entity.quantityBase??>${entity.quantityBase?c}<#else></#if>"/>
+               </td> 
+               <td width="10%" class="tableleft">损耗率</td>
+               <td>
+                 <input type="text" name="wastageRatio" lay-verify="ratioAllowover" class="layui-input" maxlength="20" value="<#if entity??&&entity.wastageRatio??>${entity.wastageRatio?c}<#else></#if>"/>
+               </td> 
+           </tr>
+     	    <tr>
+               <td width="10%" class="tableleft">固定损耗量</td>
+               <td>
+                <input type="text" name="wastageFixvalue" lay-verify="ratioAllowover" class="layui-input" maxlength="20" value="<#if entity??&&entity.wastageFixvalue??>${entity.wastageFixvalue?c}<#else></#if>"/>
+               </td>
+               <td width="10%" class="tableleft">备注</td>
+               <td >
+               		<input type="text" name="remark" lay-verify="remarkLength" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/>
+               </td> 
+           </tr>
+     	 
+     		<tr>
+     		   <td width="10%" class="tableleft">产品BOM名称</td>
+			   <td >
+			   		<input type="text" id="bomName" name="bomName" lay-verify="remarkLength" class="layui-input" maxlength="100" value="${(entity.bomName)!''}"/>
+			   </td>
+               <td width="10%" class="tableleft">是否默认生产</td>
+               <td>
+	               <select id="defaultProduct" name="isDefault" class="easyui-combobox" >
+					  <option value ="1">是</option>
+					  <option value ="2" selected>否</option>
+					</select>
+				</td>
+     		</tr>
+       </table> 
+         <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div> 
+      </form>
+    </div>
+ <script type="text/html" id="productName">
+	{{#  if(d.productMain){}}
+		{{ d.productMain.productName 
+
+ 	}}
+	{{# } }}
+</script>  
+ <script type="text/html" id="materialName">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+
+ 	}}
+	{{# } }}
+</script>
+
+ <script>
+      layui.config({
+          base: '/static/plugins/layui/base/',
+          v: new Date().getTime()
+      }).use([ 'form','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+          $ = layui.jquery;
+          var form = layui.form,laydate = layui.laydate,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax,layuitable = layui.layuitable;
+          var ids = $("#id").val();
+        var url = $(window.parent.document).find("iframe").attr("src");
+    	  var result=url.indexOf("?");
+    	  var materialName=parent.materialName;
+        var productName=parent.productName;
+        var productTypeDictId=parent.productTypeDictId;
+        console.log(productTypeDictId);
+    	if(result>0){
+	    	$("#productName").val(productName); 
+	    	$("#materialName").val(materialName); 
+    		if($("#level").val() == 1){
+    			$("#defaultProduct").parent('td').css('display','');
+          	  	$("#defaultProduct").parent('td').prev().css('display','');
+    		}
+    		if(productTypeDictId != 10319){
+    			$("#bomName").parent('td').css('display','');
+          	  	$("#bomName").parent('td').prev().css('display','');
+    		}
+    	}
+        
+        
+     	$('#search').on('click',function(e){
+     		openWinSelectProductType('/product/productMaterial/productMaterialOpen',"materialId","materialName","productId","productName","bomName");
+     		e.preventDefault();//默认from表单提交时不刷新
+    	})
+    	
+      	var reg = /^[+]{0,1}(\d+)$/ ; //正则只能是正整数
+          var patrn = /^\d+(\.\d+)?$/ ; //正则只能是正整数和小数点
+          //自定义验证规则
+          form.verify({
+        	  numberOrEmpty: function (value) {
+      	        if (value =='' ||value==null) {
+                       return '数量不能为空!';
+	                }else if(!reg.test(value)){
+	                    return '数量需为正整数!';
+	                }
+      	    }
+      	   ,ratioAllowover: function (over) {
+      	        if (over =='' ||over==null) {
+                       return '数量不能为空!';
+	                }else if(!patrn.test(over)){
+	                    return '数量需为正整数!';
+	                }
+      	    }
+          });
+          
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/product/productBom/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          
+        });
+      
+    //根据层级选择判断是否隐藏默认生产select控件
+      function chg(){
+    	  if($("#level").val() == 1){
+        	  $("#defaultProduct").parent('td').css('display','');
+        	  $("#defaultProduct").parent('td').prev().css('display','');
+    	  }else{
+    		  $("#defaultProduct").parent('td').css('display','none');
+    		  $("#defaultProduct").parent('td').prev().css('display','none');
+    	  }
+       }  
+      
+    //初始化默认隐藏
+    $("#defaultProduct").parent('td').css('display','none');
+	$("#defaultProduct").parent('td').prev().css('display','none');
+    $("#bomName").parent('td').css('display','none');
+	$("#bomName").parent('td').prev().css('display','none');
+    //初始化下拉框默认值为‘否’
+	$("#defaultProduct").val('2');
+    
+    </script>
+  </body>
+</html>

@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.firm.FirmPartnerMapper">
+	<resultMap id="FirmPartner" type="com.techsoft.entity.common.FirmPartner" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="USER_ID" property="userId" />
+		<result column="STATUS" property="status" />
+		<result column="PARTNER_TYPE_DICT_ID" property="partnerTypeDictId" />
+		<result column="COMPANY_CODE" property="companyCode" />
+		<result column="COMPANY_NAME" property="companyName" />
+		<result column="SIMPLE_NAME" property="simpleName" />
+		<result column="COUNTRY_ID" property="countryId" />
+		<result column="PROVINCE_ID" property="provinceId" />
+		<result column="CITY_ID" property="cityId" />
+		<result column="AREA_ID" property="areaId" />
+		<result column="ADDRESS" property="address" />
+		<result column="CONTACT_PHONE" property="contactPhone" />
+		<result column="CONTACT_NAME" property="contactName" />
+		<result column="EMAIL" property="email" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="userId != null">
+			AND A.USER_ID= #{userId}
+		</if>
+		<if test="status != null">
+			AND A.STATUS= #{status}
+		</if>
+		<if test="partnerTypeDictId != null">
+			AND A.PARTNER_TYPE_DICT_ID= #{partnerTypeDictId}
+		</if>
+		<if test="companyCode != null">
+			AND A.COMPANY_CODE= #{companyCode}
+		</if>
+		<if test="companyName != null">
+			AND A.COMPANY_NAME= #{companyName}
+		</if>
+		<if test="simpleName != null">
+			AND A.SIMPLE_NAME= #{simpleName}
+		</if>
+		<if test="countryId != null">
+			AND A.COUNTRY_ID= #{countryId}
+		</if>
+		<if test="provinceId != null">
+			AND A.PROVINCE_ID= #{provinceId}
+		</if>
+		<if test="cityId != null">
+			AND A.CITY_ID= #{cityId}
+		</if>
+		<if test="areaId != null">
+			AND A.AREA_ID= #{areaId}
+		</if>
+		<if test="address != null">
+			AND A.ADDRESS= #{address}
+		</if>
+		<if test="contactPhone != null">
+			AND A.CONTACT_PHONE= #{contactPhone}
+		</if>
+		<if test="contactName != null">
+			AND A.CONTACT_NAME= #{contactName}
+		</if>
+		<if test="email != null">
+			AND A.EMAIL= #{email}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	   <if test="companyNameLike != null">
+	    <bind name="nameLike" value="'%' + _parameter.companyNameLike + '%'" />
+	       AND A.COMPANY_NAME LIKE #{nameLike}
+	  </if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.USER_ID,
+		A.STATUS,
+		A.PARTNER_TYPE_DICT_ID,
+		A.COMPANY_CODE,
+		A.COMPANY_NAME,
+		A.SIMPLE_NAME,
+		A.COUNTRY_ID,
+		A.PROVINCE_ID,
+		A.CITY_ID,
+		A.AREA_ID,
+		A.ADDRESS,
+		A.CONTACT_PHONE,
+		A.CONTACT_NAME,
+		A.EMAIL,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for FIRM_PARTNER_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from FIRM_PARTNER
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.FirmPartner">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM FIRM_PARTNER A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.FirmPartner">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM FIRM_PARTNER A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM FIRM_PARTNER A WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM FIRM_PARTNER A WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.FirmPartner">
+		UPDATE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM FIRM_PARTNER A WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.FirmPartner">
+		INSERT INTO FIRM_PARTNER (
+		TENANT_ID,
+		USER_ID,
+		STATUS,
+		PARTNER_TYPE_DICT_ID,
+		COMPANY_CODE,
+		COMPANY_NAME,
+		SIMPLE_NAME,
+		COUNTRY_ID,
+		PROVINCE_ID,
+		CITY_ID,
+		AREA_ID,
+		ADDRESS,
+		CONTACT_PHONE,
+		CONTACT_NAME,
+		EMAIL,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{userId},
+		#{status},
+		#{partnerTypeDictId},
+		#{companyCode},
+		#{companyName},
+		#{simpleName},
+		#{countryId},
+		#{provinceId},
+		#{cityId},
+		#{areaId},
+		#{address},
+		#{contactPhone},
+		#{contactName},
+		#{email},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.FirmPartner">
+		UPDATE FIRM_PARTNER SET
+		TENANT_ID=#{tenantId},
+		USER_ID=#{userId},
+		STATUS=#{status},
+		PARTNER_TYPE_DICT_ID=#{partnerTypeDictId},
+		COMPANY_CODE=#{companyCode},
+		COMPANY_NAME=#{companyName},
+		SIMPLE_NAME=#{simpleName},
+		COUNTRY_ID=#{countryId},
+		PROVINCE_ID=#{provinceId},
+		CITY_ID=#{cityId},
+		AREA_ID=#{areaId},
+		ADDRESS=#{address},
+		CONTACT_PHONE=#{contactPhone},
+		CONTACT_NAME=#{contactName},
+		EMAIL=#{email},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.FirmPartner">
+		UPDATE FIRM_PARTNER SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="userId != null" >
+			USER_ID=#{userId},
+		</if>
+		<if test="status != null" >
+			STATUS=#{status},
+		</if>
+		<if test="partnerTypeDictId != null" >
+			PARTNER_TYPE_DICT_ID=#{partnerTypeDictId},
+		</if>
+		<if test="companyCode != null" >
+			COMPANY_CODE=#{companyCode},
+		</if>
+		<if test="companyName != null" >
+			COMPANY_NAME=#{companyName},
+		</if>
+		<if test="simpleName != null" >
+			SIMPLE_NAME=#{simpleName},
+		</if>
+		<if test="countryId != null" >
+			COUNTRY_ID=#{countryId},
+		</if>
+		<if test="provinceId != null" >
+			PROVINCE_ID=#{provinceId},
+		</if>
+		<if test="cityId != null" >
+			CITY_ID=#{cityId},
+		</if>
+		<if test="areaId != null" >
+			AREA_ID=#{areaId},
+		</if>
+		<if test="address != null" >
+			ADDRESS=#{address},
+		</if>
+		<if test="contactPhone != null" >
+			CONTACT_PHONE=#{contactPhone},
+		</if>
+		<if test="contactName != null" >
+			CONTACT_NAME=#{contactName},
+		</if>
+		<if test="email != null" >
+			EMAIL=#{email},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.firm.FirmPartnerParamVo"
+		      resultType="com.techsoft.entity.common.FirmPartner" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM FIRM_PARTNER A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.equip.EquipWorkClassesMapper">
+	<resultMap id="EquipWorkClasses" type="com.techsoft.entity.common.EquipWorkClasses" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="CLASSES_CODE" property="classesCode" />
+		<result column="CLASSES_NAME" property="classesName" />
+		<result column="PARENT_ID" property="parentId" />
+		<result column="SPEED_WORKTIME" property="speedWorktime" />
+		<result column="SPEED_QUANTITY" property="speedQuantity" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="SORT_NO" property="sortNo" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="classesCode != null">
+			AND A.CLASSES_CODE= #{classesCode}
+		</if>
+		<if test="classesName != null">
+			AND A.CLASSES_NAME= #{classesName}
+		</if>
+		<if test="parentId != null">
+			AND A.PARENT_ID= #{parentId}
+		</if>
+		<if test="speedWorktime != null">
+			AND A.SPEED_WORKTIME= #{speedWorktime}
+		</if>
+		<if test="speedQuantity != null">
+			AND A.SPEED_QUANTITY= #{speedQuantity}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="sortNo != null">
+			AND A.SORT_NO= #{sortNo}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	  <if test="classesCodeLike != null">
+	    <bind name="codeLike" value="'%' + _parameter.classesCodeLike + '%'" />
+	       AND A.CLASSES_CODE LIKE #{codeLike}
+	  </if>
+	  <if test="classesNameLike != null">
+	    <bind name="nameLike" value="'%' + _parameter.classesNameLike + '%'" />
+	       AND A.CLASSES_NAME LIKE #{nameLike}
+	  </if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.CLASSES_CODE,
+		A.CLASSES_NAME,
+		A.PARENT_ID,
+		A.SPEED_WORKTIME,
+		A.SPEED_QUANTITY,
+		A.IS_VALID,
+		A.SORT_NO,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_EQUIP_WORK_CLASSES_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from EQUIP_WORK_CLASSES
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.EquipWorkClasses">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_WORK_CLASSES A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.EquipWorkClasses">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_WORK_CLASSES A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE EQUIP_WORK_CLASSES A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE EQUIP_WORK_CLASSES  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.EquipWorkClasses">
+		UPDATE EQUIP_WORK_CLASSES A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipWorkClasses">
+		INSERT INTO EQUIP_WORK_CLASSES (
+		TENANT_ID,
+		CLASSES_CODE,
+		CLASSES_NAME,
+		PARENT_ID,
+		SPEED_WORKTIME,
+		SPEED_QUANTITY,
+		IS_VALID,
+		SORT_NO,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{classesCode},
+		#{classesName},
+		#{parentId},
+		#{speedWorktime},
+		#{speedQuantity},
+		#{isValid},
+		#{sortNo},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipWorkClasses">
+		UPDATE EQUIP_WORK_CLASSES SET
+		TENANT_ID=#{tenantId},
+		CLASSES_CODE=#{classesCode},
+		CLASSES_NAME=#{classesName},
+		PARENT_ID=#{parentId},
+		SPEED_WORKTIME=#{speedWorktime},
+		SPEED_QUANTITY=#{speedQuantity},
+		IS_VALID=#{isValid},
+		SORT_NO=#{sortNo},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipWorkClasses">
+		UPDATE EQUIP_WORK_CLASSES SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="classesCode != null" >
+			CLASSES_CODE=#{classesCode},
+		</if>
+		<if test="classesName != null" >
+			CLASSES_NAME=#{classesName},
+		</if>
+		<if test="parentId != null" >
+			PARENT_ID=#{parentId},
+		</if>
+		<if test="speedWorktime != null" >
+			SPEED_WORKTIME=#{speedWorktime},
+		</if>
+		<if test="speedQuantity != null" >
+			SPEED_QUANTITY=#{speedQuantity},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="sortNo != null" >
+			SORT_NO=#{sortNo},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.equip.EquipWorkClassesParamVo"
+		      resultType="com.techsoft.entity.common.EquipWorkClasses" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_WORK_CLASSES A
+		WHERE (A.DEL_FLAG = 0)
+		 <if test="parent != null">
+			AND A.PARENT_ID= #{parent}
+		</if>
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

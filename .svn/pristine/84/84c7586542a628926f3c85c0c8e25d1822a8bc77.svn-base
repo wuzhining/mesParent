@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+   <head>
+    <title>大屏幕监视</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="static/css/easyui.css">
+	<link rel="stylesheet" type="text/css" href="static/css/icon.css">
+	<link rel="stylesheet" type="text/css" href="static/css/demo.css"> 
+	<script src="../static/js/jquery/jquery.min.js" type="text/javascript"></script>
+	<script src="static/js/jquery.easyui.min.js" type="text/javascript"></script>
+	<script src="static/js/DataRequest.js" type="text/javascript"></script>
+	<script src="static/js/jquery.lazyload.min.js" type="text/javascript"></script>
+	<script type="text/javascript" charset="utf-8"> 
+        function loadscript(){
+        	LazyLoad.js([
+			 "static/js/CommonUtil.js",
+			 "../static/plugins/highcharts/code/highcharts.js",
+			 "../static/plugins/highcharts/code/highcharts-3d.js",
+			 "../static/plugins/highcharts/code/modules/exporting.js",
+			 "../static/plugins/highcharts/code/themes/dark-unica.js",
+			 
+			]);
+		 };
+
+        setTimeout(loadscript,0);
+
+    </script>
+	<style>
+  	.panel-body {
+  		border-color: #FFFFFF;
+	}
+  	</style>
+	<script type="text/javascript">
+    	$(function(){
+    		var lx = getQueryString("line");
+    		var sbbm = getQueryString("shebei");
+    		$("#machID").attr("src","MachineMonitor3.html?shebei="+sbbm+"&line="+lx) ;
+    		$("#prodID").attr("src","ProdMonitor3.html?shebei="+sbbm+"&line="+lx);
+    		$("#workID").attr("src","WorkOrderMonitor3.html?shebei="+sbbm+"&line="+lx);
+    		$("#quaID").attr("src","QualityMonitor3.html?shebei="+sbbm+"&line="+lx);
+    	})
+    </script>
+  </head>
+  <body class="easyui-layout">   
+    <div data-options="region:'north'" style="height:50%;overflow : hidden;">
+    	<div class="easyui-layout" data-options="fit:true" style="height:100%">   
+            <div data-options="region:'west'" style="width:50%;overflow : hidden;">
+            	<iframe id="prodID" src=""   width="99%" height="98%" style="overflow : hidden;"></iframe>
+            </div>   
+            <div data-options="region:'center'" style="height:50%;overflow : hidden;">
+            	<iframe id="machID" src=""   width="99%" height="98%" style="overflow : hidden;"></iframe>
+            </div>   
+        </div>
+    </div>   
+    <div data-options="region:'center'" style="height:50%">   
+        <div class="easyui-layout" data-options="fit:true">   
+            <div data-options="region:'west'" style="width:50%;text-align:center;">
+            	<iframe id="workID" src=""   width="99%" height="98%" style="overflow : hidden;"></iframe>
+            </div>   
+            <div data-options="region:'center'">
+            	<iframe id="quaID" src="" width="99%" height="98%" style="overflow : hidden;"></iframe>
+            </div>   
+        </div>   
+    </div>   
+</body> 
+</html>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.scada.ScadaSpiLineMapper">
+	<resultMap id="ScadaSpiLine" type="com.techsoft.entity.common.ScadaSpiLine" >
+	    <id column="ID" property="id" />
+		<result column="LINENAME" property="linename" />
+		<result column="MACHINENAME" property="machinename" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="linename != null">
+			AND A.LINENAME= #{linename}
+		</if>
+		<if test="machinename != null">
+			AND A.MACHINENAME= #{machinename}
+		</if>
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	</sql>		
+	<sql id="Base_Column_List">    
+	    A.ID,
+		A.LINENAME,
+		A.MACHINENAME
+	</sql>
+
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from SCADA_SPI_LINE
+	</select>
+		
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.scada.ScadaSpiLineParamVo"
+		      resultType="com.techsoft.entity.common.ScadaSpiLine" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SCADA_SPI_LINE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

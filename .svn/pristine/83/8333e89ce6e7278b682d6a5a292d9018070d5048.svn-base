@@ -1,0 +1,4 @@
+	<link rel="stylesheet" href="/static/screencss/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/screencss/prepareMaterialsScreen.css">
+	<script type="text/javascript" src="/static/plugins/layui/layui.js"></script>
+	<script type="text/javascript" src="/static/js/jquery/jquery.min.js"></script>

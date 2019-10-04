@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />       
+        <table class="layui-table ">
+            <tr>
+                <td width="15%" class="tableleft">销售单</td>
+                <td>
+                	<input type="text" disabled="disabled" id="billSaleorderId" name="billSaleorderId"  class="layui-input" maxlength="20" value="<#if entity??&&entity.billSaleorderId??>${entity.billSaleorderId?c}<#else></#if>"/>
+                </td>
+                <td width="15%" class="tableleft">物料</td>
+                <td>
+               	   <div class="div-choiceBox-intd ">   
+                		<input type="hidden"  id="productId" name="productId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>">
+                		<input type="hidden"  id="materialId" name="materialId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.materialId??>${entity.materialId?c}<#else></#if>">
+                		<input type="text" id="materialName" name="materialName" disabled="disabled" class="layui-input input-choiceBox-intd"  >
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="search">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	  </div>
+               </td> 
+            </tr>
+            <tr>
+                <td width="15%" class="tableleft">状态</td>
+                <td>
+	                <select name="billStatusDictId" id="billStatusDictId" disabled="true"> 
+	                    <#if saleorderStatusList??>
+	                     <#list saleorderStatusList as item>
+				            <option value="${item.id?c}" <#if (entity.billStatusDictId??&&entity.billStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+				         </#list>
+				         </#if>
+				    </select>   
+                </td>
+            	<td width="15%" class="tableleft">单据数量</td>
+                <td>
+                    <input type="text" name="quantity"  class="layui-input" maxlength="20" value="<#if entity??&&entity.quantity??>${entity.quantity?c}<#else></#if>"/>
+                </td>
+            </tr>
+            <tr>
+                <td width="15%" class="tableleft">完成数量</td>
+                <td>
+                    <input type="text" name="quantityFinish"  class="layui-input" maxlength="20" value="<#if entity??&&entity.quantityFinish??>${entity.quantityFinish?c}<#else></#if>"/>
+                </td> 
+                <td width="15%" class="tableleft">描述</td>
+                <td>
+                    <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+                </td> 
+            </tr>
+            
+            <tr>
+	            <td colspan="4"  style="text-align:center">
+	               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+	            </td>
+            </tr>
+       </table>  
+      </form>
+    </div>
+
+<script type="text/javascript">
+var billStatusDictId=window.parent.billStatusDictId;
+$("#billStatusDictId").val(billStatusDictId);
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','laydate','layuiformajax','layuitable'], function(){
+	var form = layui.form,  laydate = layui.laydate,
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var url = $(window.parent.document).find("iframe").attr("src");
+	var arrs = url.split('?')[1].split('&&');
+	var ids=arrs[0].split('=')[1];
+	$("#billSaleorderId").val(ids);
+	if(arrs.length==2){//修改
+    	var materialName =arrs[1].split('=')[1];
+    	$("#materialName").val(materialName);
+		
+	}
+	
+	
+
+  	$('#search').on('click',function(e){
+      		openWinSelect2('/product/productMaterial/productMaterialOpen',"materialId","materialName","productId");
+      		e.preventDefault();//默认from表单提交时不刷新
+      	})
+      	
+    	
+    
+	
+	//监听提交
+    form.on('submit(save)', function(data){
+  	  console.log(data.field);
+  	  var url = '/bill/billSaleorderItem/save';
+  	  layuiformajax.postJson(url, data.field, function (result) {
+	    	   layer.alert("保存成功", {icon: 6},function () {
+	                // 获得frame索引
+	                var index = parent.layer.getFrameIndex(window.name);
+				  	parent.location.reload(); 
+	                parent.layer.close(index);
+	            });
+		  });
+		  
+      return false;
+    });
+	
+    laydate.render({
+		 elem: '#deliveryTime'//指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd' //可任意组合
+	});
+ 	laydate.render({
+		 elem: '#planTime' //指定元素
+		,type: 'date'
+		,format: 'yyyy-MM-dd' //可任意组合
+	});
+});	
+</script>
+ 
+  </body>
+
+</html>

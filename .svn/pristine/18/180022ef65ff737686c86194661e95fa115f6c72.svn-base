@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+
+  
+  <body>
+
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+          <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+          <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+           <select name="roleCode">
+          	<option value="">请选择角色</option>
+          	<#if adminRoleList1??>
+          	<#list adminRoleList1 as item>
+		            	<option value="${item.id?c}" >${item.roleName}</option>
+		         	</#list>
+		         </#if> 
+          </select>
+          <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+
+
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-table" id="listTable_choiceFunct" lay-filter="tablefilter_choiceFunct"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="choice">选择</a>
+</script>
+   
+   <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+   
+<script type="text/javascript">
+
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table, 
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	
+	
+	var layuiformajax = layui.layuiformajax;
+        	var curTable = layuitable.render({
+            	elem: '#listTable_choiceFunct'
+            	,id:'listTable_choiceFunct'
+            	,url:'/sys/adminRole/list/json'
+            	,cols: [[
+            	    {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+               	    ,{field:'roleName',  title: '角色名称',align:'center', minWidth: 270}
+               	    ,{field:'roleCode',  title: '角色编码',align:'center', minWidth: 270}
+               	    ,{field:'isValid',  title: '是否有效',align:'center', minWidth: 270,templet:'#isValidTpl'}
+               	    ,{field:'sortNo',  title: '排序',align:'center', minWidth: 270}
+               	    ,{field:'', width:'30%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+            	]]
+        	,done:function(){
+         		 $("[data-field='roleCode']").css('display','none');
+             	}
+          	});
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+
+
+	table.on('tool(tablefilter_choiceFunct)', function(obj) {
+		var userId = parent.$("#ids").val();
+		var data = obj.data;
+		if (obj.event === 'choice') {
+			console.log(data);
+	      //监听提交
+       	  var url = '/sys/adminRoleUser/save';
+       	 layuiformajax.postJson(url, {"roleId":data.id,"userId":userId}, function (result) {
+       		 layer.msg('添加成功!', {icon: 1, time: 1000},function () {
+     	                // 获得frame索引
+     	                var index = parent.layer.getFrameIndex(window.name);
+     	               parent.location.reload(); 
+     	              parent.layer.close(index);
+     	            });
+       		  
+     		  }); 
+		}
+	});
+	
+	
+
+	
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

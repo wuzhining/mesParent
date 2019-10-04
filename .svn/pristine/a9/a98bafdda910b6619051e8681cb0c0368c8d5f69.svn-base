@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<style>
+		.layui-unselect{
+			height:1px;
+		}
+	
+	</style>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+  		<div class="layui-row layui-col-space1">
+  			<div class="layui-col-md12">
+    			<div class="layui-form-query">
+    				<form class="layui-form m20">
+    					<div class="layui-form-item">
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						        <input type="text" name="fixtureSpecsCode"  placeholder="工具品种规格编码" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline"> 
+						      <div class="layui-input-inline"  style="width: 150px;">
+						          <input type="text" name="fixtureSpecsName"  placeholder="工具品种规格名称" autocomplete="off" class="layui-input">
+						      </div>
+						    </div>
+						    <div class="layui-inline">
+						      <div class="layui-input-inline"  style="width: 150px;">
+						      <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+						      </div>
+						    </div>
+			  			</div>
+            		</form>
+            	</div>
+            </div>
+            <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12">
+        				<table class="layui-hide" id="product_result" lay-filter="product_result"></table>
+        			</div>
+        		</div>
+        	</div>
+        
+        </div>
+    </div>
+</div>   
+</body>
+<script type="text/html" id="fixtureSpecsCode">
+	{{#  if(d.equipSpecsFixture){}}
+		{{ d.equipSpecsFixture.fixtureSpecsCode 
+
+ 	}}
+	{{# } }}
+</script>  
+<script type="text/html" id="fixtureSpecsName">
+	{{#  if(d.equipSpecsFixture){}}
+		{{ d.equipSpecsFixture.fixtureSpecsName
+ 	}}
+	{{# } }}
+</script>  
+ 
+<script type="text/javascript">
+var returnData = [];
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use(['form','table','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery,  table = layui.table,layuitable = layui.layuitable
+	layer = layui.layer;
+	console.log(parent.$('#specsFixtureId').val());
+	specsFixtureId = parent.$('#specsFixtureId').val();
+	var urls='/equip/equipSpecsFixtureArea/list/json';
+	if(parent.$('#specsFixtureId').val() != ""){
+		urls='/equip/equipSpecsFixtureArea/list/json?specsFixtureId='+specsFixtureId;
+	}
+	var curTable = layuitable.render({
+    	elem: '#product_result'
+    	,id:'product_result'
+    	,url:urls
+    	,height:300
+    	,width:"auto"
+   		,cols: [[
+		    	 {type:'radio'}
+   	    	    ,{field:'specsFixtureId',  title: '工具品种规格ID',align:'center', width: 130}
+   	    	    ,{field:'fixtureSpecsCode',  title: '工具品种规格编码',align:'center', width: 170,templet: '#fixtureSpecsCode'}
+   	    	    ,{field:'fixtureSpecsName',  title: '工具品种规格名称',align:'center', width: 220,templet: '#fixtureSpecsName'}
+   	    	    ,{field:'areaName',  title: '工具品种规格区位名称',align:'center', width: 170}
+     	    	]]
+		, done: function (res, curr, count) {
+			$("[data-field='specsFixtureId']").css('display','none');
+		}
+  	});
+	
+	form.on('submit(search)', function (data) {
+		curTable.reload(data.field);
+        return false;
+  	});
+	// table.on('tool(product_result)', product_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+	table.on('radio(product_result)', function(obj){
+	  //console.log(obj.checked); //当前是否选中状态
+	  //console.log(obj.data); //选中行的相关数据
+	  //console.log(obj.type); //如果触发的是全选，则为：all，如果触发的是单选，则为：one
+	   returnData=[];
+	  var checkStatus = table.checkStatus('product_result')
+      ,selectData = checkStatus.data;
+	   returnData.push(selectData);
+	  
+	});
+
+ 
+});	
+function selected() {
+	return returnData;
+}
+</script>
+ 
+  
+
+</html>

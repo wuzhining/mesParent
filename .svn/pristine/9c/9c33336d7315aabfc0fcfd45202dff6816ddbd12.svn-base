@@ -1,0 +1,91 @@
+package com.techsoft.entity.equip;
+
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.entity.common.EquipWorkClasses;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.entity.common.StructProductionline;
+import com.techsoft.entity.common.StructWorkshop;
+import com.techsoft.entity.common.StructWorkshopArea;
+
+public class EquipWorkVo extends EquipWork {
+	private static final long serialVersionUID = 1014822078131512672L;
+
+	private EquipWorkClasses equipWorkClasses;
+	private ConfigDictionary configDictionaryStatus;
+	private StructFactory structFactory;
+	private StructWorkshopArea structWorkshopArea;
+	private StructProductionline structProductionline;
+	private StructProcessNode structProcessNode;
+	private StructWorkshop structWorkshop;
+	
+	
+	public StructProcessNode getStructProcessNode() {
+		return structProcessNode;
+	}
+
+	public void setStructProcessNode(StructProcessNode structProcessNode) {
+		this.structProcessNode = structProcessNode;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	public EquipWorkVo() {	
+	}
+	
+	public EquipWorkVo(EquipWork value) {
+		value.cloneProperties(this);
+	}
+
+	public EquipWorkClasses getEquipWorkClasses() {
+		return equipWorkClasses;
+	}
+
+	public void setEquipWorkClasses(EquipWorkClasses equipWorkClasses) {
+		this.equipWorkClasses = equipWorkClasses;
+	}
+
+	public ConfigDictionary getConfigDictionaryStatus() {
+		return configDictionaryStatus;
+	}
+
+	public void setConfigDictionaryStatus(ConfigDictionary configDictionaryStatus) {
+		this.configDictionaryStatus = configDictionaryStatus;
+	}
+
+	public StructFactory getStructFactory() {
+		return structFactory;
+	}
+
+	public void setStructFactory(StructFactory structFactory) {
+		this.structFactory = structFactory;
+	}
+
+	public StructWorkshopArea getStructWorkshopArea() {
+		return structWorkshopArea;
+	}
+
+	public void setStructWorkshopArea(StructWorkshopArea structWorkshopArea) {
+		this.structWorkshopArea = structWorkshopArea;
+	}
+
+	public StructProductionline getStructProductionline() {
+		return structProductionline;
+	}
+
+	public void setStructProductionline(StructProductionline structProductionline) {
+		this.structProductionline = structProductionline;
+	}
+
+	public StructWorkshop getStructWorkshop() {
+		return structWorkshop;
+	}
+
+	public void setStructWorkshop(StructWorkshop structWorkshop) {
+		this.structWorkshop = structWorkshop;
+	}
+	
+}

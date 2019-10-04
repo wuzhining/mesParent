@@ -1,0 +1,37 @@
+package com.techsoft.common.enums;
+
+/**
+ * 
+ * 单据类型
+ *
+ */
+public enum EnumBillType {
+	BILL_TYPE_WORKORDER(10201L), // 工单
+	BILL_TYPE_EXAMINE(10202L), // 检验单
+	BILL_TYPE_INVENTORY(10203L), // 盘点单
+	BILL_TYPE_PURCHASE(10270L), // 采购单
+	BILL_TYPE_SALEORDER(10272L), // 销售单
+	BILL_TYPE_DELIVERY(10266L), // 发货单
+	BILL_TYPE_DELIVERY_SUPPLIER(10269L), // 供应商发货单
+	BILL_TYPE_WAREHOUSE_IN(10261L), // 入库单
+	BILL_TYPE_WAREHOUSE_OUT(10262L), // 出库单
+	BILL_TYPE_WAREHOUSE_PICKING(10263L), // 领料
+	BILL_TYPE_WAREHOUSE_MATER_RETURN(10264L), // 退料单
+	BILL_TYPE_WAREHOUSE_REJECT_SUPPLER(10265L), // 退货单(退给供应商)
+	BILL_TYPE_WAREHOUSE_REJECT_CUSTOMER(10275L), // 退货单 (客户退货回)
+	BILL_TYPE_WAREHOUSE_ARRIVAL(10267L), // 到货单
+	BILL_TYPE_WAREHOUSE_ALLOCATION(10268L), // 调拨单
+	BILL_TYPE_WAREHOUSE_UNPICKING(10271L), // 非生产领料
+	BILL_TYPE_WAREHOUSE_SHIPPING(10273L), // 销售出库
+	BILL_TYPE_WAREHOUSE_DISCARDED(10274L);// 报废出库
+
+	private Long value;  
+
+	private EnumBillType(Long value) {
+		this.value = value;
+	}
+
+	public Long getValue() {
+		return value; 
+	}
+}

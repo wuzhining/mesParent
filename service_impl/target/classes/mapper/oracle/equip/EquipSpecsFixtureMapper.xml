@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.equip.EquipSpecsFixtureMapper">
+	<resultMap id="EquipSpecsFixture" type="com.techsoft.entity.common.EquipSpecsFixture" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FIXTURE_SPECS_CODE" property="fixtureSpecsCode" />
+		<result column="FIXTURE_SPECS_NAME" property="fixtureSpecsName" />
+		<result column="CLASSES_ID" property="classesId" />
+		<result column="FIXTURE_STATUS_DICT_ID" property="fixtureStatusDictId" />
+		<result column="SUPPLIER_ID" property="supplierId" />
+		<result column="STANDARLIVE" property="standarlive" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="fixtureSpecsCode != null">
+			AND A.FIXTURE_SPECS_CODE= #{fixtureSpecsCode}
+		</if>
+		<if test="fixtureSpecsName != null">
+			AND A.FIXTURE_SPECS_NAME= #{fixtureSpecsName}
+		</if>
+		<if test="classesId != null">
+			AND A.CLASSES_ID= #{classesId}
+		</if>
+		<if test="fixtureStatusDictId != null">
+			AND A.FIXTURE_STATUS_DICT_ID= #{fixtureStatusDictId}
+		</if>
+		<if test="supplierId != null">
+			AND A.SUPPLIER_ID= #{supplierId}
+		</if>
+		<if test="standarlive != null">
+			AND A.STANDARLIVE= #{standarlive}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FIXTURE_SPECS_CODE,
+		A.FIXTURE_SPECS_NAME,
+		A.CLASSES_ID,
+		A.FIXTURE_STATUS_DICT_ID,
+		A.SUPPLIER_ID,
+		A.STANDARLIVE,
+		A.QUANTITY,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_EQUIP_SPECS_FIXTURE_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from EQUIP_SPECS_FIXTURE
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.EquipSpecsFixture">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_SPECS_FIXTURE A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.EquipSpecsFixture">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_SPECS_FIXTURE A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE EQUIP_SPECS_FIXTURE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE EQUIP_SPECS_FIXTURE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.EquipSpecsFixture">
+		UPDATE EQUIP_SPECS_FIXTURE A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipSpecsFixture">
+		INSERT INTO EQUIP_SPECS_FIXTURE (
+		TENANT_ID,
+		FIXTURE_SPECS_CODE,
+		FIXTURE_SPECS_NAME,
+		CLASSES_ID,
+		FIXTURE_STATUS_DICT_ID,
+		SUPPLIER_ID,
+		STANDARLIVE,
+		QUANTITY,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{fixtureSpecsCode},
+		#{fixtureSpecsName},
+		#{classesId},
+		#{fixtureStatusDictId},
+		#{supplierId},
+		#{standarlive},
+		#{quantity},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipSpecsFixture">
+		UPDATE EQUIP_SPECS_FIXTURE SET
+		TENANT_ID=#{tenantId},
+		FIXTURE_SPECS_CODE=#{fixtureSpecsCode},
+		FIXTURE_SPECS_NAME=#{fixtureSpecsName},
+		CLASSES_ID=#{classesId},
+		FIXTURE_STATUS_DICT_ID=#{fixtureStatusDictId},
+		SUPPLIER_ID=#{supplierId},
+		STANDARLIVE=#{standarlive},
+		QUANTITY=#{quantity},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.EquipSpecsFixture">
+		UPDATE EQUIP_SPECS_FIXTURE SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="fixtureSpecsCode != null" >
+			FIXTURE_SPECS_CODE=#{fixtureSpecsCode},
+		</if>
+		<if test="fixtureSpecsName != null" >
+			FIXTURE_SPECS_NAME=#{fixtureSpecsName},
+		</if>
+		<if test="classesId != null" >
+			CLASSES_ID=#{classesId},
+		</if>
+		<if test="fixtureStatusDictId != null" >
+			FIXTURE_STATUS_DICT_ID=#{fixtureStatusDictId},
+		</if>
+		<if test="supplierId != null" >
+			SUPPLIER_ID=#{supplierId},
+		</if>
+		<if test="standarlive != null" >
+			STANDARLIVE=#{standarlive},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.equip.EquipSpecsFixtureParamVo"
+		      resultType="com.techsoft.entity.common.EquipSpecsFixture" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM EQUIP_SPECS_FIXTURE A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

@@ -1,0 +1,8 @@
+package com.techsoft.dao.work;
+
+import com.techsoft.common.BaseDao;
+import com.techsoft.entity.common.WorkTaskProcedure;
+
+public interface WorkTaskProcedureDao extends BaseDao<WorkTaskProcedure> {
+
+}

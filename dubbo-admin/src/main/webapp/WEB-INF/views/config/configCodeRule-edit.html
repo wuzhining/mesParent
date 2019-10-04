@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+         <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+            <tr>
+               <td width="15%" class="tableleft">数据表对象</td>
+                 <td>
+                	<select name="tableObjectId"> 
+	                    <#if tableObjectList??>
+	                     <#list tableObjectList as item>
+				            <option value="${item.id?c}" <#if (entity.tableObjectId??&&entity.tableObjectId==item.id)>selected="selected"</#if>>${item.tableObjectNameCn}</option>
+				         </#list>
+				         </#if>
+				    </select>
+                </td>	
+               <td width="15%" class="tableleft">编码名称</td>
+                 <td>
+                	<!-- <select name="labelFunctionId"> 
+	                    <#if labelFunctionList??>
+	                     <#list labelFunctionList as item>
+				            <option value="${item.id?c}" <#if (entity.labelFunctionId??&&entity.labelFunctionId==item.id)>selected="selected"</#if>>${item.id}</option>
+				         </#list>
+				         </#if>
+				    </select> -->
+				    <input type="text" name=codeRuleName lay-verify="code" class="layui-input" maxlength="30" value="${(entity.codeRuleName)!''}"/>
+                </td>
+           </tr> 
+           <tr>
+               <td width="15%" class="tableleft">值</td>
+               <td>
+                 <input type="text" name="value" class="layui-input" maxlength="20" value="${(entity.value)!''}"/>
+               </td> 
+               <td width="15%" class="tableleft">排序号</td>
+               <td>
+                <input type="text" name="sortNo" class="layui-input" lay-verify="decimal" maxlength="20" value="<#if entity??&&entity.sortNo??>${entity.sortNo?c}<#else></#if>"/>
+               </td>
+           </tr>
+             <tr>
+               <td width="15%" class="tableleft">单据类型</td>
+               <td>
+               <select name="billTypeDictId">  
+                     <option value="">请选择</option>
+                     <#if billTypeDictIdList??> 
+                      <#list billTypeDictIdList as item>
+			            <option value="${item.id?c}" <#if (entity.billTypeDictId??&&entity.billTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option> 
+			         </#list> 
+ 			         </#if> 
+ 			    </select>
+               </td> 
+           </tr>
+       </table> 
+       <div class="layui-col-md12">
+				<div class="layui-row grid-demo">
+		       		<div class="layui-col-md12" style="text-align: center;">
+		   					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+		   			</div>
+		   		</div>
+	    </div> 
+	    <div class="layui-col-md12" style='text-align:center;'>
+	    	<button class="layui-btn"  lay-submit="" lay-filter="save">保存</button>	
+	    </div>  
+      </form>
+    </div>
+    <script type="text/html" id="labelFunctionName">
+	{{#  if(d.labelFunctionName){ }}
+		{{ d.labelFunctionName 
+
+ }}
+{{#  } }}
+</script>
+ <script type="text/html" id="codeRuleName">
+    {{#  if(d.configCodeRule){ }}
+		{{ d.configCodeRule.codeRuleName 
+
+     }}
+	{{#  } }}
+  </script>
+    <script>
+    
+    var ids = $("#id").val();
+    if(ids!=''){
+       layui.config({
+          base: '/static/plugins/layui/base/',
+          v: new Date().getTime()
+      }).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+      	var form = layui.form, 
+      	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+      	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+      	var layuiformajax = layui.layuiformajax;
+      	var curTable = layuitable.render({
+          	elem: '#listTable'
+          	,id:'listTable'
+          	,url:'/config/configCodeRuleItem/list/json?codeRuleId='+ids
+          	,cols: [[
+               	    {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+            	,{field:'codeRuleName', width:260, title: '编码规则名称',align:'center',templet: '#codeRuleName'}
+           	    ,{field:'labelFunctionId',  title: '功能定义类型',align:'center', minWidth: 140}
+           	    ,{field:'labelFunctionName', width:260, title: '功能定义类型',align:'center',templet: '#labelFunctionName'}
+           	    ,{field:'value',  title: '值',align:'center', minWidth: 140}
+           	    ,{field:'sortNo',  title: '序列号',align:'center', minWidth: 140}
+          	]]
+      	,done:function(){
+      		 $("[data-field='id']").css('display','none');
+      		 $("[data-field='labelFunctionId']").css('display','none');
+          	} 
+        	});
+      	
+      	form.on('submit(search)', function (data) {
+      		layuitable.reload(data.field);
+              return false;
+        	});
+
+      });
+      
+    };
+    
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          form.verify({
+        	
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	 
+        	  var url = '/config/configCodeRule/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	  if (result.isSuccess){
+      	    		layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            }); 
+      	    	  }else{
+      	    		  layer.alert(result.message,{
+      	    			  icon:2
+      	    		  });
+      	    	  }
+        		  
+      		  });
+        	 
+            return false;
+            
+          });
+          
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

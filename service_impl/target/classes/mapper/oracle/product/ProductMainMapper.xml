@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.product.ProductMainMapper">
+	<cache type="org.mybatis.caches.redis.RedisCache"/>
+	<resultMap id="ProductMain" type="com.techsoft.entity.common.ProductMain" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="PRODUCT_CODE" property="productCode" />
+		<result column="PRODUCT_NAME" property="productName" />
+		<result column="SUPPLIER_ID" property="supplierId" />
+		<result column="CLASSES_ID" property="classesId" />
+		<result column="SKU_NAME" property="skuName" />
+		<result column="SPECIFICATION" property="specification" />
+		<result column="PRODUCT_TYPE_DICT_ID" property="productTypeDictId" />
+		<result column="PRODUCT_STATUS_DICT_ID" property="productStatusDictId" />
+		<result column="PRODUCT_SOURCE_DICT_ID" property="productSourceDictId" />
+		<result column="SEMI_PRODUCT_TYPE_DICT_ID" property="semiProductTypeDictId" />
+		<result column="ERP_TYPE_DICT_ID" property="erpTypeDictId" />
+		<result column="VOLUME" property="volume" />
+		<result column="WEIGHT" property="weight" />
+		<result column="SIZE_LENGTH" property="sizeLength" />
+		<result column="SIZE_HEIGHT" property="sizeHeight" />
+		<result column="SIZE_WIDTH" property="sizeWidth" />
+		<result column="IS_PERIOD_CONTROL" property="isPeriodControl" />
+		<result column="PERIOD_MANUFACTURE" property="periodManufacture" />
+		<result column="PERIOD_WAREHOUSE_OUT" property="periodWarehouseOut" />
+		<result column="FAILURE_PERIOD_WARN" property="failurePeriodWarn" />
+		<result column="STRATEGY_UPSHELF_ID" property="strategyUpshelfId" />
+		<result column="STRATEGY_DOWNSHELF_ID" property="strategyDownshelfId" />
+		<result column="IS_UNPACK_BOX" property="isUnpackBox" />
+		<result column="IS_UNPACK_INNERBOX" property="isUnpackInnerbox" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="productCode != null">
+			AND A.PRODUCT_CODE= #{productCode}
+		</if>
+		<if test="productName != null">
+			AND A.PRODUCT_NAME= #{productName}
+		</if>
+		<if test="supplierId != null">
+			AND A.SUPPLIER_ID= #{supplierId}
+		</if>
+		<if test="classesId != null">
+			AND A.CLASSES_ID= #{classesId}
+		</if>
+		<if test="skuName != null">
+			AND A.SKU_NAME= #{skuName}
+		</if>
+		<if test="specification != null">
+			AND A.SPECIFICATION= #{specification}
+		</if>
+		<if test="productTypeDictId != null">
+			AND A.PRODUCT_TYPE_DICT_ID= #{productTypeDictId}
+		</if>
+		<if test="productStatusDictId != null">
+			AND A.PRODUCT_STATUS_DICT_ID= #{productStatusDictId}
+		</if>
+		<if test="productSourceDictId != null">
+			AND A.PRODUCT_SOURCE_DICT_ID= #{productSourceDictId}
+		</if>
+		<if test="semiProductTypeDictId != null">
+			AND A.SEMI_PRODUCT_TYPE_DICT_ID= #{semiProductTypeDictId}
+		</if>
+		<if test="erpTypeDictId != null">
+			AND A.ERP_TYPE_DICT_ID= #{erpTypeDictId}
+		</if>
+		<if test="volume != null">
+			AND A.VOLUME= #{volume}
+		</if>
+		<if test="weight != null">
+			AND A.WEIGHT= #{weight}
+		</if>
+		<if test="sizeLength != null">
+			AND A.SIZE_LENGTH= #{sizeLength}
+		</if>
+		<if test="sizeHeight != null">
+			AND A.SIZE_HEIGHT= #{sizeHeight}
+		</if>
+		<if test="sizeWidth != null">
+			AND A.SIZE_WIDTH= #{sizeWidth}
+		</if>
+		<if test="isPeriodControl != null">
+			AND A.IS_PERIOD_CONTROL= #{isPeriodControl}
+		</if>
+		<if test="periodManufacture != null">
+			AND A.PERIOD_MANUFACTURE= #{periodManufacture}
+		</if>
+		<if test="periodWarehouseOut != null">
+			AND A.PERIOD_WAREHOUSE_OUT= #{periodWarehouseOut}
+		</if>
+		<if test="failurePeriodWarn != null">
+			AND A.FAILURE_PERIOD_WARN= #{failurePeriodWarn}
+		</if>
+		<if test="strategyUpshelfId != null">
+			AND A.STRATEGY_UPSHELF_ID= #{strategyUpshelfId}
+		</if>
+		<if test="strategyDownshelfId != null">
+			AND A.STRATEGY_DOWNSHELF_ID= #{strategyDownshelfId}
+		</if>
+		<if test="isUnpackBox != null">
+			AND A.IS_UNPACK_BOX= #{isUnpackBox}
+		</if>
+		<if test="isUnpackInnerbox != null">
+			AND A.IS_UNPACK_INNERBOX= #{isUnpackInnerbox}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	    <if test="likeProductCode != null">
+		  <bind name="productCode" value="'%' + _parameter.likeProductCode + '%'" />
+		  AND A.PRODUCT_CODE LIKE #{productCode}
+		</if>
+		<if test="likeProductName != null">
+		  <bind name="productName" value="'%' + _parameter.likeProductName + '%'" />
+		  AND A.PRODUCT_NAME LIKE #{productName}
+		</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.PRODUCT_CODE,
+		A.PRODUCT_NAME,
+		A.SUPPLIER_ID,
+		A.CLASSES_ID,
+		A.SKU_NAME,
+		A.SPECIFICATION,
+		A.PRODUCT_TYPE_DICT_ID,
+		A.PRODUCT_STATUS_DICT_ID,
+		A.PRODUCT_SOURCE_DICT_ID,
+		A.SEMI_PRODUCT_TYPE_DICT_ID,
+		A.ERP_TYPE_DICT_ID,
+		A.VOLUME,
+		A.WEIGHT,
+		A.SIZE_LENGTH,
+		A.SIZE_HEIGHT,
+		A.SIZE_WIDTH,
+		A.IS_PERIOD_CONTROL,
+		A.PERIOD_MANUFACTURE,
+		A.PERIOD_WAREHOUSE_OUT,
+		A.FAILURE_PERIOD_WARN,
+		A.STRATEGY_UPSHELF_ID,
+		A.STRATEGY_DOWNSHELF_ID,
+		A.IS_UNPACK_BOX,
+		A.IS_UNPACK_INNERBOX,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_PRODUCT_MAIN_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from PRODUCT_MAIN
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.ProductMain">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_MAIN A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.ProductMain">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_MAIN A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE PRODUCT_MAIN A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE PRODUCT_MAIN  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.ProductMain">
+		UPDATE PRODUCT_MAIN A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.ProductMain">
+		INSERT INTO PRODUCT_MAIN (
+		TENANT_ID,
+		PRODUCT_CODE,
+		PRODUCT_NAME,
+		SUPPLIER_ID,
+		CLASSES_ID,
+		SKU_NAME,
+		SPECIFICATION,
+		PRODUCT_TYPE_DICT_ID,
+		PRODUCT_STATUS_DICT_ID,
+		PRODUCT_SOURCE_DICT_ID,
+		SEMI_PRODUCT_TYPE_DICT_ID,
+		ERP_TYPE_DICT_ID,
+		VOLUME,
+		WEIGHT,
+		SIZE_LENGTH,
+		SIZE_HEIGHT,
+		SIZE_WIDTH,
+		IS_PERIOD_CONTROL,
+		PERIOD_MANUFACTURE,
+		PERIOD_WAREHOUSE_OUT,
+		FAILURE_PERIOD_WARN,
+		STRATEGY_UPSHELF_ID,
+		STRATEGY_DOWNSHELF_ID,
+		IS_UNPACK_BOX,
+		IS_UNPACK_INNERBOX,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{productCode},
+		#{productName},
+		#{supplierId},
+		#{classesId},
+		#{skuName},
+		#{specification},
+		#{productTypeDictId},
+		#{productStatusDictId},
+		#{productSourceDictId},
+		#{semiProductTypeDictId},
+		#{erpTypeDictId},
+		#{volume},
+		#{weight},
+		#{sizeLength},
+		#{sizeHeight},
+		#{sizeWidth},
+		#{isPeriodControl},
+		#{periodManufacture},
+		#{periodWarehouseOut},
+		#{failurePeriodWarn},
+		#{strategyUpshelfId},
+		#{strategyDownshelfId},
+		#{isUnpackBox},
+		#{isUnpackInnerbox},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.ProductMain">
+		UPDATE PRODUCT_MAIN SET
+		TENANT_ID=#{tenantId},
+		PRODUCT_CODE=#{productCode},
+		PRODUCT_NAME=#{productName},
+		SUPPLIER_ID=#{supplierId},
+		CLASSES_ID=#{classesId},
+		SKU_NAME=#{skuName},
+		SPECIFICATION=#{specification},
+		PRODUCT_TYPE_DICT_ID=#{productTypeDictId},
+		PRODUCT_STATUS_DICT_ID=#{productStatusDictId},
+		PRODUCT_SOURCE_DICT_ID=#{productSourceDictId},
+		SEMI_PRODUCT_TYPE_DICT_ID=#{semiProductTypeDictId},
+		ERP_TYPE_DICT_ID=#{erpTypeDictId},
+		VOLUME=#{volume},
+		WEIGHT=#{weight},
+		SIZE_LENGTH=#{sizeLength},
+		SIZE_HEIGHT=#{sizeHeight},
+		SIZE_WIDTH=#{sizeWidth},
+		IS_PERIOD_CONTROL=#{isPeriodControl},
+		PERIOD_MANUFACTURE=#{periodManufacture},
+		PERIOD_WAREHOUSE_OUT=#{periodWarehouseOut},
+		FAILURE_PERIOD_WARN=#{failurePeriodWarn},
+		STRATEGY_UPSHELF_ID=#{strategyUpshelfId},
+		STRATEGY_DOWNSHELF_ID=#{strategyDownshelfId},
+		IS_UNPACK_BOX=#{isUnpackBox},
+		IS_UNPACK_INNERBOX=#{isUnpackInnerbox},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.ProductMain">
+		UPDATE PRODUCT_MAIN SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="productCode != null" >
+			PRODUCT_CODE=#{productCode},
+		</if>
+		<if test="productName != null" >
+			PRODUCT_NAME=#{productName},
+		</if>
+		<if test="supplierId != null" >
+			SUPPLIER_ID=#{supplierId},
+		</if>
+		<if test="classesId != null" >
+			CLASSES_ID=#{classesId},
+		</if>
+		<if test="skuName != null" >
+			SKU_NAME=#{skuName},
+		</if>
+		<if test="specification != null" >
+			SPECIFICATION=#{specification},
+		</if>
+		<if test="productTypeDictId != null" >
+			PRODUCT_TYPE_DICT_ID=#{productTypeDictId},
+		</if>
+		<if test="productStatusDictId != null" >
+			PRODUCT_STATUS_DICT_ID=#{productStatusDictId},
+		</if>
+		<if test="productSourceDictId != null" >
+			PRODUCT_SOURCE_DICT_ID=#{productSourceDictId},
+		</if>
+		<if test="semiProductTypeDictId != null" >
+			SEMI_PRODUCT_TYPE_DICT_ID=#{semiProductTypeDictId},
+		</if>
+		<if test="erpTypeDictId != null" >
+			ERP_TYPE_DICT_ID=#{erpTypeDictId},
+		</if>
+		<if test="volume != null" >
+			VOLUME=#{volume},
+		</if>
+		<if test="weight != null" >
+			WEIGHT=#{weight},
+		</if>
+		<if test="sizeLength != null" >
+			SIZE_LENGTH=#{sizeLength},
+		</if>
+		<if test="sizeHeight != null" >
+			SIZE_HEIGHT=#{sizeHeight},
+		</if>
+		<if test="sizeWidth != null" >
+			SIZE_WIDTH=#{sizeWidth},
+		</if>
+		<if test="isPeriodControl != null" >
+			IS_PERIOD_CONTROL=#{isPeriodControl},
+		</if>
+		<if test="periodManufacture != null" >
+			PERIOD_MANUFACTURE=#{periodManufacture},
+		</if>
+		<if test="periodWarehouseOut != null" >
+			PERIOD_WAREHOUSE_OUT=#{periodWarehouseOut},
+		</if>
+		<if test="failurePeriodWarn != null" >
+			FAILURE_PERIOD_WARN=#{failurePeriodWarn},
+		</if>
+		<if test="strategyUpshelfId != null" >
+			STRATEGY_UPSHELF_ID=#{strategyUpshelfId},
+		</if>
+		<if test="strategyDownshelfId != null" >
+			STRATEGY_DOWNSHELF_ID=#{strategyDownshelfId},
+		</if>
+		<if test="isUnpackBox != null" >
+			IS_UNPACK_BOX=#{isUnpackBox},
+		</if>
+		<if test="isUnpackInnerbox != null" >
+			IS_UNPACK_INNERBOX=#{isUnpackInnerbox},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.product.ProductMainParamVo"
+		      resultType="com.techsoft.entity.common.ProductMain" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_MAIN A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+	
+	<!-- 批量新增物品 -->
+	<insert id="insertBatchProductMain" flushCache="true" parameterType="java.util.List">
+	  	INSERT INTO PRODUCT_MAIN (
+		TENANT_ID,
+		PRODUCT_CODE,
+		PRODUCT_NAME,
+		SUPPLIER_ID,
+		CLASSES_ID,
+		SPECIFICATION,
+		SKU_NAME,
+		PRODUCT_TYPE_DICT_ID,
+		PRODUCT_STATUS_DICT_ID,
+		PRODUCT_SOURCE_DICT_ID,
+		VOLUME,
+		WEIGHT,
+		SIZE_LENGTH,
+		SIZE_HEIGHT,
+		SIZE_WIDTH,
+		IS_PERIOD_CONTROL,
+		PERIOD_MANUFACTURE,
+		PERIOD_WAREHOUSE_OUT,
+		FAILURE_PERIOD_WARN,
+		STRATEGY_UPSHELF_ID,
+		STRATEGY_DOWNSHELF_ID,
+		IS_UNPACK_BOX,
+		IS_UNPACK_INNERBOX,
+		REMARK,
+		ID
+		,VERSION
+		,DEL_FLAG
+		,CREATE_USER_ID
+		,MODIFY_USER_ID
+		,CREATE_TIME
+		,MODIFY_TIME
+		) VALUES
+			<foreach collection="list" item="item" separator=",">
+			(
+				#{item.tenantId},
+				#{item.productCode},
+				#{item.productName},
+				#{item.supplierId},
+				#{item.classesId},
+				#{item.specification},
+				#{item.skuName},
+				#{item.productTypeDictId},
+				#{item.productStatusDictId},
+				#{item.productSourceDictId},
+				#{item.volume},
+				#{item.weight},
+				#{item.sizeLength},
+				#{item.sizeHeight},
+				#{item.sizeWidth},
+				#{item.isPeriodControl},
+				#{item.periodManufacture},
+				#{item.periodWarehouseOut},
+				#{item.failurePeriodWarn},
+				#{item.strategyUpshelfId},
+				#{item.strategyDownshelfId},
+				#{item.isUnpackBox},
+				#{item.isUnpackInnerbox},
+				#{item.remark},
+				#{item.id},
+				1,
+				0,
+				#{item.createUserId},
+				#{item.modifyUserId},
+				now(),
+				now()
+			)
+			 </foreach>
+	</insert>
+	
+	<select id="selectByCode" parameterType="java.lang.String" useCache="true"
+			resultType="com.techsoft.entity.common.ProductMain">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM PRODUCT_MAIN A
+		WHERE (A.DEL_FLAG = 0) and (A.PRODUCT_CODE=#{productCode})
+	</select>
+</mapper>

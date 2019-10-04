@@ -1,0 +1,207 @@
+package com.techsoft.client.service.config;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.common.ConfigArea;
+import com.techsoft.entity.common.ConfigCountry;
+import com.techsoft.entity.config.ConfigAreaParamVo;
+import com.techsoft.entity.config.ConfigAreaVo;
+import com.techsoft.service.config.ConfigAreaService;
+import com.techsoft.service.config.ConfigCountryService;
+
+@org.springframework.stereotype.Service
+public class ClientConfigAreaServiceImpl extends BaseClientServiceImpl<ConfigArea> implements ClientConfigAreaService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigAreaService configAreaService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigCountryService configCountryService;
+
+	@Override
+	public BaseService<ConfigArea> getBaseService() {
+		return configAreaService;
+	}
+
+	private ConfigAreaVo getVo(ConfigArea configArea, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigAreaVo vo = new ConfigAreaVo(configArea);
+		if (vo.getCountryId() != null && vo.getCountryId() > 0L) {
+			ConfigCountry configCountry = configCountryService.selectById(vo.getCountryId(), commonParam);
+			if (configCountry != null) {
+				vo.setConfigCountry(configCountry);
+			}
+		}
+		if (vo.getParentId() != null && vo.getParentId() >= 0L) {
+			ConfigArea configArea2 = configAreaService.selectById(vo.getParentId(), commonParam);
+			if (configArea2 != null) {
+				vo.setConfigArea(configArea2);
+			}
+		}
+		return vo;
+	}
+
+	private ConfigAreaVo getExtendVo(ConfigArea configArea, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		ConfigAreaVo vo = this.getVo(configArea, commonParam);
+
+		return vo;
+	}
+
+	private List<ConfigAreaVo> getVoList(List<ConfigArea> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ConfigAreaVo> voList = new ArrayList<ConfigAreaVo>();
+		for (ConfigArea entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<ConfigAreaVo> getExtendVoList(List<ConfigArea> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<ConfigAreaVo> voList = new ArrayList<ConfigAreaVo>();
+		for (ConfigArea entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public ConfigAreaVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigArea entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<ConfigAreaVo> selectListVoByParamVo(ConfigAreaParamVo configArea, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (configArea == null) {
+			configArea = new ConfigAreaParamVo();
+		}
+		configArea.setTenantId(commonParam.getTenantId());
+
+		List<ConfigArea> list = (List<ConfigArea>) this.getBaseService().selectListByParamVo(configArea, commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ConfigAreaVo> selectPageVoByParamVo(ConfigAreaParamVo configArea, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (configArea == null) {
+			configArea = new ConfigAreaParamVo();
+		}
+		configArea.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ConfigArea> list = (PageInfo<ConfigArea>) this.getBaseService().selectPageByParamVo(configArea,
+				commonParam, pageNo, pageSize);
+		List<ConfigAreaVo> volist = new ArrayList<ConfigAreaVo>();
+
+		Iterator<ConfigArea> iter = list.getList().iterator();
+		ConfigAreaVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ConfigAreaVo> vpage = new Page<ConfigAreaVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ConfigAreaVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		ConfigArea entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<ConfigAreaVo> selectListExtendVoByParamVo(ConfigAreaParamVo configArea, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (configArea == null) {
+			configArea = new ConfigAreaParamVo();
+		}
+		configArea.setTenantId(commonParam.getTenantId());
+
+		List<ConfigArea> list = (List<ConfigArea>) this.getBaseService().selectListByParamVo(configArea, commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<ConfigAreaVo> selectPageExtendVoByParamVo(ConfigAreaParamVo configArea, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (configArea == null) {
+			configArea = new ConfigAreaParamVo();
+		}
+		configArea.setTenantId(commonParam.getTenantId());
+
+		PageInfo<ConfigArea> list = (PageInfo<ConfigArea>) this.getBaseService().selectPageByParamVo(configArea,
+				commonParam, pageNo, pageSize);
+		List<ConfigAreaVo> volist = new ArrayList<ConfigAreaVo>();
+
+		Iterator<ConfigArea> iter = list.getList().iterator();
+		ConfigAreaVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<ConfigAreaVo> vpage = new Page<ConfigAreaVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(ConfigAreaParamVo configAreaParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		ConfigArea configArea = null;
+
+		if (configAreaParamVo.getAreaName() == null) {
+			resultMessage.addErr("地区名称不能为空");
+			return resultMessage;
+		}
+
+		try {
+			if (configAreaParamVo.getId() == null) {// 新增
+
+				configAreaParamVo.setTenantId(commonParam.getTenantId());
+				configArea = configAreaService.saveOrUpdate(configAreaParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				ConfigArea configAreaVoTemp = this.selectById(configAreaParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(configAreaVoTemp, configAreaParamVo);
+
+				configArea = configAreaService.saveOrUpdate(configAreaVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(configArea);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

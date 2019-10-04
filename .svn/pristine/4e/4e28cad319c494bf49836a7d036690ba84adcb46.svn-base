@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	<!-- 时间选择器，隐藏秒数 -->
+	<style>
+	    .layui-laydate-content > .layui-laydate-list {
+	      padding-bottom: 0px;
+	      overflow: hidden;
+	     }
+	    .layui-laydate-content > .layui-laydate-list > li {
+	       width: 50%
+	     }
+    </style>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+			    <td width="15%" class="tableleft">所属工厂</td>
+                <td>
+                	<div class="div-choiceBox-intd ">  
+                		<input type="hidden"  id="factoryId" name="factoryId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.factoryId??>${entity.factoryId?c}<#else></#if>">
+                		<input type="text" id="factoryName" name="factoryName" value="${(structFactory.factoryName)!''}" disabled="disabled" class="layui-input input-choiceBox-intd"/> 
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="factorySearch"> 
+		          			<i class="layui-icon layui-icon-more"></i>   
+		          		</button>
+	         	 	</div> 
+                </td> 
+               
+               <td width="15%" class="tableleft">班别名称</td>
+               <td><input type="text" name="schedulingName" class="layui-input" maxlength="16" value="${(entity.schedulingName)!''}"/></td>
+             
+           </tr>
+           <tr>
+           	   <td width="15%" class="tableleft">开始时间</td>
+               <td>
+                 <input class="layui-input" autocomplete="off" placeholder="开始时间" name="timeStart" id="timeStart" maxlength="20" value="${(entity.timeStart)!''}"/>
+               </td>
+               <td width="15%" class="tableleft">结束时间</td>
+               <td>
+               	  <input class="layui-input" autocomplete="off" placeholder="结束时间" name="timeEnd" id="timeEnd" maxlength="20" value="${(entity.timeEnd)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td id="td1" width="15%" class="tableleft">班别编码</td>
+               <td id="td2">
+                   <input type="text" name="schedulingCode" disabled="true" class="layui-input" maxlength="20" value="${(entity.schedulingCode)!''}"/>
+               </td>
+           </tr>
+           <tr>
+               <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+               <td width="15%" class="tableleft">描述</td>
+               <td>
+                 <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    var ids = $('#id').val();
+    if(ids ==null || ids ==""){
+  	  	$("#td1").hide();
+  	  	$("#td2").hide();
+    }
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery ,  laydate = layui.laydate;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          form.verify({
+        	 factoryName: function(value){
+              if(value.length < 5){
+                return '用户名至少得5个字符啊';
+              }
+            }
+            ,mobileNumber: [/(.+){11,11}$/, '手机号码必须11位']
+            ,email: function(value){
+                if($('#email').val()!=$('#email').val()){
+                    return '不一致';
+                }
+            }
+          });
+	      	$('#factorySearch').on('click',function(e){
+	    		openWinSelect('/struct/structFactory/structFactoryOpen',"factoryId","factoryName");
+	       		e.preventDefault();//默认from表单提交时不刷新
+	       	})
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/firm/firmScheduling/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          laydate.render({
+	      		elem: '#timeStart' //指定元素
+	      		,type: 'time'
+	      		,format: 'HH:mm' //可任意组合
+	      	});
+	      	
+	      	laydate.render({
+	      		elem: '#timeEnd' //指定元素
+	      		,type: 'time'
+	      		,format: 'HH:mm' //可任意组合
+	      	});
+          
+        });
+    </script>
+    <script></script>
+  </body>
+
+</html>

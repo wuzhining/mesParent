@@ -1,0 +1,105 @@
+package com.techsoft.service.bill.Strategy.out;
+
+
+import java.util.ArrayList;
+import java.util.List;
+import com.techsoft.common.BaseDao;
+import com.techsoft.common.BaseServiceImpl;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumBarcodeStatus;
+import com.techsoft.dao.barcode.BarcodeMainDao;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.service.bill.Strategy.WareHouseStrategy;
+
+/**
+*@auther:Wang
+*@version:2019年6月3日下午1:31:41
+*@param:
+*@description 指定库位出库策略实现类
+*/
+public class LocationOutStrategy   implements WareHouseStrategy{
+	private BarcodeMainDao barcodeMainDao;
+	
+	//物料ID
+	private Long materialId;
+	//货位ID
+	private Long locationId;
+	//货架ID
+	private Long rackId;
+	//区域ID
+	private Long areaId;
+
+	/* (指定库位出库策略接口实现方法)
+	 * @param:materialId 物料id
+	 * @param:locationId 货位id
+	 * @description:查询指定库位的物料信息返回
+	 */
+	@Override
+	public Object Startegy() {
+		BarcodeMainParamVo paramVo=new BarcodeMainParamVo();
+		paramVo.setMaterialId(materialId);
+		if (areaId != null && areaId > 0L) {
+		    paramVo.setAreaId(areaId);
+		}
+		if (rackId != null && rackId > 0L) {
+		    paramVo.setRackId(rackId);
+		}
+		if (locationId != null && locationId > 0L) {
+			paramVo.setLocationId(locationId);
+		}
+		
+		paramVo.setBarcodeStatusDictId(EnumBarcodeStatus.INSTORE.getValue());
+		long barcodePackbox = 0;// 最外箱
+		paramVo.setBarcodePackboxId(barcodePackbox);
+		List<BarcodeMain> list=new ArrayList<>();
+		try {
+			 list=barcodeMainDao.selectListByParamVo(paramVo);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public Long getMaterialId() {
+		return materialId;
+	}
+
+	public void setMaterialId(Long materialId) {
+		this.materialId = materialId;
+	}
+
+	public Long getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(Long locationId) {
+		this.locationId = locationId;
+	}
+
+	 
+
+	public BarcodeMainDao getBarcodeMainDao() {
+		return barcodeMainDao;
+	}
+
+	public void setBarcodeMainDao(BarcodeMainDao barcodeMainDao) {
+		this.barcodeMainDao = barcodeMainDao;
+	}
+
+	public Long getRackId() {
+		return rackId;
+	}
+
+	public void setRackId(Long rackId) {
+		this.rackId = rackId;
+	}
+
+	public Long getAreaId() {
+		return areaId;
+	}
+
+	public void setAreaId(Long areaId) {
+		this.areaId = areaId;
+	}
+}

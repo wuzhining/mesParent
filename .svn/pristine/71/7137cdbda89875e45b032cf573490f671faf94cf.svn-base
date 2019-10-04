@@ -1,0 +1,137 @@
+package com.techsoft.client.service.barcode;
+
+import java.util.List;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.barcode.BarcodeMainVo;
+import com.techsoft.entity.common.BarcodeMain;
+
+public interface ClientBarcodeMainService extends BaseClientService<BarcodeMain> {
+
+	public BarcodeMainVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+
+	public List<BarcodeMainVo> selectListVoByParamVo(BarcodeMainParamVo barcodeMain, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	public PageInfo<BarcodeMainVo> selectPageVoByParamVo(BarcodeMainParamVo barcodeMain, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException;
+
+	public BarcodeMainVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException;
+
+	public List<BarcodeMainVo> selectListExtendVoByParamVo(BarcodeMainParamVo barcodeMain, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	public PageInfo<BarcodeMainVo> selectPageExtendVoByParamVo(BarcodeMainParamVo barcodeMain, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException;
+
+	public ResultMessage saveOrUpdate(BarcodeMainParamVo barcodeMainParamVo, CommonParam commonParam);
+
+	public BarcodeMain getVoByCode(String code, CommonParam commonParam) throws BusinessException, SQLException;
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年4月30日下午1:57:51
+	 * @param:
+	 * @description pda领料下架
+	 */
+	public ResultMessage offBarcode(BarcodeMainVo barcodeMainVo, CommonParam commonParam);
+
+	/**
+	 * @auther:xiang
+	 * @description 条码打印批量插入条码主表
+	 */
+	public ResultMessage batchInsertBarcodeMain(List<BarcodeMain> barcodeMainList, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年4月30日下午1:57:51
+	 * @param:billId 领料主表ID
+	 * @description pda领料出库
+	 */
+	public ResultMessage outBarcode(String billId, CommonParam commonParam) throws BusinessException, SQLException;
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年5月13日下午1:57:14
+	 * @param:
+	 * @description 根据条件得到条码数量
+	 */
+	public String getInventory(BarcodeMainParamVo paramVo, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年5月22日上午9:54:21
+	 * @param:paramVo 物料对象
+	 * @description 根据条件查询物料总数量
+	 */
+	public Double selectSumQtyByEntity(BarcodeMainParamVo paramVo, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年5月22日上午9:56:26
+	 * @param:barcode 需要拆包的条码号
+	 * @description 下架拆包扫描条码返回信息
+	 */
+	public ResultMessage scanUnpackBarcode(String barcode, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	/**
+	 * @auther:Wang
+	 * @version:2019年5月24日下午3:09:27
+	 * @param:barcode 扫描条码
+	 * @param:unpackQty 拆出数量
+	 * @description 下架拆包
+	 */
+	public ResultMessage unpackBarcode(String barcode, String unpackQty, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	/**
+	 * @auther:Chen
+	 * @version:2019年5月30日下午1:43:06
+	 * @param barcodeMain
+	 *            标签对象
+	 * @param commonParam
+	 * @return
+	 * @description 扫描标签以及货位进行库内移位
+	 */
+	public ResultMessage barcodeTransposition(BarcodeMain barcodeMain, CommonParam commonParam);
+	
+	/**
+	*@auther:Wang
+	*@version:2019年6月11日上午11:48:48
+	*@param:materialId 物料ID
+	*@description 根据领料单传过来的物料返回出最优的推荐条码信息
+	*/
+	public List<BarcodeMainVo> bestLocation(Long materialId,CommonParam commonParam) throws BusinessException, SQLException;
+
+	/**
+	*@auther:Chen
+	*@version:2019年6月24日下午1:15:01
+	*@param paramVo    PDA传回的查询条件封装对象
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description      根据输入的条件汇总仓库库存
+	*/
+	public List<BarcodeMainVo> selectSumQtyByCondition(BarcodeMainParamVo paramVo) throws BusinessException, SQLException;
+
+	/**
+	*@auther:Chen
+	*@version:2019年8月19日下午2:48:39
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description
+	*/
+	public String getBatchNumber(CommonParam commonParam) throws BusinessException, SQLException;
+	
+}

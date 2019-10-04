@@ -1,0 +1,14 @@
+package com.techsoft.entity.sys;
+
+import com.techsoft.entity.common.UserTenant;
+
+public class UserTenantVo extends UserTenant {
+	private static final long serialVersionUID = -4402014109010013770L;
+
+	public UserTenantVo() {	
+	}
+	
+	public UserTenantVo(UserTenant value) {
+		value.cloneProperties(this);
+	}		
+}

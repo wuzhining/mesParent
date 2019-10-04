@@ -1,0 +1,65 @@
+package com.techsoft.entity.warehouse;
+
+import java.util.Date;
+
+import com.techsoft.entity.common.WarehousePalletItem;
+
+public class WarehousePalletItemParamVo extends WarehousePalletItem {
+	private static final long serialVersionUID = -676971155370567449L;
+
+
+	public WarehousePalletItemParamVo (){
+	}
+	
+	public WarehousePalletItemParamVo(WarehousePalletItem value) {
+		value.cloneProperties(this);
+	}	
+	
+	private Date createTimeBegin;
+	private Date createTimeEnd;
+	private Date modifyTimeBegin;
+	private Date modifyTimeEnd;	
+	
+	private Long likePalletId;	
+	
+	
+	public Date getCreateTimeBegin() {
+		return createTimeBegin;
+	}
+
+	public void setCreateTimeBegin(Date value) {
+		this.createTimeBegin = value;
+	}
+
+	public Date getCreateTimeEnd() {
+		return createTimeEnd;
+	}
+
+	public void setCreateTimeEnd(Date value) {
+		this.createTimeEnd = value;
+	}
+
+	public Date getModifyTimeBegin() {
+		return modifyTimeBegin;
+	}
+
+	public void setModifyTimeBegin(Date value) {
+		this.modifyTimeBegin = value;
+	}
+
+	public Date getModifyTimeEnd() {
+		return modifyTimeEnd;
+	}
+
+	public void setModifyTimeEnd(Date value) {
+		this.modifyTimeEnd = value;
+	}
+
+	public Long getLikePalletId() {
+		return likePalletId;
+	}
+
+	public void setLikePalletId(Long likePalletId) {
+		this.likePalletId = likePalletId;
+	}			
+}

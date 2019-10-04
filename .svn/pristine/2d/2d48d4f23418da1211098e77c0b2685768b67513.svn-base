@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.quality.QualityInspectModuleRelationMapper">
+	<resultMap id="QualityInspectModuleRelation" type="com.techsoft.entity.common.QualityInspectModuleRelation" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="INSPECT_ITEM_ID" property="inspectItemId" />
+		<result column="SAMPLE_LEVEL_DICT_ID" property="sampleLevelDictId" />
+		<result column="SAMPLE_LEVEL_RANK_DICT_ID" property="sampleLevelRankDictId" />
+		<result column="SUPPLIER_ID" property="supplierId" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="PRODUCT_CLASSES_ID" property="productClassesId" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="inspectItemId != null">
+			AND A.INSPECT_ITEM_ID= #{inspectItemId}
+		</if>
+		<if test="sampleLevelDictId != null">
+			AND A.SAMPLE_LEVEL_DICT_ID= #{sampleLevelDictId}
+		</if>
+		<if test="sampleLevelRankDictId != null">
+			AND A.SAMPLE_LEVEL_RANK_DICT_ID= #{sampleLevelRankDictId}
+		</if>
+		<if test="supplierId != null">
+			AND A.SUPPLIER_ID= #{supplierId}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="productClassesId != null">
+			AND A.PRODUCT_CLASSES_ID= #{productClassesId}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.INSPECT_ITEM_ID,
+		A.SAMPLE_LEVEL_DICT_ID,
+		A.SAMPLE_LEVEL_RANK_DICT_ID,
+		A.SUPPLIER_ID,
+		A.PRODUCT_ID,
+		A.PRODUCT_CLASSES_ID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_QUALITY_INSPECT_MODULE_RELATION_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from QUALITY_INSPECT_MODULE_RELATION
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.QualityInspectModuleRelation">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM QUALITY_INSPECT_MODULE_RELATION A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.QualityInspectModuleRelation">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM QUALITY_INSPECT_MODULE_RELATION A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE QUALITY_INSPECT_MODULE_RELATION A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE QUALITY_INSPECT_MODULE_RELATION  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.QualityInspectModuleRelation">
+		UPDATE QUALITY_INSPECT_MODULE_RELATION A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.QualityInspectModuleRelation">
+		INSERT INTO QUALITY_INSPECT_MODULE_RELATION (
+		TENANT_ID,
+		INSPECT_ITEM_ID,
+		SAMPLE_LEVEL_DICT_ID,
+		SAMPLE_LEVEL_RANK_DICT_ID,
+		SUPPLIER_ID,
+		PRODUCT_ID,
+		PRODUCT_CLASSES_ID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{inspectItemId},
+		#{sampleLevelDictId},
+		#{sampleLevelRankDictId},
+		#{supplierId},
+		#{productId},
+		#{productClassesId},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.QualityInspectModuleRelation">
+		UPDATE QUALITY_INSPECT_MODULE_RELATION SET
+		TENANT_ID=#{tenantId},
+		INSPECT_ITEM_ID=#{inspectItemId},
+		SAMPLE_LEVEL_DICT_ID=#{sampleLevelDictId},
+		SAMPLE_LEVEL_RANK_DICT_ID=#{sampleLevelRankDictId},
+		SUPPLIER_ID=#{supplierId},
+		PRODUCT_ID=#{productId},
+		PRODUCT_CLASSES_ID=#{productClassesId},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.QualityInspectModuleRelation">
+		UPDATE QUALITY_INSPECT_MODULE_RELATION SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="inspectItemId != null" >
+			INSPECT_ITEM_ID=#{inspectItemId},
+		</if>
+		<if test="sampleLevelDictId != null" >
+			SAMPLE_LEVEL_DICT_ID=#{sampleLevelDictId},
+		</if>
+		<if test="sampleLevelRankDictId != null" >
+			SAMPLE_LEVEL_RANK_DICT_ID=#{sampleLevelRankDictId},
+		</if>
+		<if test="supplierId != null" >
+			SUPPLIER_ID=#{supplierId},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="productClassesId != null" >
+			PRODUCT_CLASSES_ID=#{productClassesId},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.quality.QualityInspectModuleRelationParamVo"
+		      resultType="com.techsoft.entity.common.QualityInspectModuleRelation" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM QUALITY_INSPECT_MODULE_RELATION A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

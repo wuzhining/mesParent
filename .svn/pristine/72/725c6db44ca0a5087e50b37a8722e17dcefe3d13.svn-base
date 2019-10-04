@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.warehouse.WarehouseStrategyUpshelfMapper">
+	<resultMap id="WarehouseStrategyUpshelf" type="com.techsoft.entity.common.WarehouseStrategyUpshelf" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="WAREHOUSE_ID" property="warehouseId" />
+		<result column="STRATEGY_CODE" property="strategyCode" />
+		<result column="STRATEGY_NAME" property="strategyName" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="AREA_ID" property="areaId" />
+		<result column="RACK_ID" property="rackId" />
+		<result column="LOCATION_ID" property="locationId" />
+		<result column="LOCATION_IS_EMPTY" property="locationIsEmpty" />
+		<result column="LOCATION_IS_NOTMIX_PRODUCT" property="locationIsNotmixProduct" />
+		<result column="LOCATION_IS_NOTMIX_BATCH" property="locationIsNotmixBatch" />
+		<result column="LOCATION_IS_SAME_PRODUCT" property="locationIsSameProduct" />
+		<result column="LOCATION_IS_SAME_BATCH" property="locationIsSameBatch" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="warehouseId != null">
+			AND A.WAREHOUSE_ID= #{warehouseId}
+		</if>
+		<if test="strategyCode != null">
+			AND A.STRATEGY_CODE= #{strategyCode}
+		</if>
+		<if test="strategyName != null">
+			AND A.STRATEGY_NAME= #{strategyName}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="areaId != null">
+			AND A.AREA_ID= #{areaId}
+		</if>
+		<if test="rackId != null">
+			AND A.RACK_ID= #{rackId}
+		</if>
+		<if test="locationId != null">
+			AND A.LOCATION_ID= #{locationId}
+		</if>
+		<if test="locationIsEmpty != null">
+			AND A.LOCATION_IS_EMPTY= #{locationIsEmpty}
+		</if>
+		<if test="locationIsNotmixProduct != null">
+			AND A.LOCATION_IS_NOTMIX_PRODUCT= #{locationIsNotmixProduct}
+		</if>
+		<if test="locationIsNotmixBatch != null">
+			AND A.LOCATION_IS_NOTMIX_BATCH= #{locationIsNotmixBatch}
+		</if>
+		<if test="locationIsSameProduct != null">
+			AND A.LOCATION_IS_SAME_PRODUCT= #{locationIsSameProduct}
+		</if>
+		<if test="locationIsSameBatch != null">
+			AND A.LOCATION_IS_SAME_BATCH= #{locationIsSameBatch}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.WAREHOUSE_ID,
+		A.STRATEGY_CODE,
+		A.STRATEGY_NAME,
+		A.IS_VALID,
+		A.AREA_ID,
+		A.RACK_ID,
+		A.LOCATION_ID,
+		A.LOCATION_IS_EMPTY,
+		A.LOCATION_IS_NOTMIX_PRODUCT,
+		A.LOCATION_IS_NOTMIX_BATCH,
+		A.LOCATION_IS_SAME_PRODUCT,
+		A.LOCATION_IS_SAME_BATCH,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for WAREHOUSE_STRATEGY_UPSHELF_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from WAREHOUSE_STRATEGY_UPSHELF
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.WarehouseStrategyUpshelf">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_STRATEGY_UPSHELF A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.WarehouseStrategyUpshelf">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_STRATEGY_UPSHELF A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM WAREHOUSE_STRATEGY_UPSHELF A
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE   A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM WAREHOUSE_STRATEGY_UPSHELF A
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseStrategyUpshelf">
+		UPDATE  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		FROM WAREHOUSE_STRATEGY_UPSHELF A
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseStrategyUpshelf">
+		INSERT INTO WAREHOUSE_STRATEGY_UPSHELF (
+		TENANT_ID,
+		FACTORY_ID,
+		WAREHOUSE_ID,
+		STRATEGY_CODE,
+		STRATEGY_NAME,
+		IS_VALID,
+		AREA_ID,
+		RACK_ID,
+		LOCATION_ID,
+		LOCATION_IS_EMPTY,
+		LOCATION_IS_NOTMIX_PRODUCT,
+		LOCATION_IS_NOTMIX_BATCH,
+		LOCATION_IS_SAME_PRODUCT,
+		LOCATION_IS_SAME_BATCH,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{warehouseId},
+		#{strategyCode},
+		#{strategyName},
+		#{isValid},
+		#{areaId},
+		#{rackId},
+		#{locationId},
+		#{locationIsEmpty},
+		#{locationIsNotmixProduct},
+		#{locationIsNotmixBatch},
+		#{locationIsSameProduct},
+		#{locationIsSameBatch},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseStrategyUpshelf">
+		UPDATE WAREHOUSE_STRATEGY_UPSHELF SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		WAREHOUSE_ID=#{warehouseId},
+		STRATEGY_CODE=#{strategyCode},
+		STRATEGY_NAME=#{strategyName},
+		IS_VALID=#{isValid},
+		AREA_ID=#{areaId},
+		RACK_ID=#{rackId},
+		LOCATION_ID=#{locationId},
+		LOCATION_IS_EMPTY=#{locationIsEmpty},
+		LOCATION_IS_NOTMIX_PRODUCT=#{locationIsNotmixProduct},
+		LOCATION_IS_NOTMIX_BATCH=#{locationIsNotmixBatch},
+		LOCATION_IS_SAME_PRODUCT=#{locationIsSameProduct},
+		LOCATION_IS_SAME_BATCH=#{locationIsSameBatch},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.WarehouseStrategyUpshelf">
+		UPDATE WAREHOUSE_STRATEGY_UPSHELF SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="warehouseId != null" >
+			WAREHOUSE_ID=#{warehouseId},
+		</if>
+		<if test="strategyCode != null" >
+			STRATEGY_CODE=#{strategyCode},
+		</if>
+		<if test="strategyName != null" >
+			STRATEGY_NAME=#{strategyName},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="areaId != null" >
+			AREA_ID=#{areaId},
+		</if>
+		<if test="rackId != null" >
+			RACK_ID=#{rackId},
+		</if>
+		<if test="locationId != null" >
+			LOCATION_ID=#{locationId},
+		</if>
+		<if test="locationIsEmpty != null" >
+			LOCATION_IS_EMPTY=#{locationIsEmpty},
+		</if>
+		<if test="locationIsNotmixProduct != null" >
+			LOCATION_IS_NOTMIX_PRODUCT=#{locationIsNotmixProduct},
+		</if>
+		<if test="locationIsNotmixBatch != null" >
+			LOCATION_IS_NOTMIX_BATCH=#{locationIsNotmixBatch},
+		</if>
+		<if test="locationIsSameProduct != null" >
+			LOCATION_IS_SAME_PRODUCT=#{locationIsSameProduct},
+		</if>
+		<if test="locationIsSameBatch != null" >
+			LOCATION_IS_SAME_BATCH=#{locationIsSameBatch},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.warehouse.WarehouseStrategyUpshelfParamVo"
+		      resultType="com.techsoft.entity.common.WarehouseStrategyUpshelf" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM WAREHOUSE_STRATEGY_UPSHELF A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

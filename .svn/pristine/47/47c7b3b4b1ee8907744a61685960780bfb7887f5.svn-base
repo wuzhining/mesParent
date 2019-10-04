@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+	
+<style type="text/css">
+.divcss table {
+	background: #CCC;
+}
+
+.divcss table td {
+	background: #FFF;
+	text-align: center;
+	height: 28px;
+}
+</style>
+  </head>
+  <body style="padding: 0; margin: 0;">
+      <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">品质管理</a> <a><cite>批量检验水平</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+	<div class="divcss">
+		<table width="100%" border="5" cellspacing="1" cellpadding="1">
+			<tbody>
+				<tr border="1px">
+					<td rowspan="2" style="width: 250px;">批量</td>
+					<td colspan="5">特殊检验水平</td>
+					<td colspan="3">一般检验水平</td>
+				</tr>
+				<tr>
+					<td>S-1</td>
+					<td>S-2</td>
+					<td>S-3</td>
+					<td>S-4</td>
+					<td>Other</td>
+					<td>I</td>
+					<td>II</td>
+					<td>III</td>
+				</tr>
+
+				<tr>
+					<td>1~8</td>
+					<td>A</td>
+					<td>A</td>
+					<td>A</td>
+					<td>A</td>
+					<td>A</td>
+					<td>A</td>
+					<td>A</td>
+					<td>B</td>
+				</tr>
+
+				<tr>
+					<td>9~15</td>
+					<td>A</td>
+					<td>A</td>
+					<td>A</td>
+					<td>A</td>
+					<td>C</td>
+					<td>A</td>
+					<td>B</td>
+					<td>C</td>
+				</tr>
+
+				<tr>
+					<td>16~25</td>
+					<td>A</td>
+					<td>A</td>
+					<td>B</td>
+					<td>B</td>
+					<td>C</td>
+					<td>B</td>
+					<td>C</td>
+					<td>D</td>
+				</tr>
+
+				<tr>
+					<td>26~50</td>
+					<td>A</td>
+					<td>B</td>
+					<td>B</td>
+					<td>C</td>
+					<td>C</td>
+					<td>C</td>
+					<td>D</td>
+					<td>E</td>
+				</tr>
+
+				<tr>
+					<td>51~90</td>
+					<td>B</td>
+					<td>B</td>
+					<td>C</td>
+					<td>C</td>
+					<td>C</td>
+					<td>C</td>
+					<td>E</td>
+					<td>F</td>
+				</tr>
+
+				<tr>
+					<td>91~150</td>
+					<td>B</td>
+					<td>B</td>
+					<td>C</td>
+					<td>D</td>
+					<td>C</td>
+					<td>D</td>
+					<td>F</td>
+					<td>G</td>
+				</tr>
+
+				<tr>
+					<td>151~280</td>
+					<td>B</td>
+					<td>C</td>
+					<td>D</td>
+					<td>E</td>
+					<td>C</td>
+					<td>E</td>
+					<td>G</td>
+					<td>H</td>
+				</tr>
+
+				<tr>
+					<td>281~500</td>
+					<td>B</td>
+					<td>C</td>
+					<td>D</td>
+					<td>E</td>
+					<td>C</td>
+					<td>F</td>
+					<td>H</td>
+					<td>J</td>
+				</tr>
+
+				<tr>
+					<td>501~1200</td>
+					<td>C</td>
+					<td>C</td>
+					<td>E</td>
+					<td>F</td>
+					<td>C</td>
+					<td>G</td>
+					<td>J</td>
+					<td>K</td>
+				</tr>
+
+				<tr>
+					<td>1201~3200</td>
+					<td>C</td>
+					<td>D</td>
+					<td>E</td>
+					<td>G</td>
+					<td>C</td>
+					<td>H</td>
+					<td>K</td>
+					<td>L</td>
+				</tr>
+
+				<tr>
+					<td>3201~10000</td>
+					<td>C</td>
+					<td>D</td>
+					<td>F</td>
+					<td>G</td>
+					<td>C</td>
+					<td>J</td>
+					<td>L</td>
+					<td>M</td>
+				</tr>
+
+				<tr>
+					<td>10001~35000</td>
+					<td>C</td>
+					<td>D</td>
+					<td>F</td>
+					<td>H</td>
+					<td>C</td>
+					<td>K</td>
+					<td>M</td>
+					<td>N</td>
+				</tr>
+
+				<tr>
+					<td>35001~150000</td>
+					<td>D</td>
+					<td>E</td>
+					<td>G</td>
+					<td>J</td>
+					<td>C</td>
+					<td>L</td>
+					<td>N</td>
+					<td>P</td>
+				</tr>
+
+				<tr>
+					<td>150001~500000</td>
+					<td>D</td>
+					<td>E</td>
+					<td>G</td>
+					<td>J</td>
+					<td>C</td>
+					<td>M</td>
+					<td>P</td>
+					<td>Q</td>
+				</tr>
+
+				<tr>
+					<td>500001以上</td>
+					<td>D</td>
+					<td>E</td>
+					<td>H</td>
+					<td>K</td>
+					<td>C</td>
+					<td>N</td>
+					<td>Q</td>
+					<td>R</td>
+				</tr>
+
+			</tbody>
+		</table>
+	</div>
+</body>
+
+</html>

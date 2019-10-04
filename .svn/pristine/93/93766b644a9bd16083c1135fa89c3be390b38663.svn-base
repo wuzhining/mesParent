@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<#include "../common-header.html"/>
+		<style type="text/css">
+			.layui-hide tr:nth-child(even){
+				background-color:green;
+			}
+		</style>
+	</head>
+	
+	<body style='font-size: 62.5%; width: 100%; height: 100% ;background-color:white'>
+	    <div class="x-body">
+	    <div class="layui-tab layui-tab-card">
+	    	<ul class="layui-tab-title">
+			   <li class="layui-this">时间统计</li>
+			   <li>产品统计</li>
+			   <li>产品规格统计</li>
+			</ul>
+			<div class="layui-tab-content" style="height: 745px;">
+			    <div class="layui-tab-item layui-show">
+			      <div class="layui-row">
+			        <form class="layui-form layui-col-md12 x-so">
+			           	<select name="factoryId" id="factoryId">    
+			                <option value="">请选择工厂名称</option> 
+			                 <#if factoryList??>
+			                     <#list factoryList as item>
+						            <option value="${item.id?c}" >${item.factoryName}</option>
+						         </#list>
+						    </#if> 
+			          	</select>
+					    <select name="billTypeDictId" id="billTypeDictId" lay-search>    
+				            <option value="">请选择单据类型</option> 
+				            <#if billTypeDicList??>
+					             <#list billTypeDicList as item>
+							       <option value="${item.id?c}" >${item.dictName}</option>
+							    </#list>
+						    </#if> 
+				        </select>
+					    <input type="number" name="materialCode" id="year"  placeholder="请输入年" autocomplete="off" class="layui-input">
+					    <input type="number" name="materialCode" id="month" placeholder="请输入月" autocomplete="off" class="layui-input">
+					    <input type="number" name="materialCode" id="day"  placeholder="请输入日" autocomplete="off" class="layui-input">
+			            <button class="layui-btn layui-btn-sm  " id="stats" style="background-color: #009688;color:#FFFFFF" >统计</button>
+			        </form>
+			      </div>
+			      <div id="container1" style="height: 650px;width:50%;float:left;" ></div>
+			      <div id="container2" style="height: 650px;width:50%;"></div>
+					
+				</div>
+			    <div class="layui-tab-item">
+					<#include "statsProductPieChart.html"/>
+				</div>
+			    <div class="layui-tab-item">
+					<#include "statsMaterialPieChart.html"/>
+				</div>
+			</div>
+	    </div>
+	    </div>
+	
+		<script type="text/javascript">
+		var obj ={};
+		var datas="";
+		$(function () {
+			var PieItemObj = function(name,y){
+				this.name = name;
+				this.y = y;
+			};
+            
+			var pieColors = (function () {
+				var colors = [],
+					i;
+					for (i = 0; i < 20; i += 1) {
+						if(i===1){
+							continue;
+						}
+						colors.push(Highcharts.getOptions().colors[i]);
+					}
+				return colors;
+			}()); 
+			
+			ProductTimedata = selectItemById(obj,'/stats/statsProductMaterialPieChart/productStatus'); 
+			MaterialTimedata = selectItemById(obj,'/stats/statsProductMaterialPieChart/materiaStatus'); 
+			//条件统计	
+			$("#stats").on("click",function(e){
+				obj = {};
+				if($('#factoryId').val() != ""){
+					obj.factoryId=$('#factoryId').val();
+				} 
+				if($('#billTypeDictId').val() != ""){
+					obj.billTypeDictId=$('#billTypeDictId').val();
+				} 
+				if($('#year').val() != ""){
+					obj.year=$('#year').val();
+				}
+				if($('#month').val() != ""){
+					obj.month=$('#month').val();
+				}
+				if($('#day').val() != ""){
+					obj.day=$('#day').val();
+				}
+				ProductTimedata = selectItemById(obj,'/stats/statsProductMaterialPieChart/productStatus'); 
+				MaterialTimedata = selectItemById(obj,'/stats/statsProductMaterialPieChart/materiaStatus'); 
+				result();
+				e.preventDefault();//默认from表单提交时不刷新
+			});	
+			
+			function result(){
+				var pieProductTimeDatas = [];
+				if(ProductTimedata.length === 0){
+					alert('暂无相关数据');
+				}
+				
+				ProductTimedata.forEach(function(item,index){
+					if(item.productMain !== undefined){ 
+						pieProductTimeDatas.push(new PieItemObj(item.productMain.productName,item.quantity));
+					}else{
+						pieProductTimeDatas.push(new PieItemObj(item.productId ,item.quantity));
+					} 
+
+				});
+				
+			    /* 按产品维度计算  */
+				Highcharts.chart('container1', {
+					chart: {
+						//backgroundColor: '#383A4C',
+						plotBackgroundColor: null,    //边框
+						plotBorderWidth: null,
+						plotShadow: false,
+						type: 'pie'
+					},
+					title: {
+						text: '按产品统计',
+						style:{    //标题样式
+							color:'#383A4C',
+							fontSize: "20px",   //字体大小
+				            fontWeight: 'bold'
+						}
+					},
+					credits: {    //隐藏版权信息
+						enabled: false
+					},
+					legend: {
+						itemStyle: {
+							color: '#383A4C',
+							fontSize:'15px'
+						},
+						itemHiddenStyle: {
+							color: 'red'
+						},
+						labelFormat:'<b>{name}</b>'
+					},
+					tooltip: {
+						pointFormat: '{series.name}: {point.percentage:.1f}%<br/>数量:{point.y}'	
+						},
+					plotOptions: {     //饼状图
+						pie: {
+							borderColor: 'white',  
+							borderWidth:2,
+							showInLegend: true,   //显示图例
+							allowPointSelect: true,
+							colors: pieColors, 
+							cursor: 'pointer',
+							dataLabels: {
+								enabled: true,
+								format: '<b>{point.name}</b><br/>数量:{point.y}<br/><b>占比为: {point.percentage:.1f} %</b> ',
+								style: {		//数据字体颜色
+									color:'#383A4C',    
+									fontSize:'13px'
+								}
+							}
+						}
+					},
+					series: [{
+						name: '占比值为',
+						colorByPoint: true,
+						data: pieProductTimeDatas
+					}] 
+				});
+			    
+				var pieMaterialTimeDatas = [];
+				MaterialTimedata.forEach(function(item,index){
+					console.log(item.productMaterial);
+					if(item.productMaterial !== undefined){ 
+					pieMaterialTimeDatas.push(new PieItemObj(item.productMaterial.materialName +"("+item.productMaterialVo.sku+")" ,item.quantity));
+					}else{
+						pieMaterialTimeDatas.push(new PieItemObj(item.materialId ,item.quantity));
+					} 
+				});
+				 /* 按物料维度计算  */
+				Highcharts.chart('container2', {
+					chart: {
+						plotBackgroundColor: null,    //边框
+						plotBorderWidth: null,
+						plotShadow: false,
+						type: 'pie'
+					},
+					title: {
+						text: '按产品规格统计',
+						style:{    //标题样式
+							color:'#383A4C',
+							fontSize: "20px",   //字体大小
+				            fontWeight: 'bold'
+						}
+					},
+					credits: {    //隐藏版权信息
+						enabled: false
+					},
+					legend: {
+						itemStyle: {
+							color: '#383A4C',
+							fontSize:'15px'
+						},
+						itemHiddenStyle: {
+							color: 'red'
+						},
+						labelFormat:'<b>{name}</b>'
+					},
+					tooltip: {
+						pointFormat: '{series.name}: {point.percentage:.1f}%<br/>数量:{point.y}'	
+						},
+					plotOptions: {     //饼状图
+						pie: {
+							borderColor: 'white',  
+							borderWidth:2,
+							showInLegend: true,   //显示图例
+							allowPointSelect: true,
+							colors: pieColors, 
+							cursor: 'pointer',
+							dataLabels: {
+								enabled: true,
+								format: '<b>{point.name}</b><br/>数量:{point.y}<br/><b>占比为: {point.percentage:.1f} %</b> ',
+								style: {		//数据字体颜色
+									color:'#383A4C',    
+									fontSize:'13px'
+								}
+							}
+						}
+					},
+					series: [{
+						name: '占比值为',
+						colorByPoint: true,
+						data: pieMaterialTimeDatas
+					}] 
+				});
+			}
+		
+			//验证年月日
+			$('#month').click(function(){
+			  if($('#year').val() == ""){
+				  alert("请先输入年份");
+			  }
+			});	
+			$('#day').click(function(){
+			  if($('#month').val() == ""){
+				  alert("请先输入月份");
+			  }
+			});	    
+			result();
+		});
+		</script>
+	</body>
+</html>

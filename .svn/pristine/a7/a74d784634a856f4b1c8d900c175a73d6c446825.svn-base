@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+               <td width="10%" class="tableleft" >包装规格名称</td>
+               <td><input type="text" name="packboxName" lay-verify="packboxCodeLength" class="layui-input"   value="${(entity.packboxName)!''}"/></td>
+               <td width="10%" class="tableleft">产品规格</td>
+               <td>
+               
+               	   <div class="div-choiceBox-intd ">   
+                		<input type="hidden"  id="materialId" name="materialId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.materialId??>${entity.materialId?c}<#else></#if>">
+                		<input type="text" id="materialName" name="materialName" disabled="disabled" class="layui-input input-choiceBox-intd">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="search">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	  </div>
+               </td> 
+        
+           </tr>
+           <tr>
+              <td width="10%" class="tableleft">产品</td>
+               <td>
+              		<input type="hidden"  id="productId" name="productId" disabled="disabled"  value="<#if entity??&&entity.productId??>${entity.productId?c}<#else></#if>">
+              		<input type="text" id="productName" name="productName" disabled="disabled" class="layui-input">
+               </td>
+               <td width="10%" class="tableleft">是否内包装</td>
+                 <td>
+                 <select id="isInner" name="isInner" lay-filter="isInner" >
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isInner??&&entity.isInner==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+             
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">度量类型</td>
+               <td>
+                 <select name="measureTypeDictId"> 
+                    <#if measureTypeDictList??>
+                     <#list measureTypeDictList as item>
+			            <option value="${item.id?c}" <#if (entity.measureTypeDictId??&&entity.measureTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+               <td width="10%" class="tableleft">主单位度量类型</td>
+               <td>
+                 <select name="mainMeasureTypeDictId"> 
+                    <#if measureTypeDictList??>
+                     <#list measureTypeDictList as item>
+			            <option value="${item.id?c}" <#if (entity.mainMeasureTypeDictId??&&entity.mainMeasureTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+			         </#list>
+			         </#if>
+			    </select>
+               </td>
+           </tr>
+           <tr>
+           	 <td width="10%" class="tableleft">主单位数量</td>
+           	 <td>
+           		 <input type="text" name="quantityMain" lay-verify="" class="layui-input"   value="<#if entity??&&entity.quantityMain??>${entity.quantityMain?c}<#else></#if>"/>
+           	 </td>
+           	 <td width="10%" class="tableleft">包装数量</td>
+           	 <td>
+           		 <input type="text" name="quantityPack" lay-verify="" class="layui-input"   value="<#if entity??&&entity.quantityPack??>${entity.quantityPack?c}<#else></#if>"/>
+           	 </td>
+           	
+           </tr>
+           <tr>
+           	 <td width="10%" class="tableleft">内包装数量</td>
+           	 <td>
+           		 <input type="text" id="quantityInner"  name="quantityInner" lay-verify="quantityInner" class="layui-input"   value="<#if entity??&&entity.quantityInner??>${entity.quantityInner?c}<#else></#if>"/>
+           	 </td>
+             <td width="10%" class="tableleft">备注</td>
+             <td><input type="text" name="remark"  lay-verify="remarkLength"  class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+   	var returnData=[];
+   	function returnDatas(data){
+  	  returnData=data;
+ 	  	  return returnData;
+ 	    }
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+          form.render('select'); 
+          var url = $(window.parent.document).find("iframe").attr("src");
+      	  var result=url.indexOf("?");
+      	  var materialName=parent.materialName;
+          var productName=parent.productName;
+      	if(result>0){
+      	$("#productName").val(productName); 
+      	$("#materialName").val(materialName); 
+      		
+      	}
+    	
+    	form.on('select(isInner)', function(data){//选择是否判断内包装数量是否可以输入
+    	    if(data.value==2){
+       		　$("#quantityInner").attr("disabled","disabled"); //不可编辑    
+       		 $("#quantityInner").val(0);
+	       	 }else{
+	       		 $("#quantityInner").removeAttr("disabled");//可编辑
+	       		 $("#quantityInner").val("");
+	       	 } 
+
+    	})
+         
+       
+      	$('#search').on('click',function(e){
+      		openWinSelect2('/product/productMaterial/productMaterialOpen',"materialId","materialName","productId","productName");
+       		e.preventDefault();//默认from表单提交时不刷新
+       	})
+          //选择仓库查货位级联监听
+          form.on('select(warehouseSelect)', function(data){
+        	  $("#locationId option[value!='']").remove();
+        	  var keyId=data.elem.id;
+        	  var keyValue=data.value
+        	  linkCommonMethod(keyId,keyValue,'locationId','locationName','','/product/productPackbox/linkLocationByWarehouse');
+        	  $("#locationId").get(0).selectedIndex=0;
+          });
+      		
+      	
+          //自定义验证规则
+          form.verify({
+        	  number : [/^[0-9]*$/, '必须输入数字啊']
+             ,remarkLength: function(value){
+	              if(value.length > 128){
+	                  return '不能超过128个字符';
+	                }
+	              }
+             ,packboxCodeLength: function(value){
+	              if(value.length > 64){
+	                  return '不能超过64个字符';
+	                }
+	              }
+              
+           
+            
+            
+          });
+
+         
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/product/productPackbox/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+            
+        });
+    </script>
+    <script>
+    $(function () {
+    	
+    	//初始化
+    	linkCommonMethod("warehouseId",$("#warehouseId").val(),'locationId','locationName',$("#initWarehouseLocation").val(),'/product/productPackbox/linkLocationByWarehouse');
+    		
+    });
+    </script>
+  </body>
+
+</html>

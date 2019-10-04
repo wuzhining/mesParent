@@ -1,0 +1,384 @@
+package com.techsoft.client.service.bill;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumDictBillType;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.bill.BillWorkorderParamVo;
+import com.techsoft.entity.bill.BillWorkorderVo;
+import com.techsoft.entity.common.BillWorkorder;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.ProductBom;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.StructWorkshop;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.service.bill.BillWorkorderService;
+import com.techsoft.service.config.ConfigCodeRuleService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.history.HistoryBillStatusService;
+import com.techsoft.service.product.ProductBomService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.struct.StructProcessService;
+import com.techsoft.service.struct.StructWorkshopService;
+import com.techsoft.service.sys.UserPassportService;
+
+@org.springframework.stereotype.Service
+public class ClientBillWorkorderServiceImpl extends BaseClientServiceImpl<BillWorkorder>
+		implements ClientBillWorkorderService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWorkorderService billWorkorderService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcessService structProcessService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopService structWorkshopService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService; 
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService; 
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductBomService productBomService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigCodeRuleService configCodeRuleService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private HistoryBillStatusService historyBillStatusService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private UserPassportService userPassportService;
+	
+	
+	@Override
+	public BaseService<BillWorkorder> getBaseService() {
+		return billWorkorderService;
+	}
+
+	private BillWorkorderVo getVo(BillWorkorder billWorkorder, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillWorkorderVo vo = new BillWorkorderVo(billWorkorder);
+
+		// 客户
+		if (vo.getCustomerId() != null && vo.getCustomerId() > 0L) {
+			ConfigDictionary customerId = configDictionaryService.selectById(vo.getCustomerId(), commonParam);
+			if (customerId != null) {
+				vo.setCustomerDictionary(customerId);
+			}
+		}
+
+		// 车间
+		if (vo.getWorkshopId() != null && vo.getWorkshopId() > 0L) {
+			StructWorkshop structWorkshop = structWorkshopService.selectById(vo.getWorkshopId(), commonParam);
+			if (structWorkshop != null) {
+				vo.setStructWorkshop(structWorkshop);
+			}
+		}
+		
+		// 产品
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productId = productMainService.selectById(vo.getProductId(), commonParam);
+			if (productId != null) {
+				vo.setProductMain(productId);
+			}
+		}
+		
+		// 产品BOM
+		if (vo.getBomId() != null && vo.getBomId() > 0L) {
+			ProductBom productBom = productBomService.selectById(vo.getBomId(), commonParam);
+			if (productBom != null) {
+				vo.setProductBom(productBom);
+			}
+		}
+
+		// 产品规格
+		if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+			ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(), commonParam);
+			if (productMaterial != null) {
+					ProductMaterialVo productMateriaVo=new ProductMaterialVo();
+					productMateriaVo.setSkuValue(productMaterial.getSkuValue());
+					vo.setProductMaterialVo(productMateriaVo);
+				
+				vo.setProductMaterial(productMaterial);
+			}
+		}
+
+		// 工单workorder_status_dict_id
+		if (vo.getWorkorderStatusDictId() != null && vo.getWorkorderStatusDictId() > 0L) {
+			ConfigDictionary workorderStatusDict = configDictionaryService.selectById(vo.getWorkorderStatusDictId(),
+					commonParam);
+			if (workorderStatusDict != null) {
+				vo.setWorkorderStatusDictionary(workorderStatusDict);
+			}
+		}
+		
+		//工单audit_status_dict_id
+		if (vo.getAuditStatusDictId() != null && vo.getAuditStatusDictId() > 0L) {
+			ConfigDictionary workorderAuditStatusDict = configDictionaryService.selectById(vo.getAuditStatusDictId(),
+					commonParam);
+			if (workorderAuditStatusDict != null) {
+				vo.setWorkAuditStatusDictionary(workorderAuditStatusDict);
+			}
+		}
+		//工单审批状态
+		if (vo.getAuditStatusDictId() != null && vo.getAuditStatusDictId() > 0L) {
+			ConfigDictionary auditStatusDict = configDictionaryService.selectById(vo.getAuditStatusDictId(), commonParam);
+			if (auditStatusDict != null) {
+				vo.setAuditStatusDict(auditStatusDict);
+			}
+		}	
+		//用户
+		if (vo.getCreateUserId() != null && vo.getCreateUserId() > 0L) {
+			UserPassport userPassport = userPassportService.selectById(vo.getCreateUserId(), commonParam);
+			if (userPassport != null) {
+				vo.setUserPassport(userPassport);
+			}
+		}	
+		// 制程
+		// if (vo.getProcessDictId() != null && vo.getProcessDictId() > 0L) {
+		// ConfigDictionary configDictionary =
+		// configDictionaryService.selectById(vo.getProcessDictId(),
+		// commonParam);
+		// if (configDictionary != null) {
+		// vo.setProcessDictDictionary(configDictionary);
+		// }
+		// }
+
+		return vo;
+	}
+
+	private BillWorkorderVo getExtendVo(BillWorkorder billWorkorder, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		BillWorkorderVo vo = this.getVo(billWorkorder, commonParam);
+
+		return vo;
+	}
+
+	private List<BillWorkorderVo> getVoList(List<BillWorkorder> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWorkorderVo> voList = new ArrayList<BillWorkorderVo>();
+		for (BillWorkorder entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<BillWorkorderVo> getExtendVoList(List<BillWorkorder> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<BillWorkorderVo> voList = new ArrayList<BillWorkorderVo>();
+		for (BillWorkorder entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public BillWorkorderVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillWorkorder entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<BillWorkorderVo> selectListVoByParamVo(BillWorkorderParamVo billWorkorder, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (billWorkorder == null) {
+			billWorkorder = new BillWorkorderParamVo();
+		}
+		billWorkorder.setTenantId(commonParam.getTenantId());
+
+		List<BillWorkorder> list = (List<BillWorkorder>) this.getBaseService().selectListByParamVo(billWorkorder,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<BillWorkorderVo> selectPageVoByParamVo(BillWorkorderParamVo billWorkorder, CommonParam commonParam,
+			int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (billWorkorder == null) {
+			billWorkorder = new BillWorkorderParamVo();
+		}
+		billWorkorder.setTenantId(commonParam.getTenantId());
+
+		PageInfo<BillWorkorder> list = (PageInfo<BillWorkorder>) this.getBaseService()
+				.selectPageByParamVo(billWorkorder, commonParam, pageNo, pageSize);
+		List<BillWorkorderVo> volist = new ArrayList<BillWorkorderVo>();
+
+		Iterator<BillWorkorder> iter = list.getList().iterator();
+		BillWorkorderVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<BillWorkorderVo> vpage = new Page<BillWorkorderVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public BillWorkorderVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		BillWorkorder entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<BillWorkorderVo> selectListExtendVoByParamVo(BillWorkorderParamVo billWorkorder,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (billWorkorder == null) {
+			billWorkorder = new BillWorkorderParamVo();
+		}
+		billWorkorder.setTenantId(commonParam.getTenantId());
+
+		List<BillWorkorder> list = (List<BillWorkorder>) this.getBaseService().selectListByParamVo(billWorkorder,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<BillWorkorderVo> selectPageExtendVoByParamVo(BillWorkorderParamVo billWorkorder,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (billWorkorder == null) {
+			billWorkorder = new BillWorkorderParamVo();
+		}
+		billWorkorder.setTenantId(commonParam.getTenantId());
+
+		PageInfo<BillWorkorder> list = (PageInfo<BillWorkorder>) this.getBaseService()
+				.selectPageByParamVo(billWorkorder, commonParam, pageNo, pageSize);
+		List<BillWorkorderVo> volist = new ArrayList<BillWorkorderVo>();
+
+		Iterator<BillWorkorder> iter = list.getList().iterator();
+		BillWorkorderVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<BillWorkorderVo> vpage = new Page<BillWorkorderVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(BillWorkorderParamVo billWorkorderParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		if (commonParam.getUserId() != null) {
+			billWorkorderParamVo.setCreateUserId(Long.parseLong(commonParam.getUserId()));
+		}
+		if (commonParam.getTenantId() != null) {
+			billWorkorderParamVo.setTenantId(commonParam.getTenantId());
+		}
+		if (billWorkorderParamVo.getCreateUserId() == null) {
+			resultMessage.addErr("请先登录");
+			return resultMessage;
+		}
+
+	/*	if (billWorkorderParamVo.getWorkshopId() == null || billWorkorderParamVo.getWorkshopId().equals(0L)) {
+			resultMessage.addErr("车间不能为空 ");
+			return resultMessage;
+		}
+		if (billWorkorderParamVo.getMaterialId() == null || billWorkorderParamVo.getMaterialId().equals(0L)) {
+			resultMessage.addErr("产品规格不能为空 ");
+			return resultMessage;
+		}
+		if (billWorkorderParamVo.getProductId() == null || billWorkorderParamVo.getProductId().equals(0L)) {
+			resultMessage.addErr("产品不能为空 ");
+			return resultMessage;
+		}
+	
+		if (billWorkorderParamVo.getWorkorderStatusDictId() == null
+				|| billWorkorderParamVo.getWorkorderStatusDictId().equals(0L)) {
+			resultMessage.addErr("工单状态不能为空 ");
+			return resultMessage;
+		}
+		if (billWorkorderParamVo.getQuantity() == null || billWorkorderParamVo.getQuantity() < 1) {
+			resultMessage.addErr("工单数量不能为0");
+			return resultMessage;
+		}
+		if (billWorkorderParamVo.getQuantityMaximumInput() == null
+				|| billWorkorderParamVo.getQuantityMaximumInput() < 1) {
+			resultMessage.addErr("最大入库数量不能为0");
+			return resultMessage;
+		}
+		if (billWorkorderParamVo.getRatioAllowover() == null) {
+			resultMessage.addErr("允超比率不能为空");
+			return resultMessage;
+		}
+		if (billWorkorderParamVo.getTimePlanStart() == null) {
+			resultMessage.addErr("计划开始时间不能为空");
+			return resultMessage;
+		}
+		if (billWorkorderParamVo.getTimePlanEnd() == null) {
+			resultMessage.addErr("计划结束时间不能为空");
+			return resultMessage;
+		}*/
+
+		BillWorkorder billWorkorder = null;
+		try {
+			if (billWorkorderParamVo.getId() == null) {// 新增
+				// 自动生成工单编码
+				String workordercode = configCodeRuleService.createCode(BillWorkorder.class.getName(), null, null, commonParam);
+ 
+				billWorkorderParamVo.setWorkorderCode(workordercode);
+				billWorkorderParamVo.setTenantId(commonParam.getTenantId());
+				billWorkorderService.saveOrUpdate(billWorkorderParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				BillWorkorder billWorkorderVoTemp = getVoByID(billWorkorderParamVo.getId(), commonParam);
+				BeanUtil.copyNotNullProperties(billWorkorderVoTemp, billWorkorderParamVo);
+				// 调用批量修改工单bom
+				billWorkorderService.saveOrUpdate(billWorkorderVoTemp,
+						commonParam);
+				resultMessage.setIsSuccess(true);
+			}
+			resultMessage.setBaseEntity(billWorkorder);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public BillWorkorderVo getVoByCode(String code, CommonParam commonParam) throws BusinessException, SQLException {
+		List<BillWorkorder> list = new ArrayList<BillWorkorder>();
+		BillWorkorderParamVo billWorkorderParamVo = new BillWorkorderParamVo();
+		billWorkorderParamVo.setWorkorderCode(code);
+		list = billWorkorderService.selectListByParamVo(billWorkorderParamVo, commonParam);
+		if ((list!=null)&&(list.size() > 0)) {
+			return getVo(list.get(0),commonParam);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public ResultMessage checkWorkorder(BillWorkorderVo billWorkorderVo, CommonParam commonParam) {
+		// TODO Auto-generated method stub
+		ResultMessage resultMessage = new ResultMessage();
+		resultMessage = billWorkorderService.workorderCheck(billWorkorderVo, commonParam);
+		return resultMessage;
+	}
+}

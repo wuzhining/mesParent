@@ -1,0 +1,14 @@
+package com.techsoft.mapper.product;
+
+import java.util.List;
+
+import com.techsoft.common.BaseMapper;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.entity.common.ProductMaterial;
+
+public interface ProductMaterialMapper extends BaseMapper<ProductMaterial> {
+	public void insertBatchProductMat(List<ProductMaterial> list) throws BusinessException, SQLException;
+	public ProductMaterial selectByCode(String code) throws BusinessException, SQLException;
+	
+}

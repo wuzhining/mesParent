@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.sys.AdminFunctionMapper">
+	<resultMap id="AdminFunction" type="com.techsoft.entity.common.AdminFunction" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="MENU_ID" property="menuId" />
+		<result column="FUNCTION_CODE" property="functionCode" />
+		<result column="FUNCTION_NAME" property="functionName" />
+		<result column="MENU_URL" property="menuUrl" />
+		<result column="IS_VALID" property="isValid" />
+		<result column="SORT_NO" property="sortNo" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="menuId != null">
+			AND A.MENU_ID= #{menuId}
+		</if>
+		<if test="functionCode != null">
+			AND A.FUNCTION_CODE= #{functionCode}
+		</if>
+		<if test="functionName != null">
+			AND A.FUNCTION_NAME= #{functionName}
+		</if>
+		<if test="menuUrl != null">
+			AND A.MENU_URL= #{menuUrl}
+		</if>
+		<if test="isValid != null">
+			AND A.IS_VALID= #{isValid}
+		</if>
+		<if test="sortNo != null">
+			AND A.SORT_NO= #{sortNo}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	<if test="likeFunctionName != null">
+		<bind name="likeFunctionName" value="'%' + _parameter.likeFunctionName + '%'"/>
+		AND A.FUNCTION_NAME LIKE #{likeFunctionName}
+	</if>
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+	 	order by id desc
+	</sql>
+			
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.MENU_ID,
+		A.FUNCTION_CODE,
+		A.FUNCTION_NAME,
+		A.MENU_URL,
+		A.IS_VALID,
+		A.SORT_NO
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_ADMIN_FUNCTION_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from ADMIN_FUNCTION
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.AdminFunction">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ADMIN_FUNCTION A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.AdminFunction">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ADMIN_FUNCTION A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE ADMIN_FUNCTION A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE ADMIN_FUNCTION  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.AdminFunction">
+		UPDATE ADMIN_FUNCTION A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.AdminFunction">
+		INSERT INTO ADMIN_FUNCTION (
+		TENANT_ID,
+		MENU_ID,
+		FUNCTION_CODE,
+		FUNCTION_NAME,
+		MENU_URL,
+		IS_VALID,
+		SORT_NO
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{menuId},
+		#{functionCode},
+		#{functionName},
+		#{menuUrl},
+		#{isValid},
+		#{sortNo}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.AdminFunction">
+		UPDATE ADMIN_FUNCTION SET
+		TENANT_ID=#{tenantId},
+		MENU_ID=#{menuId},
+		FUNCTION_CODE=#{functionCode},
+		FUNCTION_NAME=#{functionName},
+		MENU_URL=#{menuUrl},
+		IS_VALID=#{isValid},
+		SORT_NO=#{sortNo},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.AdminFunction">
+		UPDATE ADMIN_FUNCTION SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="menuId != null" >
+			MENU_ID=#{menuId},
+		</if>
+		<if test="functionCode != null" >
+			FUNCTION_CODE=#{functionCode},
+		</if>
+		<if test="functionName != null" >
+			FUNCTION_NAME=#{functionName},
+		</if>
+		<if test="menuUrl != null" >
+			MENU_URL=#{menuUrl},
+		</if>
+		<if test="isValid != null" >
+			IS_VALID=#{isValid},
+		</if>
+		<if test="sortNo != null" >
+			SORT_NO=#{sortNo},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.sys.AdminFunctionParamVo"
+		      resultType="com.techsoft.entity.common.AdminFunction" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ADMIN_FUNCTION A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

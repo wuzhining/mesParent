@@ -1,0 +1,14 @@
+package com.techsoft.entity.work;
+
+import com.techsoft.entity.common.WorkPlanEquipFixture;
+
+public class WorkPlanEquipFixtureVo extends WorkPlanEquipFixture {
+	private static final long serialVersionUID = 4348189352405653690L;
+
+	public WorkPlanEquipFixtureVo() {	
+	}
+	
+	public WorkPlanEquipFixtureVo(WorkPlanEquipFixture value) {
+		value.cloneProperties(this);
+	}		
+}

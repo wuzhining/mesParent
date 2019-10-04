@@ -1,0 +1,258 @@
+package com.techsoft.client.service.alarm;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.alarm.AlarmInforFlowParamVo;
+import com.techsoft.entity.alarm.AlarmInforFlowVo;
+import com.techsoft.entity.common.AlarmInforFlow;
+import com.techsoft.entity.common.AlarmProblem;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.StructProductionline;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.service.alarm.AlarmInforFlowService;
+import com.techsoft.service.alarm.AlarmProblemService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.struct.StructProductionlineService;
+import com.techsoft.service.sys.UserPassportService;
+
+@org.springframework.stereotype.Service
+public class ClientAlarmInforFlowServiceImpl extends BaseClientServiceImpl<AlarmInforFlow>
+		implements ClientAlarmInforFlowService {
+	@com.alibaba.dubbo.config.annotation.Reference
+	private AlarmInforFlowService alarmInforFlowService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProductionlineService structProductionlineService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private AlarmProblemService alarmProblemService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private UserPassportService userPassportService;
+
+	@Override
+	public BaseService<AlarmInforFlow> getBaseService() {
+		return alarmInforFlowService;
+	}
+
+	private AlarmInforFlowVo getVo(AlarmInforFlow alarmInforFlow, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		AlarmInforFlowVo vo = new AlarmInforFlowVo(alarmInforFlow);
+
+		if (vo.getProductionlineId() != null && vo.getProductionlineId() > 0L) {
+			StructProductionline structProductionline = structProductionlineService.selectById(vo.getProductionlineId(),
+					commonParam);
+			if (structProductionline != null) {
+				vo.setStructProductionline(structProductionline);
+			}
+		}
+
+		if (vo.getProblemId() != null && vo.getProblemId() > 0L) {
+			AlarmProblem alarmProblem = alarmProblemService.selectById(vo.getProblemId(), commonParam);
+			if (alarmProblem != null) {
+				vo.setAlarmProblem(alarmProblem);
+			}
+		}
+
+		if (vo.getAlarmTypeDictId() != null && vo.getAlarmTypeDictId() > 0L) {
+			ConfigDictionary classconfigDictionary = configDictionaryService.selectById(vo.getAlarmTypeDictId(),
+					commonParam);
+			if (classconfigDictionary != null) {
+				vo.setClassconfigDictionary(classconfigDictionary);
+			}
+		}
+
+		if (vo.getStatusDictId() != null && vo.getStatusDictId() > 0L) {
+			ConfigDictionary statusconfigDictionary = configDictionaryService.selectById(vo.getStatusDictId(),
+					commonParam);
+			if (statusconfigDictionary != null) {
+				vo.setStatusconfigDictionary(statusconfigDictionary);
+			}
+		}
+
+		if (vo.getRespondUserId() != null && vo.getRespondUserId() > 0L) {
+			UserPassport respondUser = userPassportService.selectById(vo.getRespondUserId(), commonParam);
+			if (respondUser != null) {
+				vo.setRespondUser(respondUser);
+			}
+		}
+
+		if (vo.getConfirmUserId() != null && vo.getConfirmUserId() > 0L) {
+			UserPassport confirmUser = userPassportService.selectById(vo.getConfirmUserId(), commonParam);
+			if (confirmUser != null) {
+				vo.setConfirmUser(confirmUser);
+			}
+		}
+
+		if (vo.getDealUserId() != null && vo.getDealUserId() > 0L) {
+			UserPassport dealUser = userPassportService.selectById(vo.getDealUserId(), commonParam);
+			if (dealUser != null) {
+				vo.setDealUser(dealUser);
+			}
+		}
+
+		return vo;
+	}
+
+	private AlarmInforFlowVo getExtendVo(AlarmInforFlow alarmInforFlow, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		AlarmInforFlowVo vo = this.getVo(alarmInforFlow, commonParam);
+
+		return vo;
+	}
+
+	private List<AlarmInforFlowVo> getVoList(List<AlarmInforFlow> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<AlarmInforFlowVo> voList = new ArrayList<AlarmInforFlowVo>();
+		for (AlarmInforFlow entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<AlarmInforFlowVo> getExtendVoList(List<AlarmInforFlow> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<AlarmInforFlowVo> voList = new ArrayList<AlarmInforFlowVo>();
+		for (AlarmInforFlow entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public AlarmInforFlowVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		AlarmInforFlow entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<AlarmInforFlowVo> selectListVoByParamVo(AlarmInforFlowParamVo alarmInforFlow, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		if (alarmInforFlow == null) {
+			alarmInforFlow = new AlarmInforFlowParamVo();
+		}
+		alarmInforFlow.setTenantId(commonParam.getTenantId());
+
+		List<AlarmInforFlow> list = (List<AlarmInforFlow>) this.getBaseService().selectListByParamVo(alarmInforFlow,
+				commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<AlarmInforFlowVo> selectPageVoByParamVo(AlarmInforFlowParamVo alarmInforFlow,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (alarmInforFlow == null) {
+			alarmInforFlow = new AlarmInforFlowParamVo();
+		}
+		alarmInforFlow.setTenantId(commonParam.getTenantId());
+
+		PageInfo<AlarmInforFlow> list = (PageInfo<AlarmInforFlow>) this.getBaseService()
+				.selectPageByParamVo(alarmInforFlow, commonParam, pageNo, pageSize);
+		List<AlarmInforFlowVo> volist = new ArrayList<AlarmInforFlowVo>();
+
+		Iterator<AlarmInforFlow> iter = list.getList().iterator();
+		AlarmInforFlowVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<AlarmInforFlowVo> vpage = new Page<AlarmInforFlowVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public AlarmInforFlowVo getExtendVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		AlarmInforFlow entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<AlarmInforFlowVo> selectListExtendVoByParamVo(AlarmInforFlowParamVo alarmInforFlow,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (alarmInforFlow == null) {
+			alarmInforFlow = new AlarmInforFlowParamVo();
+		}
+		alarmInforFlow.setTenantId(commonParam.getTenantId());
+
+		List<AlarmInforFlow> list = (List<AlarmInforFlow>) this.getBaseService().selectListByParamVo(alarmInforFlow,
+				commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<AlarmInforFlowVo> selectPageExtendVoByParamVo(AlarmInforFlowParamVo alarmInforFlow,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (alarmInforFlow == null) {
+			alarmInforFlow = new AlarmInforFlowParamVo();
+		}
+		alarmInforFlow.setTenantId(commonParam.getTenantId());
+
+		PageInfo<AlarmInforFlow> list = (PageInfo<AlarmInforFlow>) this.getBaseService()
+				.selectPageByParamVo(alarmInforFlow, commonParam, pageNo, pageSize);
+		List<AlarmInforFlowVo> volist = new ArrayList<AlarmInforFlowVo>();
+
+		Iterator<AlarmInforFlow> iter = list.getList().iterator();
+		AlarmInforFlowVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<AlarmInforFlowVo> vpage = new Page<AlarmInforFlowVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(AlarmInforFlowParamVo alarmInforFlowParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		AlarmInforFlow alarmInforFlow = null;
+		try {
+			if (alarmInforFlowParamVo.getId() == null) {// 新增
+
+				alarmInforFlowParamVo.setTenantId(commonParam.getTenantId());
+				alarmInforFlow = alarmInforFlowService.saveOrUpdate(alarmInforFlowParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				AlarmInforFlow alarmInforFlowVoTemp = this.selectById(alarmInforFlowParamVo.getId(), commonParam);
+
+				BeanUtil.copyNotNullProperties(alarmInforFlowVoTemp, alarmInforFlowParamVo);
+
+				alarmInforFlow = alarmInforFlowService.saveOrUpdate(alarmInforFlowVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(alarmInforFlow);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+}

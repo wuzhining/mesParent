@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+    <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">仓库管理</a> <a><cite>条码查询</cite></a>
+      </span>
+   
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+<!--           <input class="layui-input" placeholder="开始时间" name="startTime" id="startTime"> -->
+<!--           <input class="layui-input" placeholder="结束时间" name="endTime" id="endTime"> -->
+        <input type="text" name="likeBarcode"  placeholder="请输入条码" autocomplete="off" class="layui-input">
+        <input type="text" name="billCode"  placeholder="请输入单据编码" autocomplete="off" class="layui-input">
+        <input type="hidden" name="productId" id="productId" placeholder="请选择产品" autocomplete="off" class="layui-input">
+       	<input type="text" name="productName" id="productName" placeholder="请选择产品" autocomplete="off" class="layui-input">
+           <button class="layui-btn layui-btn-sm  " id="productSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		</button> 
+		<input type="hidden" name="materialId" id="materialId" placeholder="请选择物料" autocomplete="off" class="layui-input">
+		<input type="text" name="materialName" id="materialName" placeholder="请选择产品规格" autocomplete="off" class="layui-input">
+        <button class="layui-btn layui-btn-sm  " id="materialSearch" style="background-color: #009688;color:#FFFFFF" >
+			<i class="layui-icon layui-icon-more" ></i>
+		</button> 
+          <select name="barcodeRuleDictId">    
+                <option value="">请选择条码规则类型</option> 
+                 <#if barcodeRuleDicList??>
+                     <#list barcodeRuleDicList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select> 
+          <select name="barcodeStatusDictId">    
+                <option value="">请选择状态</option> 
+                 <#if barcodeStatusList??>
+                     <#list barcodeStatusList as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <select name="billTypeDictId"  lay-search>    
+            <option value="">请选择单据类型</option> 
+            <#if billTypeDicList??>
+             <#list billTypeDicList as item>
+		       <option value="${item.id?c}" >${item.dictName}</option>
+		    </#list>
+		    </#if> 
+        </select>   
+          <button class="layui-btn"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+       <!--  <button class="layui-btn" onclick="layer_window_show('添加栈板信息','/warehouse/warehousePallet/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span> -->
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script>    
+
+<script type="text/html" id="billTypeName">
+	{{#  if(d.barcodebillType){ }}
+		{{ d.barcodebillType.dictName 
+
+ }}
+{{#  } }}
+</script>
+<script type="text/html" id="barcodeStatusName">
+	{{#  if(d.barcodeStatusDic){ }}
+		{{ d.barcodeStatusDic.dictName 
+
+ }}
+{{#  } }}
+</script>
+<script type="text/html" id="palletCode">
+	{{#  if(d.warehousePallet){ }}
+		{{ d.warehousePallet.palletCode 
+
+ }}
+{{#  } }}
+</script>
+
+<script type="text/html" id="productName2">
+	{{#  if(d.productMain){ }}
+		{{ d.productMain.productName 
+
+ }}
+{{#  } }}
+</script>
+ <script type="text/html" id="materialName2">
+	{{#  if(d.productMaterial){}}
+		{{ d.productMaterial.materialName 
+
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="barcodeRuleDictName">
+	{{#  if(d.barcodeRuleDic){}}
+		{{ d.barcodeRuleDic.dictName 
+
+ 	}}
+	{{# } }}
+</script>
+<script type="text/html" id="billStatusDicName">
+	{{#  if(d.billStatusDic){}}
+		{{ d.billStatusDic.dictName 
+
+ 	}}
+	{{# } }}
+</script>
+ <!--操作人-->
+<script type="text/html" id="createUserIdTpl">
+	{{#  if(d.userPassportList){}}
+		{{ d.userPassportList.realName 
+ 	}}
+	{{# } }}
+</script> 
+<!--单据编码-->
+<script type="text/html" id="billCodeTpl">
+	{{#  if(d.billCode){}}
+		{{ d.billCode 
+ 	}}
+	{{# } }}
+ </script>
+<!--工厂名称-->
+ <script type="text/html" id="factoryNameTpl">
+	{{#  if(d.structFactorylist){}}
+		{{ d.structFactorylist.factoryName 
+ 	}}
+	{{# } }}
+</script>  
+  <script type="text/html" id="sku">
+	{{#  if(d.productMaterialVo){}}
+		{{ d.productMaterialVo.sku 
+
+ 	}}
+	{{# } }}
+	</script>
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime() 
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/barcode/barcodeMain/list/json'
+    	,cols: [[
+    	     {field:'id', width:120, title: 'ID',align:'center'}
+    	    ,{field:'factoryId',  title: '所属工厂名称', align:'center',minWidth: 120,templet:'#factoryNameTpl'}
+    	    ,{field:'barcode',  title: '条码',align:'center', minWidth: 90}
+    	   /*  ,{field:'barcodeRuleDictId',  title: '条码规则类型ID', align:'center',minWidth: 100} */
+    	    ,{field:'barcodeRuleDictName', width:150, title: '条码规则类型', align:'center',templet: '#barcodeRuleDictName'}
+    	    //,{field:'productId',  title: '产品ID', align:'center',minWidth: 100,style:'display:none;'}
+    	    ,{field:'productName', width:150, title: '产品', align:'center',templet: '#productName2'}
+    	    ,{field:'materialName',  title: '产品规格名称',align:'center', minWidth: 120,templet: '#materialName2'}
+    	    ,{field:'sku', title: '产品规格值', align:'center',minWidth: 220,templet: '#sku'}
+    	    //,{field:'palletStatusDictId',  title: '栈板状态', align:'center',minWidth: 100,style:'display:none;'}
+    	    /* ,{field:'barcodePackboxId', width:150, title: '外层包装箱条码ID', align:'center'} */
+    	    ,{field:'barcodeStatusName',  title: '状态', align:'center',minWidth: 100,templet: '#barcodeStatusName'}
+    	    ,{field:'palletCode',  title: '栈板编码', align:'center',minWidth: 100,templet: '#palletCode'}
+    	    ,{field:'billTypeName',  title: '单据类型', align:'center',minWidth: 100,templet: '#billTypeName'}
+    	    ,{field:'billCode',  title: '单据编码',align:'center', minWidth: 200,templet:'#billCodeTpl'}
+    	   /*  ,{field:'billId',  title: '单据号', align:'center',minWidth: 100} */
+    	   /*  ,{field:'billItemId',  title: '单据明细ID', align:'center',minWidth: 100} */
+    	    ,{field:'billStatusDicName',  title: '单据状态', align:'center',templet: '#billStatusDicName'}
+    	    ,{field:'quantity',  title: '标签数量', align:'center',minWidth: 100} 
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 100}
+    	    ,{field:'createUserId',  title: '操作人', align:'center',minWidth: 120,templet:'#createUserIdTpl'}
+      		//,{field:'', width:'10%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+  	});
+	
+	form.on('submit(search)', function (data) {
+		console.log(data.field)
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑仓库货位','/warehouse/warehousePallet/edit?id=' + data.id); 
+		}
+	});
+	
+	$('#productSearch').on('click',function(e){
+   		openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	}) 
+   	$('#materialSearch').on('click',function(e){
+				openWinSelect('/product/productMaterial/productMaterialOpen',"materialId","materialName");
+				e.preventDefault();//默认from表单提交时不刷新
+			}) 
+   	//清空
+	$("#productName").blur(function(){
+		if($('#productName').val() == ""){
+			$('#productId').val("");
+		}
+	});	 
+	$("#materialName").blur(function(){
+		if($('#materialName').val() == ""){
+			$('#materialId').val("");
+		}
+	});	 
+	
+// 	var tables = $("#listTable").next().find(".layui-table-box"); 
+// 	tables.find("[data-field='factoryId']").css("display","none"); //data-field的值就是你想要隐藏的某一列的field 
+// 	tables.find("[data-field='warehouseId']").css("display","none"); //data-field的值就是你想要隐藏的某一列的field 
+// 	tables.find("[data-field='palletStatusDictId']").css("display","none"); //data-field的值就是你想要隐藏的某一列的field 
+// 	tables.find("[data-field='productId']").css("display","none"); //data-field的值就是你想要隐藏的某一列的field 
+});	
+</script>
+ 
+  </body>
+
+</html>

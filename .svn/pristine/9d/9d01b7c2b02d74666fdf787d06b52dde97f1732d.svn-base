@@ -1,0 +1,164 @@
+package com.techsoft.entity.common;
+
+import java.util.Date;
+
+import com.techsoft.common.BaseEntity;
+
+public class BillDelivery extends BaseEntity {
+	private static final long serialVersionUID = 737772905902235928L;
+
+
+	public BillDelivery(){	
+	}
+	
+	private Long tenantId;	
+	   
+	private Long factoryId;	
+	   
+	private String billCode;	
+	   
+	private Long billTypeDictId;	
+	   
+	private Long billStatusDictId;	
+	   
+	private Long auditStatusDictId;	
+	   
+	private Long fromBillTypeDictId;	
+	   
+	private Long fromPartnerId;	
+	   
+	private Long toPartnerId;	
+	   
+	private Long logisticsPartnerId;	
+	   
+	private String expressNumber;	
+	   
+	private Date deliveryTime;	
+	   
+	private Date predictArrivalTime;	
+	   
+	private Date arrivalTime;	
+	   
+	private String remark;	
+	   
+                		
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
+                		
+	public Long getFactoryId() {
+		return factoryId;
+	}
+
+	public void setFactoryId(Long factoryId) {
+		this.factoryId = factoryId;
+	}
+                		
+	public String getBillCode() {
+		return billCode;
+	}
+
+	public void setBillCode(String billCode) {
+		this.billCode = billCode;
+	}
+                		
+	public Long getBillTypeDictId() {
+		return billTypeDictId;
+	}
+
+	public void setBillTypeDictId(Long billTypeDictId) {
+		this.billTypeDictId = billTypeDictId;
+	}
+                		
+	public Long getBillStatusDictId() {
+		return billStatusDictId;
+	}
+
+	public void setBillStatusDictId(Long billStatusDictId) {
+		this.billStatusDictId = billStatusDictId;
+	}
+                		
+	public Long getAuditStatusDictId() {
+		return auditStatusDictId;
+	}
+
+	public void setAuditStatusDictId(Long auditStatusDictId) {
+		this.auditStatusDictId = auditStatusDictId;
+	}
+                		
+	public Long getFromBillTypeDictId() {
+		return fromBillTypeDictId;
+	}
+
+	public void setFromBillTypeDictId(Long fromBillTypeDictId) {
+		this.fromBillTypeDictId = fromBillTypeDictId;
+	}
+                		
+	public Long getFromPartnerId() {
+		return fromPartnerId;
+	}
+
+	public void setFromPartnerId(Long fromPartnerId) {
+		this.fromPartnerId = fromPartnerId;
+	}
+                		
+	public Long getToPartnerId() {
+		return toPartnerId;
+	}
+
+	public void setToPartnerId(Long toPartnerId) {
+		this.toPartnerId = toPartnerId;
+	}
+                		
+	public Long getLogisticsPartnerId() {
+		return logisticsPartnerId;
+	}
+
+	public void setLogisticsPartnerId(Long logisticsPartnerId) {
+		this.logisticsPartnerId = logisticsPartnerId;
+	}
+                		
+	public String getExpressNumber() {
+		return expressNumber;
+	}
+
+	public void setExpressNumber(String expressNumber) {
+		this.expressNumber = expressNumber;
+	}
+                		
+	public Date getDeliveryTime() {
+		return deliveryTime;
+	}
+
+	public void setDeliveryTime(Date deliveryTime) {
+		this.deliveryTime = deliveryTime;
+	}
+                		
+	public Date getPredictArrivalTime() {
+		return predictArrivalTime;
+	}
+
+	public void setPredictArrivalTime(Date predictArrivalTime) {
+		this.predictArrivalTime = predictArrivalTime;
+	}
+                		
+	public Date getArrivalTime() {
+		return arrivalTime;
+	}
+
+	public void setArrivalTime(Date arrivalTime) {
+		this.arrivalTime = arrivalTime;
+	}
+                		
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}

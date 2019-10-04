@@ -1,0 +1,193 @@
+package com.techsoft.controller.quality;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.quality.ClientQualityInspectItemService;
+import com.techsoft.client.service.quality.ClientQualityInspectTypeService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.common.persistence.ZTreeNode;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.QualityInspectItem;
+import com.techsoft.entity.common.QualityInspectType;
+import com.techsoft.entity.common.WarehouseArea;
+import com.techsoft.entity.quality.QualityInspectItemParamVo;
+import com.techsoft.entity.quality.QualityInspectItemVo;
+import com.techsoft.entity.warehouse.WarehouseAreaParamVo;
+
+@Controller
+@RequestMapping("/quality/qualityInspectItem")
+public class QualityInspectItemController extends BaseController {
+	@Autowired
+	private ClientQualityInspectItemService clientQualityInspectItemService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientQualityInspectTypeService clientQualityInspectTypeService;
+	/**
+	 * 页面关联数据初始化
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) { 
+		try {
+			List<ConfigDictionary> itemTypeList = clientConfigDictionaryService.selectListByParentId(EnumDictionary.QUALITY_INSPECT_ITEM_TYPE.getValue());
+			modelAndView.addObject("itemTypeList", itemTypeList);
+		} catch (BusinessException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());
+	}
+	
+	
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("quality/qualityInspectItem-list");
+		return modelAndView;
+	}
+	
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("quality/qualityInspectItem-edit");
+		QualityInspectItemVo entity = new QualityInspectItemVo();
+		try {
+			
+			QualityInspectItemParamVo qualityInspectItemParamVo = new QualityInspectItemParamVo();
+			qualityInspectItemParamVo.setParent(0);
+			List<QualityInspectItem> qualityInspectItemList = clientQualityInspectItemService.selectListByParamVo(qualityInspectItemParamVo,this.getCommonParam(null));
+			modelAndView.addObject("qualityInspectItemList", qualityInspectItemList);
+			
+			if (id != null) {
+				entity = clientQualityInspectItemService.getVoByID(id, this.getCommonParam(request));
+				if (entity.getInspectTypeId() != null) {
+					QualityInspectType qualityInspectType = clientQualityInspectTypeService.getVoByID(entity.getInspectTypeId(), this.getCommonParam(request));
+					modelAndView.addObject("qualityInspectType", qualityInspectType);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		modelAndView.addObject("entity", entity);
+		initData(modelAndView);
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")	
+	public ReturnPageInfo listJson(HttpServletRequest request,
+			QualityInspectItemParamVo qualityInspectItemParamVo, Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}			
+		try {
+            if(qualityInspectItemParamVo==null){
+            	qualityInspectItemParamVo = new QualityInspectItemParamVo();
+            }
+			pageInfo = clientQualityInspectItemService.selectPageVoByParamVo(
+					qualityInspectItemParamVo, this.getCommonParam(request),
+					pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request,
+			QualityInspectItemParamVo qualityInspectItemParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+	 
+	    qualityInspectItemParamVo.setModifyUserId(getLoginUserId(request)); 
+		resultMessage = clientQualityInspectItemService.saveOrUpdate(qualityInspectItemParamVo,
+				this.getCommonParam(request));
+
+		return resultMessage;
+	}
+	
+
+	@ResponseBody
+	@RequestMapping("/loadZtree")
+	public List<ZTreeNode> loadZtree(HttpServletRequest request,QualityInspectItemParamVo qualityInspectItemParamVo, Integer pageIndex) {
+		List<ZTreeNode> nodeList = new ArrayList<ZTreeNode>();
+		try {
+            List<QualityInspectItem> itemList= clientQualityInspectItemService.selectListByParamVo(new QualityInspectItemParamVo(), this.getCommonParam(request));
+            List<QualityInspectItem> parentItemList= new ArrayList<QualityInspectItem>();
+			for(QualityInspectItem item : itemList){
+				   if(item.getParentId()==0){
+					  parentItemList.add(item);
+				   }
+				}
+			//{"createUserId":1,"inspectTypeId":10005,"modifyUserId":1,"delFlag":0,"version":1,"isModule":"1","parentId":0,"modifyTime":1556769650000,"createTime":1556766942000,"inspectItemName":"IC件外观 MA","tenantId":1,"id":1}
+				for(QualityInspectItem item : parentItemList){
+					ZTreeNode nodes = new ZTreeNode();
+					  
+					  List<ZTreeNode> list_sub = new ArrayList<ZTreeNode>();
+					  for(QualityInspectItem item2 : itemList){
+						   if(item2.getParentId().equals(item.getId())){
+							  ZTreeNode nodes2 = new ZTreeNode();
+							  nodes2.setId(item2.getId());
+							  nodes2.setParentId(item2.getParentId());
+							  nodes2.setName(item2.getInspectItemName());
+							  nodes2.setOpen(false);
+							  list_sub.add(nodes2);
+
+						   } 
+						 
+					 }
+					  nodes.setChildren(list_sub);
+					  nodes.setId(item.getId());
+					  nodes.setParentId(item.getParentId());
+					  nodes.setName(item.getInspectItemName());
+					  nodes.setOpen(false);
+					  nodeList.add(nodes);
+					  
+					  nodeList.toString();
+				}
+				
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return  nodeList;
+	}
+	
+	@RequestMapping("/qualityInspectItemOpen")
+	public ModelAndView qualityInspectItemOpen(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("quality/qualityInspectItem-Open");
+		return modelAndView;
+	}
+
+}

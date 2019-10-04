@@ -1,0 +1,1677 @@
+package com.techsoft.client.service.work;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import com.techsoft.common.BaseClientServiceImpl;
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.enums.EnumBarcodeStatus;
+import com.techsoft.common.enums.EnumBillType;
+import com.techsoft.common.enums.EnumEquipStatusType;
+import com.techsoft.common.enums.EnumProcedureInstructType;
+import com.techsoft.common.enums.EnumProductType;
+import com.techsoft.common.enums.EnumStructProcedureInstructType;
+import com.techsoft.common.enums.EnumWorkPlanStatus;
+import com.techsoft.common.enums.EnumWorkTaskStatus;
+import com.techsoft.common.enums.EnumWorkorderStatus;
+import com.techsoft.common.enums.EnumYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.utils.Arith;
+import com.techsoft.common.utils.BeanUtil;
+import com.techsoft.entity.barcode.BarcodeMainParamVo;
+import com.techsoft.entity.common.BarcodeMain;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.BillWorkorder;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipFixture;
+import com.techsoft.entity.common.EquipFixtureStack;
+import com.techsoft.entity.common.EquipWork;
+import com.techsoft.entity.common.EquipWorkStack;
+import com.techsoft.entity.common.EquipWorkStackProduct;
+import com.techsoft.entity.common.ProductBom;
+import com.techsoft.entity.common.ProductMain;
+import com.techsoft.entity.common.ProductMaterial;
+import com.techsoft.entity.common.StructFactory;
+import com.techsoft.entity.common.StructProcedureInstruct;
+import com.techsoft.entity.common.StructProcess;
+import com.techsoft.entity.common.StructProcessNode;
+import com.techsoft.entity.common.StructProductionline;
+import com.techsoft.entity.common.StructWorkshop;
+import com.techsoft.entity.common.StructWorkstation;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.common.UserPassport;
+import com.techsoft.entity.common.WorkPlanEquip;
+import com.techsoft.entity.common.WorkPlanMaterial;
+import com.techsoft.entity.common.WorkPlanWorkstation;
+import com.techsoft.entity.common.WorkTaskProcedure;
+import com.techsoft.entity.equip.EquipWorkParamVo;
+import com.techsoft.entity.equip.EquipWorkStackProductParamVo;
+import com.techsoft.entity.product.ProductMaterialVo;
+import com.techsoft.entity.struct.StructProcedureInstructParamVo;
+import com.techsoft.entity.work.WorkPlanEquipParamVo;
+import com.techsoft.entity.work.WorkPlanMaterialParamVo;
+import com.techsoft.entity.work.WorkPlanWorkstationParamVo;
+import com.techsoft.entity.work.WorkTaskProcedureParamVo;
+import com.techsoft.entity.work.WorkTaskProcedureVo;
+import com.techsoft.service.barcode.BarcodeMainService;
+import com.techsoft.service.bill.BillWarehouseService;
+import com.techsoft.service.bill.BillWorkorderService;
+import com.techsoft.service.config.ConfigDictionaryService;
+import com.techsoft.service.equip.EquipFixtureService;
+import com.techsoft.service.equip.EquipFixtureStackService;
+import com.techsoft.service.equip.EquipWorkService;
+import com.techsoft.service.equip.EquipWorkStackProductService;
+import com.techsoft.service.equip.EquipWorkStackService;
+import com.techsoft.service.product.ProductBomService;
+import com.techsoft.service.product.ProductMainService;
+import com.techsoft.service.product.ProductMaterialService;
+import com.techsoft.service.struct.StructFactoryService;
+import com.techsoft.service.struct.StructProcedureInstructService;
+import com.techsoft.service.struct.StructProcessNodeService;
+import com.techsoft.service.struct.StructProcessService;
+import com.techsoft.service.struct.StructProductionlineService;
+import com.techsoft.service.struct.StructWorkshopService;
+import com.techsoft.service.struct.StructWorkstationService;
+import com.techsoft.service.sys.UserPassportService;
+import com.techsoft.service.track.TrackBarcodeService;
+import com.techsoft.service.work.WorkPlanEquipService;
+import com.techsoft.service.work.WorkPlanMaterialService;
+import com.techsoft.service.work.WorkPlanWorkstationService;
+import com.techsoft.service.work.WorkTaskProcedureService;
+
+@org.springframework.stereotype.Service
+public class ClientWorkTaskProcedureServiceImpl extends BaseClientServiceImpl<WorkTaskProcedure>
+		implements ClientWorkTaskProcedureService {
+
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WorkPlanWorkstationService workPlanWorkstationService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WorkPlanEquipService workPlanEquipService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcedureInstructService structProcedureInstructService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WorkTaskProcedureService workTaskProcedureService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcessNodeService structProcessNodeService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructFactoryService structFactoryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ConfigDictionaryService configDictionaryService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProcessService structProcessService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkshopService structWorkshopService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWorkorderService billWorkorderService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructProductionlineService structProductionlineService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private StructWorkstationService structWorkstationService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductBomService productBomService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMainService productMainService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private ProductMaterialService productMaterialService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipWorkService equipWorkService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipWorkStackService equipWorkStackService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipWorkStackProductService equipWorkStackProductService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipFixtureService equipFixtureService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BarcodeMainService barcodeMainService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private TrackBarcodeService trackBarcodeService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private WorkPlanMaterialService workPlanMaterialService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private UserPassportService userPassportService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private EquipFixtureStackService equipFixtureStackService;
+	@com.alibaba.dubbo.config.annotation.Reference
+	private BillWarehouseService billWarehouseService;
+
+	@Override
+	public BaseService<WorkTaskProcedure> getBaseService() {
+		return workTaskProcedureService;
+	}
+
+	private WorkTaskProcedureVo getVo(WorkTaskProcedure workTaskProcedure, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		WorkTaskProcedureVo vo = new WorkTaskProcedureVo(workTaskProcedure);
+		// TODO 此处填充其它关联字段的处理代码
+		if (vo.getProcessNodeId() != null && vo.getProcessNodeId() > 0L) {
+			StructProcessNode structProcessNode = structProcessNodeService.selectById(vo.getProcessNodeId(),
+					commonParam);
+			if (structProcessNode != null) {
+				vo.setStructProcessNode(structProcessNode);
+			}
+		}
+		if (vo.getFactoryId() != null && vo.getFactoryId() > 0L) {
+			StructFactory factory = structFactoryService.selectById(vo.getFactoryId(), commonParam);
+			if (factory != null) {
+				vo.setFactory(factory);
+			}
+		}
+		if (vo.getBillWorkorderId() != null && vo.getBillWorkorderId() > 0L) {
+			BillWorkorder billWorkorder = billWorkorderService.selectById(vo.getBillWorkorderId(), commonParam);
+			if (billWorkorder != null) {
+				vo.setBillWorkorder(billWorkorder);
+			}
+		}
+		if (vo.getWorkshopId() != null && vo.getWorkshopId() > 0L) {
+			StructWorkshop workshop = structWorkshopService.selectById(vo.getWorkshopId(), commonParam);
+			if (workshop != null) {
+				vo.setWorkshop(workshop);
+			}
+		}
+		if (vo.getTaskStatusDictId() != null && vo.getTaskStatusDictId() > 0L) {
+			ConfigDictionary taskStatusDic = configDictionaryService.selectById(vo.getTaskStatusDictId(), commonParam);
+			if (taskStatusDic != null) {
+				vo.setTaskStatusDic(taskStatusDic);
+			}
+		}
+		if (vo.getBomId() != null && vo.getBomId() > 0L) {
+			ProductBom productBom = productBomService.selectById(vo.getBomId(), commonParam);
+			if (productBom != null) {
+				vo.setProductBom(productBom);
+			}
+		}
+		if (vo.getProductionlineId() != null && vo.getProductionlineId() > 0L) {
+			StructProductionline productionline = structProductionlineService.selectById(vo.getProductionlineId(),
+					commonParam);
+			if (productionline != null) {
+				vo.setProductionline(productionline);
+			}
+		}
+		if (vo.getProductId() != null && vo.getProductId() > 0L) {
+			ProductMain productMain = productMainService.selectById(vo.getProductId(), commonParam);
+			if (productMain != null) {
+				vo.setProductMain(productMain);
+			}
+		}
+		if (vo.getMaterialId() != null && vo.getMaterialId() > 0L) {
+			ProductMaterial productMaterial = productMaterialService.selectById(vo.getMaterialId(), commonParam);
+			if (productMaterial != null) {
+				// 物品类型
+				if (productMaterial.getProductTypeDictId() != null && productMaterial.getProductTypeDictId() > 0L) {
+					ConfigDictionary productType = configDictionaryService
+							.selectById(productMaterial.getProductTypeDictId(), commonParam);
+					if (productType != null) {
+						vo.setProductType(productType);
+					}
+				}
+				// 物品规格值
+				ProductMaterialVo productMaterialVo = new ProductMaterialVo();
+				productMaterialVo.setSkuValue(productMaterial.getSkuValue());
+				vo.setProductMaterialVo(productMaterialVo);
+				vo.setProductMaterial(productMaterial);
+			}
+		}
+		if (vo.getExecutiveTypeDictId() != null && vo.getExecutiveTypeDictId() > 0L) {
+			ConfigDictionary executive = configDictionaryService.selectById(vo.getExecutiveTypeDictId(), commonParam);
+			if (executive != null) {
+				vo.setExecutive(executive);
+			}
+		}
+		if (vo.getCreateUserId() != null && vo.getCreateUserId() > 0L) {
+			UserPassport userPassport = userPassportService.selectById(vo.getCreateUserId(), commonParam);
+			if (userPassport != null) {
+				vo.setUserPassport(userPassport);
+			}
+		}
+		if (vo.getModifyUserId() != null && vo.getModifyUserId() > 0L) {
+			UserPassport modifyUser = userPassportService.selectById(vo.getModifyUserId(), commonParam);
+			if (modifyUser != null) {
+				vo.setModifyUser(modifyUser);
+			}
+		}
+		return vo;
+	}
+
+	private WorkTaskProcedureVo getExtendVo(WorkTaskProcedure workTaskProcedure, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		WorkTaskProcedureVo vo = this.getVo(workTaskProcedure, commonParam);
+		// TODO 此处填充其它关联字段的处理代码
+		return vo;
+	}
+
+	private List<WorkTaskProcedureVo> getVoList(List<WorkTaskProcedure> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<WorkTaskProcedureVo> voList = new ArrayList<WorkTaskProcedureVo>();
+		for (WorkTaskProcedure entity : list) {
+			voList.add(this.getVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	private List<WorkTaskProcedureVo> getExtendVoList(List<WorkTaskProcedure> list, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		List<WorkTaskProcedureVo> voList = new ArrayList<WorkTaskProcedureVo>();
+		for (WorkTaskProcedure entity : list) {
+			voList.add(this.getExtendVo(entity, commonParam));
+		}
+
+		return voList;
+	}
+
+	public WorkTaskProcedureVo getVoByID(Long id, CommonParam commonParam) throws BusinessException, SQLException {
+		WorkTaskProcedure entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getVo(entity, commonParam);
+	}
+
+	public List<WorkTaskProcedureVo> selectListVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (workTaskProcedure == null) {
+			workTaskProcedure = new WorkTaskProcedureParamVo();
+		}
+		workTaskProcedure.setTenantId(commonParam.getTenantId());
+
+		List<WorkTaskProcedure> list = (List<WorkTaskProcedure>) this.getBaseService()
+				.selectListByParamVo(workTaskProcedure, commonParam);
+
+		return getVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<WorkTaskProcedureVo> selectPageVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (workTaskProcedure == null) {
+			workTaskProcedure = new WorkTaskProcedureParamVo();
+		}
+		workTaskProcedure.setTenantId(commonParam.getTenantId());
+
+		PageInfo<WorkTaskProcedure> list = (PageInfo<WorkTaskProcedure>) this.getBaseService()
+				.selectPageByParamVo(workTaskProcedure, commonParam, pageNo, pageSize);
+		List<WorkTaskProcedureVo> volist = new ArrayList<WorkTaskProcedureVo>();
+
+		Iterator<WorkTaskProcedure> iter = list.getList().iterator();
+		WorkTaskProcedureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<WorkTaskProcedureVo> vpage = new Page<WorkTaskProcedureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public WorkTaskProcedureVo getExtendVoByID(Long id, CommonParam commonParam)
+			throws BusinessException, SQLException {
+		WorkTaskProcedure entity = this.getBaseService().selectById(id, commonParam);
+
+		return this.getExtendVo(entity, commonParam);
+	}
+
+	public List<WorkTaskProcedureVo> selectListExtendVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure,
+			CommonParam commonParam) throws BusinessException, SQLException {
+		if (workTaskProcedure == null) {
+			workTaskProcedure = new WorkTaskProcedureParamVo();
+		}
+		workTaskProcedure.setTenantId(commonParam.getTenantId());
+
+		List<WorkTaskProcedure> list = (List<WorkTaskProcedure>) this.getBaseService()
+				.selectListByParamVo(workTaskProcedure, commonParam);
+
+		return this.getExtendVoList(list, commonParam);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public PageInfo<WorkTaskProcedureVo> selectPageExtendVoByParamVo(WorkTaskProcedureParamVo workTaskProcedure,
+			CommonParam commonParam, int pageNo, int pageSize) throws BusinessException, SQLException {
+		if (workTaskProcedure == null) {
+			workTaskProcedure = new WorkTaskProcedureParamVo();
+		}
+		workTaskProcedure.setTenantId(commonParam.getTenantId());
+
+		PageInfo<WorkTaskProcedure> list = (PageInfo<WorkTaskProcedure>) this.getBaseService()
+				.selectPageByParamVo(workTaskProcedure, commonParam, pageNo, pageSize);
+		List<WorkTaskProcedureVo> volist = new ArrayList<WorkTaskProcedureVo>();
+
+		Iterator<WorkTaskProcedure> iter = list.getList().iterator();
+		WorkTaskProcedureVo vo = null;
+		while (iter.hasNext()) {
+			vo = this.getExtendVo(iter.next(), commonParam);
+			volist.add(vo);
+		}
+
+		Page<WorkTaskProcedureVo> vpage = new Page<WorkTaskProcedureVo>();
+		vpage.addAll(volist);
+		vpage.setPageNum(list.getPageNum());
+		vpage.setPageSize(list.getPageSize());
+		vpage.setTotal(list.getTotal());
+
+		return new PageInfo(vpage);
+	}
+
+	public ResultMessage saveOrUpdate(WorkTaskProcedureParamVo workTaskProcedureParamVo, CommonParam commonParam) {
+		ResultMessage resultMessage = new ResultMessage();
+		WorkTaskProcedure workTaskProcedure = null;
+		try {
+			if (workTaskProcedureParamVo.getId() == null) {// 新增
+
+				workTaskProcedureParamVo.setTenantId(commonParam.getTenantId());
+				workTaskProcedure = workTaskProcedureService.saveOrUpdate(workTaskProcedureParamVo, commonParam);
+				resultMessage.setIsSuccess(true);
+			} else { // 修改
+				WorkTaskProcedure workTaskProcedureVoTemp = this.selectById(workTaskProcedureParamVo.getId(),
+						commonParam);
+
+				BeanUtil.copyNotNullProperties(workTaskProcedureVoTemp, workTaskProcedureParamVo);
+
+				workTaskProcedure = workTaskProcedureService.saveOrUpdate(workTaskProcedureVoTemp, commonParam);
+
+				resultMessage.setIsSuccess(true);
+			}
+
+			resultMessage.setBaseEntity(workTaskProcedure);
+		} catch (BusinessException e) {
+			resultMessage.addErr(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage scanpass(CommonParam commonParam, Long factoryId, String macaddress, String code) {
+
+		ResultMessage resultMessage = new ResultMessage();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+			return resultMessage;
+		}
+		if (StringUtils.isBlank(macaddress)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("扫描器地址不能为空");
+			return resultMessage;
+		}
+
+		if (StringUtils.isBlank(code)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("条码不能为空");
+			return resultMessage;
+		}
+		if (StringUtils.isBlank(commonParam.getUserId())) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("操作人不能为空");
+			return resultMessage;
+		}
+		Long userId = new Long(commonParam.getUserId());
+		try {
+
+			EquipWork equipWork = null; // 设备
+			EquipFixture equipFixture = null; // 送料器
+			WorkTaskProcedure workTaskProcedure = null; // 工序任务
+			WorkPlanWorkstation workPlanWorkstation = null; // 工位计划
+			WorkPlanEquip workPlanEquip = null; // 设备计划
+			BillWorkorder billWorkorder = null; // 工单
+			StructProcess structProcess = null; // 工艺路线
+			StructProcessNode structProcessNode = null; // 工序
+			StructProcedureInstruct procedureInstruct = null; // 工序指令
+			List<BarcodeMain> barcodeMainList = new ArrayList<BarcodeMain>();
+
+			BarcodeMain barcodeMainVo = barcodeMainService.getByCode(code, commonParam);
+
+			if (barcodeMainVo != null) {
+				barcodeMainList.add(barcodeMainVo);
+
+			} else {
+				equipFixture = equipFixtureService.getByFixtureCode(code, commonParam);
+				if (equipFixture != null) {
+					BarcodeMainParamVo barcodeMainParamVo = new BarcodeMainParamVo();
+					barcodeMainParamVo.setTenantId(commonParam.getTenantId());
+					barcodeMainParamVo.setFactoryId(factoryId);
+					barcodeMainParamVo.setEquipFixtureId(equipFixture.getId());
+					barcodeMainList = barcodeMainService.selectListByParamVo(barcodeMainParamVo, commonParam);
+				}
+			}
+
+			if ((barcodeMainList == null) || (barcodeMainList.isEmpty())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到该物品");
+				return resultMessage;
+			}
+
+			EquipWorkParamVo equipWorkParamVo = new EquipWorkParamVo();
+			equipWorkParamVo.setTenantId(commonParam.getTenantId());
+			equipWorkParamVo.setFactoryId(factoryId);
+			equipWorkParamVo.setMacaddress(macaddress);
+			List<EquipWork> equipWorkList = equipWorkService.selectListByParamVo(equipWorkParamVo, commonParam);
+
+			if ((equipWorkList != null) && (!equipWorkList.isEmpty())) {
+				equipWork = equipWorkList.get(0);
+			}
+
+			if (equipWork == null) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到设备");
+				return resultMessage;
+			}
+
+			if (!EnumEquipStatusType.AF01.getValue().equals(equipWork.getEquipStatusDictId())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("该设备不能正常工作");
+				return resultMessage;
+			}
+
+			Long structProcessId = null;
+			Long billWorkorderId = null;
+			for (BarcodeMain barcodeMain : barcodeMainList) { // 如果条码已经绑定了工单和工序
+				structProcessId = barcodeMain.getProcessId();
+				billWorkorderId = barcodeMain.getBillWorkorderId();
+
+			}
+
+			WorkPlanEquipParamVo workPlanEquipParamVo = new WorkPlanEquipParamVo();
+			workPlanEquipParamVo.setTenantId(commonParam.getTenantId());
+			workPlanEquipParamVo.setFactoryId(factoryId);
+			workPlanEquipParamVo.setEquipWorkId(equipWork.getId());
+			if (structProcessId != null) {
+				workPlanEquipParamVo.setProcessId(structProcessId);
+			}
+			if (billWorkorderId != null) {
+				workPlanEquipParamVo.setBillWorkorderId(billWorkorderId);
+			}
+
+			List<WorkPlanEquip> workPlanEquipList = workPlanEquipService.selectListCanWorking(workPlanEquipParamVo,
+					commonParam);
+			if ((workPlanEquipList != null) && (!workPlanEquipList.isEmpty())) {
+				for (WorkPlanEquip tempWorkPlanEquip : workPlanEquipList) {
+					// 暂时只支持一个设备同时间只进行一个工序任务
+					workPlanEquip = tempWorkPlanEquip;
+				}
+			}
+			if (workPlanEquip == null) {// 输入和产出如果没有可进行的计划和任务，继续补上一次计划和任务的数量
+				workPlanEquipParamVo.setIsLocked(EnumYesOrNo.NO.getValue());// 未锁定的，
+				workPlanEquipParamVo.setPlanStatusDictId(EnumWorkPlanStatus.FINISH.getValue());// 未开始
+				List<WorkPlanEquip> list1 = workPlanEquipService.selectListByParamVo(workPlanEquipParamVo, commonParam);
+				if ((list1 != null) && (!list1.isEmpty())) {
+					workPlanEquip = list1.get(0);
+				}
+			}
+			if (workPlanEquip == null) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到设备进行的工序计划");
+				return resultMessage;
+			}
+
+			procedureInstruct = structProcedureInstructService.selectById(workPlanEquip.getInstructId(), commonParam);
+			structProcessNode = structProcessNodeService.selectById(workPlanEquip.getProcessNodeId(), commonParam);
+			workTaskProcedure = workTaskProcedureService.selectById(workPlanEquip.getTaskId(), commonParam);
+			if (EnumYesOrNo.YES.getValue().equals(workTaskProcedure.getIsLocked())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("作业任务已经锁住");
+				return resultMessage;
+			}
+			// if
+			// (EnumWorkTaskStatus.FINISH.getValue().equals(workTaskProcedure.getIsLocked()))
+			// {
+			// resultMessage.setIsSuccess(false);
+			// resultMessage.addErr("作业任务已经结束");
+			// return resultMessage;
+			// }
+
+			WorkPlanWorkstationParamVo workPlanWorkstationParamVo = new WorkPlanWorkstationParamVo();
+			workPlanWorkstationParamVo.setTenantId(commonParam.getTenantId());
+			workPlanWorkstationParamVo.setFactoryId(factoryId);
+			workPlanWorkstationParamVo.setTaskId(workPlanEquip.getTaskId());
+			workPlanWorkstationParamVo.setProcessNodeId(workPlanEquip.getProcessNodeId());
+			workPlanWorkstationParamVo.setWorkstationId(workPlanEquip.getWorkstationId());
+			List<WorkPlanWorkstation> workPlanWorkstationList = workPlanWorkstationService
+					.selectListByParamVo(workPlanWorkstationParamVo, commonParam);
+			if ((workPlanWorkstationList != null) && (!workPlanWorkstationList.isEmpty())) {
+				workPlanWorkstation = workPlanWorkstationList.get(0);
+			}
+
+			billWorkorder = billWorkorderService.selectById(workTaskProcedure.getBillWorkorderId(), commonParam);
+			Double quantityOutput = 0d;
+			Long productTypeId = null;
+			Boolean isFitFinishedProduct = false;
+			for (BarcodeMain barcodeMain : barcodeMainList) {
+				barcodeMain.setBillTypeDictId(EnumBillType.BILL_TYPE_WORKORDER.getValue());
+				barcodeMain.setBillId(billWorkorder.getId());
+				barcodeMain.setBillWorkorderId(billWorkorder.getId());
+				barcodeMain.setBillCode(billWorkorder.getWorkorderCode());
+				barcodeMain.setBillStatusDictId(billWorkorder.getWorkorderStatusDictId());
+				barcodeMain.setBillItemId(null);
+				barcodeMain.setModifyUserId(userId);
+				barcodeMain.setProductionlineId(workTaskProcedure.getProductionlineId());
+				barcodeMain.setTaskProcedureId(workTaskProcedure.getId());
+				barcodeMain.setProcessId(workTaskProcedure.getProcessId());
+				barcodeMain.setProcessNodeId(procedureInstruct.getProcessNodeId());
+				barcodeMain.setInstructId(procedureInstruct.getId());
+				if (equipFixture != null) {
+					barcodeMain.setEquipFixtureId(equipFixture.getId());
+				}
+				barcodeMain.setEquipWorkId(equipWork.getId());
+				barcodeMain.setWorkshopId(equipWork.getWorkshopId());
+				barcodeMain.setWorkshopAreaId(equipWork.getWorkshopAreaId());
+				barcodeMain.setWorkstationId(equipWork.getWorkstationId());
+
+				barcodeMain.setBarcodeStatusDictId(EnumBarcodeStatus.WORKED.getValue());
+
+				if (EnumProcedureInstructType.OUT.getValue().equals(procedureInstruct.getInstructTypeDictId())) {
+
+					if (procedureInstruct.getMaterialId() != null) {
+						if (!barcodeMain.getMaterialId().equals(procedureInstruct.getMaterialId())) {
+							// 条码对应的物品性质开始按BOM树向上级转化，直到是成品
+							barcodeMain.setProductId(procedureInstruct.getProductId());
+							barcodeMain.setMaterialId(procedureInstruct.getMaterialId());
+							ProductMaterial productMaterial = productMaterialService
+									.selectById(procedureInstruct.getMaterialId(), commonParam);
+							barcodeMain.setProductTypeDictId(productMaterial.getProductTypeDictId());
+
+							if (billWorkorder.getMaterialId().equals(procedureInstruct.getMaterialId())) {
+								barcodeMain.setBarcodeStatusDictId(EnumBarcodeStatus.PRODUCTION.getValue());
+								isFitFinishedProduct = true;
+								productTypeId = barcodeMain.getProductTypeDictId();
+							}
+						}
+					}
+				}
+
+				TrackBarcode trackBarcode = new TrackBarcode();
+				BeanUtil.copyNotNullProperties(trackBarcode, barcodeMain);
+
+				trackBarcode.setBarcodeId(barcodeMain.getId());
+				trackBarcode.setCreateUserId(userId);
+				trackBarcode.setModifyUserId(userId);
+				trackBarcode.setId(null);
+				trackBarcode.setVersion(null);
+				trackBarcode.setRemark("过栈扫描");
+
+				quantityOutput = Arith.add(quantityOutput, barcodeMain.getQuantity());
+
+				barcodeMainService.saveOrUpdate(barcodeMain, commonParam);
+				trackBarcodeService.saveOrUpdate(trackBarcode, commonParam);
+			}
+
+			workPlanEquip.setQuantityOutput(Arith.add(workPlanEquip.getQuantityOutput(), quantityOutput));
+			workTaskProcedure.setQuantityOutput(Arith.add(workTaskProcedure.getQuantityOutput(), quantityOutput));
+			workPlanWorkstation.setQuantityOutput(Arith.add(workPlanWorkstation.getQuantityOutput(), quantityOutput));
+			workPlanEquip.setModifyUserId(userId);
+			workTaskProcedure.setModifyUserId(userId);
+			workPlanWorkstation.setModifyUserId(userId);
+			if (workPlanEquip.getTimeActualStart() == null) {
+				workPlanEquip.setPlanStatusDictId(EnumWorkPlanStatus.DOING.getValue());
+				workPlanEquip.setTimeActualStart(new Date());
+			}
+			if (workTaskProcedure.getTimeActualStart() == null) {
+				workTaskProcedure.setTaskStatusDictId(EnumWorkTaskStatus.DOING.getValue());
+				workTaskProcedure.setTimeActualStart(new Date());
+			}
+			if (workPlanWorkstation.getTimeActualStart() == null) {
+				workPlanWorkstation.setPlanStatusDictId(EnumWorkPlanStatus.DOING.getValue());
+				workPlanWorkstation.setTimeActualStart(new Date());
+			}
+			if (workPlanEquip.getQuantityOutput() >= workPlanEquip.getQuantity()) {
+				workPlanEquip.setPlanStatusDictId(EnumWorkPlanStatus.FINISH.getValue());
+				if (workPlanEquip.getTimeActualEnd() == null) {
+					workPlanEquip.setTimeActualEnd(new Date());
+				}
+			}
+			if (workTaskProcedure.getQuantityOutput() >= workTaskProcedure.getQuantity()) {
+				workTaskProcedure.setTaskStatusDictId(EnumWorkTaskStatus.FINISH.getValue());
+				if (workTaskProcedure.getTimeActualEnd() == null) {
+					workTaskProcedure.setTimeActualEnd(new Date());
+				}
+			}
+			if (workPlanWorkstation.getQuantityOutput() >= workPlanWorkstation.getQuantity()) {
+				workPlanWorkstation.setPlanStatusDictId(EnumWorkPlanStatus.FINISH.getValue());
+				if (workPlanWorkstation.getTimeActualEnd() == null) {
+					workPlanWorkstation.setTimeActualEnd(new Date());
+				}
+			}
+
+			if (billWorkorder.getTimeActualStart() == null) {
+				billWorkorder.setWorkorderStatusDictId(EnumWorkorderStatus.AP03.getValue());
+				billWorkorder.setTimeActualStart(new Date());
+			}
+			if (isFitFinishedProduct) {
+				if (EnumProductType.FINISHED.getValue().equals(productTypeId)) {
+
+					if (billWorkorder.getQuantityOutput() >= billWorkorder.getQuantity()) {
+						billWorkorder.setWorkorderStatusDictId(EnumWorkorderStatus.AP04.getValue());
+						if (billWorkorder.getTimeActualEnd() == null) {
+							billWorkorder.setTimeActualEnd(new Date());
+						}
+					}
+				}
+			}
+
+			workTaskProcedureService.saveOrUpdate(workTaskProcedure, commonParam);
+			workPlanEquipService.saveOrUpdate(workPlanEquip, commonParam);
+			workPlanWorkstationService.saveOrUpdate(workPlanWorkstation, commonParam);
+			billWorkorderService.saveOrUpdate(billWorkorder, commonParam);
+
+			resultMessage.setIsSuccess(true);
+			resultMessage.setMessage("操作成功");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMessage.addErr("运行异常");
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage unbindFixture(CommonParam commonParam, Long factoryId, String workstationCode,
+			String equipFixtureCode) {
+		ResultMessage resultMessage = new ResultMessage();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+			return resultMessage;
+		}
+		if (StringUtils.isBlank(equipFixtureCode)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("料器编码不能为空");
+			return resultMessage;
+		}
+		try {
+			EquipFixture equipFixture = equipFixtureService.getByFixtureCode(equipFixtureCode, commonParam);
+
+			if (equipFixture != null) {
+
+				Long userId = new Long(commonParam.getUserId());
+
+				List<BarcodeMain> barcodeMainList = new ArrayList<BarcodeMain>();
+				BarcodeMainParamVo barcodeMainParamVo = new BarcodeMainParamVo();
+				barcodeMainParamVo.setTenantId(commonParam.getTenantId());
+				barcodeMainParamVo.setFactoryId(factoryId);
+				barcodeMainParamVo.setEquipFixtureId(equipFixture.getId());
+				barcodeMainList = barcodeMainService.selectListByParamVo(barcodeMainParamVo, commonParam);
+
+				for (BarcodeMain barcodeMain : barcodeMainList) {
+					// barcodeMain.setBillTypeDictId(null);
+					// barcodeMain.setBillId(null);
+					// barcodeMain.setBillWorkorderId(null);
+					// barcodeMain.setBillCode(null);
+					// barcodeMain.setBillStatusDictId(null);
+					// barcodeMain.setBillItemId(null);
+					// barcodeMain.setProductionlineId(null);
+					// barcodeMain.setTaskProcedureId(null);
+					// barcodeMain.setProcessId(null);
+					// barcodeMain.setProcessNodeId(null);
+					// barcodeMain.setInstructId(null);
+					// barcodeMain.setWorkshopId(null);
+					// barcodeMain.setWorkshopAreaId(null);
+					// barcodeMain.setWorkstationId(null);
+
+					barcodeMain.setModifyUserId(userId);
+					barcodeMain.setBarcodeStatusDictId(EnumBarcodeStatus.OUTSTORE.getValue());
+
+					TrackBarcode trackBarcode = new TrackBarcode();
+					BeanUtil.copyNotNullProperties(trackBarcode, barcodeMain);
+
+					trackBarcode.setBarcodeId(barcodeMain.getId());
+					trackBarcode.setCreateUserId(userId);
+					trackBarcode.setModifyUserId(userId);
+					trackBarcode.setId(null);
+					trackBarcode.setVersion(null);
+					trackBarcode.setRemark("解绑料器");
+					trackBarcodeService.saveOrUpdate(trackBarcode, commonParam);
+
+					barcodeMain.setEquipFixtureId(null);
+					barcodeMain.setEquipFixtureStackId(null);
+					barcodeMain.setEquipWorkId(null);
+					barcodeMain.setEquipWorkStackId(null);
+					barcodeMainService.saveOrUpdateFull(barcodeMain, commonParam);
+
+					resultMessage.setIsSuccess(true);
+					resultMessage.addErr("解绑操作成功");
+				}
+
+			} else {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到料器");
+				return resultMessage;
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage connectRawMaterial(CommonParam commonParam, Long factoryId, String barcodeOld,
+			String barcodeNew) {
+		ResultMessage resultMessage = new ResultMessage();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+			return resultMessage;
+		}
+		if (StringUtils.isBlank(barcodeOld)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("旧条码不能为空");
+			return resultMessage;
+		}
+		if (StringUtils.isBlank(barcodeNew)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("新条码不能为空");
+			return resultMessage;
+		}
+
+		try {
+			BarcodeMain barcodeMainOld = barcodeMainService.getByCode(barcodeOld, commonParam);
+			if (barcodeMainOld == null) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到旧条码的物品");
+				return resultMessage;
+			}
+			BarcodeMain barcodeMainNew = barcodeMainService.getByCode(barcodeNew, commonParam);
+			if (barcodeMainNew == null) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到新条码的物品");
+				return resultMessage;
+			}
+			if (barcodeMainNew.getQuantity().equals(0d)) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("新条码已经用完");
+				return resultMessage;
+			}
+
+			if (barcodeMainOld.getProcessNodeId() == null) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到旧条码进行的工序");
+				return resultMessage;
+			}
+
+			barcodeMainNew.setProductionlineId(barcodeMainOld.getProductionlineId());
+			barcodeMainNew.setTaskProcedureId(barcodeMainOld.getTaskProcedureId());
+			barcodeMainNew.setProcessId(barcodeMainOld.getProcessId());
+			barcodeMainNew.setProcessNodeId(barcodeMainOld.getProcessNodeId());
+			barcodeMainNew.setInstructId(barcodeMainOld.getInstructId());
+			barcodeMainNew.setEquipWorkId(barcodeMainOld.getEquipWorkId());
+			barcodeMainNew.setEquipWorkStackId(barcodeMainOld.getEquipWorkStackId());
+			barcodeMainNew.setEquipFixtureId(barcodeMainOld.getEquipFixtureId());
+			barcodeMainNew.setEquipFixtureStackId(barcodeMainOld.getEquipFixtureStackId());
+			barcodeMainNew.setBillTypeDictId(EnumBillType.BILL_TYPE_WORKORDER.getValue());
+			barcodeMainNew.setBillWorkorderId(barcodeMainOld.getBillWorkorderId());
+			barcodeMainNew.setBillId(barcodeMainOld.getBillId());
+			barcodeMainNew.setBillCode(barcodeMainOld.getBillCode());
+			barcodeMainNew.setBillStatusDictId(barcodeMainOld.getBillStatusDictId());
+			barcodeMainNew.setBillItemId(barcodeMainOld.getBillItemId());
+			barcodeMainNew.setWorkshopId(barcodeMainOld.getWorkshopId());
+			barcodeMainNew.setWorkshopAreaId(barcodeMainOld.getWorkshopAreaId());
+			barcodeMainNew.setWorkstationId(barcodeMainOld.getWorkstationId());
+
+			BillWorkorder billWorkorder = billWorkorderService.selectById(barcodeMainNew.getBillWorkorderId(),
+					commonParam);
+
+			WorkTaskProcedure workTaskProcedure = workTaskProcedureService
+					.selectById(barcodeMainOld.getTaskProcedureId(), commonParam);
+
+			EquipWork equipWork = equipWorkService.selectById(barcodeMainOld.getEquipWorkId(), commonParam);
+
+			WorkPlanEquipParamVo workPlanEquipParamVo = new WorkPlanEquipParamVo();
+			workPlanEquipParamVo.setTenantId(commonParam.getTenantId());
+			workPlanEquipParamVo.setFactoryId(factoryId);
+			workPlanEquipParamVo.setEquipWorkId(equipWork.getId());
+			workPlanEquipParamVo.setProcessId(barcodeMainOld.getProcessId());
+			workPlanEquipParamVo.setBillWorkorderId(barcodeMainOld.getBillWorkorderId());
+			workPlanEquipParamVo.setTaskId(barcodeMainOld.getTaskProcedureId());
+			WorkPlanEquip workPlanEquip = null;
+			List<WorkPlanEquip> workPlanEquipList = workPlanEquipService.selectListCanWorking(workPlanEquipParamVo,
+					commonParam);
+			if ((workPlanEquipList != null) && (!workPlanEquipList.isEmpty())) {
+				for (WorkPlanEquip tempWorkPlanEquip : workPlanEquipList) {
+					workPlanEquip = tempWorkPlanEquip;
+				}
+			}
+
+			WorkPlanWorkstationParamVo workPlanWorkstationParamVo = new WorkPlanWorkstationParamVo();
+			workPlanWorkstationParamVo.setTenantId(commonParam.getTenantId());
+			workPlanWorkstationParamVo.setFactoryId(factoryId);
+			workPlanWorkstationParamVo.setProcessId(barcodeMainOld.getProcessId());
+			workPlanWorkstationParamVo.setBillWorkorderId(barcodeMainOld.getBillWorkorderId());
+			workPlanWorkstationParamVo.setTaskId(barcodeMainOld.getTaskProcedureId());
+			workPlanWorkstationParamVo.setWorkstationId(barcodeMainOld.getWorkstationId());
+
+			WorkPlanWorkstation workPlanWorkstation = null;
+			List<WorkPlanWorkstation> workPlanWorkstationList = workPlanWorkstationService
+					.selectListByParamVo(workPlanWorkstationParamVo, commonParam);
+
+			if ((workPlanWorkstationList != null) && (!workPlanWorkstationList.isEmpty())) {
+				for (WorkPlanWorkstation tempWorkPlanWorkstation : workPlanWorkstationList) {
+					workPlanWorkstation = tempWorkPlanWorkstation;
+				}
+			}
+
+			StructWorkstation structWorkstation = structWorkstationService
+					.selectById(workPlanWorkstation.getWorkstationId(), commonParam);
+			StructProcedureInstruct procedureInstruct = structProcedureInstructService
+					.selectById(barcodeMainOld.getInstructId(), commonParam);
+
+			resultMessage = workTrackBarcode(commonParam, barcodeMainNew, billWorkorder, procedureInstruct,
+					structWorkstation, equipWork, workPlanEquip, workTaskProcedure, workPlanWorkstation, "接料");
+
+			if (resultMessage.getIsSuccess()) {
+
+				barcodeMainOld.setQuantity(0d);
+				barcodeMainOld.setEquipFixtureId(null);
+				barcodeMainOld.setEquipFixtureStackId(null);
+				barcodeMainOld.setEquipWorkId(null);
+				barcodeMainOld.setEquipWorkStackId(null);
+				Long userId = new Long(commonParam.getUserId());
+
+				TrackBarcode trackBarcode = new TrackBarcode();
+				BeanUtil.copyNotNullProperties(trackBarcode, barcodeMainOld);
+				trackBarcode.setBarcodeId(barcodeMainOld.getId());
+				trackBarcode.setCreateUserId(userId);
+				trackBarcode.setModifyUserId(userId);
+				trackBarcode.setId(null);
+				trackBarcode.setVersion(null);
+				trackBarcode.setRemark("已消耗完被接料");
+
+				trackBarcodeService.saveOrUpdate(trackBarcode, commonParam);
+				barcodeMainService.saveOrUpdate(barcodeMainOld, commonParam);
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			resultMessage.addErr("运行异常");
+		}
+
+		return null;
+	}
+
+	@Override
+	public ResultMessage bindFixture(CommonParam commonParam, Long factoryId, String workstationCode, String equipCode,
+			String equipFixtureCode, String barcode) {
+		return doRawMaterial(commonParam, factoryId, false, workstationCode, equipCode, equipFixtureCode, null, null,
+				barcode, "绑定载料器");
+	}
+
+	@Override
+	public ResultMessage labeling(CommonParam commonParam, Long factoryId, String workstationCode, String barcodeRaw,
+			String barcodeNewList) {
+		// TODO Auto-generated method stub
+		ResultMessage resultMessage = new ResultMessage();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+			return resultMessage;
+		}
+		if (StringUtils.isBlank(workstationCode)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("包装条码不能为空");
+			return resultMessage;
+		}
+		if (StringUtils.isBlank(barcodeRaw)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("包装条码不能为空");
+			return resultMessage;
+		}
+
+		if (StringUtils.isBlank(barcodeNewList)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("新标条码不能为空");
+			return resultMessage;
+		}
+		try {
+
+			Long userId = new Long(commonParam.getUserId());
+
+			BarcodeMain barcodeMainRaw = barcodeMainService.getByCode(barcodeRaw, commonParam);
+			if (barcodeMainRaw == null) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到包装条码");
+				return resultMessage;
+			}
+			List<BarcodeMain> barcodeMainNewList = new ArrayList();
+			String[] barcodeNewArray = barcodeNewList.split(",");
+			if ((barcodeNewArray != null) && (barcodeNewArray.length >= 1)) {
+				for (int n = 0; n < barcodeNewArray.length; n++) {
+					BarcodeMain barcodeMainNew = barcodeMainService.getByCode(barcodeNewArray[n], commonParam);
+					if (barcodeMainNew != null) {
+						barcodeMainNewList.add(barcodeMainNew);
+					} else {
+						resultMessage.setIsSuccess(false);
+						resultMessage.addErr(barcodeNewArray[n] + "找不到该物品");
+						return resultMessage;
+					}
+				}
+			}
+
+			if ((barcodeMainNewList == null) || (barcodeMainNewList.isEmpty())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到新标条码");
+				return resultMessage;
+			}
+			if (barcodeMainRaw.getQuantity().equals(0d)) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("包装里的没有可以利用的物品数量了");
+				return resultMessage;
+			}
+			if (barcodeMainNewList.size() != barcodeMainRaw.getQuantity().intValue()) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("包装里的物品数量是" + barcodeMainRaw.getQuantity().intValue() + ",和新标条码数量不一致");
+				return resultMessage;
+			}
+
+			WorkPlanEquip workPlanEquip = null; // 设备计划
+			WorkPlanMaterial workPlanMaterial = null; // 物品计划
+			WorkTaskProcedure workTaskProcedure = null; // 工序任务
+			WorkPlanWorkstation workPlanWorkstation = null; // 工位计划
+
+			StructProcessNode structProcessNode = null; // 工序
+			StructWorkstation structWorkstation = null; // 工位
+			StructProcedureInstruct procedureInstruct = null; // 工序指令
+			BillWorkorder billWorkorder = null; // 工单
+
+			billWorkorder = getBillWorkorderByBarcode(commonParam, barcodeMainRaw);
+
+			WorkTaskProcedureVo workTaskProcedureVo = getVoByWorkstation(commonParam, factoryId, null, null,
+					workstationCode);
+			if (workTaskProcedureVo != null) {
+
+				structWorkstation = workTaskProcedureVo.getStructWorkstation();
+
+				workTaskProcedure = workTaskProcedureService.selectById(workTaskProcedureVo.getId(), commonParam);
+				structProcessNode = structProcessNodeService.selectById(workTaskProcedure.getProcessNodeId(),
+						commonParam);
+
+				StructProcedureInstructParamVo procedureInstructParamVo = new StructProcedureInstructParamVo();
+				procedureInstructParamVo.setTenantId(commonParam.getTenantId());
+				procedureInstructParamVo.setInstructTypeDictId(EnumProcedureInstructType.IN.getValue());
+				procedureInstructParamVo.setProcessNodeId(structProcessNode.getId());
+
+				List<StructProcedureInstruct> procedureInstructList = structProcedureInstructService
+						.selectListByParamVo(procedureInstructParamVo, commonParam);
+				if ((procedureInstructList != null) && (!procedureInstructList.isEmpty())) {
+					procedureInstruct = procedureInstructList.get(0);
+				}
+
+				resultMessage = workTrackBarcode(commonParam, barcodeMainRaw, billWorkorder, procedureInstruct,
+						structWorkstation, null, workPlanEquip, workTaskProcedure, workPlanWorkstation, "拆包装贴标");
+
+				if (resultMessage.getIsSuccess()) {
+
+					for (BarcodeMain barcodeMain : barcodeMainNewList) {
+						barcodeMain.setProductionlineId(workTaskProcedure.getProductionlineId());
+						barcodeMain.setTaskProcedureId(workTaskProcedure.getId());
+						barcodeMain.setProcessId(workTaskProcedure.getProcessId());
+						barcodeMain.setProcessNodeId(procedureInstruct.getProcessNodeId());
+						barcodeMain.setInstructId(procedureInstruct.getId());
+						barcodeMain.setWorkshopId(structWorkstation.getWorkshopId());
+						barcodeMain.setWorkshopAreaId(structWorkstation.getWorkshopAreaId());
+						barcodeMain.setWorkstationId(structWorkstation.getId());
+
+						barcodeMain.setBillTypeDictId(EnumBillType.BILL_TYPE_WORKORDER.getValue());
+						barcodeMain.setBillWorkorderId(billWorkorder.getId());
+						barcodeMain.setBillId(billWorkorder.getId());
+						barcodeMain.setBillCode(billWorkorder.getWorkorderCode());
+						barcodeMain.setBillStatusDictId(billWorkorder.getWorkorderStatusDictId());
+						barcodeMain.setBillItemId(null);
+						barcodeMain.setBarcodeStatusDictId(EnumBarcodeStatus.WORKED.getValue());
+						barcodeMain.setFromBarcode(barcodeMainRaw.getBarcode());
+						barcodeMain.setFromMaterialId(barcodeMainRaw.getMaterialId());
+						barcodeMain.setQuantity(1d);
+						barcodeMain.setEquipFixtureId(null);
+						barcodeMain.setEquipFixtureStackId(null);
+						barcodeMain.setEquipWorkId(null);
+						barcodeMain.setEquipWorkStackId(null);
+
+						TrackBarcode trackBarcode = new TrackBarcode();
+						BeanUtil.copyNotNullProperties(trackBarcode, barcodeMain);
+						trackBarcode.setBarcodeId(barcodeMain.getId());
+						trackBarcode.setCreateUserId(userId);
+						trackBarcode.setModifyUserId(userId);
+						trackBarcode.setId(null);
+						trackBarcode.setVersion(null);
+						trackBarcode.setRemark("贴标");
+
+						trackBarcodeService.saveOrUpdate(trackBarcode, commonParam);
+						barcodeMainService.saveOrUpdate(barcodeMainRaw, commonParam);
+					}
+				}
+			} else {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到作业任务");
+				return resultMessage;
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			resultMessage.addErr("运行异常");
+		}
+
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage assemble(CommonParam commonParam, Long factoryId, String workstationCode, String macaddress,
+			String barcodeList) {
+		ResultMessage resultMessage = new ResultMessage();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+			return resultMessage;
+		}
+		if (StringUtils.isBlank(macaddress)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("扫描器地址不能为空");
+			return resultMessage;
+		}
+		try {
+			EquipWorkParamVo equipWorkParamVo = new EquipWorkParamVo();
+			equipWorkParamVo.setTenantId(commonParam.getTenantId());
+			equipWorkParamVo.setFactoryId(factoryId);
+			equipWorkParamVo.setMacaddress(macaddress);
+			List<EquipWork> equipWorkList = equipWorkService.selectListByParamVo(equipWorkParamVo, commonParam);
+			EquipWork equipWork = null;
+			if ((equipWorkList != null) && (!equipWorkList.isEmpty())) {
+				equipWork = equipWorkList.get(0);
+			}
+			resultMessage = doRawMaterial(commonParam, factoryId, true, workstationCode, equipWork.getEquipCode(), null,
+					null, null, barcodeList, "上料");
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return resultMessage;
+	}
+
+	@Override
+	public ResultMessage feeding(CommonParam commonParam, Long factoryId, String workstationCode, String equipStackCode,
+			String fixtureStackCode, String barcode) {
+		// TODO Auto-generated method stub
+		return doRawMaterial(commonParam, factoryId, false, workstationCode, null, null, equipStackCode,
+				fixtureStackCode, barcode, "上料");
+	}
+
+	@Override
+	public ResultMessage unbindEquipStack(CommonParam commonParam, Long factoryId, String equipStackCode) {
+		ResultMessage resultMessage = new ResultMessage();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+			return resultMessage;
+		}
+		if (StringUtils.isBlank(equipStackCode)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("设备栈位编码不能为空");
+			return resultMessage;
+		}
+		try {
+			EquipWorkStack equipWorkStack = equipWorkStackService.getByStackCode(equipStackCode, commonParam);
+			if (equipWorkStack != null) {
+				Long userId = new Long(commonParam.getUserId());
+				equipWorkStack.setEquipFixtureId(null);
+				equipWorkStack.setEquipFixtureStackId(null);
+				equipWorkStack.setModifyUserId(userId);
+				equipWorkStackService.saveOrUpdateFull(equipWorkStack, commonParam);
+
+			} else {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到载料器");
+				return resultMessage;
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return resultMessage;
+	}
+
+	public ResultMessage doRawMaterial(CommonParam commonParam, Long factoryId, Boolean isAssemble,
+			String workstationCode, String equipCode, String equipFixtureCode, String equipStackCode,
+			String fixtureStackCode, String barcodeList, String remark) {
+
+		ResultMessage resultMessage = new ResultMessage();
+		if (factoryId == null) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("工厂ID不能为空");
+			return resultMessage;
+		}
+
+		if (StringUtils.isBlank(barcodeList)) {
+			resultMessage.setIsSuccess(false);
+			resultMessage.addErr("物品条码不能为空");
+			return resultMessage;
+		}
+		try {
+
+			Long userId = new Long(commonParam.getUserId());
+
+			EquipWork equipWork = null; // 设备
+			EquipWorkStack equipWorkStack = null;// 设备的栈位
+			EquipFixture equipFixture = null; // 载料器或送料器
+			EquipFixtureStack equipFixtureStack = null; // 载料器或送料器的栈位
+
+			WorkPlanEquip workPlanEquip = null; // 设备计划
+			WorkTaskProcedure workTaskProcedure = null; // 工序任务
+			WorkPlanWorkstation workPlanWorkstation = null; // 工位计划
+
+			StructProcessNode structProcessNode = null; // 工序
+			StructWorkstation structWorkstation = null; // 工位
+			StructProcedureInstruct procedureInstruct = null; // 工序指令
+			BillWorkorder billWorkorder = null; // 工单
+
+
+			Long composeMaterialId = null; //组合的物品id
+			String composeBarcode = null;//组合的物品条码
+			
+			List<BarcodeMain> barcodeMainList = new ArrayList();
+			String[] barcodeArray = barcodeList.split(",");
+			if ((barcodeArray != null) && (barcodeArray.length >= 1)) {
+				for (int n = 0; n < barcodeArray.length; n++) {
+					BarcodeMain barcodeMain = barcodeMainService.getByCode(barcodeArray[n], commonParam);
+					if (barcodeMain != null) {
+						if (!EnumBarcodeStatus.OUTSTORE.getValue().equals(barcodeMain.getBarcodeStatusDictId())) {
+							resultMessage.setIsSuccess(false);
+							resultMessage.addErr("该条码不是出库状态");
+							return resultMessage;
+						}
+						if (barcodeMain.getEquipFixtureId() != null) {
+							resultMessage.setIsSuccess(false);
+							resultMessage.addErr("该物品已经绑定到料器上");
+							return resultMessage;
+						}
+
+						barcodeMainList.add(barcodeMain);
+					} else {
+						resultMessage.setIsSuccess(false);
+						resultMessage.addErr(barcodeArray[n] + "找不到该物品");
+						return resultMessage;
+					}
+				}
+			}
+			if ((barcodeMainList == null) || (barcodeMainList.isEmpty())) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到条码");
+				return resultMessage;
+			}
+
+			if (StringUtils.isNotBlank(fixtureStackCode)) {
+				equipFixtureStack = equipFixtureStackService.getByStackCode(fixtureStackCode, commonParam);
+				if (equipFixtureStack != null) {
+					equipFixture = equipFixtureService.selectById(equipFixtureStack.getFixtureId(), commonParam);
+				}
+			}
+
+			if (equipFixture == null) {
+				equipFixture = equipFixtureService.getByFixtureCode(equipFixtureCode, commonParam);
+			}
+
+			if (equipFixture == null) {
+				resultMessage.setIsSuccess(false);
+				resultMessage.addErr("找不到载料器或送料器");
+				return resultMessage;
+			}
+
+			if (StringUtils.isNotBlank(equipStackCode)) {
+
+				equipWorkStack = equipWorkStackService.getByStackCode(equipStackCode, commonParam);
+
+				if (equipWorkStack != null) {
+					equipWork = equipWorkService.selectById(equipWorkStack.getEquipWorkId(), commonParam);
+
+					if (equipWorkStack.getEquipFixtureId() != null) {
+						if (!equipFixture.getId().equals(equipWorkStack.getEquipFixtureId())) {
+							resultMessage.setIsSuccess(false);
+							resultMessage.addErr("该设备栈位已经绑定了其它送料器，请确认操作或先解绑");
+							return resultMessage;
+						}
+
+					}
+				}
+			}
+
+			if (equipWork == null) {
+				if (StringUtils.isNotBlank(equipCode)) {// 根据设备编码找输入设备
+					equipWork = equipWorkService.getByEquipCode(equipCode, commonParam);
+				}
+			}
+
+			EquipWorkParamVo equipWorkParamVo = new EquipWorkParamVo();
+			equipWorkParamVo.setTenantId(commonParam.getTenantId());
+			equipWorkParamVo.setFactoryId(factoryId);
+
+			WorkPlanEquipParamVo workPlanEquipParamVo = new WorkPlanEquipParamVo();
+			workPlanEquipParamVo.setTenantId(commonParam.getTenantId());
+			workPlanEquipParamVo.setFactoryId(factoryId);
+			workPlanEquipParamVo.setIsLocked(EnumYesOrNo.NO.getValue());// 未锁定的，
+			if (equipWork != null) {
+
+				workPlanEquipParamVo.setEquipWorkId(equipWork.getId());
+
+				List<WorkPlanEquip> workPlanEquipList = workPlanEquipService.selectListCanWorking(workPlanEquipParamVo,
+						commonParam);
+				if ((workPlanEquipList != null) && (!workPlanEquipList.isEmpty())) {
+					for (WorkPlanEquip tempWorkPlanEquip : workPlanEquipList) {
+						// 暂时只支持一个设备同时间只进行一个工序任务
+						workPlanEquip = tempWorkPlanEquip;
+						procedureInstruct = structProcedureInstructService.selectById(workPlanEquip.getInstructId(),
+								commonParam);
+					}
+				}
+			}
+			if (equipWork == null) {
+				Long workstationId = equipFixture.getWorkstationId();// 根据工位ID找输入设备
+				equipWorkParamVo.setWorkstationId(workstationId);
+				List<EquipWork> equipWorkList = equipWorkService.selectListByParamVo(equipWorkParamVo, commonParam);
+				if ((equipWorkList != null) && (!equipWorkList.isEmpty())) {
+					for (EquipWork tempEquipWork : equipWorkList) {
+						workPlanEquipParamVo.setEquipWorkId(tempEquipWork.getId());
+
+						List<WorkPlanEquip> workPlanEquipList = workPlanEquipService
+								.selectListCanWorking(workPlanEquipParamVo, commonParam);
+
+						if ((workPlanEquipList != null) && (!workPlanEquipList.isEmpty())) {
+							for (WorkPlanEquip tempWorkPlanEquip : workPlanEquipList) {
+								Long instructId = tempWorkPlanEquip.getInstructId();
+								StructProcedureInstruct tempProcedureInstruct = structProcedureInstructService
+										.selectById(instructId, commonParam);
+								if (EnumStructProcedureInstructType.IN.getValue()
+										.equals(tempProcedureInstruct.getInstructTypeDictId())) {
+									equipWork = equipWorkService.selectById(tempWorkPlanEquip.getEquipWorkId(),
+											commonParam);
+									// 暂时只支持一个设备同时间只进行一个工序任务
+									workPlanEquip = tempWorkPlanEquip;
+									procedureInstruct = tempProcedureInstruct;
+								}
+							}
+						}
+
+					}
+				}
+			}
+
+			if (StringUtils.isNotBlank(workstationCode)) {
+				WorkTaskProcedureVo workTaskProcedureVo = getVoByWorkstation(commonParam, factoryId, null, null,
+						workstationCode);
+				if (workTaskProcedureVo != null) {
+					structWorkstation = workTaskProcedureVo.getStructWorkstation();
+					workTaskProcedure = workTaskProcedureService.selectById(workTaskProcedureVo.getId(), commonParam);
+				}
+			}
+
+			if (equipWork != null) { // 进入工序设备生产
+
+				if (workPlanEquip == null) {
+					resultMessage.setIsSuccess(false);
+					resultMessage.addErr("找不到设备工序计划");
+					return resultMessage;
+				}
+
+				if (!EnumEquipStatusType.AF01.getValue().equals(equipWork.getEquipStatusDictId())) {
+					resultMessage.setIsSuccess(false);
+					resultMessage.addErr("该设备不能正常工作");
+					return resultMessage;
+				}
+
+				workTaskProcedure = workTaskProcedureService.selectById(workPlanEquip.getTaskId(), commonParam);
+				structProcessNode = structProcessNodeService.selectById(workTaskProcedure.getProcessNodeId(),
+						commonParam);
+				structWorkstation = structWorkstationService.selectById(workPlanEquip.getWorkstationId(), commonParam);
+
+				if (equipWorkStack != null) {
+					for (BarcodeMain barcodeMain : barcodeMainList) {
+						EquipWorkStackProductParamVo equipWorkStackProductParamVo = new EquipWorkStackProductParamVo();
+						equipWorkStackProductParamVo.setTenantId(commonParam.getTenantId());
+						equipWorkStackProductParamVo.setEquipWorkId(equipWork.getId());
+						equipWorkStackProductParamVo.setEquipWorkStackId(equipWorkStack.getId());
+						equipWorkStackProductParamVo.setRawMaterialId(barcodeMain.getMaterialId());
+						equipWorkStackProductParamVo.setMaterialId(workTaskProcedure.getMaterialId());
+						List<EquipWorkStackProduct> equipWorkStackProductList = equipWorkStackProductService
+								.selectListByParamVo(equipWorkStackProductParamVo, commonParam);
+
+						if ((equipWorkStackProductList == null) || (equipWorkStackProductList.isEmpty())) {
+							resultMessage.addErr(
+									barcodeMain.getBarcode() + "该物品不能进入当前作业任务的" + equipWork.getEquipName() + "设备工作");
+						}
+					}
+				}
+
+			}
+
+			if (workTaskProcedure != null) {
+				if (EnumYesOrNo.YES.getValue().equals(workTaskProcedure.getIsLocked())) {
+					resultMessage.setIsSuccess(false);
+					resultMessage.addErr("作业任务已经锁住");
+					return resultMessage;
+				}
+				if (EnumWorkTaskStatus.FINISH.getValue().equals(workTaskProcedure.getIsLocked())) {
+					resultMessage.setIsSuccess(false);
+					resultMessage.addErr("作业任务已经结束");
+					return resultMessage;
+				}
+
+				billWorkorder = billWorkorderService.selectById(workTaskProcedure.getBillWorkorderId(), commonParam);
+
+				WorkPlanWorkstationParamVo workPlanWorkstationParamVo = new WorkPlanWorkstationParamVo();
+				workPlanWorkstationParamVo.setTenantId(commonParam.getTenantId());
+				workPlanWorkstationParamVo.setFactoryId(factoryId);
+				workPlanWorkstationParamVo.setTaskId(workTaskProcedure.getId());
+				workPlanWorkstationParamVo.setProcessNodeId(workTaskProcedure.getProcessNodeId());
+				workPlanWorkstationParamVo.setWorkstationId(structWorkstation.getId());
+				List<WorkPlanWorkstation> workPlanWorkstationList = workPlanWorkstationService
+						.selectListByParamVo(workPlanWorkstationParamVo, commonParam);
+				if ((workPlanWorkstationList != null) && (!workPlanWorkstationList.isEmpty())) {
+					workPlanWorkstation = workPlanWorkstationList.get(0);
+				}
+
+				if (isAssemble) {
+					Integer numberLevel = null;
+					List<ProductBom> productBomList = productBomService.selectListBomTree(billWorkorder.getBomId(),
+							commonParam);
+					for (BarcodeMain barcodeMain : barcodeMainList) { // 如果多个物品，根据bom查谁是上一级。
+						for (ProductBom productBom : productBomList) {
+							if (barcodeMain.getMaterialId().equals(productBom.getMaterialId())) {
+								if (numberLevel == null) {
+									composeMaterialId = barcodeMain.getMaterialId();
+									composeBarcode = barcodeMain.getBarcode();
+									numberLevel = productBom.getNumberLevel();
+								} else if (numberLevel > productBom.getNumberLevel()) {
+									composeMaterialId = barcodeMain.getMaterialId();
+									composeBarcode = barcodeMain.getBarcode();
+									numberLevel = productBom.getNumberLevel();
+								}
+
+							}
+						}
+					}
+				}
+			}
+
+			for (BarcodeMain barcodeMain : barcodeMainList) {
+
+				if (equipFixture != null) {
+					barcodeMain.setEquipFixtureId(equipFixture.getId());
+					barcodeMain.setWorkshopId(equipFixture.getWorkshopId());
+					barcodeMain.setWorkshopAreaId(equipFixture.getWorkshopAreaId());
+					barcodeMain.setWorkstationId(equipFixture.getWorkstationId());
+				}
+
+				if (equipFixtureStack != null) {
+					barcodeMain.setEquipFixtureStackId(equipFixtureStack.getId());
+				}
+				if (equipWorkStack != null) {
+					barcodeMain.setEquipWorkStackId(equipWorkStack.getId());
+				}
+
+				if (isAssemble) {
+					if(!barcodeMain.getBarcode().equals(composeBarcode)){
+						barcodeMain.setComposeBarcode(composeBarcode);
+						barcodeMain.setComposeMaterialId(composeMaterialId);
+					}
+				}
+				resultMessage = workTrackBarcode(commonParam, barcodeMain, billWorkorder, procedureInstruct,
+						structWorkstation, equipWork, workPlanEquip, workTaskProcedure, workPlanWorkstation, remark);
+			}
+
+			if (resultMessage.getIsSuccess()) {
+				if (equipWorkStack != null) {
+					equipWorkStack.setEquipFixtureId(equipFixture.getId());
+					if (equipFixtureStack != null) {
+						equipWorkStack.setEquipFixtureStackId(equipFixtureStack.getId());
+					}
+					equipWorkStack.setModifyUserId(userId);
+					equipWorkStackService.saveOrUpdate(equipWorkStack, commonParam);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMessage.addErr("运行异常");
+		}
+
+		return resultMessage;
+	}
+
+	private ResultMessage workTrackBarcode(CommonParam commonParam, BarcodeMain barcodeMain,
+			BillWorkorder billWorkorder, StructProcedureInstruct procedureInstruct, StructWorkstation structWorkstation,
+			EquipWork equipWork, WorkPlanEquip workPlanEquip, WorkTaskProcedure workTaskProcedure,
+			WorkPlanWorkstation workPlanWorkstation, String remark) throws Exception {
+		ResultMessage resultMessage = new ResultMessage();
+
+		if (billWorkorder != null) {
+			barcodeMain.setBillTypeDictId(EnumBillType.BILL_TYPE_WORKORDER.getValue());
+			barcodeMain.setBillWorkorderId(billWorkorder.getId());
+			barcodeMain.setBillId(billWorkorder.getId());
+			barcodeMain.setBillCode(billWorkorder.getWorkorderCode());
+			barcodeMain.setBillStatusDictId(billWorkorder.getWorkorderStatusDictId());
+			barcodeMain.setBillItemId(null);
+		}
+
+		if (equipWork != null) {
+			barcodeMain.setEquipWorkId(equipWork.getId());
+			barcodeMain.setWorkshopId(equipWork.getWorkshopId());
+			barcodeMain.setWorkshopAreaId(equipWork.getWorkshopAreaId());
+			barcodeMain.setWorkstationId(equipWork.getWorkstationId());
+		}
+		if (workTaskProcedure != null) {
+			barcodeMain.setProductionlineId(workTaskProcedure.getProductionlineId());
+			barcodeMain.setTaskProcedureId(workTaskProcedure.getId());
+			barcodeMain.setProcessId(workTaskProcedure.getProcessId());
+		}
+		if (procedureInstruct != null) {
+			barcodeMain.setProcessNodeId(procedureInstruct.getProcessNodeId());
+			barcodeMain.setInstructId(procedureInstruct.getId());
+		}
+
+		if (structWorkstation != null) {
+			barcodeMain.setWorkshopId(structWorkstation.getWorkshopId());
+			barcodeMain.setWorkshopAreaId(structWorkstation.getWorkshopAreaId());
+			barcodeMain.setWorkstationId(structWorkstation.getId());
+		}
+
+		TrackBarcode trackBarcode = new TrackBarcode();
+		BeanUtil.copyNotNullProperties(trackBarcode, barcodeMain);
+
+		if (billWorkorder != null) { // 进入 生产
+
+			trackBarcode.setBarcodeId(barcodeMain.getId());
+
+			if (EnumProcedureInstructType.IN.getValue().equals(procedureInstruct.getInstructTypeDictId())) {
+
+				if (workTaskProcedure.getQuantityInput() >= workTaskProcedure.getQuantity()) {
+					resultMessage.setIsSuccess(false);
+					resultMessage.addErr("该物品不能进入当前作业任务,输入数量已超出");
+					return resultMessage;
+				}
+
+				if (equipWork != null) {
+
+					if (workPlanEquip.getQuantityInput() >= workPlanEquip.getQuantity()) {
+						resultMessage.setIsSuccess(false);
+						resultMessage.addErr("该物品不能进入当前作业任务设备,输入数量已超出");
+						return resultMessage;
+					}
+
+				}
+
+				barcodeMain.setQuantity(0d);
+				barcodeMain.setBarcodeStatusDictId(EnumBarcodeStatus.WORKED.getValue());
+				workTaskProcedure
+						.setQuantityInput(Arith.add(workTaskProcedure.getQuantityInput(), barcodeMain.getQuantity()));
+
+				if (workTaskProcedure.getTimeActualStart() == null) {
+					workTaskProcedure.setTaskStatusDictId(EnumWorkTaskStatus.DOING.getValue());
+					workTaskProcedure.setTimeActualStart(new Date());
+				}
+
+				if (workPlanWorkstation != null) {
+					workPlanWorkstation.setQuantityInput(
+							Arith.add(workPlanWorkstation.getQuantityInput(), barcodeMain.getQuantity()));
+
+					if (workPlanWorkstation.getTimeActualStart() == null) {
+						workPlanWorkstation.setPlanStatusDictId(EnumWorkPlanStatus.DOING.getValue());
+						workPlanWorkstation.setTimeActualStart(new Date());
+					}
+
+					if (workPlanWorkstation.getQuantityInput() >= workPlanEquip.getQuantity()) {
+						workPlanWorkstation.setPlanStatusDictId(EnumWorkPlanStatus.FINISH.getValue());
+						if (workPlanWorkstation.getTimeActualEnd() == null) {
+							workPlanWorkstation.setTimeActualEnd(new Date());
+						}
+					}
+					workPlanWorkstationService.saveOrUpdate(workPlanWorkstation, commonParam);
+				}
+
+				workTaskProcedureService.saveOrUpdate(workTaskProcedure, commonParam);
+
+				if (equipWork != null) {
+
+					if (workPlanEquip.getTimeActualStart() == null) {
+						workPlanEquip.setPlanStatusDictId(EnumWorkPlanStatus.DOING.getValue());
+						workPlanEquip.setTimeActualStart(new Date());
+					}
+					if (workPlanEquip.getQuantityInput() >= workPlanEquip.getQuantity()) {
+						workPlanEquip.setPlanStatusDictId(EnumWorkPlanStatus.FINISH.getValue());
+						if (workPlanEquip.getTimeActualEnd() == null) {
+							workPlanEquip.setTimeActualEnd(new Date());
+						}
+					}
+					workPlanEquip
+							.setQuantityInput(Arith.add(workPlanEquip.getQuantityInput(), barcodeMain.getQuantity()));
+					workPlanEquipService.saveOrUpdate(workPlanEquip, commonParam);
+				}
+
+				WorkPlanMaterialParamVo workPlanMaterialParamVo = new WorkPlanMaterialParamVo();
+				workPlanMaterialParamVo.setTenantId(commonParam.getTenantId());
+				workPlanMaterialParamVo.setFactoryId(workTaskProcedure.getFactoryId());
+				workPlanMaterialParamVo.setMaterialId(barcodeMain.getMaterialId());
+				workPlanMaterialParamVo.setProcessId(workTaskProcedure.getProcessId());
+				workPlanMaterialParamVo.setBillWorkorderId(workTaskProcedure.getBillWorkorderId());
+				workPlanMaterialParamVo.setTaskId(workTaskProcedure.getId());
+				List<WorkPlanMaterial> workPlanMaterialList = workPlanMaterialService
+						.selectListByParamVo(workPlanMaterialParamVo, commonParam);
+
+				if ((workPlanMaterialList != null) && (!workPlanMaterialList.isEmpty())) {
+					for (WorkPlanMaterial workPlanMaterial : workPlanMaterialList) {
+						workPlanMaterial.setQuantityInput(
+								Arith.add(workPlanMaterial.getQuantityInput(), barcodeMain.getQuantity()));
+
+						if (workPlanMaterial.getTimeActualStart() == null) {
+							workPlanMaterial.setPlanStatusDictId(EnumWorkPlanStatus.DOING.getValue());
+							workPlanMaterial.setTimeActualStart(new Date());
+						}
+						if (workPlanMaterial.getQuantityInput() >= workPlanMaterial.getQuantity()) {
+							workPlanMaterial.setPlanStatusDictId(EnumWorkPlanStatus.FINISH.getValue());
+							if (workPlanMaterial.getTimeActualEnd() == null) {
+								workPlanMaterial.setTimeActualEnd(new Date());
+							}
+						}
+
+						workPlanMaterialService.saveOrUpdate(workPlanMaterial, commonParam);
+					}
+				}
+
+			}
+		}
+
+		Long userId = new Long(commonParam.getUserId());
+		trackBarcode.setBarcodeId(barcodeMain.getId());
+		trackBarcode.setCreateUserId(userId);
+		trackBarcode.setModifyUserId(userId);
+		trackBarcode.setId(null);
+		trackBarcode.setVersion(null);
+		trackBarcode.setRemark(remark);
+		barcodeMainService.saveOrUpdate(barcodeMain, commonParam);
+		trackBarcodeService.saveOrUpdate(trackBarcode, commonParam);
+		resultMessage.setIsSuccess(true);
+		resultMessage.setMessage("操作成功");
+		return resultMessage;
+	}
+
+	@Override
+	public WorkTaskProcedureVo getVoByWorkstation(CommonParam commonParam, Long factoryId, Long billWorkorderId,
+			Long workstationId, String workstationCode) throws BusinessException, SQLException {
+		WorkTaskProcedureVo workTaskProcedureVo = null;
+		if (factoryId == null) {
+			return null;
+		}
+
+		StructWorkstation structWorkstation = null;
+		if (StringUtils.isNotBlank(workstationCode)) {
+			structWorkstation = structWorkstationService.getByCode(workstationCode, commonParam);
+		}
+		if (workstationId != null) {
+			structWorkstation = structWorkstationService.selectById(workstationId, commonParam);
+		}
+		if (structWorkstation != null) {
+
+			WorkPlanWorkstationParamVo workPlanWorkstationParamVo = new WorkPlanWorkstationParamVo();
+			workPlanWorkstationParamVo.setTenantId(commonParam.getTenantId());
+			workPlanWorkstationParamVo.setFactoryId(factoryId);
+			workPlanWorkstationParamVo.setBillWorkorderId(billWorkorderId);
+			workPlanWorkstationParamVo.setWorkstationId(structWorkstation.getId());
+			workPlanWorkstationParamVo.setIsLocked(EnumYesOrNo.NO.getValue());// 未锁定的，
+			List<WorkPlanWorkstation> list = workPlanWorkstationService.selectListCanWorking(workPlanWorkstationParamVo,
+					commonParam);
+			if ((list != null) && (!list.isEmpty())) {
+				WorkPlanWorkstation workPlanWorkstation = list.get(0);
+				WorkTaskProcedure workTaskProcedure = workTaskProcedureService
+						.selectById(workPlanWorkstation.getTaskId(), commonParam);
+				workTaskProcedureVo = getVo(workTaskProcedure, commonParam);
+				workTaskProcedureVo.setStructWorkstation(structWorkstation);
+			}
+		}
+
+		return workTaskProcedureVo;
+	}
+
+	public BillWorkorder getBillWorkorderByBarcode(CommonParam commonParam, BarcodeMain barcodeMain)
+			throws BusinessException, SQLException {
+		BillWorkorder billWorkorder = null;
+		if (barcodeMain.getBillWorkorderId() != null) {
+			billWorkorder = billWorkorderService.selectById(barcodeMain.getBillWorkorderId(), commonParam);
+
+		} else {
+			if (EnumBillType.BILL_TYPE_WAREHOUSE_PICKING.getValue().equals(barcodeMain.getBillTypeDictId())) {
+
+				BillWarehouse billWarehouse = billWarehouseService.selectById(barcodeMain.getBillId(), commonParam);
+				if (EnumBillType.BILL_TYPE_WORKORDER.getValue().equals(billWarehouse.getFromBillTypeDictId())) {
+					billWorkorder = billWorkorderService.selectById(billWarehouse.getFromBillId(), commonParam);
+				}
+
+			}
+		}
+
+		return billWorkorder;
+	}
+
+	public BillWorkorder getBillWorkorderByBarcode(CommonParam commonParam, Long factoryId, Long barcodeId,
+			String barcode) throws BusinessException, SQLException {
+		BillWorkorder billWorkorder = null;
+
+		return billWorkorder;
+	}
+
+}

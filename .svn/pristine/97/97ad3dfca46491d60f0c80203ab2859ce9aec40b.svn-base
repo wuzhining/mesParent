@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+            <tr>
+	            <td width="15%" class="tableleft">设备栈位区域</td>
+                <td>
+                	<input type="text" name="equipStackArea" class="layui-input" maxlength="20" value="${(entity.equipStackArea)!''}"/>
+                </td> 
+                <td width="15%" class="tableleft">设备栈位编码</td>
+                <td>
+               		<input type="text" name="equipStackCode" class="layui-input" maxlength="16" value="${(entity.equipStackCode)!''}"/>
+                </td>
+	        </tr>
+	        
+            <tr>
+                <td width="15%" class="tableleft">设备栈位名称</td>
+                <td>
+	                <input type="text" name="equipStackName" class="layui-input" maxlength="16" value="${(entity.equipStackName)!''}"/>
+                </td>
+                <td width="15%" class="tableleft">生产设备</td>
+                <td>
+                 	<select name="equipWorkId"> 
+	                   <#if workList??>
+		                  <#list workList as item>
+					         <option value="${item.id?c}" <#if (entity.equipWorkId??&&entity.equipWorkId==item.id)>selected="selected"</#if>>${item.equipName}</option>
+					      </#list>
+				       </#if>
+			         </select>
+                </td>
+            </tr>
+            
+            <tr>
+                <td width="15%" class="tableleft">描述</td>
+                <td>
+                 	<input type="text" name="remark" lay-verify="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+                </td>
+            </tr>
+            
+            <tr>
+	            <td colspan="4"  style="text-align:center">
+	               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+	            </td>
+            </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery, laydate = layui.laydate;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //自定义验证规则
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/equip/equipWorkStack/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+        });
+    </script>
+    <script> </script>
+  </body>
+
+</html>

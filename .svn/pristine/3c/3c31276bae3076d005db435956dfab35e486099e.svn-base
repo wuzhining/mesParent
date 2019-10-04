@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+               <td id="td1" width="10%" class="tableleft">设备分类编码</td>
+              <td>
+               <#if entity??&&entity.id??>${(entity.classesCode)!''}
+               <#else>
+                <input type="text" name="classesCode" class="layui-input"   maxlength="20"  />
+               </#if>
+               </td>
+              
+               <td width="10%" class="tableleft">设备分类名称</td>
+               <td><input type="text" name="classesName" lay-verify="strLength" class="layui-input" maxlength="100" value="${(entity.classesName)!''}"/></td>
+           </tr>
+
+           <tr>
+               <td width="10%" class="tableleft">上一级ID</td>
+               <td>
+                 <select id='parent' name="parentId" > 
+                    <option value="0" >请选择</option>
+                    <#if EquipWorkList??>
+                     <#list EquipWorkList as item>
+			            <option value="${item.id?c}" <#if (entity.parentId??&&entity.parentId==item.id)>selected="selected"</#if>>${item.classesName}</option>
+			         </#list>
+			         </#if>
+			       </select>
+               </td> 
+               <td width="10%" class="tableleft">是否有效</td>
+               <td>
+                 <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+               </td>
+           </tr>
+           <tr>
+               <td width="10%" class="tableleft">排序号</td>
+               <td><input type="text" name="sortNo"  lay-verify="number" class="layui-input" maxlength="100" value="<#if entity??&&entity.sortNo??>${entity.sortNo?c}<#else></#if>"/></td>
+               <td width="10%"  class="tableleft">备注</td>
+               <td colspan="3"><input type="text"  lay-verify="remarkLength" name="remark" class="layui-input" maxlength="100" value="${(entity.remark)!''}"/></td>
+           </tr>
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+    </div>
+    <script>
+    $('#parent').attr("disabled","disabled");
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','layuiformajax'], function(){
+          $ = layui.jquery;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+          
+          //自定义验证规则
+          var reg = /^[+]{0,1}(\d+)$/ ; //正则只能是正整数
+          var regDecimca = /^\d+(\.\d+)?$/;// 必须输入正整数或小数点
+          form.verify({
+             speedWorktime: function (value) {
+		        if (value =='' ||value==null) {
+	                 return '生产速度-工时,不能为空!';
+	            }else if(!reg.test(value)){
+	                return '生产速度-工时,必须输入正整数!';
+	             }
+		       }
+      	    ,speedQuantity: function (value) {
+		        if (value =='' ||value==null) {
+	                 return '生产速度-数量,不能为空!';
+	            }else if(!regDecimca.test(value)){
+	                return '生产速度-数量,必须输入正整数或小数点!';
+	            }
+		       }
+          	 ,strLength: function(value){
+                 if(value.length > 32){
+                     return '不能超过32个字符';
+                   }
+                 }
+          	 ,remarkLength: function(value){
+                 if(value.length > 128){
+                     return '不能超过128个字符';
+                   }
+                 }
+          });
+
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  var url = '/equip/equipClassesWork/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function (index) {
+      	    		 	layer.close(index);
+   				  		parent.location.reload(); 
+      	            });
+      		  });
+      		  
+            return false;
+          });
+          
+          var addType = getParam('add');
+  	  	  if(addType === '1'){		//新增
+	  	  		$(':input','#dataForm') 
+	    	  		.not(':button, :submit, :reset, :hidden') 
+	    	  		.val('') 
+	    	  		.removeAttr('checked') 
+	    	  		.removeAttr('selected');
+	  	  		$("#id").val('');	
+	  	  		$("#version").val('');
+		  	  	// $("#td1").hide();
+		  	  	// $("#td2").hide();
+		  	  	var addTypeq = getParam('dds');
+			  	var prtID = getParam('id');
+		          if(addTypeq =='2'){
+			   	  	     $("#parent").attr('disabled',''); 
+			   	  	     $("#parent").val(prtID);
+		          }else if(addTypeq =='3'){
+		   	  	     $("#parent").removeAttr("disabled");
+		          }
+	    	  	if(prtID){						//新增二级菜单
+	    	  		$("select[name='parentId']").val();
+	    	  		layui.form.render('select');		//垃圾layui！！select设置选中后必须render才能刷新出选中效果，cao
+	    	  	};
+  	  	  };
+          
+        });
+    </script>
+  </body>
+
+</html>

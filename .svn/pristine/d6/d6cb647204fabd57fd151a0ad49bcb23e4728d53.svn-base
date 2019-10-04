@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.techsoft.mapper.bill.BillWorkorderMapper">
+	<resultMap id="BillWorkorder" type="com.techsoft.entity.common.BillWorkorder" 
+			   extends="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityMap" > 
+		<result column="TENANT_ID" property="tenantId" />
+		<result column="FACTORY_ID" property="factoryId" />
+		<result column="WORKORDER_CODE" property="workorderCode" />
+		<result column="WORKSHOP_ID" property="workshopId" />
+		<result column="PRODUCT_ID" property="productId" />
+		<result column="MATERIAL_ID" property="materialId" />
+		<result column="WORKORDER_STATUS_DICT_ID" property="workorderStatusDictId" />
+		<result column="AUDIT_STATUS_DICT_ID" property="auditStatusDictId" />
+		<result column="FROM_BILL_TYPE_DICT_ID" property="fromBillTypeDictId" />
+		<result column="FROM_BILL_ID" property="fromBillId" />
+		<result column="PRIORITY" property="priority" />
+		<result column="QUANTITY" property="quantity" />
+		<result column="QUANTITY_MAXIMUM_INPUT" property="quantityMaximumInput" />
+		<result column="QUANTITY_INPUT" property="quantityInput" />
+		<result column="QUANTITY_OUTPUT" property="quantityOutput" />
+		<result column="RATIO_ALLOWOVER" property="ratioAllowover" />
+		<result column="TIME_PLAN_START" property="timePlanStart" />
+		<result column="TIME_PLAN_END" property="timePlanEnd" />
+		<result column="TIME_ACTUAL_START" property="timeActualStart" />
+		<result column="TIME_ACTUAL_END" property="timeActualEnd" />
+		<result column="IS_LOCKED" property="isLocked" />
+		<result column="CUSTOMER_ID" property="customerId" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+
+	<sql id="Base_condition_Sql">
+		<if test="tenantId != null">
+			AND A.TENANT_ID= #{tenantId}
+		</if>
+		<if test="factoryId != null">
+			AND A.FACTORY_ID= #{factoryId}
+		</if>
+		<if test="workorderCode != null">
+			AND A.WORKORDER_CODE= #{workorderCode}
+		</if>
+		<if test="workshopId != null">
+			AND A.WORKSHOP_ID= #{workshopId}
+		</if>
+		<if test="productId != null">
+			AND A.PRODUCT_ID= #{productId}
+		</if>
+		<if test="materialId != null">
+			AND A.MATERIAL_ID= #{materialId}
+		</if>
+		<if test="workorderStatusDictId != null">
+			AND A.WORKORDER_STATUS_DICT_ID= #{workorderStatusDictId}
+		</if>
+		<if test="auditStatusDictId != null">
+			AND A.AUDIT_STATUS_DICT_ID= #{auditStatusDictId}
+		</if>
+		<if test="fromBillTypeDictId != null">
+			AND A.FROM_BILL_TYPE_DICT_ID= #{fromBillTypeDictId}
+		</if>
+		<if test="fromBillId != null">
+			AND A.FROM_BILL_ID= #{fromBillId}
+		</if>
+		<if test="priority != null">
+			AND A.PRIORITY= #{priority}
+		</if>
+		<if test="quantity != null">
+			AND A.QUANTITY= #{quantity}
+		</if>
+		<if test="quantityMaximumInput != null">
+			AND A.QUANTITY_MAXIMUM_INPUT= #{quantityMaximumInput}
+		</if>
+		<if test="quantityInput != null">
+			AND A.QUANTITY_INPUT= #{quantityInput}
+		</if>
+		<if test="quantityOutput != null">
+			AND A.QUANTITY_OUTPUT= #{quantityOutput}
+		</if>
+		<if test="ratioAllowover != null">
+			AND A.RATIO_ALLOWOVER= #{ratioAllowover}
+		</if>
+		<if test="isLocked != null">
+			AND A.IS_LOCKED= #{isLocked}
+		</if>
+		<if test="customerId != null">
+			AND A.CUSTOMER_ID= #{customerId}
+		</if>
+		<if test="remark != null">
+			AND A.REMARK= #{remark}
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityConditionSql" />		
+	</sql>
+	
+	<sql id="Date_Condition_sql">	
+		<if test="timePlanStartBegin != null">
+		<![CDATA[
+		   AND A.TIME_PLAN_START >=  #{timePlanStartBegin}
+		]]>
+		</if>
+		<if test="timePlanStartEnd != null">
+		<![CDATA[
+		   AND A.TIME_PLAN_START <= #{timePlanStartEnd}
+		]]>
+		</if>		
+		<if test="timePlanEndBegin != null">
+		<![CDATA[
+		   AND A.TIME_PLAN_END >=  #{timePlanEndBegin}
+		]]>
+		</if>
+		<if test="timePlanEndEnd != null">
+		<![CDATA[
+		   AND A.TIME_PLAN_END <= #{timePlanEndEnd}
+		]]>
+		</if>		
+		<if test="timeActualStartBegin != null">
+		<![CDATA[
+		   AND A.TIME_ACTUAL_START >=  #{timeActualStartBegin}
+		]]>
+		</if>
+		<if test="timeActualStartEnd != null">
+		<![CDATA[
+		   AND A.TIME_ACTUAL_START <= #{timeActualStartEnd}
+		]]>
+		</if>		
+		<if test="timeActualEndBegin != null">
+		<![CDATA[
+		   AND A.TIME_ACTUAL_END >=  #{timeActualEndBegin}
+		]]>
+		</if>
+		<if test="timeActualEndEnd != null">
+		<![CDATA[
+		   AND A.TIME_ACTUAL_END <= #{timeActualEndEnd}
+		]]>
+		</if>		
+	</sql>
+
+	<sql id="Foreign_Key_Condition_Sql">
+	
+	</sql>
+	
+	<sql id="Like_Condition_Sql">
+	</sql>
+	
+	<sql id="Exp_condition_Sql">
+	</sql>
+		
+	<sql id="Order_By_Sql">
+ 		order by id desc
+	</sql>		
+	<sql id="Base_Column_List">    
+		A.TENANT_ID,
+		A.FACTORY_ID,
+		A.WORKORDER_CODE,
+		A.WORKSHOP_ID,
+		A.PRODUCT_ID,
+		A.MATERIAL_ID,
+		A.WORKORDER_STATUS_DICT_ID,
+		A.AUDIT_STATUS_DICT_ID,
+		A.FROM_BILL_TYPE_DICT_ID,
+		A.FROM_BILL_ID,
+		A.PRIORITY,
+		A.QUANTITY,
+		A.QUANTITY_MAXIMUM_INPUT,
+		A.QUANTITY_INPUT,
+		A.QUANTITY_OUTPUT,
+		A.RATIO_ALLOWOVER,
+		A.TIME_PLAN_START,
+		A.TIME_PLAN_END,
+		A.TIME_ACTUAL_START,
+		A.TIME_ACTUAL_END,
+		A.IS_LOCKED,
+		A.CUSTOMER_ID,
+		A.REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityColumnList" />
+	</sql>
+
+	<select id="getIDValue" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT next value for MYCATSEQ_BILL_WORKORDER_SEQ AS IDValue
+	</select>
+	
+	<select id="getMaxId" flushCache="true" useCache="false" resultType="java.lang.Long">
+		SELECT max(id) as maxId from BILL_WORKORDER
+	</select>
+		
+	<select id="selectById" parameterType="java.lang.Long" useCache="true"
+			resultType="com.techsoft.entity.common.BillWorkorder">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_WORKORDER A
+		WHERE (A.DEL_FLAG = 0) and (A.ID=#{id})
+	</select>
+	
+	<select id="selectByIds" parameterType="java.util.List" useCache="false"
+			resultType="com.techsoft.entity.common.BillWorkorder">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_WORKORDER A WHERE (A.DEL_FLAG = 0) and (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)
+	</select>
+
+	<update id="deleteById" flushCache="true" parameterType="java.lang.Long">
+		UPDATE BILL_WORKORDER A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID=#{id}) 
+	</update>
+	
+	<update id="deleteByIds" flushCache="true" parameterType="java.util.List">
+		UPDATE BILL_WORKORDER  A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (A.ID IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>)   
+	</update>
+		
+	<update id="deleteByForeignKey" flushCache="true" parameterType="com.techsoft.entity.common.BillWorkorder">
+		UPDATE BILL_WORKORDER A SET 
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityDelete" />
+		WHERE (1 = 1) 
+		<include refid="Foreign_Key_Condition_Sql" />
+	</update>
+
+	<insert id="insertEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillWorkorder">
+		INSERT INTO BILL_WORKORDER (
+		TENANT_ID,
+		FACTORY_ID,
+		WORKORDER_CODE,
+		WORKSHOP_ID,
+		PRODUCT_ID,
+		MATERIAL_ID,
+		WORKORDER_STATUS_DICT_ID,
+		AUDIT_STATUS_DICT_ID,
+		FROM_BILL_TYPE_DICT_ID,
+		FROM_BILL_ID,
+		PRIORITY,
+		QUANTITY,
+		QUANTITY_MAXIMUM_INPUT,
+		QUANTITY_INPUT,
+		QUANTITY_OUTPUT,
+		RATIO_ALLOWOVER,
+		TIME_PLAN_START,
+		TIME_PLAN_END,
+		TIME_ACTUAL_START,
+		TIME_ACTUAL_END,
+		IS_LOCKED,
+		CUSTOMER_ID,
+		REMARK
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertColumn" />		
+		)
+		VALUES(	
+		#{tenantId},
+		#{factoryId},
+		#{workorderCode},
+		#{workshopId},
+		#{productId},
+		#{materialId},
+		#{workorderStatusDictId},
+		#{auditStatusDictId},
+		#{fromBillTypeDictId},
+		#{fromBillId},
+		#{priority},
+		#{quantity},
+		#{quantityMaximumInput},
+		#{quantityInput},
+		#{quantityOutput},
+		#{ratioAllowover},
+		#{timePlanStart},
+		#{timePlanEnd},
+		#{timeActualStart},
+		#{timeActualEnd},
+		#{isLocked},
+		#{customerId},
+		#{remark}
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityInsertValue" />		
+		)
+	</insert>
+
+	<update id="updateEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillWorkorder">
+		UPDATE BILL_WORKORDER SET
+		TENANT_ID=#{tenantId},
+		FACTORY_ID=#{factoryId},
+		WORKORDER_CODE=#{workorderCode},
+		WORKSHOP_ID=#{workshopId},
+		PRODUCT_ID=#{productId},
+		MATERIAL_ID=#{materialId},
+		WORKORDER_STATUS_DICT_ID=#{workorderStatusDictId},
+		AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		FROM_BILL_TYPE_DICT_ID=#{fromBillTypeDictId},
+		FROM_BILL_ID=#{fromBillId},
+		PRIORITY=#{priority},
+		QUANTITY=#{quantity},
+		QUANTITY_MAXIMUM_INPUT=#{quantityMaximumInput},
+		QUANTITY_INPUT=#{quantityInput},
+		QUANTITY_OUTPUT=#{quantityOutput},
+		RATIO_ALLOWOVER=#{ratioAllowover},
+		TIME_PLAN_START=#{timePlanStart},
+		TIME_PLAN_END=#{timePlanEnd},
+		TIME_ACTUAL_START=#{timeActualStart},
+		TIME_ACTUAL_END=#{timeActualEnd},
+		IS_LOCKED=#{isLocked},
+		CUSTOMER_ID=#{customerId},
+		REMARK=#{remark},
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>
+	
+	<update id="updatePartEntity" flushCache="true" parameterType="com.techsoft.entity.common.BillWorkorder">
+		UPDATE BILL_WORKORDER SET
+		<if test="tenantId != null" >
+			TENANT_ID=#{tenantId},
+		</if>
+		<if test="factoryId != null" >
+			FACTORY_ID=#{factoryId},
+		</if>
+		<if test="workorderCode != null" >
+			WORKORDER_CODE=#{workorderCode},
+		</if>
+		<if test="workshopId != null" >
+			WORKSHOP_ID=#{workshopId},
+		</if>
+		<if test="productId != null" >
+			PRODUCT_ID=#{productId},
+		</if>
+		<if test="materialId != null" >
+			MATERIAL_ID=#{materialId},
+		</if>
+		<if test="workorderStatusDictId != null" >
+			WORKORDER_STATUS_DICT_ID=#{workorderStatusDictId},
+		</if>
+		<if test="auditStatusDictId != null" >
+			AUDIT_STATUS_DICT_ID=#{auditStatusDictId},
+		</if>
+		<if test="fromBillTypeDictId != null" >
+			FROM_BILL_TYPE_DICT_ID=#{fromBillTypeDictId},
+		</if>
+		<if test="fromBillId != null" >
+			FROM_BILL_ID=#{fromBillId},
+		</if>
+		<if test="priority != null" >
+			PRIORITY=#{priority},
+		</if>
+		<if test="quantity != null" >
+			QUANTITY=#{quantity},
+		</if>
+		<if test="quantityMaximumInput != null" >
+			QUANTITY_MAXIMUM_INPUT=#{quantityMaximumInput},
+		</if>
+		<if test="quantityInput != null" >
+			QUANTITY_INPUT=#{quantityInput},
+		</if>
+		<if test="quantityOutput != null" >
+			QUANTITY_OUTPUT=#{quantityOutput},
+		</if>
+		<if test="ratioAllowover != null" >
+			RATIO_ALLOWOVER=#{ratioAllowover},
+		</if>
+		<if test="timePlanStart != null" >
+			TIME_PLAN_START=#{timePlanStart},
+		</if>
+		<if test="timePlanEnd != null" >
+			TIME_PLAN_END=#{timePlanEnd},
+		</if>
+		<if test="timeActualStart != null" >
+			TIME_ACTUAL_START=#{timeActualStart},
+		</if>
+		<if test="timeActualEnd != null" >
+			TIME_ACTUAL_END=#{timeActualEnd},
+		</if>
+		<if test="isLocked != null" >
+			IS_LOCKED=#{isLocked},
+		</if>
+		<if test="customerId != null" >
+			CUSTOMER_ID=#{customerId},
+		</if>
+		<if test="remark != null" >
+			REMARK=#{remark},
+		</if>
+		<include refid="com.techsoft.common.mapper.BaseEntityMapper.BaseEntityUpdate" />
+		WHERE ID=#{id} AND VERSION=#{version}  			
+	</update>	
+	
+	<select id="selectListByEntityParamVo" parameterType="com.techsoft.entity.bill.BillWorkorderParamVo"
+		      resultType="com.techsoft.entity.common.BillWorkorder" useCache="false">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM BILL_WORKORDER A
+		WHERE (A.DEL_FLAG = 0)
+		<include refid="Base_condition_Sql" />
+		<include refid="Date_Condition_sql" />
+		<include refid="Foreign_Key_Condition_Sql" />
+		<include refid="Like_Condition_Sql" />
+		<include refid="Exp_condition_Sql" />
+		<include refid="Order_By_Sql" />
+	</select>
+</mapper>

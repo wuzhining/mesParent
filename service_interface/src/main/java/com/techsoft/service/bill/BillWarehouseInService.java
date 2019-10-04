@@ -1,0 +1,59 @@
+package com.techsoft.service.bill;
+
+import java.util.List;
+
+import com.techsoft.common.BaseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.CommonParam;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.entity.common.BillWarehouse;
+import com.techsoft.entity.common.TrackBarcode;
+import com.techsoft.entity.track.TrackBarcodeVo;
+
+/**
+ * @auther:Wang
+ * @version:2019年5月27日下午2:49:09
+ * @param:
+ * @description
+ */
+public interface BillWarehouseInService extends BaseService<BillWarehouse> {
+
+
+	/**
+	*@auther:Chen
+	*@version:2019年5月28日上午9:31:31
+	*@param: trackBarcodeVo 追踪条码对象
+	*@description 扫描标签进行入库上架操作
+	*/
+	public TrackBarcode onBarcode(TrackBarcodeVo trackBarcodeVo, CommonParam commonParam) throws BusinessException, SQLException ;
+
+	/**
+	*@auther:Chen
+	*@version:2019年6月17日上午10:08:42
+	*@param trackBarcode   扫描标签封装对象
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description    扫描标签进行退料上架
+	*/
+	public TrackBarcode billReturnInput(TrackBarcode trackBarcode, CommonParam commonParam)
+			throws BusinessException, SQLException;
+
+	/**
+	*@auther:Chen
+	*@version:2019年7月9日下午2:06:12
+	*@param track
+	*@param commonParam
+	*@return
+	*@throws BusinessException
+	*@throws SQLException
+	*@description
+	*/
+	public TrackBarcode billSaleReturnInput(TrackBarcode track, CommonParam commonParam)
+			throws BusinessException, SQLException;
+	
+	
+
+}

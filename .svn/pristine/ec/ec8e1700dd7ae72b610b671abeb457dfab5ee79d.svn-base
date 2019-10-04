@@ -1,0 +1,46 @@
+package com.techsoft.entity.struct;
+
+import com.techsoft.entity.common.EquipFixture;
+import com.techsoft.entity.common.StructProcedureEquipFixture;
+import com.techsoft.entity.common.StructProcedureInstruct;
+import com.techsoft.entity.common.StructProcessNode;
+
+public class StructProcedureEquipFixtureVo extends StructProcedureEquipFixture {
+	private static final long serialVersionUID = 3857526070325084942L;
+	
+	private StructProcessNode structProcessNode;
+	private StructProcedureInstruct structProcedureInstruct;
+	private EquipFixture equipFixture;
+	
+
+	public StructProcessNode getStructProcessNode() {
+		return structProcessNode;
+	}
+
+	public void setStructProcessNode(StructProcessNode structProcessNode) {
+		this.structProcessNode = structProcessNode;
+	}
+
+	public StructProcedureInstruct getStructProcedureInstruct() {
+		return structProcedureInstruct;
+	}
+
+	public void setStructProcedureInstruct(StructProcedureInstruct structProcedureInstruct) {
+		this.structProcedureInstruct = structProcedureInstruct;
+	}
+
+	public EquipFixture getEquipFixture() {
+		return equipFixture;
+	}
+
+	public void setEquipFixture(EquipFixture equipFixture) {
+		this.equipFixture = equipFixture;
+	}
+
+	public StructProcedureEquipFixtureVo() {	
+	}
+	
+	public StructProcedureEquipFixtureVo(StructProcedureEquipFixture value) {
+		value.cloneProperties(this);
+	}		
+}

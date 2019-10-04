@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">生产管理</a> <a><cite>工作日历</cite></a>
+      </span>
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+         
+          <input type="hidden" name="factoryId" id="factoryId" placeholder="请选择工厂" autocomplete="off" class="layui-input">
+       	  <input type="text" name="factoryName" id="factoryName" placeholder="请选择工厂" autocomplete="off" class="layui-input">
+          <button class="layui-btn layui-btn-sm  " id="factorySearch" style="background-color: #009688;color:#FFFFFF" >
+		  <i class="layui-icon layui-icon-more" ></i>
+		  </button>
+          
+<!--           <input type="hidden" name="userId" id="userId" placeholder="请选择员工姓名" autocomplete="off" class="layui-input"> -->
+<!--        	  <input type="text" name="realName" id="realName" placeholder="请选择员工姓名" autocomplete="off" class="layui-input"> -->
+<!--            <button class="layui-btn layui-btn-sm  " id="firmEmployeeSearch" style="background-color: #009688;color:#FFFFFF" > -->
+<!-- 			<i class="layui-icon layui-icon-more" ></i> -->
+<!-- 		   </button> -->
+          <button type="reset" class="layui-btn layui-btn-sm  " id="reset" style="background-color: #009688;color:#FFFFFF">重置</button>  
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加工作日历信息','/work/workCalendar/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script>    
+
+ <script type="text/html" id="factoryNameTpl">
+	{{#  if(d.structFactory){}}
+		{{ d.structFactory.factoryName 
+
+ 	}}
+	{{# } }}
+</script>
+
+<script type="text/html" id="isVacation">
+  {{#  if(d.isVacation === '2'){ }}
+    <input type='checkbox' lay-skin='primary' disabled>
+  {{#  } else { }}
+	<input type='checkbox' lay-skin='primary' disabled checked>
+  {{#  } }}
+</script>
+
+<script type="text/html" id="isWork">
+  {{#  if(d.isWork === '2'){ }}
+    <input type='checkbox' lay-skin='primary' disabled>
+  {{#  } else { }}
+	<input type='checkbox' lay-skin='primary' disabled checked>
+  {{#  } }}
+</script>
+
+
+
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime() 
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/work/workCalendar/list/json'
+    	,cols: [[
+    	    {field:'id', width:100, title: 'ID',align:'center'}
+    	    ,{field:'factoryNameTpl', width:150, title: '工厂名称', align:'center',templet: '#factoryNameTpl'}
+    	    ,{field:'dates', width:150, title: '日期', align:'center'}
+    	    ,{field:'dateYear', width:100, title: '年', align:'center'}
+    	    ,{field:'dateMonth', width:100, title: '月', align:'center'}
+    	    ,{field:'dateDay', width:100, title: '日', align:'center'}
+    	    ,{field:'weekday', width:100, title: '星期', align:'center'}
+    	    ,{field:'periodtime', width:320, title: '时间段', align:'center'}
+    	    ,{field:'date_month', width:100, title: '假期', align:'center',templet: '#isVacation'}
+    	    ,{field:'date_month', width:100, title: '可生产', align:'center',templet: '#isVacation'}
+    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 100}
+    	    ,{field:'', width:'10%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+  	});
+	$('#reset').on('click',function(e){
+   		$("input").val("");
+   		$("select").val("");
+   	})
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+    $('#firmEmployeeSearch').on('click',function(e){
+		openWinSelect('/firm/firmEmployee/firmEmployeeOpen',"userId","realName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+   	
+   	$('#factorySearch').on('click',function(e){
+		openWinSelect('/struct/structFactory/structFactoryOpen',"factoryId","factoryName");
+   		e.preventDefault();//默认from表单提交时不刷新
+   	})
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑日历信息','/work/workCalendar/edit?id=' + data.id); 
+		}
+	});
+	
+	var tables = $("#listTable").next().find(".layui-table-box"); 
+	tables.find("[data-field='alarmGroupDictId']").css("display","none"); //data-field的值就是你想要隐藏的某一列的field 
+	tables.find("[data-field='userId']").css("display","none"); //data-field的值就是你想要隐藏的某一列的field 
+	
+
+});	
+</script>
+ 
+  </body>
+
+</html>

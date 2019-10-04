@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        <table class="layui-table ">
+            <tr>
+			 <td width="10%" class="tableleft">治具</td>
+               <td>
+                	<div class="div-choiceBox-intd ">   
+                		<input type="hidden"  id="fixtureId" name="fixtureId" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if entity??&&entity.fixtureId??>${entity.fixtureId?c}<#else></#if>">
+                		<input type="text" id="fixtureName" name="fixtureName" disabled="disabled" class="layui-input input-choiceBox-intd" value="">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="trackFixturSearch">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         	 	</div>
+               </td> 
+               
+               <td width="10%" class="tableleft">单据类型</td>
+               <td> 
+               <select id="billTypeFixtureDictId"  name="billTypeFixtureDictId" > 
+                        <option value="0">请选择</option>
+                    <#if billTypeFixtureList??>
+                     <#list billTypeFixtureList as item>
+                     	 <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if>
+			   </select>
+			   </td>
+             
+           </tr>
+           <tr>
+
+               <td width="15%" class="tableleft">单据ID</td>
+               <td> 
+                 <input type="text" name="billFixtureId"   class="layui-input" value="${(entity.billFixtureId)!''}"/>
+               </td>
+               
+                    <td width="15%" class="tableleft">单据明细ID</td>
+               <td> 
+                 <input type="text" name="billFixtureItemId"   class="layui-input" value="${(entity.billFixtureItemId)!''}"/>
+               </td>
+           </tr>
+           
+           <tr>
+               <td width="15%" class="tableleft">状态</td>
+               <td> 
+			       <select name="billStatusDictId">  
+                     <option value="">请选择</option>
+                     <#if trackStatusList??> 
+                      <#list trackStatusList as item>
+			            <option value="${item.id?c}" <#if (entity.billStatusDictId??&&entity.billStatusDictId==item.id)>selected="selected"</#if>>${item.dictName}</option> 
+			         </#list> 
+ 			         </#if> 
+ 			    </select>
+               </td>
+               
+               <td width="10%" class="tableleft">数量</td>
+               <td>
+                 <input type="text" name="quantity"   class="layui-input" />
+               </td>
+           </tr>
+           
+           <tr>
+               <td width="10%" class="tableleft">备注</td>
+               <td>
+                  <input type="text" name="remark"  class="layui-input" maxlength="20" value="${(entity.remark)!''}"/>
+               </td>
+               
+           </tr>
+           
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+      <div id="hidden1" lay-filter="hidden1" style="display: none">
+        <table id="label_result" lay-filter="label_result"></table>
+	  </div>
+    </div>
+    <!-- 添加 弹出治具表格的 tool（里面的按钮）-->
+<script type="text/html" id="labelSelect">
+     <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+</script>
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','laydate','layuiconfig','table','layuiformajax','layuitable'], function(){
+          $ = layui.jquery;
+          var form = layui.form,
+          layer = layui.layer,
+          layuitable=layui.layuitable,
+          table = layui.table,
+          layuiformajax = layui.layuiformajax;
+        
+        layuitable.render(label_result_table_options); //渲染数据给弹窗框表格， 
+  		table.on('tool(label_result)', label_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+      	$('#trackFixturSearch').focus(label_input_focus_handler);//点击触发弹窗按钮
+           
+     	
+         
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/track/trackFixture/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+      	    	   layer.alert("保存成功", {icon: 6},function () {
+      	                // 获得frame索引
+      	                var index = parent.layer.getFrameIndex(window.name);
+      				  	parent.location.reload(); 
+      	                parent.layer.close(index);
+      	            });
+      		  });
+      		  
+            return false;
+          });
+    });
+        //页面上隐藏的用于弹层的所有治具的列表的相关设置
+          var label_result_table_options = {
+          		elem: '#label_result'
+         	    	,id:'label_result'
+         	    	,url:'/equip/equipFixture/list/json'
+         	    	,cols: [[
+         	    	     {field:'id',title: '治具id',align:'center', width: 220}
+         	    	    ,{field:'fixtureName',  title: '治具名称',align:'center', width: 170}
+         	      		,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#labelSelect', fixed: 'right'}
+         	    	]]
+          	}
+       //点击查询模板弹窗触发该函数
+      	function label_input_focus_handler(){
+        	
+      		layer.open({
+      			type : 1
+      			, area : [ '650px', '500px' ]
+      			, content : $('#hidden1')
+      			, success : function () {
+      				// 重新加载表格中的数据
+      				table.reload('label_result', label_result_table_options);
+      				$('#hidden1').css('display', 'block');
+      			}
+      		});
+
+      	};
+      	//点击弹出的标签文档信息弹层上的表格中“选中”按钮的触发函数，回填input框
+      	function label_tool_event_handler(obj) {
+      		var data = obj.data;
+      		switch (obj.event) {
+      			case 'select':
+      				$('#fixtureId').val(data.id);
+      				$('#fixtureName').val(data.fixtureName);
+      			
+      				layer.close(layer.index);
+      					break;
+      		}
+      	}
+          
+       
+    </script>
+
+  </body>
+
+</html>

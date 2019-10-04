@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">设备管理</a> <a><cite>工具</cite></a>
+      </span>
+       <!--
+       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+       <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+       -->
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so layui-form-pane">
+          <select name="fixtureTypeDictId">    
+                <option value="">请选择工具类型</option> 
+                 <#if fixtureTypeDict??>
+                     <#list fixtureTypeDict as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <select name="correctTypeDictId">    
+                <option value="">请选择校正管控类型</option> 
+                 <#if correctTypeDict??>
+                     <#list correctTypeDict as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <select name="scrapTypeDictId">    
+                <option value="">请选择报废管控类型</option> 
+                 <#if scrapTypeDict??>
+                     <#list scrapTypeDict as item>
+			            <option value="${item.id?c}" >${item.dictName}</option>
+			         </#list>
+			         </#if> 
+          
+          </select>
+          <button class="layui-btn layui-btn-sm"  lay-submit lay-filter="search"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <!-- <button class="layui-btn" onclick="delAll()"><i class="layui-icon"></i>删除</button> -->
+        <button class="layui-btn layui-btn-sm" onclick="layer_window_show('添加工具管控','/equip/equipFixtureConfig/edit')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px"></span>
+      </xblock>
+       <div class="layui-col-md12">
+  	 			<div class="layui-row grid-demo">
+            		<div class="layui-col-md12" style="text-align: center;">
+        					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        			</div>
+        		</div>
+        </div>
+     
+     
+
+    </div>
+<script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="edit">编辑</a>
+</script> 
+
+<script type="text/html" id="fixtureTypeDictName">
+	{{#  if(d.configFixtureTypeDict){ }}
+		{{ d.configFixtureTypeDict.dictName 
+
+ }}
+{{#  } }}
+</script> 
+<script type="text/html" id="correctTypeDictName">
+	{{#  if(d.configCorrectTypeDict){ }}
+		{{ d.configCorrectTypeDict.dictName 
+
+ }}
+{{#  } }}
+</script>  
+<script type="text/html" id="scrapTypeDictName">
+	{{#  if(d.configScrapTypeDict){ }}
+		{{ d.configScrapTypeDict.dictName 
+
+ }}
+{{#  } }}
+</script> 
+
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime()
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/equip/equipFixtureConfig/list/json'
+    	,cols: [[
+    	    {field:'id', width:150, title: 'ID',align:'center'}
+    	    ,{field:'fixtureTypeDictId', width:150, title: '工具类型',align:'center'}
+    	    ,{field:'fixtureTypeDictName', width:150, title: '工具类型',align:'center',templet: '#fixtureTypeDictName'}
+    	    ,{field:'correctTypeDictId', width:150, title: '校正管控类型', align:'center'}
+    	    ,{field:'correctTypeDictName', width:150, title: '校正管控类型', align:'center',templet: '#correctTypeDictName'}
+    	    ,{field:'scrapTypeDictId',  title: '报废管控类型',align:'center', minWidth: 120}
+    	    ,{field:'scrapTypeDictName',  title: '报废管控类型',align:'center', minWidth: 150,templet: '#scrapTypeDictName'}
+    	    ,{field:'numberScrapPeriod',  title: '校正周期次数',align:'center', minWidth: 120,templet: '#fixtureStatusDictName'}
+    	    ,{field:'numberScrap',  title: '报废管控次数',align:'center', minWidth: 150}
+    	    ,{field:'numberDayScrap',  title: '报废管控时间(天)', align:'center',minWidth: 150}
+    	    ,{field:'remark',  title: '描述',align:'center', minWidth: 200}
+      		,{field:'', width:'25%', title: '操作', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+		,done: function () {
+	        $("[data-field='fixtureTypeDictId']").css('display','none');
+	        $("[data-field='correctTypeDictId']").css('display','none');
+	        $("[data-field='scrapTypeDictId']").css('display','none');
+	    }
+  	});
+	
+	form.on('submit(search)', function (data) {
+		layuitable.reload(data.field);
+        return false;
+  	});
+ 
+	
+	table.on('tool(tablefilter)', function(obj) {
+		var data = obj.data;
+		if (obj.event === 'edit') { 
+			layer_window_show('编辑工具管控','/equip/equipFixtureConfig/edit?id=' + data.id); 
+		}
+	});
+	
+});	
+</script>
+ 
+  </body>
+
+</html>

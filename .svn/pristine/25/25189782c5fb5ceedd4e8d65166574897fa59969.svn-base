@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<#include "../common-header.html"/>
+</head>
+<body>
+	<div class="x-nav">
+		<span class="layui-breadcrumb"> <a href="">仓库管理</a> <a><cite>仓库库存查询</cite></a>
+		</span>
+	</div>
+	<div class="x-body">
+		<div class="layui-row">
+			<form class="layui-form layui-col-md12 x-so">
+				<!--           <input class="layui-input" placeholder="开始时间" name="startTime" id="startTime"> -->
+				<!--           <input class="layui-input" placeholder="结束时间" name="endTime" id="endTime"> -->
+				<input type="hidden" name="productId" id="productId"placeholder="请选择产品" autocomplete="off" class="layui-input">
+				<input type="text" name="productName" id="productName"placeholder="请选择产品" autocomplete="off" class="layui-input">
+				<button class="layui-btn layui-btn-sm  " id="productSearch"style="background-color: #009688; color: #FFFFFF">
+					<i class="layui-icon layui-icon-more"></i>
+				</button>
+				
+				<input type="hidden" name="materialId" id="materialId"placeholder="请选择物料" autocomplete="off" class="layui-input">
+				<input type="text" name="materialName" id="materialName"placeholder="请选择产品规格" autocomplete="off" class="layui-input">
+				<button class="layui-btn layui-btn-sm  " id="materialSearch"style="background-color: #009688; color: #FFFFFF">
+					<i class="layui-icon layui-icon-more"></i>
+				</button>
+				
+				<input type="hidden" name="factoryId" id="factoryId"placeholder="请选择工厂id" autocomplete="off" class="layui-input">
+				<input type="text" name="factoryName" id="factoryName"placeholder="请选择工厂名称" autocomplete="off" class="layui-input">
+				<button class="layui-btn layui-btn-sm  " id="factorySearch"style="background-color: #009688; color: #FFFFFF">
+					<i class="layui-icon layui-icon-more"></i>
+				</button>
+				
+				<input type="hidden" name="warehouseId" id="warehouseId"placeholder="请选择仓库id" autocomplete="off" class="layui-input">
+				<input type="text" name="warehouseName" id="warehouseName"placeholder="请选择仓库名称" autocomplete="off" class="layui-input">
+				<button class="layui-btn layui-btn-sm  " id="warehouseSearch"style="background-color: #009688; color: #FFFFFF">
+					<i class="layui-icon layui-icon-more"></i>
+				</button>
+			 
+				<button type="reset" class="layui-btn layui-btn-sm" id="reset"style="background-color: #009688; color: #FFFFFF">重置</button>
+				<button class="layui-btn layui-btn-sm" lay-submitlay-filter="search">
+					<i class="layui-icon">&#xe615;</i>
+				</button>
+			</form>
+		</div>
+		
+		<div class="layui-col-md12">
+  	 		<div class="layui-row grid-demo">
+            	<div class="layui-col-md12" style="text-align: center;">
+        				<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+        		</div>
+        	</div>
+        </div>
+	</div>
+	<!-- 所属工厂 -->
+	<script type="text/html" id="factoryName2">
+		{{#  if(d.structFactory){ }}
+			{{ d.structFactory.factoryName}}
+		{{#  } }}
+	</script>
+	<!-- 产品编码 -->
+	<script type="text/html" id="productCode">
+		{{#  if(d.productMain){ }}
+			{{ d.productMain.productCode}}
+		{{#  } }}
+	</script>
+	<!-- 产品名称 -->
+	<script type="text/html" id="productName2">
+		{{#  if(d.productMain){ }}
+			{{ d.productMain.productName}}
+		{{#  } }}
+	</script>
+	<!-- 产品规格编码 -->
+	<script type="text/html" id="materialCode">
+		{{#  if(d.productMaterial){ }}
+			{{ d.productMaterial.materialCode  }}
+		{{#  } }}
+	</script>
+<!-- 产品规格名称 -->
+	<script type="text/html" id="materialName2">
+		{{#  if(d.productMaterial){ }}
+			{{ d.productMaterial.materialName }}
+		{{#  } }}
+	</script>
+<!-- 产品规格值 -->
+	<script type="text/html" id="sku">
+		{{#  if(d.productMaterialVo){ }}
+			{{ d.productMaterialVo.sku }}
+		{{#  } }}
+	</script>
+	
+	<script type="text/javascript">
+	layui.config({
+		base:'/static/plugins/layui/base/',
+		v:new Date().getTime()
+	}).use(['form','table','laydate','layuiconfig','layuiformajax','layuitable'],function(){
+		var form=layui.form;
+		var $=layui.jquery;
+		var table=layui.table;
+		var laydate=layui.laydate;
+		var layer=layui.layer;
+		var layuitable=layui.layuitable;
+		var layuiconfig=layui.layuiconfig;
+		var layuiformajax=layui.layuiformajax;
+		
+		layuitable.render({
+			elem:'#listTable',
+			id:'listTable',
+			url:'/warehouse/warehouseProductStock/list/json',
+			//url:'/warehouse/warehouseLocation/list/json',
+			cellMinWidth:100,
+			cols:[[
+				{field:'id',title:'ID',width:150,align:'center'}
+	    	    ,{field:'factoryName', width:150, title: '所属工厂', align:'center',templet: '#factoryName2'}
+	    	    ,{field:'productCode',  title: '产品编码',align:'center', minWidth: 120,templet:'#productCode'}
+	    	    ,{field:'productName',  title: '产品名称',align:'center', minWidth: 120,templet:'#productName2'}
+	    	    ,{field:'materialCode',  title: '产品规格编码',align:'center', minWidth: 120,templet:'#materialCode'}
+	    	    ,{field:'materialName',  title: '产品规格名称',align:'center', minWidth: 120,templet:'#materialName2'}
+	    	    ,{field:'sku', title: '产品规格值', align:'center',minWidth: 220,templet: '#sku'}
+	    	    ,{field:'quantityStock', width:150, title: '库存数量', align:'center'}
+	    	    ,{field:'quantityFrozen', width:150, title: '冻结数量', align:'center'}
+	    	    ,{field:'quantityOrder', width:150, title: '订购数量', align:'center'}
+	    	    ,{field:'remark',  title: '备注', align:'center'}
+	    	    ,{field:'createTime',  title: '创建时间', align:'center',minWidth: 200}
+	    	    ,{field:'modifyTime',  title: '更新时间', align:'center',minWidth: 200}
+	    	    ,{field:'createUserId',  title: '创建人', align:'center'}
+	    	    ,{field:'modifyUserId',  title: '更新人', align:'center'}
+			]]
+		})
+		
+		form.on('submit(search)', function (data) {
+			layuitable.reload(data.field);
+        	return false;
+  		});
+		
+		$('#materialSearch').on('click',function(e){
+			openWinSelect('/product/productMaterial/productMaterialOpen',"materialId","materialName");
+			e.preventDefault();//默认from表单提交时不刷新
+		}) 
+		$('#productSearch').on('click',function(e){
+			openWinSelect('/product/productMain/productMainOpen',"productId","productName");
+			e.preventDefault();//默认from表单提交时不刷新
+		}) 
+		$('#factorySearch').on('click',function(e){
+			openWinSelect('/struct/structFactory/structFactoryOpen',"factoryId","factoryName");
+			e.preventDefault();//默认from表单提交时不刷新
+		})
+		$('#warehouseSearch').on('click',function(e){
+			openWinSelect('/struct/structWarehouse/structWarehouseOpen',"warehouseId","warehouseName");
+			e.preventDefault();//默认from表单提交时不刷新
+		})
+		$('#rackSearch').on('click',function(e){
+			openWinSelect('/warehouse/warehouseRack/warehouseRackOpen',"rackId","rackName");
+			e.preventDefault();//默认from表单提交时不刷新
+		})
+		$('#locationSearch').on('click',function(e){
+			openWinSelect('/warehouse/warehouseLocation/warehouseLocationOpen',"locationId","locationName");
+			e.preventDefault();//默认from表单提交时不刷新
+		})
+		$('#reset').on('click',function(e){
+			$("input").val("");
+		}) 
+	})
+	</script>
+</body>
+</html>

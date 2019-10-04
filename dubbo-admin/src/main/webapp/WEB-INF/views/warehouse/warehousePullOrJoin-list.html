@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+  
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+    <script type="text/html" id="isValidTpl">
+    {{#  if(d.isValid == '1'){ }}
+		是
+	{{#  }else { }}
+		否
+	{{#  } }}
+  </script> 
+  
+  <style>
+  	#td1{
+  		font-weight: 900;
+  		color: black
+  	}
+  </style>
+  
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb"> 
+        <a href="">仓库管理</a> <a><cite>栈板拆除合并</cite></a>
+      </span>
+   
+    </div>
+    <div class="x-body">
+    
+       <div class="layui-row">
+  	 			<div class="layui-col-md12">
+            		<form class="layui-form layui-col-md12 x-so">
+            			<table class="layui-table">
+            				<tr>
+            					<td>
+            						<div class="layui-form-item">
+    									<label class="layui-form-label" style="width:120px">分拆对象：*</label>
+    									
+    										<div class="layui-input-inline">
+    											<select name="warehouse" lay-verify="required">
+											        <option value="栈板">栈板</option>
+											    </select>
+    										</div>
+    										<label class="layui-form-label" style="width:120px"></label>
+    										<div class="layui-input-inline">
+            			 						<input type="text" id="pullObject" style="width: 260px" placeholder="" autocomplete="off" class="layui-input">
+    										</div>
+    										
+  									</div>
+  									<div class="layui-form-item">
+    									<label class="layui-form-label" style="width:120px">是否产生新栈板</label>
+    										<div class="layui-input-inline">
+    											<select name="newhouse" lay-verify="required">
+											        <option value="1">是</option>
+											        <option value="2">否</option>
+											    </select>
+    										</div>
+    										
+    										<label class="layui-form-label" style="width:120px">新栈板编码</label>
+    										<div class="layui-input-inline">
+            			 						<input type="text" id="NewPalletCode" style="width: 260px" placeholder="" autocomplete="off" class="layui-input">
+    										</div>
+  									</div>
+  									
+  									<div class="layui-form-item">
+    									<label class="layui-form-label" style="width:120px">备注</label>
+    										<div class="layui-input-inline">
+            			 						<input type="text" id="remark" style="width: 150px" placeholder="" autocomplete="off" class="layui-input">
+    										</div>
+  									</div>
+            					</td>
+            				</tr>
+            			
+            				<tr>
+            					<td>
+            						<div class="layui-form-item">
+    									<label class="layui-form-label" style="width:120px">打印机名称：</label>
+    										<div class="layui-input-inline">
+    											<select name="printerName" >
+											      
+											    </select>
+    										</div>
+    									</div>
+    									<div class="layui-form-item">	
+    										<label class="layui-form-label" style="width:120px">拆除的箱数：</label>
+    										<div class="layui-input-inline">
+            			 						<input type="text" id="packbox" style="width: 150px" placeholder="" autocomplete="off" class="layui-input">
+    										</div>
+    										
+    										<label class="layui-form-label" style="width:120px">拆除的sn数：</label>
+    										<div class="layui-input-inline">
+            			 						<input type="text" id="quantitySn" style="width: 150px" placeholder="" autocomplete="off" class="layui-input">
+    										</div>
+    									</div>
+            					</td>
+            				</tr>
+            				<!-- <tr>
+            					<td>
+            						<label class="layui-form-label" style="width:120px">扫描拆分内容：*</label>
+            						<div class="layui-input-inline">
+            			 					<input type="text" name="scanPullContent" style="width: 260px" placeholder="" autocomplete="off" class="layui-input">
+    								</div>
+            					</td>
+            				</tr> -->
+            				<tr>
+            					<td id="td1">扫描的待拆分信息</td>
+            				</tr>
+            				<tr>
+            					<td><table class="layui-hide" id="pullTable" lay-filter="tablefilter"></table></td>
+            				</tr>
+            				<tr>
+		     					<td>
+		          					<button class="layui-btn" id="pull">确定拆分</button>
+		          				</td>
+	          				
+	          				</tr>
+  						</table>
+            		</form>
+        		</div>
+        		
+        </div>
+     
+     <div class="layui-row">
+     	<div class="layui-col-md12">
+     		<form class="layui-form layui-col-md12 x-so">
+     			<table class="layui-table">
+          			<tr>
+          				<td colspan="2" id="td1">
+          					栈板合并
+          				</td>
+          			</tr>
+          			<tr>
+          				<td>
+          					<label class="layui-form-label" style="width:120px">栈板号</label>
+            						<div class="layui-input-inline">
+            			 					<input type="text" id="warehouseNumber" style="width: 300px" placeholder="" autocomplete="off" class="layui-input">
+    								</div>
+          				</td>
+          				<td>
+          					<label class="layui-form-label" style="width:120px">待合并栈板号</label>
+            						<div class="layui-input-inline">
+            			 					<input type="text" id="joinWarehouseNumber" style="width: 300px" placeholder="" autocomplete="off" class="layui-input">
+    								</div>
+          				</td>
+          			</tr>
+          			<tr>
+          				<td id="td1">已包装箱明细</td>
+          				<td id="td1">待包装箱明细</td>
+          			</tr>
+          			<tr>
+          				<td>
+          					<table class="layui-hide" id="listTable" lay-filter="tablefilter"></table>
+          				</td>
+          					<td>
+          					<table class="layui-hide" id="listTable2" lay-filter="tablefilter"></table>
+          				</td>
+          			</tr>
+          			<tr>
+     					<td colspan="2">
+          					<button  class="layui-btn" id="join">确定合并</button>
+          				</td>
+          				
+          			</tr>
+          		</table>
+          	</form>
+        </div>
+     </div>
+
+    </div>
+    
+ <script type="text/html" id="barDemo">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="check">选择</a>
+</script>
+ <script type="text/html" id="barDemo1">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="check1">选择</a>
+</script>
+ <script type="text/html" id="barDemo2">	
+	<a class="layui-btn layui-btn-xs  layui-btn-normal" lay-event="check2">选择</a>
+</script>
+
+<script type="text/html" id="palletCode">
+	{{#  if(d.warehousePallet){ }}
+		{{ d.warehousePallet.palletCode 
+
+ }}
+{{#  } }}
+</script>
+<script type="text/html" id="palletStatusDictName">
+	{{#  if(d.configDictionary){ }}
+		{{ d.configDictionary.dictName 
+
+ }}
+{{#  } }}
+</script>
+<script type="text/javascript">
+layui.config({
+    base: '/static/plugins/layui/base/',
+    v: new Date().getTime() 
+}).use([ 'form','table','laydate','layuiconfig','layuiformajax','layuitable','layer'], function(){
+	var form = layui.form, 
+	$ = layui.jquery, table = layui.table,  laydate = layui.laydate,
+	layer = layui.layer,  layuitable = layui.layuitable,layuiconfig = layui.layuiconfig;
+	var layuiformajax = layui.layuiformajax;
+	
+ 	var curTable = layuitable.render({
+    	elem: '#listTable'
+    	,id:'listTable'
+    	,url:'/warehouse/warehousePallet/list/json'
+    	,cols: [[
+    	         {field:'id', width:120, title: '栈板号',align:'center'}
+    	    	    ,{field:'quantityPackbox',  title: '箱数', align:'center'}
+    	    	    ,{field:'quantitySn',  title: 'SN数', align:'center'}
+    	    	    ,{field:'palletCode',  title: '栈板编码', align:'center'}
+    	    	    ,{field:'palletStatusDictName', width:150, title: '栈板状态', align:'center',templet: '#palletStatusDictName'}
+    	    	    ,{field:'', width:'10%', title: '选择', align:'center', toolbar: '#barDemo2', fixed: 'right'}
+    	]]
+  	});
+	
+ 	 var curTable2 = layuitable.render({
+    	elem: '#listTable2'
+    	,id:'listTable2'
+    	,url:'/warehouse/warehousePallet/list/json'
+    	,cols: [[
+    	         {field:'id', width:120, title: '栈板号',align:'center'}
+    	    	    ,{field:'quantityPackbox',  title: '箱数', align:'center'}
+    	    	    ,{field:'quantitySn',  title: 'SN数', align:'center'}
+    	    	    ,{field:'palletCode',  title: '栈板编码', align:'center'}
+    	    	    ,{field:'palletStatusDictName', width:150, title: '栈板状态', align:'center',templet: '#palletStatusDictName'}
+    	    	    ,{field:'', width:'10%', title: '选择', align:'center', toolbar: '#barDemo1', fixed: 'right'}
+    	]]
+  	}); 
+ 	
+ 	 var curTable3 = layuitable.render({
+    	elem: '#pullTable'
+    	,id:'pullTable'
+    	,url:'/warehouse/warehousePallet/list/json'
+    	,cols: [[
+    	    {field:'id', width:120, title: '栈板号',align:'center'}
+    	    ,{field:'quantityPackbox',  title: '箱数', align:'center'}
+    	    ,{field:'quantitySn',  title: 'SN数', align:'center'}
+    	    ,{field:'palletCode',  title: '栈板编码', align:'center'}
+    	    ,{field:'palletStatusDictName', width:150, title: '栈板状态', align:'center',templet: '#palletStatusDictName'}
+    	    ,{field:'', width:'10%', title: '选择', align:'center', toolbar: '#barDemo', fixed: 'right'}
+    	]]
+  	}); 
+ 	//确定合并
+ 	 $("#join").click(function(){
+ 		 var palletId1=$("#warehouseNumber").val();//栈板号
+	     var palletId2=$("#joinWarehouseNumber").val();//待合并栈板号
+ 		$.ajax({ 
+    		 url:'/warehouse/warehousePullOrJoin/join?palletId='+palletId1+'&waitPalletId='+palletId2, 
+			 type: "post", 
+			 dataType: "json",
+					 success: function (res) {
+						 	if(res.isSuccess) {
+						 		layer.alert("合并成功", {icon: 6},function () {
+			      	                // 获得frame索引
+			      				  	location.reload(); 
+			      	                layer.close();
+			      	            });
+						 	} else{
+						 		layer.alert("合并失败", {icon: 6},function () {
+			      	                // 获得frame索引
+			      				  	location.reload(); 
+			      	                layer.close();
+			      	            });
+						 	} 
+					}
+				});
+ 		return false;
+     })
+     
+	//确定拆分
+	$("#pull").click(function(){
+		var palletId=$("#pullObject").val();//拆分栈板号
+		var packbox=$("#packbox").val();//拆分箱数
+		var palletCode=$("#NewPalletCode").val();//栈板编码
+		var quantitySn=$("#quantitySn").val();//sn数
+		var remark = $("#remark").val();
+		$.ajax({ 
+   		 url:'/warehouse/warehousePullOrJoin/pull', 
+			 type: "post", 
+			 data: {palletId:palletId, packbox:packbox, palletCode:palletCode, quantitySn:quantitySn, remark: remark},
+			 dataType: "json",
+					 success: function (res) {
+						 	if(res.isSuccess) {
+						 		layer.alert("拆除成功", {icon: 6},function () {
+			      	                // 获得frame索引
+			      				  	location.reload(); 
+			      	                layer.close();
+			      	            });
+						 	}else{
+						 		layer.alert("拆除失败", {icon: 6},function () {
+			      	                // 获得frame索引
+			      				  	location.reload(); 
+			      	                layer.close();
+			      	            });
+						 	}
+					}
+				});
+		return false;
+  	});
+ 	
+ 	table.on('tool(tablefilter)',function(obj){
+ 		var data= obj.data;
+ 		if(obj.event === 'check') {
+ 			$("#pullObject").val(data.id);
+ 		}else if(obj.event === 'check1') {
+ 			$("#joinWarehouseNumber").val(data.id);
+ 		}else {
+ 			$("#warehouseNumber").val(data.id);
+ 		}
+ 	})
+});	
+</script>
+ 
+  </body>
+
+</html>

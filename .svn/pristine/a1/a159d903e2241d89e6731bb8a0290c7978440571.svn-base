@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<#include "../common-header.html"/>
+  </head>
+  
+  <body>
+    <div class="x-body">
+      <form id="dataForm"  method="post" class="layui-form">
+        <input type="hidden"  id="id"  name="id" value="<#if entity??&&entity.id??>${entity.id?c}<#else></#if>" />
+        <input type="hidden"  id="version"  name="version" value="<#if entity??&&entity.version??>${entity.version?c}<#else></#if>" />
+        
+        <table class="layui-table ">
+           <tr>
+             <td width="15%" class="tableleft">功能定义类型</td>
+            
+              	<td>
+               	<select name="labelFunctionTypeDictId" lay-filter="labelFunctionTypeDict"> 
+               	 <option value="0" >请选择</option>
+                   <#if dictionaryListType??>
+                    <#list dictionaryListType as item>
+		            <option value="${item.id?c}" <#if (entity.labelFunctionTypeDictId??&&entity.labelFunctionTypeDictId==item.id)>selected="selected"</#if>>${item.dictName}</option>
+		         </#list>
+		         </#if>
+		        </select>
+             </td>
+             <td width="15%" class="tableleft">是否有效</td>
+               <td>
+                <select name="isValid">
+				   <#if mapYesOrNo??>
+					  <#list mapYesOrNo?keys as testKey>
+						<option value="${testKey}" <#if (entity??&&entity.isValid??&&entity.isValid==testKey)>selected</#if> >${mapYesOrNo[testKey]}</option>
+					  </#list>
+				   </#if> 
+			    </select>
+              </td>
+           </tr>
+           <tr id="trTable">
+           	 <td width="15%" class="tableleft">数据表</td>
+               <td>
+		       		<div class="div-choiceBox-intd ">
+	             		<input type="hidden"  id="tableObjectId"  name="tableObjectId" value="<#if entity??&&entity.tableObjectId??>${entity.tableObjectId?c}<#else></#if>" />  
+		          		<input type="text" id="tableObjectNameCn" name="tableObjectNameCn" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if tableObject??&&tableObject.tableObjectNameCn??>${tableObject.tableObjectNameCn}<#else></#if>">
+		          		<!-- <button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="searchObj">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button> -->
+	         		</div> 
+               </td>               
+               <td width="15%" class="tableleft">数据表名称</td>
+              	<td>
+			        <div class="div-choiceBox-intd ">
+	             		<input type="hidden"  id="tableFieldId"  name="tableFieldId" value="<#if entity??&&entity.tableFieldId??>${entity.tableFieldId?c}<#else></#if>" />  
+		          		<input type="text" id="tableObjectFieldCn" name="tableObjectFieldCn" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if tableField??&&tableField.tableObjectFieldCn??>${tableField.tableObjectFieldCn}<#else></#if>">
+		          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="searchField">
+		          			<i class="layui-icon layui-icon-more"></i>
+		          		</button>
+	         		</div>
+             </td>
+           </tr>
+           <tr id="trValue">
+             <td id="td1" width="15%" class="tableleft">值</td>
+               <td id="td2">
+               	<input type="text" name="value" class="layui-input" maxlength="20" value="${(entity.value)!''}"/>
+             </td> 
+           	 <td id="td3" width="15%" class="tableleft">序列号</td>
+           	 <td id="td4">		
+             	<div class="div-choiceBox-intd ">
+             		<input type="hidden"  id="serialId"  name="serialId" value="<#if entity??&&entity.serialId??>${entity.serialId?c}<#else></#if>" />  
+	          		<input type="text" id="serialName" name="serialName" disabled="disabled" class="layui-input input-choiceBox-intd" value="<#if serialNum??&&serialNum.serialName??>${serialNum.serialName}<#else></#if>">
+	          		<button class="layui-btn  layui-btn-primary btn-choiceBox-intd" id="search">
+	          			<i class="layui-icon layui-icon-more"></i>
+	          		</button>
+         		</div>  
+             </td> 
+           </tr>
+           
+           <tr>
+            <td colspan="4"  style="text-align:center">
+               <button class="layui-btn" lay-submit="" lay-filter="save">保存</button>	
+            </td>
+           </tr>
+       </table>  
+      </form>
+      <div id="hidden1" lay-filter="hidden1" style="display: none">
+      	<div class="layui-row">
+	        <form class="layui-form layui-col-md12 x-so">
+	          <input type="text" name="serialName"  placeholder="序列号" autocomplete="off" class="layui-input">
+	          <button class="layui-btn"  lay-submit lay-filter="search1"><i class="layui-icon">&#xe615;</i></button>
+	        </form>
+        </div>
+        <table id="material_result" lay-filter="material_result"></table>
+	  </div>
+	  <!-- <div id="hiddenObj" lay-filter="hiddenObj" style="display: none">
+      	<div class="layui-row">
+	        <form class="layui-form layui-col-md12 x-so">
+	          <input type="text" name="tableObjectNameCn"  placeholder="表名称" autocomplete="off" class="layui-input">
+	          <button class="layui-btn"  lay-submit lay-filter="searchObj1"><i class="layui-icon">&#xe615;</i></button>
+	        </form>
+        </div>
+        <table id="material_resultObj" lay-filter="material_resultObj"></table>
+	  </div> -->
+	  <div id="hiddenField" lay-filter="hiddenField" style="display: none">
+      	<div class="layui-row">
+	        <form class="layui-form layui-col-md12 x-so">
+	          <input type="text" name="tableObjectFieldCn"  placeholder="表字段名称" autocomplete="off" class="layui-input">
+	          <button class="layui-btn"  lay-submit lay-filter="searchField1"><i class="layui-icon">&#xe615;</i></button>
+	        </form>
+        </div>
+        <table id="material_resultField" lay-filter="material_resultField"></table>
+	  </div>
+    </div>
+    
+    <!-- 添加 弹出物料表格的 tool（里面的按钮）-->
+	<script type="text/html" id="materialSelect">
+     <a class="layui-btn layui-btn-xs" lay-event="select">选择</a>
+	</script>
+	<script type="text/html" id="materialSelectObj">
+     <a class="layui-btn layui-btn-xs" lay-event="selectObj">选择</a>
+	</script>
+	<script type="text/html" id="materialSelectField">
+     <a class="layui-btn layui-btn-xs" lay-event="selectField">选择</a>
+	</script>
+    
+    <script type="text/html" id="tableObjectName">
+	    {{#  if(d.configTableObject){ }}
+		    {{ d.configTableObject.tableObjectNameCn 
+
+        }}
+        {{#  } }}
+	</script> 
+    
+    <script>
+    layui.config({
+        base: '/static/plugins/layui/base/',
+        v: new Date().getTime()
+    }).use([ 'form','table','layer','layuiconfig','layuiformajax','layuitable'], function(){
+          $ = layui.jquery,  laydate = layui.laydate , table = layui.table , layuitable = layui.layuitable, layuitableField = layui.layuitable;
+          var form = layui.form,layer = layui.layer;
+          var layuiformajax = layui.layuiformajax;
+        
+          //监听 功能定义类型 下拉框值发生变化
+          form.on('select(labelFunctionTypeDict)', function(data){
+              selectHS(data.value);
+          });
+          
+          //序列号
+          layuitable.render(material_result_table_options); //渲染数据给弹窗框表格， 
+          table.on('tool(material_result)', material_tool_event_handler); // 为页面上的table上的tool绑定事件处理函数
+          $('#search').focus(material_input_focus_handler);//点击触发弹窗按钮
+          
+          /* //表名称
+          layuitableObj.render(material_result_table_options_Obj); //渲染数据给弹窗框表格， 
+          table.on('tool(material_resultObj)', material_tool_event_handler_Obj); // 为页面上的table上的tool绑定事件处理函数
+          $('#searchObj').focus(material_input_focus_handler_Obj);//点击触发弹窗按钮 */
+          
+          //表字段
+          layuitableField.render(material_result_table_options_Field); //渲染数据给弹窗框表格， 
+          table.on('tool(material_resultField)', material_tool_event_handler_Field); // 为页面上的table上的tool绑定事件处理函数
+          $('#searchField').focus(material_input_focus_handler_Field);//点击触发弹窗按钮
+          
+          form.on('submit(search1)', function (data) {
+      		  layuitable.reload(data.field);
+              return false;
+          }); 
+          /* form.on('submit(searchObj1)', function (data) {
+        	  layuitableObj.reload(data.field);
+              return false;
+          });  */
+          form.on('submit(searchField1)', function (data) {
+        	  $('#searchField').focus(material_input_focus_handler_Field);
+        	  layuitableField.reload(data.field);
+              return false;
+          });
+          
+          var url = $(window.parent.document).find("iframe").attr("src");
+	   	  var arr = url.split('=');
+	      var labelFunctionTypeDictId = arr[2];
+	      if(JSON.stringify(${entity}) != "{}"){//修改
+	    	  selectHS(labelFunctionTypeDictId);
+	      }else{
+	    	  selectHS('10501');
+	      }
+          
+          //监听提交
+          form.on('submit(save)', function(data){
+        	  console.log(data.field);
+        	  var url = '/config/configLabelFunction/save';
+        	  layuiformajax.postJson(url, data.field, function (result) {
+	      	    	 if (result.isSuccess) {
+	         	    	   layer.alert("保存成功", {icon: 6},function () {
+	       	                // 获得frame索引
+	       	                var index = parent.layer.getFrameIndex(window.name);
+	       				  	parent.location.reload(); 
+	       	                parent.layer.close(index);
+	       	            });	
+	      			}else{
+	      				layer.alert(result.message, {
+	      					icon : 2
+	      				});
+	      			}
+      		  });
+      		  
+            return false;
+          });
+          
+        });
+    
+    	/*========================序列号弹框================================*/
+	    //页面上隐藏的用于弹层的所有序列号列表的相关设置
+	    var material_result_table_options = {
+	    		elem: '#material_result'
+	   	    	,id:'material_result'
+	   	    	,url:'/config/configSerialNumber/list/json'
+		    	,cols: [[
+		    	     {field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+		    	    ,{field:'serialName',  title: '序列号名称',align:'center',width:190}
+		    	    //,{field:'remark',  title: '备注', align:'center',width:200}
+		    	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#materialSelect', fixed: 'right'}
+		    	]]
+	    };
+	    //点击查询序列号触发该函数
+		function material_input_focus_handler(){
+			layer.open({
+				type : 1
+				, area : [ '650px', '500px' ]
+				, content : $('#hidden1')
+				, success : function () {
+					// 重新加载表格中的数据
+					table.reload('material_result', material_result_table_options);
+					$('#hidden1').css('display', 'block');
+				}
+			});
+	
+		}
+		//点击弹出的“物料信息”弹层上的表格中“选中”按钮的触发函数，回填input框
+		function material_tool_event_handler(obj) {
+			var data = obj.data;
+			switch (obj.event) {
+				case 'select':
+					$('#serialId').val(data.id);
+					$('#serialName').val(data.serialName);
+					layer.close(layer.index);
+						break;
+			}
+		}
+    
+		/*========================表名称弹框================================*/
+	    //页面上隐藏的用于弹层的所有序列号列表的相关设置
+	    /* var material_result_table_options_Obj = {
+	    		elem: '#material_resultObj'
+	   	    	,id:'material_resultObj'
+	   	    	,url:'/config/configTableObject/list/json'
+		    	,cols: [[
+					{field:'id', width:120, title: 'ID',align:'center'}
+					,{field:'tableObjectName', width:160, title: '数据表对象名称',align:'center'}
+					,{field:'tableObjectNameCn', width:160, title: '数据表对象中文名称',align:'center'}
+		    	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#materialSelectObj', fixed: 'right'}
+		    	]]
+	    };
+	    //点击查询表名称触发该函数
+		function material_input_focus_handler_Obj(){
+			layer.open({
+				type : 1
+				, area : [ '650px', '500px' ]
+				, content : $('#hiddenObj')
+				, success : function () {
+					// 重新加载表格中的数据
+					table.reload('material_resultObj', material_result_table_options_Obj);
+					$('#hiddenObj').css('display', 'block');
+				}
+			});
+	
+		}
+		//点击表格中“选中”按钮的触发函数，回填input框
+		function material_tool_event_handler_Obj(obj) {
+			var data = obj.data;
+			switch (obj.event) {
+				case 'selectObj':
+					$('#tableObjectId').val(data.id);
+					$('#tableObjectNameCn').val(data.tableObjectNameCn);
+					layer.close(layer.index);
+						break;
+			}
+		} */
+		
+		/*========================表字段弹框================================*/
+	    //页面上隐藏的用于弹层的所有序列号列表的相关设置
+	    var material_result_table_options_Field = {
+	    		elem: '#material_resultField'
+	   	    	,id:'material_resultField'
+	   	    	,url:'/config/configTableField/list/json'
+		    	,cols: [[
+					{field:'id', width:120, title: 'ID',align:'center',fixed:'left'}
+					,{field:'tableObjectId', width:160, title: '数据表对象',align:'center'}
+			    	,{field:'tableObjectName', width:160, title: '数据表对象',align:'center',templet: '#tableObjectName'}
+					,{field:'tableObjectField', width:200, title: '数据表字段属性名称',align:'center'}
+					,{field:'tableObjectFieldCn', width:200, title: '数据表字段属性中文名称',align:'center'}
+		    	    ,{field:'', width:'20%', title: '操作', align:'center', toolbar: '#materialSelectField', fixed: 'right'}
+		    	]]
+				,done: function () {
+			        $("[data-field='tableObjectId']").css('display','none');
+			        $("[data-field='tableObjectField']").css('display','none');
+			    }
+	    };
+	    //点击查询表字段触发该函数
+		function material_input_focus_handler_Field(){
+			layer.open({
+				type : 1
+				, area : [ '650px', '500px' ]
+				, content : $('#hiddenField')
+				, success : function () {
+					// 重新加载表格中的数据
+					table.reload('material_resultField', material_result_table_options_Field);
+					$('#hiddenField').css('display', 'block');
+				}
+			});
+	
+		}
+		//点击表格中“选中”按钮的触发函数，回填input框
+		function material_tool_event_handler_Field(obj) {
+			var data = obj.data;
+			switch (obj.event) {
+				case 'selectField':
+					$('#tableFieldId').val(data.id);
+					$('#tableObjectFieldCn').val(data.tableObjectFieldCn);
+					$('#tableObjectId').val(data.tableObjectId);
+					$('#tableObjectNameCn').val(data.configTableObject.tableObjectNameCn);
+					layer.close(layer.index);
+						break;
+			}
+		}
+		
+	    function selectHS(value){
+	 		if(value=='10501'){//序列号
+	     		$("#trValue,#td3,#td4").show();
+	     		$("#trTable,#td1,#td2").hide();
+	     		$("#trTable input").val('');
+	     		$("#td2 input").val('');
+	     	}else if(value=='10502' || value=='10503'){//固定值、日期
+	     		$("#trValue,#td1,#td2").show();
+	     		$("#trTable,#td3,#td4").hide();
+	     		$("#trTable input").val('');
+	     		$("#td4 input").val('');
+	     	}else if(value=='10504'){//数据表对象
+	     		$("#trTable").show();
+	     		$("#trValue").hide();
+	     		$("#trValue input").val('');
+	     	}
+	  	}
+    </script>
+  </body>
+
+</html>

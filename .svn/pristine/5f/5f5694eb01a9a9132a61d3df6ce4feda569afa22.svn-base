@@ -1,0 +1,13 @@
+package com.techsoft.mapper.track;
+
+import java.util.List;
+
+import com.techsoft.common.BaseMapper;
+import com.techsoft.entity.common.TrackBarcode;
+
+public interface TrackBarcodeMapper extends BaseMapper<TrackBarcode> {
+
+	public int insertBatchSn(List<TrackBarcode> listsns);
+	
+	public int updateBatchTrack(List<TrackBarcode> list);
+}

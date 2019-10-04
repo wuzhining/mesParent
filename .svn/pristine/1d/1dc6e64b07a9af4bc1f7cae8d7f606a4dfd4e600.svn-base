@@ -1,0 +1,204 @@
+package com.techsoft.controller.equip;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageInfo;
+import com.techsoft.client.service.config.ClientConfigDictionaryService;
+import com.techsoft.client.service.equip.ClientEquipFixtureService;
+import com.techsoft.client.service.equip.ClientEquipSpecsFixtureService;
+import com.techsoft.client.service.firm.ClientFirmEmployeeService;
+import com.techsoft.client.service.firm.ClientFirmPartnerService;
+import com.techsoft.client.service.struct.ClientStructWarehouseService;
+import com.techsoft.common.BusinessException;
+import com.techsoft.common.SQLException;
+import com.techsoft.common.constants.Constants;
+import com.techsoft.common.enums.EnumDictionary;
+import com.techsoft.common.maps.MapYesOrNo;
+import com.techsoft.common.persistence.ResultMessage;
+import com.techsoft.common.persistence.ReturnPageInfo;
+import com.techsoft.controller.BaseController;
+import com.techsoft.entity.common.ConfigDictionary;
+import com.techsoft.entity.common.EquipSpecsFixture;
+import com.techsoft.entity.common.FirmEmployee;
+import com.techsoft.entity.common.FirmPartner;
+import com.techsoft.entity.common.StructWarehouse;
+import com.techsoft.entity.equip.EquipFixtureParamVo;
+import com.techsoft.entity.equip.EquipFixtureVo;
+import com.techsoft.entity.equip.EquipSpecsFixtureParamVo;
+import com.techsoft.entity.equip.EquipSpecsFixtureVo;
+import com.techsoft.entity.firm.FirmEmployeeParamVo;
+import com.techsoft.entity.firm.FirmPartnerParamVo;
+import com.techsoft.entity.struct.StructWarehouseParamVo;
+
+@Controller
+@RequestMapping("/equip/equipFixture")
+public class EquipFixtureController extends BaseController {
+	@Autowired
+	private ClientEquipFixtureService clientEquipFixtureService;
+	@Autowired
+	private ClientConfigDictionaryService clientConfigDictionaryService;
+	@Autowired
+	private ClientStructWarehouseService clientStructWarehouseService;
+	@Autowired
+	private ClientFirmPartnerService clientFirmPartnerService;
+	@Autowired
+	private ClientFirmEmployeeService clientFirmEmployeeService;
+	@Autowired
+	private ClientEquipSpecsFixtureService clientEquipSpecsFixtureService;
+
+	/**
+	 * 页面关联数据初始化
+	 * 
+	 * @param modelAndView
+	 */
+	public void initData(ModelAndView modelAndView) {
+		try {
+			// 取仓库集合
+			StructWarehouseParamVo ParamVowarehosue = new StructWarehouseParamVo();
+			List<StructWarehouse> warehouseList = clientStructWarehouseService.selectListByParamVo(ParamVowarehosue,
+					this.getCommonParam(null));
+			modelAndView.addObject("warehouseList", warehouseList);
+
+			// 取供应商集合
+			FirmPartnerParamVo firmPartnerParamVo = new FirmPartnerParamVo();
+			List<FirmPartner> firmPartner = clientFirmPartnerService.selectListByParamVo(firmPartnerParamVo,
+					this.getCommonParam(null));
+			List<FirmPartner> firmPartner3 = new ArrayList<FirmPartner>();
+			for (FirmPartner firmPartner2 : firmPartner) {
+				if (firmPartner2.getPartnerTypeDictId() == 10313) {// 得到供应商
+					firmPartner3.add(firmPartner2);
+				}
+			}
+			modelAndView.addObject("firmPartner", firmPartner3);
+
+			// 取治具状态集合
+			List<ConfigDictionary> fixtureStatus = clientConfigDictionaryService
+					.selectListByParentId(EnumDictionary.FIXTURE_STATUS.getValue());
+			modelAndView.addObject("fixtureStatus", fixtureStatus);
+
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		modelAndView.addObject("mapYesOrNo", MapYesOrNo.getMap());
+	}
+
+	@RequestMapping("/list")
+	public ModelAndView list(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("equip/equipFixture-list");
+		return modelAndView;
+	}
+
+	@RequestMapping("/edit")
+	public ModelAndView edit(HttpServletRequest request, Long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		try {
+
+			EquipSpecsFixtureParamVo equipSpecsFixtureParamVo = new EquipSpecsFixtureParamVo();
+			List<EquipSpecsFixture> equipSpecsFixtureList = clientEquipSpecsFixtureService
+					.selectListByParamVo(equipSpecsFixtureParamVo, this.getCommonParam(null));
+			modelAndView.addObject("equipSpecsFixtureList", equipSpecsFixtureList);
+
+			// 取仓库集合
+			StructWarehouseParamVo ParamVowarehosue = new StructWarehouseParamVo();
+			List<StructWarehouse> warehouseList = clientStructWarehouseService.selectListByParamVo(ParamVowarehosue,
+					this.getCommonParam(null));
+			modelAndView.addObject("warehouseList", warehouseList);
+
+			// 取员工集合
+			FirmEmployeeParamVo firmEmployeeParamVo = new FirmEmployeeParamVo();
+			List<FirmEmployee> fEmployees = clientFirmEmployeeService.selectListByParamVo(firmEmployeeParamVo,
+					this.getCommonParam(null));
+			modelAndView.addObject("fEmployees", fEmployees);
+
+			// 取供应商集合
+			FirmPartnerParamVo firmPartnerParamVo = new FirmPartnerParamVo();
+			List<FirmPartner> firmPartner = clientFirmPartnerService.selectListByParamVo(firmPartnerParamVo,
+					this.getCommonParam(null));
+			List<FirmPartner> firmPartner3 = new ArrayList<FirmPartner>();
+			for (FirmPartner firmPartner2 : firmPartner) {
+				if (firmPartner2.getPartnerTypeDictId() == 10313) {// 得到供应商
+					firmPartner3.add(firmPartner2);
+				}
+			}
+			modelAndView.addObject("firmPartner", firmPartner3);
+
+			// 取治具类型集合
+			List<ConfigDictionary> fixtureType = clientConfigDictionaryService
+					.selectListByParentId(EnumDictionary.FIXTURE_TYPE.getValue());
+			modelAndView.addObject("fixtureType", fixtureType);
+
+			// 取治具状态集合
+			List<ConfigDictionary> fixtureStatus = clientConfigDictionaryService
+					.selectListByParentId(EnumDictionary.FIXTURE_STATUS.getValue());
+			modelAndView.addObject("fixtureStatus", fixtureStatus);
+			EquipFixtureVo entity = new EquipFixtureVo();
+			if (id != null) {
+				entity = clientEquipFixtureService.getVoByID(id, this.getCommonParam(request));
+			}
+			modelAndView.addObject("entity", entity);
+			modelAndView.setViewName("equip/equipFixture-edit");
+			initData(modelAndView);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+
+	@ResponseBody
+	@RequestMapping("/list/json")
+	@SuppressWarnings("rawtypes")
+	public ReturnPageInfo listJson(HttpServletRequest request, EquipFixtureParamVo equipFixtureParamVo,
+			Integer pageIndex, Integer pageSize) {
+		PageInfo pageInfo = null;
+		Integer pageNumber = 0;
+		if (pageSize != null) {
+			pageNumber = pageSize;
+		} else {
+			pageNumber = Constants.SEARCH_PAGE_SIZE;
+		}
+		try {
+			if (equipFixtureParamVo == null) {
+				equipFixtureParamVo = new EquipFixtureParamVo();
+			}
+			pageInfo = clientEquipFixtureService.selectPageVoByParamVo(equipFixtureParamVo,
+					this.getCommonParam(request), pageIndex, pageNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+		return new ReturnPageInfo(pageInfo);
+	}
+
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ResponseBody
+	public ResultMessage save(HttpServletRequest request, EquipFixtureParamVo equipFixtureParamVo) {
+		ResultMessage resultMessage = new ResultMessage();
+
+		equipFixtureParamVo.setModifyUserId(getLoginUserId(request));
+		resultMessage = clientEquipFixtureService.saveOrUpdate(equipFixtureParamVo, this.getCommonParam(request));
+
+		return resultMessage;
+	}
+
+	@RequestMapping("/listEquipFixture")
+	public ModelAndView lineProcess(HttpServletRequest request) {
+		ModelAndView modelAndView = new ModelAndView();
+		initData(modelAndView);
+		modelAndView.setViewName("struct/structProcedureEquipFixture-fixture");
+		return modelAndView;
+	}
+
+}
