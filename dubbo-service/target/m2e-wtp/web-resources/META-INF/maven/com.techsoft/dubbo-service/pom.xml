@@ -53,6 +53,11 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysql.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>7.1.2.jre8-preview</version>
+		</dependency>
 		<!-- spring与mybatis结合包 -->
 		<dependency>
 			<groupId>org.mybatis</groupId>
@@ -80,10 +85,6 @@
 			<properties>
 				<env>dev</env>
 			</properties>
-			<activation>
-				<!-- 默认激活该profile节点 -->
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<build>
 				<resources>
 					<resource>
@@ -129,6 +130,27 @@
 				</resources>
 			</build>
 		</profile>
+		<profile>
+			<!-- 生产环境 -->
+			<id>sqlserver</id>
+			<properties>
+				<env>sqlserver</env>
+			</properties>
+			<activation>
+				<!-- 默认激活该profile节点 -->
+				<activeByDefault>true</activeByDefault>
+			</activation>			
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources_env/sqlserver</directory>
+					</resource>
+					<resource>
+						<directory>src/main/resources</directory>
+					</resource>
+				</resources>
+			</build>
+		</profile>		
 	</profiles>
 
 	<build>
