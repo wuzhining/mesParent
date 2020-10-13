@@ -29,7 +29,7 @@
 		<asm.version>7.0</asm.version>
 		<audience-annotations.version>0.8.0</audience-annotations.version>
 		<javassist.version>3.24.1-GA</javassist.version>
-		<junit.version>3.8.1</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<servlet.version>2.5</servlet.version>
 	</properties>
 
